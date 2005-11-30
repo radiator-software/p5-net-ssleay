@@ -47,6 +47,7 @@
 # 17.8.2003, added http support :-) --Sampo
 # 17.8.2003, started 1.25 dev --Sampo
 # 30.11.2006, Applied a patch by Peter Behroozi that adds get1_session() for session caching --Florian
+# 30.11.2006, Applied a patch by ex8k-hbn@asahi-net.or.jp that limits the chunk size for tcp_read_all --Florian
 #
 # The distribution and use of this module are subject to the conditions
 # listed in LICENSE file at the root of OpenSSL-0.9.7b
