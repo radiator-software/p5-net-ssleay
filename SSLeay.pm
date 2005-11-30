@@ -46,8 +46,9 @@
 #            Kim Minh Kaplan <kmkaplan@selfoffice._com>
 # 17.8.2003, added http support :-) --Sampo
 # 17.8.2003, started 1.25 dev --Sampo
-# 30.11.2006, Applied a patch by Peter Behroozi that adds get1_session() for session caching --Florian
-# 30.11.2006, Applied a patch by ex8k-hbn@asahi-net.or.jp that limits the chunk size for tcp_read_all --Florian
+# 30.11.2005, Applied a patch by Peter Behroozi that adds get1_session() for session caching --Florian
+# 30.11.2005, Applied a patch by ex8k-hbn@asahi-net.or.jp that limits the chunk size for tcp_read_all --Florian
+# 30.11.2005, Applied a patch by ivan-cpan-rt@420.am that avoids adding a Host header if an own is specified in do_httpx3
 #
 # The distribution and use of this module are subject to the conditions
 # listed in LICENSE file at the root of OpenSSL-0.9.7b
@@ -2212,8 +2213,15 @@ sub do_httpx3 {
     } else {
 	$content = "$CRLF$CRLF";
     }
-    my $req = "$method $path HTTP/1.0$CRLF"."Host: $site:$port$CRLF"
-      . (defined $headers ? $headers : '') . "Accept: */*$CRLF$content";    
+    my $req = "$method $path HTTP/1.0$CRLF";
+    unless (defined $headers && $headers =~ /^Host:/m) {
+        $req .= "Host: $site";
+        unless (($port == 80 && !$usessl) || ($port == 443 && $usessl)) {
+            $req .= ":$port";
+        }
+        $req .= $CRLF;
+	}
+    $req .= (defined $headers ? $headers : '') . "Accept: */*$CRLF$content";    
 
     warn "do_httpx3($method,$usessl,$site:$port)" if $trace;
     my ($http, $errs, $server_cert)
