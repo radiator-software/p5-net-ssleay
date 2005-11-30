@@ -1615,8 +1615,9 @@ sub tcp_read_all {
     my ($n, $got, $errs);
     my $reply = '';
 
+    my $bsize = 0x10000;
     while ($how_much > 0) {
-	$n = sysread(SSLCAT_S,$got,$how_much);
+	$n = sysread(SSLCAT_S,$got, (($bsize < $how_much) ? $bsize : $how_much));
 	warn "Read error: $! ($n,$how_much)" unless defined $n;
 	last if !$n;  # EOF
 	$how_much -= $n;
