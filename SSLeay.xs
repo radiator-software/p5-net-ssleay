@@ -2189,6 +2189,10 @@ SSL_SESSION *
 SSL_get_session(s)
      SSL *              s
 
+SSL_SESSION *
+SSL_get1_session(s)
+     SSL *              s
+
 X509 *
 SSL_get_certificate(s)
      SSL *              s
