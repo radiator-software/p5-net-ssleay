@@ -1,6 +1,7 @@
 /* SSLeay.xs - Perl module for using Eric Young's implementation of SSL
  *
  * Copyright (c) 1996-2002 Sampo Kellomaki <sampo@iki.fi>
+ * Copyright (C) 2005 Florian Ragwitz <rafl@debian.org>
  * All Rights Reserved.
  *
  * 19.6.1998, Maintenance release to sync with SSLeay-0.9.0, --Sampo
@@ -42,6 +43,7 @@
  * 18.2.2003, RAND patch from Toni Andjelkovic <toni@soth._at>
  * 13.6.2003, applied SSL_X509_LOOKUP patch by Marian Jancar <mjancar@suse._cz>
  * 18.8.2003, fixed some const char pointer warnings --Sampo
+ * 1.12.2005, fixed MD5(). It doesn't truncate binary data anymore --Florian
  *
  * $Id: SSLeay.xs,v 1.14 2003/06/13 21:14:40 sampo Exp $
  * 
@@ -2605,7 +2607,7 @@ MD5(data)
      CODE:
      ret = MD5(data,len,md);
      if (ret!=NULL) {
-	  XSRETURN_PV((char *) md);
+	  XSRETURN_PVN((char *) md, 16);
      } else {
 	  XSRETURN_UNDEF;
      }
