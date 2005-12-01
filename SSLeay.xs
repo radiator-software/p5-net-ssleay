@@ -1,6 +1,9 @@
 /* SSLeay.xs - Perl module for using Eric Young's implementation of SSL
  *
  * Copyright (c) 1996-2002 Sampo Kellomaki <sampo@iki.fi>
+ * Copyright (C) 2005 Florian Ragwitz <rafl@debian.org>
+ * Copyright (C) 2005 Mike McCauley <mikem@open.com.au>
+ * 
  * All Rights Reserved.
  *
  * 19.6.1998, Maintenance release to sync with SSLeay-0.9.0, --Sampo
@@ -2186,7 +2189,7 @@ SSL_set_session(to,ses)
 SSL_SESSION *
 d2i_SSL_SESSION(a,pp,length)
      SSL_SESSION *      &a
-     unsigned char *    &pp
+     const unsigned char *    &pp
      long               length
 
 #define REM30 "SSLeay-0.9.0 defines these as macros. I expand them here for safety's sake"
@@ -2371,7 +2374,7 @@ RAND_bytes(buf, num)
     CODE:
         New(0, random, num, unsigned char);
         rc = RAND_bytes(random, num);
-        sv_setpvn(buf, random, num);
+        sv_setpvn(buf, (const char*)random, num);
         Safefree(random);
         RETVAL = rc;
     OUTPUT:
@@ -2387,7 +2390,7 @@ RAND_pseudo_bytes(buf, num)
     CODE:
         New(0, random, num, unsigned char);
         rc = RAND_pseudo_bytes(random, num);
-        sv_setpvn(buf, random, num);
+        sv_setpvn(buf, (const char*)random, num);
         Safefree(random);
         RETVAL = rc;
     OUTPUT:
@@ -2513,7 +2516,7 @@ X509_get_subjectAltNames(cert)
 	 {
 	    subjAltNameDN = sk_GENERAL_NAME_value(subjAltNameDNs, j);
 	    XPUSHs(sv_2mortal(newSViv(subjAltNameDN->type)));
-	    XPUSHs(sv_2mortal(newSVpv(ASN1_STRING_data(subjAltNameDN->d.ia5), ASN1_STRING_length(subjAltNameDN->d.ia5))));
+	    XPUSHs(sv_2mortal(newSVpv((const char*)ASN1_STRING_data(subjAltNameDN->d.ia5), ASN1_STRING_length(subjAltNameDN->d.ia5))));
 	 }
      }
      XSRETURN(j*2);
@@ -3461,21 +3464,21 @@ SSL_SESSION_get_master_key(s)
      SSL_SESSION *   s
      CODE:
      ST(0) = sv_newmortal();   /* Undefined to start with */
-     sv_setpvn(ST(0), s->master_key, s->master_key_length);
+     sv_setpvn(ST(0), (const char*)s->master_key, s->master_key_length);
 
 void
 SSL_get_client_random(s)
      SSL *   s
      CODE:
      ST(0) = sv_newmortal();   /* Undefined to start with */
-     sv_setpvn(ST(0), s->s3->client_random, SSL3_RANDOM_SIZE);
+     sv_setpvn(ST(0), (const char*)s->s3->client_random, SSL3_RANDOM_SIZE);
 
 void
 SSL_get_server_random(s)
      SSL *   s
      CODE:
      ST(0) = sv_newmortal();   /* Undefined to start with */
-     sv_setpvn(ST(0), s->s3->server_random, SSL3_RANDOM_SIZE);
+     sv_setpvn(ST(0), (const char*)s->s3->server_random, SSL3_RANDOM_SIZE);
 
 
 #define REM_EOF "/* EOF - SSLeay.xs */"
