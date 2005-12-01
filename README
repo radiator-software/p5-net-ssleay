@@ -108,7 +108,7 @@ Windows:
 
 	*** windows details are still being worked out. If you manage
 	to compile this with different development environments under
-	Win32, please mail the diffs/success reports to me at sampo@iki.fi
+	Win32, please post the diffs/success reports to http://alioth.debian.org/projects/net-ssleay
 	
 	The current incarnation of Windows tweaks was contributed by
 	Eric A Selber <eselber@briefcase.com>
@@ -165,7 +165,7 @@ Please, do not send bug report before you have
     discover correct compiler and flags from `perl -V'
   - tried gcc, if your vendor cc fails
 
-If you send me a question or make a bug report, please remeber to mention
+If you post a question or make a bug report, please remeber to mention
 
   - Your platform and OS version (i386 Linux, Sparc Solaris, etc) (uname -a)
   - On Linux, please report glibc version as well (ls -l /lib/libc*)
@@ -368,12 +368,11 @@ To download OpenSSL, try URL http://www.openssl.org/
 
 Of related interest may be `http://www.symlabs.com/Net_SSLeay/smime.html'
 
-Newer versions of this module can be found from CPAN/authors/id/SAMPO/,
-the home page is http://www.symlabs.com/Net_SSLeay/index.html
+Bug reports, patch submission, feature requests, subversion access to the latest 
+source code etc can be obtained at 
+http://alioth.debian.org/projects/net-ssleay
 
-Please send bug reports to the above address. General questions should be
-sent either to me or to the mailing list (subscribe by sending mail
-to openssl-users-request@openssl.org or using web interface at
-http://www.openssl.org/support/).
+The developer mailing list (for people interested in contributin to the source code)
+can be found at 
+http://lists.alioth.debian.org/mailman/listinfo/net-ssleay-devel
 
---Sampo

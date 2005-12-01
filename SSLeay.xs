@@ -1,7 +1,6 @@
 /* SSLeay.xs - Perl module for using Eric Young's implementation of SSL
  *
  * Copyright (c) 1996-2002 Sampo Kellomaki <sampo@iki.fi>
- * Copyright (C) 2005 Florian Ragwitz <rafl@debian.org>
  * All Rights Reserved.
  *
  * 19.6.1998, Maintenance release to sync with SSLeay-0.9.0, --Sampo
@@ -43,7 +42,16 @@
  * 18.2.2003, RAND patch from Toni Andjelkovic <toni@soth._at>
  * 13.6.2003, applied SSL_X509_LOOKUP patch by Marian Jancar <mjancar@suse._cz>
  * 18.8.2003, fixed some const char pointer warnings --Sampo
- * 1.12.2005, fixed MD5(). It doesn't truncate binary data anymore --Florian
+ * 01.12.2005 fixed a thread safety problem with SvSetSV that could cause crashes
+ *            if SSL_CTX_set_default_passwd_cb and friends were called multiple
+ *            times in different threads.
+ *	      Reintroduced X509_STORE_set_flags, also added
+ *	      X509_STORE_set_purpose and X509_STORE_set_trust
+ *	      Added X509_get_subjectAltNames and a number of other openssl
+ *            X509 functions: X509_get_ext_by_NID X509_get_ext
+ *	      X509V3_EXT_d2i
+ *	      X509_verify_cert_error_string
+ *            --mikem@open.com_.au
  *
  * $Id$
  * 
@@ -92,6 +100,9 @@ extern "C" {
 #include <openssl/ssl.h>
 #include <openssl/comp.h>    /* openssl-0.9.6a forgets to include this */
 #include <openssl/md5.h>     /* openssl-SNAP-20020227 does not automatically include this */
+#include <openssl/x509.h>
+#include <openssl/x509v3.h>
+
 /* Debugging output */
 
 #if 0
@@ -1807,11 +1818,7 @@ SSL_CTX_set_verify(ctx,mode,callback)
      int                mode
      SV *               callback
      CODE:
-     if (ssleay_ctx_verify_callback == (SV*)NULL) {
-        ssleay_ctx_verify_callback = newSVsv(callback);
-     } else {
-         SvSetSV (ssleay_ctx_verify_callback, callback);
-     }
+     ssleay_ctx_verify_callback = newSVsv(callback);
      if (SvTRUE(ssleay_ctx_verify_callback)) {
          SSL_CTX_set_verify(ctx,mode,&ssleay_ctx_verify_callback_glue);
      } else {
@@ -2132,10 +2139,7 @@ SSL_set_verify(s,mode,callback)
      int                mode
      SV *               callback
      CODE:
-     if (ssleay_verify_callback == (SV*)NULL)
-         ssleay_verify_callback = newSVsv(callback);
-     else
-         SvSetSV (ssleay_verify_callback, callback);
+     ssleay_verify_callback = newSVsv(callback);
      if (SvTRUE(ssleay_verify_callback)) {
          SSL_set_verify(s,mode,&ssleay_verify_callback_glue);
      } else {
@@ -2491,6 +2495,44 @@ X509_STORE_CTX_get_ex_data(x509_store_ctx,idx)
      X509_STORE_CTX * x509_store_ctx
      int idx
 
+void
+X509_get_subjectAltNames(cert)
+     X509 *      cert
+     PPCODE:
+     int                    i, j = 0;
+     X509_EXTENSION         *subjAltNameExt = NULL;
+     STACK_OF(GENERAL_NAME) *subjAltNameDNs = NULL;
+     GENERAL_NAME           *subjAltNameDN  = NULL;
+     int                    num_gnames;
+     if (  (i = X509_get_ext_by_NID(cert, NID_subject_alt_name, -1))
+         && (subjAltNameExt = X509_get_ext(cert, i))
+	 && (subjAltNameDNs = X509V3_EXT_d2i(subjAltNameExt)))
+     {
+         num_gnames = sk_GENERAL_NAME_num(subjAltNameDNs);
+	 for (j = 0; j < num_gnames; j++) 
+	 {
+	    subjAltNameDN = sk_GENERAL_NAME_value(subjAltNameDNs, j);
+	    XPUSHs(sv_2mortal(newSViv(subjAltNameDN->type)));
+	    XPUSHs(sv_2mortal(newSVpv(ASN1_STRING_data(subjAltNameDN->d.ia5), ASN1_STRING_length(subjAltNameDN->d.ia5))));
+	 }
+     }
+     XSRETURN(j*2);
+
+int
+X509_get_ext_by_NID(x,nid,loc)
+	X509* x
+	int nid
+	int loc
+
+X509_EXTENSION *
+X509_get_ext(x,loc)
+	X509* x
+	int loc
+	
+void *
+X509V3_EXT_d2i(ext)
+	X509_EXTENSION *ext
+
 int
 X509_STORE_CTX_get_error(x509_store_ctx)
      X509_STORE_CTX * 	x509_store_ctx
@@ -2530,6 +2572,21 @@ X509_STORE_CTX_set_flags(ctx, flags)
     X509_STORE_CTX *ctx
     long flags
 
+void 
+X509_STORE_set_flags(ctx, flags)
+    X509_STORE *ctx
+    long flags
+
+void 
+X509_STORE_set_purpose(ctx, purpose)
+    X509_STORE *ctx
+    int purpose
+
+void 
+X509_STORE_set_trust(ctx, trust)
+    X509_STORE *ctx
+    int trust
+
 int 
 X509_load_cert_file(ctx, file, type)
     X509_LOOKUP *ctx
@@ -2547,6 +2604,10 @@ X509_load_cert_crl_file(ctx, file, type)
     X509_LOOKUP *ctx
     char *file
     int type
+
+const char *
+X509_verify_cert_error_string(n)
+    long n   
 
 
 ASN1_UTCTIME *
@@ -2607,7 +2668,7 @@ MD5(data)
      CODE:
      ret = MD5(data,len,md);
      if (ret!=NULL) {
-	  XSRETURN_PVN((char *) md, 16);
+	  XSRETURN_PV((char *) md);
      } else {
 	  XSRETURN_UNDEF;
      }
@@ -2814,11 +2875,7 @@ SSL_CTX_set_default_passwd_cb(ctx,cb)
     	SSL_CTX *	ctx
 	SV * cb
 	CODE:
-     if (ssleay_ctx_set_default_passwd_cb_callback == (SV*)NULL) {
-        ssleay_ctx_set_default_passwd_cb_callback = newSVsv(cb);
-     } else {
-         SvSetSV (ssleay_ctx_set_default_passwd_cb_callback, cb);
-     }
+     ssleay_ctx_set_default_passwd_cb_callback = newSVsv(cb);
      if (SvTRUE(ssleay_ctx_set_default_passwd_cb_callback)) {
          SSL_CTX_set_default_passwd_cb(ctx,&ssleay_ctx_set_default_passwd_cb_callback_glue);
      } else {

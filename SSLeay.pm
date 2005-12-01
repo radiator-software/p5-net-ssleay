@@ -2,6 +2,7 @@
 #
 # Copyright (c) 1996-2003 Sampo Kellomaki <sampo@iki.fi>, All Rights Reserved.
 # Copyright (C) 2005 Florian Ragwitz <rafl@debian.org>, All Rights Reserved.
+# Copyright (C) 2005 Mike McCauley <mikem@open.com.au>, All Rights Reserved.
 #
 # $Id$
 #
@@ -1429,9 +1430,13 @@ Password is being asked for private key
 
 =head1 REPORTING BUGS AND SUPPORT
 
-Please see README for full bug reporting instructions. In general I do
-not answer for free stupid questions or questions where you did not
-do your home work.
+Bug reports, patch submission, feature requests, subversion access to the latest 
+source code etc can be obtained at 
+http://alioth.debian.org/projects/net-ssleay
+
+The developer mailing list (for people interested in contributin to the source code)
+can be found at 
+http://lists.alioth.debian.org/mailman/listinfo/net-ssleay-devel
 
 Commercial support for Net::SSLeay may be obtained from
 
@@ -1465,15 +1470,11 @@ believe it would build with any perl5.002 or newer.
 Originally written by Sampo Kellomäki <sampo@symlabs.com>
 Maintained by Mike McCauley and Florian Ragwitz since November 2005
 
-Please send bug reports to the above address. General questions should be
-sent either to me or to the mailing list (subscribe by sending mail
-to openssl-users-request@openssl.org or using web interface at
-http://www.openssl.org/support/).
-
 =head1 COPYRIGHT
 
 Copyright (c) 1996-2003 Sampo Kellomäki <sampo@symlabs.com>
 Copyright (C) 2005 Florian Ragwitz <rafl@debian.org>
+Copyright (C) 2005 Mike McCauley <mikem@open.com.au>
 All Rights Reserved.
 
 Distribution and use of this module is under the same terms as the
