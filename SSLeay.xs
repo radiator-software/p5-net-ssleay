@@ -2671,7 +2671,7 @@ MD5(data)
      CODE:
      ret = MD5(data,len,md);
      if (ret!=NULL) {
-	  XSRETURN_PV((char *) md);
+	  XSRETURN_PVN((char *) md, 16);
      } else {
 	  XSRETURN_UNDEF;
      }
