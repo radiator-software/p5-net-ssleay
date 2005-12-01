@@ -3,7 +3,7 @@
 # Copyright (c) 1996-2003 Sampo Kellomaki <sampo@iki.fi>, All Rights Reserved.
 # Copyright (C) 2005 Florian Ragwitz <rafl@debian.org>, All Rights Reserved.
 #
-# $Id: SSLeay.pm,v 1.26 2003/08/17 07:44:47 sampo Exp $
+# $Id$
 #
 # Version 1.04, 31.3.1999
 # 30.7.1999, Tracking OpenSSL-0.9.3a changes, --Sampo

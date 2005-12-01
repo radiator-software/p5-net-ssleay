@@ -45,7 +45,7 @@
  * 18.8.2003, fixed some const char pointer warnings --Sampo
  * 1.12.2005, fixed MD5(). It doesn't truncate binary data anymore --Florian
  *
- * $Id: SSLeay.xs,v 1.14 2003/06/13 21:14:40 sampo Exp $
+ * $Id$
  * 
  * The distribution and use of this module are subject to the conditions
  * listed in LICENSE file at the root of OpenSSL-0.9.6b

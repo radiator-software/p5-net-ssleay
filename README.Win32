@@ -3,7 +3,7 @@ Building on Win 32 platforms
 31.7.1999, Sampo Kellomaki <sampo@iki..fi>
 7.6.2002, reviewed and added comments, --Sampo
 16.8.2002, added comments by Marcel Bucher --Sampo
-$Id: README.Win32,v 1.4 2002/08/16 20:57:05 sampo Exp $
+$Id$
 
 This file is heavily based on work by Anton Roeckseisen <anton@_genua.de>
 Later insight by Marcel Bucher <marcle@bucher._cc>

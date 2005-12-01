@@ -2,7 +2,7 @@ README - Net::SSLeay Perl module for using OpenSSL
 
 13.6.2003, Sampo Kellomaki <sampo@symlabs.com>
 Version: 1.16
-$Id: README,v 1.7 2003/06/13 21:14:40 sampo Exp $
+$Id$
 
 1.23: tested against openssl-0.9.6j and openssl-0.9.7b
 ...

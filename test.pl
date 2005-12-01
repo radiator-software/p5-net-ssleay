@@ -7,7 +7,7 @@
 #            Gordon Lack <gml4410@ggr.co.uk> --Sampo
 # 7.12.2001, added test cases for client certificates and proxy SSL --Sampo
 # 28.5.2002, added contributed test cases for callbacks --Sampo
-# $Id: test.pl,v 1.8 2003/08/17 07:07:28 sampo Exp $
+# $Id$
 #
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.pl'
