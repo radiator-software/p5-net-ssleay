@@ -8,7 +8,7 @@
 # 20.8.2001, tweaked path editing, thanks to Gordon Lack
 #            <gml4410@@ggr.co.uk> --Sampo
 # 19.4.2003, applied some RH9 fixes from priit.randla@eyp._ee --Sampo
-# $Id: Makefile.PL,v 1.13 2003/06/13 21:14:39 sampo Exp $
+# $Id$
 #
 # Configuration script for Net::SSLeay.pm
 
