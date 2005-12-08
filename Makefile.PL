@@ -113,7 +113,7 @@ close F;
 
 if ($windows) {
     warn "RSAREF build on Windows not supported out of box" if $rsaref;
-    $libs = "-llibeay32 -lssleay32";
+    $libs = "-L$openssl_path/lib/VC -llibeay32 -lssleay32";
 
     warn "Be sure to use the same compiler and options to compile your OpenSSL, perl, and Net::SSLeay. Mixing and matching compilers is not supported. (Currently I do not have a way to check this on Windows platform.)\n";
 } else {
