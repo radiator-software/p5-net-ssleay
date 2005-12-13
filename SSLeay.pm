@@ -50,6 +50,8 @@
 # 30.11.2005, Applied a patch by Peter Behroozi that adds get1_session() for session caching --Florian
 # 30.11.2005, Applied a patch by ex8k-hbn@asahi-net.or.jp that limits the chunk size for tcp_read_all --Florian
 # 30.11.2005, Applied a patch by ivan-cpan-rt@420.am that avoids adding a Host header if an own is specified in do_httpx3
+# 13.12.2005, Added comments re thread safety and resetting of default_passwd_callback after use 
+#             --mikem@open.com.au
 #
 # The distribution and use of this module are subject to the conditions
 # listed in LICENSE file at the root of OpenSSL-0.9.7b
@@ -930,8 +932,6 @@ C language OpenSSL in this respect.
 
 =head2 Callbacks
 
-WARNING: as of 1.04 the callbacks have changed and have not been tested.
-
 At this moment the implementation of verify_callback is crippeled in
 the sense that at any given time there can be only one call back which
 is shared by all SSL contexts, sessions and connections. This is
@@ -972,10 +972,16 @@ like this:
         Net::SSLeay::CTX_use_PrivateKey_file($ctx, "key.pem",
 					     Net::SSLeay::FILETYPE_PEM)
             or die "Error reading private key";
+        Net::SSLeay::CTX_set_default_passwd_cb($ctx, undef);
 
 No other callbacks are implemented. You do not need to use any
 callback for simple (i.e. normal) cases where the SSLeay built-in
 verify mechanism satisfies your needs.
+
+It is desirable to reset these callbacks to undef immediately after use to prevent 
+thread safety problems and crashes on exit that can occur if different threads 
+set different callbacks.
+
 ---- end inaccurate ----
 
 If you want to use callback stuff, see examples/callback.pl! Its the

@@ -55,6 +55,9 @@
  *	      X509V3_EXT_d2i
  *	      X509_verify_cert_error_string
  *            --mikem@open.com_.au
+ * 13.12.2005 Reinstated the thread safety fix from 01.12.2005 due memory leaks
+ *	      It is better to reset the callback with undef after use to prevent
+ *	      leaks and thread safety problems.
  *
  * $Id$
  * 
@@ -1821,12 +1824,14 @@ SSL_CTX_set_verify(ctx,mode,callback)
      int                mode
      SV *               callback
      CODE:
-     ssleay_ctx_verify_callback = newSVsv(callback);
-     if (SvTRUE(ssleay_ctx_verify_callback)) {
+     if (ssleay_ctx_verify_callback == (SV*)NULL)
+        ssleay_ctx_verify_callback = newSVsv(callback);
+     else
+         SvSetSV (ssleay_ctx_verify_callback, callback);
+     if (SvTRUE(ssleay_ctx_verify_callback))
          SSL_CTX_set_verify(ctx,mode,&ssleay_ctx_verify_callback_glue);
-     } else {
+     else
          SSL_CTX_set_verify(ctx,mode,NULL);
-     }
 
 int
 SSL_get_error(s,ret)
@@ -2142,12 +2147,14 @@ SSL_set_verify(s,mode,callback)
      int                mode
      SV *               callback
      CODE:
-     ssleay_verify_callback = newSVsv(callback);
-     if (SvTRUE(ssleay_verify_callback)) {
+     if (ssleay_verify_callback == (SV*)NULL)
+         ssleay_verify_callback = newSVsv(callback);
+     else
+         SvSetSV (ssleay_verify_callback, callback);
+     if (SvTRUE(ssleay_verify_callback))
          SSL_set_verify(s,mode,&ssleay_verify_callback_glue);
-     } else {
+     else
          SSL_set_verify(s,mode,NULL);
-     }
 
 void
 SSL_set_bio(s,rbio,wbio)
@@ -2878,12 +2885,14 @@ SSL_CTX_set_default_passwd_cb(ctx,cb)
     	SSL_CTX *	ctx
 	SV * cb
 	CODE:
-     ssleay_ctx_set_default_passwd_cb_callback = newSVsv(cb);
-     if (SvTRUE(ssleay_ctx_set_default_passwd_cb_callback)) {
+     if (ssleay_ctx_set_default_passwd_cb_callback == (SV*)NULL)
+        ssleay_ctx_set_default_passwd_cb_callback = newSVsv(cb);
+     else
+         SvSetSV (ssleay_ctx_set_default_passwd_cb_callback, cb);
+     if (SvTRUE(ssleay_ctx_set_default_passwd_cb_callback))
          SSL_CTX_set_default_passwd_cb(ctx,&ssleay_ctx_set_default_passwd_cb_callback_glue);
-     } else {
+     else
          SSL_CTX_set_default_passwd_cb(ctx,NULL);
-     }
 
 void 
 SSL_CTX_set_default_passwd_cb_userdata(ctx,u)
