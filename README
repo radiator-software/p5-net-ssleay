@@ -132,18 +132,6 @@ but here's how it used to work...
   N.B. AFAIK the patent that made using RSAref necessary has expired, so
   this should be nonissue by now.
 
-Commercial Support
-------------------
-
-Commercial support for this module can be obtained from
-
-   Symlabs (netssleay@symlabs.com)
-   Tel: +351-214.222.630
-   Fax: +351-214.222.637
-
-Noncommercial support can be obtained via email from the author, but
-you are expected to do your home work well. Mails that do not full
-fill the criteria below may be silently ignored.
 
 Problems (read this before sending mail)
 ----------------------------------------
@@ -321,6 +309,8 @@ License and Copying
 -------------------
 
 Copyright (c) 1996-2002 Sampo Kellomaki <sampo@symlabs.com>
+Copyright (c) 2005 Florian Ragwitz <rafl@debian.org>
+Copyright (c) 2005 Mike McCauley <mikem@open.com.au>
 All Rights Reserved.
 
 Distribution and use of this module is under the same terms as the
