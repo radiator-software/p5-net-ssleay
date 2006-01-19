@@ -178,8 +178,19 @@ Revision history for Perl extension Net::SSLeay.
 	- new features: http and raw tcp support
 	- fixed apparent STDIO vs. sysread bug in proxy connect
 1.25  18.8.2003
-        - added tcpecho.pl and tcpcat.pl to MANIFEST
-        - fixed some further bugs with TCP read all, etc.
-        - fixed some const char pointer warnings
+    - added tcpecho.pl and tcpcat.pl to MANIFEST
+    - fixed some further bugs with TCP read all, etc.
+    - fixed some const char pointer warnings
+1.30  21.12.2005
+	- Fixed the MD5 function for hashsums containing \0
+	- Fixed some compile warnings with recent gcc.
+	- Fixed do_httpx3:
+	  + Don't add additional Host: headers if it's already given
+	  + Omit the :$port suffix for standard ports
+	  + Thanks to ivan-cpan-rt@420.am
+	- Limit the chunk size when reading with tcp_read_all to 0x1000.
+	  This fixes various rt tickets.
+	- Added patch to allow session caching
+	- Mike McCauley and Florian Ragwitz maintain this module now
 
 #EOF
