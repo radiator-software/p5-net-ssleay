@@ -222,6 +222,18 @@ perl and compiling the package with different cc or different options.
 Genereally this will never work. Please compile _yourself_ your perl,
 openssl, and the module, always with the same compiler and compiler flags.
 
+Solaris 8 does not come standard with /dev/random or /dev/urandom, and the
+'make test' assumes that some source of randomness is available. 'make test'
+will fail on Solaris 8 if /dev/urandom is not available. The error message
+seen with trace enabled will be "SSL_GET_NEW_SESSION:ssl session id callback
+failed". In order to fix this, you must install Sun patch 112438-03 from
+http://sunsolve.sun.com
+
+#: unzip 112438-03.zip
+#: patchadd ./112438-03
+You will probably need to reboot your system:
+#: reboot
+
 I have a report (schinder@@pobox._com) of make test segfaulting on
 Linux-PPC. This still needs to be investigated. No recent information
 has been received.
