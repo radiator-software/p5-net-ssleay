@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
-use Test::More tests => 4;
+use Test::More tests => 6;
 use Test::Exception;
 use File::Spec;
 use Net::SSLeay;
@@ -16,13 +16,19 @@ my $calls = 0;
 
 sub callback {
 	$calls++;
-	return $key_password:
+	return $key_password;
 }
 
 my $ctx = Net::SSLeay::CTX_new();
 ok($ctx, 'CTX_new');
 
 lives_ok { Net::SSLeay::CTX_set_default_passwd_cb($ctx, \&callback) } 'CTX_set_default_passwd_cb';
-ok(Net::SSLeay::CTX_use_PrivateKey_file($ctx, $key_pem, Net::SSLeay::FILETYPE_PEM()), 'CTX_use_PrivateKey_file');
+ok(Net::SSLeay::CTX_use_PrivateKey_file($ctx, $key_pem, Net::SSLeay::FILETYPE_PEM()), 'CTX_use_PrivateKey_file works with right passphrase');
 
 is($calls, 1, 'callback called 1 time');
+
+$key_password = 'incorrect';
+
+ok(!Net::SSLeay::CTX_use_PrivateKey_file($ctx, $key_pem, Net::SSLeay::FILETYPE_PEM()), 'CTX_use_PrivateKey_file doesn\'t work with wrong passphrase');
+
+is($calls, 2, 'callback called 2 times');
