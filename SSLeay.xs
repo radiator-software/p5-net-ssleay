@@ -90,6 +90,7 @@ extern "C" {
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
+#include "ppport.h"
 #ifdef __cplusplus
 }
 #endif
@@ -1615,7 +1616,7 @@ ssleay_verify_callback_glue (int ok, X509_STORE_CTX* ctx)
 			"set to point to any perl function.\n");
 
 	PR("About to call verify callback.\n");	
-	count = perl_call_sv(ssleay_verify_callback, G_SCALAR);
+	count = call_sv(ssleay_verify_callback, G_SCALAR);
 	PR("Returned from verify callback.\n");	
 
 	SPAGAIN;
@@ -1655,7 +1656,7 @@ ssleay_ctx_verify_callback_glue (int ok, X509_STORE_CTX* ctx)
 			"set to point to any perl function.\n");
 
 	PR("About to call ctx verify callback.\n");	
-	count = perl_call_sv(ssleay_ctx_verify_callback, G_SCALAR);
+	count = call_sv(ssleay_ctx_verify_callback, G_SCALAR);
 	PR("Returned from ctx verify callback.\n");	
 
 	SPAGAIN;
@@ -1697,7 +1698,7 @@ ssleay_ctx_set_default_passwd_cb_callback_glue (char *buf, int size,
                      "set to point to any perl function.\n");
 
       PR("About to call passwd callback.\n");
-      count = perl_call_sv(ssleay_ctx_set_default_passwd_cb_callback, G_SCALAR);
+      count = call_sv(ssleay_ctx_set_default_passwd_cb_callback, G_SCALAR);
       PR("Returned from ctx passwd callback.\n");
 
       SPAGAIN;
