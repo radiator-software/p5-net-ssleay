@@ -1,0 +1,19 @@
+* Fix POD to pass  t/02_pod_coverage.t.
+
+* Fix this issue on hpux:
+	two major diffs to the rest of the world:
+	1. libssl.sl instead of libssl.so
+	   The default installation still expects .so files, so the sysadm needs to
+	   make symlinks to find those Tux
+
+	2. HP-UX uses SHLIB_PATH alongside LD_LIBRARY_PATH Tux HP-UX allows both,
+	   and allows them together. The search sequence can be set in each library
+	   itself
+
+	If you find your libs in Makefile.PL, you should extend LD_LIBRARY_PATH
+	with that location, also in MAKEFILE to make 'make test' pass
+
+* Better test coverage
+  + Continue to port old test.pl to a Test::More based testsuite in t/
+  + Write a test for http://rt.cpan.org/Ticket/Display.html?id=9611
+  + Test if exports work correctly
