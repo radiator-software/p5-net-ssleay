@@ -39,7 +39,9 @@ examples/tcpcat.pl
 examples/tcpecho.pl
 ptrcasttst.c
 ptrtstrun.pl
-t/01_use.t
-t/02_basic.t
+t/01_pod.t
+t/02_pod_coverage.t
+t/03_use.t
+t/04_basic.t
 test.pl
 typemap
