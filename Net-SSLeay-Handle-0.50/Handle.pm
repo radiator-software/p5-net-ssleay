@@ -10,6 +10,50 @@ use Net::SSLeay;
 
 require Exporter;
 
+=head1 NAME
+
+Net::SSLeay::Handle - Perl module that lets SSL (HTTPS) sockets be
+handled as standard file handles.
+
+=head1 SYNOPSIS
+
+  use Net::SSLeay::Handle qw/shutdown/;
+  my ($host, $port) = ("localhost", 443);
+
+  tie(*SSL, "Net::SSLeay::Handle", $host, $port);
+
+  print SSL "GET / HTTP/1.0\r\n";
+  shutdown(\*SSL, 1);
+  print while (<SSL>);
+  close SSL;                                                       
+  
+
+=head1 DESCRIPTION
+
+Net::SSLeay::Handle allows you to request and receive HTTPS web pages
+using "old-fashion" file handles as in:
+
+    print SSL "GET / HTTP/1.0\r\n";
+
+and
+
+    print while (<SSL>);
+
+If you export the shutdown routine, then the only extra code that
+you need to add to your program is the tie function as in:
+
+    my $socket;
+    if ($scheme eq "https") {
+        tie(*S2, "Net::SSLeay::Handle", $host, $port);
+        $socket = \*S2;
+    else {
+        $socket = Net::SSLeay::Handle->make_socket($host, $port);
+    }
+    print $socket $request_headers;
+    ... 
+
+=cut
+
 use vars qw(@ISA @EXPORT_OK $VERSION);
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(shutdown);
@@ -122,15 +166,19 @@ sub CLOSE {
 sub FILENO  { fileno($_[0]) }
 
 
-#== Exportable Functions  =====================================================
+=head1 FUNCTIONS
 
-# TIEHANDLE, PRINT, READLINE, CLOSE FILENO, READ, WRITE
+=over
 
-#--- shutdown(\*SOCKET, $mode) ------------------------------------------------
-# Calls to the main shutdown() don't work with tied sockets created with this
-# module.  This shutdown should be able to distinquish between tied and untied
-# sockets and do the right thing.
-#------------------------------------------------------------------------------
+=item shutdown
+
+  shutdown(\*SOCKET, $mode)
+	
+Calls to the main shutdown() don't work with tied sockets created with this
+module.  This shutdown should be able to distinquish between tied and untied
+sockets and do the right thing.
+
+=cut
 
 sub shutdown {
     my ($socket, @params) = @_;
@@ -140,7 +188,15 @@ sub shutdown {
     return shutdown($socket, @params);
 }
 
-#==============================================================================
+=item debug
+
+  my $debug = Net::SSLeay::Handle->debug()
+  Net::SSLeay::Handle->debug(1)
+
+Get/set debuging mode. Always returns the debug value before the function call.
+if an additional argument is given the debug option will be set to this value.
+
+=cut
 
 sub debug {
     my ($class, $debug) = @_;
@@ -150,6 +206,17 @@ sub debug {
 }
 
 #=== Internal Methods =========================================================
+
+=item make_socket
+
+  my $sock = Net::SSLeay::Handle->make_socket($host, $port);
+
+Creates a socket that is connected to $post using $port. It uses
+$Net::SSLeay::proxyhost and proxyport if set and authentificates itself against
+this proxy depending on $Net::SSLeay::proxyauth. It also turns autoflush on for
+the created socket.
+
+=cut
 
 sub make_socket {
     my ($class, $host, $port) = @_;
@@ -176,6 +243,10 @@ sub make_socket {
     };
     return $socket;
 }
+
+=back
+
+=cut
 
 #--- _glob_ref($strings) ------------------------------------------------------
 #
@@ -237,49 +308,8 @@ sub _get_ssl {
 }
 
 1;
+
 __END__
-
-=head1 NAME
-
-Net::SSLeay::Handle - Perl module that lets SSL (HTTPS) sockets be
-handled as standard file handles.
-
-=head1 SYNOPSIS
-
-  use Net::SSLeay::Handle qw/shutdown/;
-  my ($host, $port) = ("localhost", 443);
-
-  tie(*SSL, "Net::SSLeay::Handle", $host, $port);
-
-  print SSL "GET / HTTP/1.0\r\n";
-  shutdown(\*SSL, 1);
-  print while (<SSL>);
-  close SSL;                                                       
-  
-
-=head1 DESCRIPTION
-
-Net::SSLeay::Handle allows you to request and receive HTTPS web pages
-using "old-fashion" file handles as in:
-
-    print SSL "GET / HTTP/1.0\r\n";
-
-and
-
-    print while (<SSL>);
-
-If you export the shutdown routine, then the only extra code that
-you need to add to your program is the tie function as in:
-
-    my $socket;
-    if ($scheme eq "https") {
-        tie(*S2, "Net::SSLeay::Handle", host, $port);
-        $socket = \*S2;
-    else {
-        $socket = Net::SSLeay::Handle->make_socket(host, $port);
-    }
-    print $socket $request_headers;
-    ... 
 
 =head2 USING EXISTING SOCKETS
 
@@ -371,4 +401,3 @@ Jim Bowlin jbowlin@linklint.org
 Net::SSLeay, perl(1), http://openssl.org/
 
 =cut
-
