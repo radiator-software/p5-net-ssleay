@@ -1869,8 +1869,8 @@ sub randomize (;$$) {
     my ($rn_seed_file, $seed, $egd_path) = @_;
     my $rnsf = defined($rn_seed_file) && -r $rn_seed_file;
 
+	$egd_path = '';
     $egd_path = $ENV{'EGD_PATH'} if $ENV{'EGD_PATH'};
-    $egd_path = '/tmp/entropy'   unless $egd_path;
     
     RAND_seed(rand() + $$);  # Stir it with time and pid
     
@@ -1881,7 +1881,7 @@ sub randomize (;$$) {
     RAND_load_file($rn_seed_file, -s _) if $rnsf;
     RAND_seed($seed) if $seed;
     RAND_seed($ENV{RND_SEED}) if $ENV{RND_SEED};
-    RAND_egd($egd_path) if -S $egd_path;
+    RAND_egd($egd_path) if -e $egd_path && -S _;
     RAND_load_file($Net::SSLeay::random_device, $Net::SSLeay::how_random/8)
 	if -r $Net::SSLeay::random_device;
 }
