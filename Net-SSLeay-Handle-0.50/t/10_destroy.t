@@ -29,7 +29,7 @@ for my $uri (@uris) {
 	}
 
 	my $fdcount_end = count_fds();
-	is ($fdcount_start, $fdcount_end, 'handle gets destroyed when it goes out of scope');
+	is ($fdcount_end, $fdcount_start, 'handle gets destroyed when it goes out of scope');
 }
 
 sub count_fds {
