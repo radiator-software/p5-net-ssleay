@@ -113,8 +113,16 @@ sub PRINT {
 sub READLINE {
     my $self = shift;
     my $ssl  = _get_ssl($self);
-    my $line = Net::SSLeay::ssl_read_until($ssl); 
-    return $line ? $line : undef;
+	if (wantarray) {
+		my @lines;
+		while (my $line = Net::SSLeay::ssl_read_until($ssl)) {
+			push @lines, $line;
+		}
+		return @lines;
+	} else {
+		my $line = Net::SSLeay::ssl_read_until($ssl); 
+		return $line ? $line : undef;
+	}
 }
 
 sub READ {
