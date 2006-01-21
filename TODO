@@ -1,4 +1,4 @@
-* Fix POD to pass  t/02_pod_coverage.t.
+* Fix POD to pass t/02_pod_coverage.t.
 
 * Fix this issue on hpux:
 	two major diffs to the rest of the world:
@@ -17,3 +17,7 @@
   + Continue to port old test.pl to a Test::More based testsuite in t/
   + Write a test for http://rt.cpan.org/Ticket/Display.html?id=9611
   + Test if exports work correctly
+
+* Net::SSLeay::Handle
+  + Split off or integrate it into Net::SSLeay properly. Discuss on -devel.
+  + Modify READLINE behaviour to return all available lines in list context? See -devel.
