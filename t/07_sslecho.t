@@ -71,7 +71,6 @@ my $key_pem = File::Spec->catfile('t', 'data', 'key.pem');
 }
 
 {
-	$ENV{RND_SEED} = '1234567890123456789012345678901234567890';
 	my ($got) = Net::SSLeay::sslcat('localhost', $port, $msg);
 	waitpid $pid, 0;
 	Test::More->builder->current_test(9);
