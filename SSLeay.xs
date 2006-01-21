@@ -2593,10 +2593,14 @@ X509_STORE_set_purpose(ctx, purpose)
     X509_STORE *ctx
     int purpose
 
+#if OPENSSL_VERSION_NUMBER >= 0x0090800fL
+
 void 
 X509_STORE_set_trust(ctx, trust)
     X509_STORE *ctx
     int trust
+
+#endif
 
 int 
 X509_load_cert_file(ctx, file, type)
