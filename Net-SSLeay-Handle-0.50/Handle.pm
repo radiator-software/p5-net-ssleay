@@ -59,16 +59,7 @@ use vars qw(@ISA @EXPORT_OK $VERSION);
 @EXPORT_OK = qw(shutdown);
 $VERSION = '0.61';
 
-#=== Class Variables ==========================================================
-#
-# %Filenum_Object holds the attributes (see bottom of TIEHANDLE) of tied
-# handles keyed by fileno.  This was the only way I could figure out how
-# to "attach" attributes to a returned glob reference.
-#
-#==============================================================================
-
 my $Initialized;       #-- only _initialize() once
-my %Filenum_Object;    #-- hash of hashes, keyed by fileno()
 my $Debug = 0;         #-- pretty hokey
 my %Glob_Ref;          #-- used to make unique \*S names for versions < 5.6
 
@@ -97,20 +88,20 @@ sub TIEHANDLE {
 
     $Debug and print "Cipher '" . Net::SSLeay::get_cipher($ssl) . "'\n";
 
-    $Filenum_Object{$fileno} = {
+	my $self = bless {
         ssl    => $ssl, 
         ctx    => $ctx,
         socket => $socket,
         fileno => $fileno,
-    };
+    }, $class;
 
-    return bless $socket, $class;
+    return $self;
 }
 
 sub PRINT {
-    my $socket = shift;
+    my $self = shift;
 
-    my $ssl  = _get_ssl($socket);
+    my $ssl  = _get_ssl($self);
     my $resp = 0;
     for my $msg (@_) {
         defined $msg or last;
@@ -120,15 +111,15 @@ sub PRINT {
 }
 
 sub READLINE {
-    my $socket = shift;
-    my $ssl  = _get_ssl($socket);
+    my $self = shift;
+    my $ssl  = _get_ssl($self);
     my $line = Net::SSLeay::ssl_read_until($ssl); 
     return $line ? $line : undef;
 }
 
 sub READ {
-    my ($socket, $buf, $len, $offset) = \ (@_);
-    my $ssl = _get_ssl($$socket);
+    my ($self, $buf, $len, $offset) = \ (@_);
+    my $ssl = _get_ssl($$self);
     defined($$offset) or 
       return length($$buf = Net::SSLeay::ssl_read_all($ssl, $$len));
 
@@ -142,28 +133,26 @@ sub READ {
 }
 
 sub WRITE {
-    my $socket = shift;
+    my $self = shift;
     my ($buf, $len, $offset) = @_;
     $offset = 0 unless defined $offset;
 
     # Return number of characters written.
-    my $ssl  = $socket->_get_ssl();
+    my $ssl  = $self->_get_ssl();
     return $len if Net::SSLeay::write($ssl, substr($buf, $offset, $len));
     return undef;
 }
 
 sub CLOSE {
-    my $socket = shift;
-    my $fileno = fileno($socket);
+    my $self = shift;
+    my $fileno = $self->{fileno};
     $Debug > 10 and print "close($fileno)\n";
-    my $self = $socket->_get_self();
-    delete $Filenum_Object{$fileno};
-  Net::SSLeay::free ($self->{ssl});
-  Net::SSLeay::CTX_free ($self->{ctx});
-    close $socket;
+    Net::SSLeay::free ($self->{ssl});
+    Net::SSLeay::CTX_free ($self->{ctx});
+    close $self->{socket};
 }
 
-sub FILENO  { fileno($_[0]) }
+sub FILENO  { $_[0]->{fileno} }
 
 
 =head1 FUNCTIONS
@@ -181,10 +170,10 @@ sockets and do the right thing.
 =cut
 
 sub shutdown {
-    my ($socket, @params) = @_;
+    my ($obj, @params) = @_;
 
-    my $obj = _get_self($socket);
-    $obj and $socket = $obj->{socket};
+	my $socket = UNIVERSAL::isa($obj, 'Net::SSLeay::Handle') ?
+		$obj->{socket} : $obj;
     return shutdown($socket, @params);
 }
 
@@ -227,9 +216,9 @@ sub make_socket {
     my $phost = $Net::SSLeay::proxyhost;
     my $pport = $Net::SSLeay::proxyhost ? $Net::SSLeay::proxyport : $port;
 
-    my $dest_ip     = gethostbyname( $phost || $host);
+    my $dest_ip     = gethostbyname($phost || $host);
     my $host_params = sockaddr_in($pport, $dest_ip);
-    my $socket = $^V ? $class->_glob_ref("$host:$port") : undef;
+    my $socket = $^V ? undef : $class->_glob_ref("$host:$port");
     
     socket($socket, &PF_INET(), &SOCK_STREAM(), 0) or die "socket: $!";
     connect($socket, $host_params)                 or die "connect: $!";
@@ -292,9 +281,7 @@ sub __dummy {
 # on fileno($socket).  Will return undef if $socket was not created here.
 #------------------------------------------------------------------------------
 
-sub _get_self {
-    return $Filenum_Object{fileno(shift)};
-}
+sub _get_self { return $_[0]; }
 
 #--- _get_ssl($socket) --------------------------------------------------------
 # Returns a the "ssl" attribute for $socket (= \*SOMETHING) based
@@ -303,8 +290,7 @@ sub _get_self {
 #------------------------------------------------------------------------------
 
 sub _get_ssl {
-    my $socket = shift;
-    return $Filenum_Object{fileno($socket)}->{ssl};
+    return $_[0]->{ssl};
 }
 
 1;
