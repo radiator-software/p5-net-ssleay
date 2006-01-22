@@ -2583,6 +2583,8 @@ X509_STORE_CTX_set_flags(ctx, flags)
     X509_STORE_CTX *ctx
     long flags
 
+#if OPENSSL_VERSION_NUMBER >= 0x0090800fL
+
 void 
 X509_STORE_set_flags(ctx, flags)
     X509_STORE *ctx
@@ -2592,8 +2594,6 @@ void
 X509_STORE_set_purpose(ctx, purpose)
     X509_STORE *ctx
     int purpose
-
-#if OPENSSL_VERSION_NUMBER >= 0x0090800fL
 
 void 
 X509_STORE_set_trust(ctx, trust)
