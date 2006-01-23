@@ -66,7 +66,6 @@ use Socket;
 use Errno;
 
 require Exporter;
-require DynaLoader;
 use AutoLoader;
 
 # 0=no warns, 1=only errors, 2=ciphers, 3=progress, 4=dump data
@@ -108,7 +107,7 @@ $Net::SSLeay::random_device = '/dev/urandom';
 $Net::SSLeay::how_random = 512;
 
 $VERSION = '1.30';
-@ISA = qw(Exporter DynaLoader);
+@ISA = qw(Exporter);
 @EXPORT_OK = qw(
 	AT_MD5_WITH_RSA_ENCRYPTION
 	CB_ACCEPT_EXIT
@@ -474,7 +473,15 @@ sub AUTOLOAD {
     goto &$AUTOLOAD;
 }
 
-bootstrap Net::SSLeay $VERSION;
+eval {
+	require XSLoader;
+	XSLoader::load('Net::SSLeay', $VERSION);
+	1;
+} or do {
+	require Dynaloader;
+	push @ISA, 'DynaLoader';
+	bootstrap Net::SSLeay $VERSION;
+}
 
 # Preloaded methods go here.
 
