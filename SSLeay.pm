@@ -481,7 +481,7 @@ eval {
 	require Dynaloader;
 	push @ISA, 'DynaLoader';
 	bootstrap Net::SSLeay $VERSION;
-}
+};
 
 # Preloaded methods go here.
 
