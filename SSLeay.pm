@@ -1476,8 +1476,6 @@ Commercial support for Net::SSLeay may be obtained from
 
 =head1 VERSION
 
-This man page documents version 1.24, released on 18.8.2003.
-
 There are currently two perl modules for using OpenSSL C
 library: C<Net::SSLeay> (maintaned by me) and C<SSLeay> (maintained by OpenSSL
 team). This module is the C<Net::SSLeay> variant.

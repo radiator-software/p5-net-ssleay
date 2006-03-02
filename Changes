@@ -196,5 +196,8 @@ Revision history for Perl extension Net::SSLeay.
 	- Only bind X509_STORE_set_trust #if OPENSSL_VERSION_NUMBER >= 0x0090800fL
 	- Removed %Filenum_Objects from Net::SSLeay::Handle so unused handles will be freed.
 	- Use ppport.h.
-
+	- improved openssl path guessing, forcing openssl path now
+            requires the -path flag (caution: incompatible flag change)
+            Path guessing works on windows too.
+            mikem, with patches from Stas Bekman
 #EOF

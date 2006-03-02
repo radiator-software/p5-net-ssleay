@@ -8,23 +8,28 @@
 # 20.8.2001, tweaked path editing, thanks to Gordon Lack
 #            <gml4410@@ggr.co.uk> --Sampo
 # 19.4.2003, applied some RH9 fixes from priit.randla@eyp._ee --Sampo
+# 2.3.2006,  improved openssl path guessing, forcing openssl path now
+#            requires the -path flag (caution: incompatible flag change)
+#            Path guessing works on windows too.
+#            mikem, with patches from Stas Bekman
 # $Id$
 #
 # Configuration script for Net::SSLeay.pm
 
 $usage = <<USAGE
-Usage: ./Makefile.PL [-windows] [-rsaref] [-m|-t|-d] [-g] [OpenSSL install path] [-- args]
+Usage: ./Makefile.PL [-windows] [-rsaref] [-m|-t|-d] [-g] [-path OpenSSL-install-path] [-- args]
            -m and -t  will automatically build and test, respectively
            -d         builds and tests verbosely
            -g         Compile for debugging (see README)
            -rsaref    provides support for linking against rsaref
            -windows   sets library paths for windows build
+           -path      path to the include and lib directories for OpenSSL
+                      Defaults to a guessed path.
            --         Introduces arguments for Make::Maker. Typically used
                       to pass PREFIX=/path/to/your/perl/libs
 E.g:   ./Makefile.PL -d
-       ./Makefile.PL -t /apps/openssl/std -- PREFIX=/home/koerkki/perllib
+       ./Makefile.PL -t -path /apps/openssl/std -- PREFIX=/home/koerkki/perllib
 
-Note: For Windows builds openssl installation path must always be given.
 USAGE
     ;
 die $usage if grep /^--?[hv?]/i, @ARGV;
@@ -32,6 +37,7 @@ die $usage if grep /^--?[hv?]/i, @ARGV;
 use ExtUtils::MakeMaker;
 use Config;
 
+$windows = ($^O eq 'MSWin32');
 $windows = shift if $ARGV[0] eq '-windows';
 $rsaref  = shift if $ARGV[0] eq '-rsaref';
 $make_it = shift if $ARGV[0] eq '-m';
@@ -39,14 +45,34 @@ $test_it = shift if $ARGV[0] eq '-t';
 $debug = $test_it = shift if $ARGV[0] eq '-d';
 $optimize = '-O';
 $optimize = shift if $ARGV[0] eq '-g';
-
-# It seems at least Redhat installs OpenSSL in /usr ...
-$openssl_path = '/usr' if -x '/usr/bin/openssl' || -x '/usr/sbin/openssl';
-$openssl_path = '/opt/ssl' if -x '/opt/ssl/bin/openssl'
-    || -x '/opt/ssl/sbin/openssl';
-$openssl_path = '/usr/local/ssl' if -x '/usr/local/ssl/bin/openssl';
-$openssl_path = '/apps/openssl/std' if -x '/apps/openssl/std/bin/openssl';
-$openssl_path = shift if @ARGV && $ARGV[0] ne '--';
+my $openssl_path;
+if ($ARGV[0] eq '-path')
+{
+    shift;
+    $openssl_path = shift;
+}
+else
+{
+    # It seems at least Redhat installs OpenSSL in /usr ...
+    my %search =
+	(
+	 '/usr/bin/openssl'               => '/usr',
+	 '/usr/sbin/openssl'              => '/usr',
+	 '/opt/ssl/bin/openssl'           => '/opt/ssl',
+	 '/opt/ssl/sbin/openssl'          => '/opt/ssl',
+	 '/usr/local/ssl/bin/openssl'     => '/usr/local/ssl',
+	 '/usr/local/openssl/bin/openssl' => '/usr/local/openssl',
+	 '/apps/openssl/std/bin/openssl'  => '/apps/openssl/std',
+	 'C:\OpenSSL'                     => 'C:\OpenSSL',
+	 );
+    
+    while (my($k, $v) = each %search) {
+	if (-x $k) {
+	    $openssl_path = $v;
+	    last;
+	}
+    }
+}
 
 shift if $ARGV[0] eq '--';   # Rest of args are for MakeMaker
 
@@ -137,7 +163,7 @@ if ($windows) {
 	    warn "*** $exe_path appears to be compiled with $cc ($cc_et_alia) while perl is compiled with $Config{cc}. Both must be compiled with the same compiler and flags. Mixing and matching compilers is not supported.";
 	}
     } else {
-	warn "*** Could not figure out which C compiler was used to compile $exe_path. It is essentiall that OpenSSL, perl, and Net::SSLeay are compiled with the same compiler and flags. Mixing and matching compilers is not supported.";
+	warn "*** Could not figure out which C compiler was used to compile $exe_path. It is essential that OpenSSL, perl, and Net::SSLeay are compiled with the same compiler and flags. Mixing and matching compilers is not supported.";
     }
 
     ### When using aCC under HP-UX additional `+e' flag must be passed.

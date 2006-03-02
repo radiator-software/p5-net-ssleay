@@ -66,7 +66,7 @@ The OpenSSL libs and exe's will be in <yourOpenSslDir>\out32dll
 Net::SSLeay:
 ------------
 
-        perl Makefile.pl -windows <yourOpenSslDir>
+        perl Makefile.pl -path <yourOpenSslDir>
         nmake
 	nmake test
         nmake install
@@ -137,7 +137,7 @@ HOW TO DO IT (Sampo's speculation for recent versions (< 1.18))
            \openssl\include
            \openssl\include\openssl
 
-4. Run `perl Makefile.PL -windows your-openssl-path'. This should
+4. Run `perl Makefile.PL -path your-openssl-path'. This should
    cause the Makefile.PL to try to run openssl.exe to check that
    you are OK. If it succeeds, chances of build working are good.
    If not, you will need to debug things until it works.

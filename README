@@ -74,7 +74,7 @@ HPUX:
 
 	Configuring Net::SSLeay:
 	
-		perl Makefile.PL /openssl/path CCFLAGS='-D_HPUX_SOURCE \
+		perl Makefile.PL -path /openssl/path CCFLAGS='-D_HPUX_SOURCE \
 		 -Aa -I/usr/local/include +e'
 
 	The magic bit seemed to be the `+e' flag. Since version 1.14
@@ -97,11 +97,13 @@ Windows:
 	to system's environment PATH, assuming you installed your openssl
 	in d:\openssl. YMMV
 
-		perl Makefile.PL -windows D:\OpenSSL
+		perl Makefile.PL -path D:\OpenSSL
 
-	where the last argument specifies where you installed your openssl.
-	The -windows flag tries to set up libraries correctly. If it
-	does not work, please tweak Makefile.PL and submit me a patch.
+	On windows, Makefile.PL will automatically set up library and include
+	paths for windows compile and will automatcially find OpenSSL if it
+	exists in c:\OpenSSL. If your OPenSSL libraries and includes are
+	elsewhere, use the -path flag. If it does not work, please tweak
+	Makefile.PL and submit a patch.
 
 		nmake
 		nmake install
