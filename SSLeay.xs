@@ -1584,6 +1584,7 @@ not_there:
 
 /* ============= typedefs to agument TYPEMAP ============== */
 
+typedef void generate_key_cb (int, int, void *);
 typedef int callback_ret_int();
 typedef void callback_no_ret();
 typedef RSA * cb_ssl_int_int_ret_RSA(SSL * ssl,int is_export, int keylength);
@@ -2239,7 +2240,7 @@ SSL_get_options(ssl)
 void
 SSL_set_options(ssl,op)
      SSL *          ssl
-     unsigned long  op
+     long	    op
 
 long
 SSL_CTX_get_options(ctx)
@@ -2248,7 +2249,7 @@ SSL_CTX_get_options(ctx)
 void
 SSL_CTX_set_options(ctx,op)
      SSL_CTX *      ctx
-     unsigned long  op
+     long	    op
 
 LHASH *
 SSL_CTX_sessions(ctx)
@@ -3436,7 +3437,7 @@ RSA *
 RSA_generate_key(bits,e,callback=NULL,cb_arg=NULL)
     int           bits
     unsigned long e
-    void *        callback
+    generate_key_cb *        callback
     void *        cb_arg
 
 void
@@ -3451,14 +3452,14 @@ DH *
 PEM_read_bio_DHparams(bio,x=NULL,cb=NULL,u=NULL)
 	BIO  * bio
 	void * x
-	void * cb
+	pem_password_cb * cb
 	void * u
 
 X509_CRL *
 PEM_read_bio_X509_CRL(bio,x=NULL,cb=NULL,u=NULL)
 	BIO  * bio
 	void * x
-	void * cb
+	pem_password_cb * cb
 	void * u
 
 void
