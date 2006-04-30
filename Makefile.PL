@@ -12,6 +12,7 @@
 #            requires the -path flag (caution: incompatible flag change)
 #            Path guessing works on windows too.
 #            mikem, with patches from Stas Bekman
+# 30.4.2006  Added -lz to $libs, else get problems on some builds
 # $Id$
 #
 # Configuration script for Net::SSLeay.pm
@@ -146,7 +147,7 @@ if ($windows) {
     ### There is some confusion over the correct ordering
     ### of these libraries. Tarang Kumar Patel <mombasa@ptolemy.arc.nasa.gov>
     ### reports this order to work on Solaris 7 and openssl-0.9.6b
-    $libs = $rsaref ? "-lssl -lcrypto -lRSAglue -lrsaref" : "-lssl -lcrypto";
+    $libs = $rsaref ? "-lssl -lcrypto -lRSAglue -lrsaref -lz" : "-lssl -lcrypto -lz";
     
     ### old order which might work on some platforms
     #$libs = $rsaref ? "-lssl -lRSAglue -lcrypto -lrsaref" : "-lssl -lcrypto";
