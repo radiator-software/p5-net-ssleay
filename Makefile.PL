@@ -42,7 +42,7 @@ clean_files(map { fixpath($_) } qw(
     examples/*.0
 ));
 
-no_index(qw( inc ext ));
+no_index( directory => qw( inc ext ) );
 
 auto_include;
 auto_install;
