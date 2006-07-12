@@ -52,3 +52,6 @@ t/handle/10_destroy.t
 t/handle/50_external.t
 test.pl
 typemap
+ext/Module/Install/PRIVATE/Net/SSLeay.pm
+TODO
+ppport.h
