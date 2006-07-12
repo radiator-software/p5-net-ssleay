@@ -478,7 +478,7 @@ eval {
 	XSLoader::load('Net::SSLeay', $VERSION);
 	1;
 } or do {
-	require Dynaloader;
+	require DynaLoader;
 	push @ISA, 'DynaLoader';
 	bootstrap Net::SSLeay $VERSION;
 };
