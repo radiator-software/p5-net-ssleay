@@ -1,8 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
-use Test::More tests => 6;
-use Test::Exception;
+use Test::More tests => 5;
 use File::Spec;
 use Net::SSLeay;
 
@@ -22,9 +21,7 @@ sub callback {
 my $ctx = Net::SSLeay::CTX_new();
 ok($ctx, 'CTX_new');
 
-lives_ok {
-    Net::SSLeay::CTX_set_default_passwd_cb($ctx, \&callback);
-} 'CTX_set_default_passwd_cb';
+Net::SSLeay::CTX_set_default_passwd_cb($ctx, \&callback);
 
 ok( Net::SSLeay::CTX_use_PrivateKey_file($ctx, $key_pem, Net::SSLeay::FILETYPE_PEM()),
         'CTX_use_PrivateKey_file works with right passphrase' );
