@@ -19,5 +19,22 @@
   + Test if exports work correctly
 
 * Net::SSLeay::Handle
-  + Split off or integrate it into Net::SSLeay properly. Discuss on -devel.
-  + Modify READLINE behaviour to return all available lines in list context? See -devel.
+  + Modify READLINE behaviour to return all available lines in list context?
+    See -devel.
+
+* Improve the search for installed openssl and zlib libs so it will recognize
+  them only runtime is installed without the headers required for building the
+  module.
+
+* Instruction on how to the the prerequisites
+  Installing OpenSSL
+  ------------------
+  On Debian and Debian based Operating systems one can install
+  by typing:
+
+  apt-get install libssl-dev
+
+  On some Ubuntu versions libssl-dev seems to be broken as it doesn't depend on
+  zlib1g-dev.
+
+  apt-get install zlib1g fixes that.
