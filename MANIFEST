@@ -13,7 +13,8 @@ QuickRef
 README
 README.Win32
 RECIPE.Win32
-SSLeay.pm
+lib/Net/SSLeay.pm
+lib/Net/SSLeay/Handle.pm
 SSLeay.xs
 examples/bio.pl
 examples/bulk.pl

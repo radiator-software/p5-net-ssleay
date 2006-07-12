@@ -190,15 +190,14 @@ if ($windows) {
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 my %configParams = (
-    NAME	=> 'Net::SSLeay',
-    VERSION_FROM => 'SSLeay.pm', # finds $VERSION
-    DIR         => [ 'Net-SSLeay-Handle-0.50' ],
-    DEFINE      => '-DPERL5 -DOPENSSL_NO_KRB5',   # perl-5.8/gcc-3.2 needs first, RH9 latter
-    DISTNAME    => 'Net_SSLeay.pm',
-    dist        => { COMPRESS => 'gzip', SUFFIX => 'gz', },
-    LIBS	=> ["-L$openssl_path -L$openssl_path/lib -L$openssl_path/out32dll $libs"],
-    INC 	=> "-I$openssl_path/include -I$openssl_path/inc32 -I/usr/kerberos/include",
-    OPTIMIZE    => $optimize,
+    NAME	     => 'Net::SSLeay',
+    VERSION_FROM => 'lib/Net/SSLeay.pm', # finds $VERSION
+    DEFINE       => '-DPERL5 -DOPENSSL_NO_KRB5',   # perl-5.8/gcc-3.2 needs first, RH9 latter
+    dist         => { COMPRESS => 'gzip', SUFFIX => 'gz', },
+    test         => { TESTS => 't/*.t t/*/*.t' },
+    LIBS	     => ["-L$openssl_path -L$openssl_path/lib -L$openssl_path/out32dll $libs"],
+    INC 	     => "-I$openssl_path/include -I$openssl_path/inc32 -I/usr/kerberos/include",
+    OPTIMIZE     => $optimize,
 # Uncomment (and edit) following for debugging with gdb
 #    LIBS	=> ['-L/usr/src/openssl-0.9.3a -lssl -lcrypto'],
 #    INC	=> '-I/usr/src/openssl-0.9.3a/include',
