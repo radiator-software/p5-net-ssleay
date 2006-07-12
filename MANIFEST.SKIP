@@ -15,6 +15,7 @@ svn-commit\.tmp$
 ^openssl_path$
 ^examples/key\.pem
 ^examples/.*\.0$
+^examples/cert\.pem
 ^ext/
 ^tcpecho\.log$
 ^sslecho\.log$
