@@ -2,7 +2,6 @@
 ^_darcs/
 ^Net-SSLeay-
 \.hsc$
-\.c$
 \.bs$
 \.o.*$
 \.sw\w$
