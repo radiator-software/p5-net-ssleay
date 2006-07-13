@@ -7,6 +7,6 @@ plan skip_all => "currently disabled";
 plan skip_all => "Test::Pod::Coverage 1.00 required for testing POD coverage" if $@;
 
 all_pod_coverage_ok(qw(
-			blib/lib/Net/SSLeay.pm
-			blib/lib/Net/SSLeay/Handle.pm
+            blib/lib/Net/SSLeay.pm
+            blib/lib/Net/SSLeay/Handle.pm
 ));

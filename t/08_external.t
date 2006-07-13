@@ -7,8 +7,8 @@ use Net::SSLeay;
 
 my @sites = qw(
         www.cdw.com
-	    banking.wellsfargo.com
-	    perldition.org
+        banking.wellsfargo.com
+        perldition.org
         alioth.debian.org
 );
 

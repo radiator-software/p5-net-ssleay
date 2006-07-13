@@ -14,8 +14,8 @@ my $key_password = 'secret';
 my $calls = 0;
 
 sub callback {
-	$calls++;
-	return $key_password;
+    $calls++;
+    return $key_password;
 }
 
 my $ctx = Net::SSLeay::CTX_new();
