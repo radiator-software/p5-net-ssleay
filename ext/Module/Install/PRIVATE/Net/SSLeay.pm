@@ -38,6 +38,16 @@ EOM
     $self->cc_optimize_flags(    $opts->{optimize}    );
 
     $self->makemaker_args( CCCDLFLAGS => $opts->{cccdlflags} );
+
+    if ( $self->prompt(
+            "Do you want to run external tests?\n".
+            "These tests *will* *fail* if you do not have network connectivity.",
+            'y',
+    ) =~ /^y/i ) {
+        $self->tests('t/*/*.t t/*/*/*.t');
+    } else {
+        $self->tests('t/local/*.t t/handle/local/*.t');
+    }
 }
 
 sub ssleay_get_build_opts {

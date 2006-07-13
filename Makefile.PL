@@ -25,7 +25,6 @@ features(
     ],
 );
 
-tests('t/*.t t/*/*.t');
 clean_files(map { fixpath($_) } qw(
     makecert.out
     makecert.err
