@@ -11,16 +11,13 @@ all_from('lib/Net/SSLeay.pm');
 ssleay();
 
 build_requires('Test::More' => 0.42);
+build_requires('Test::Exception');
 
 features(
     'POD Testing' => [
         -default => 0,
         recommends('Test::Pod'),
         recommends('Test::Pod::Coverage'),
-    ],
-    'Exception Testing' => [
-        -default => 0,
-        recommends('Test::Exception'),
     ],
     'Proxy authentication' => [
         -default => 1,
