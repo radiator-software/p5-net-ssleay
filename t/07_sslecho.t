@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
+use warnings;
 use Test::More tests => 23;
 use Socket;
 use IO::Select;

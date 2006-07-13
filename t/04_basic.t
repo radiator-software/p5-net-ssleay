@@ -1,9 +1,10 @@
 #!/usr/bin/perl
 
 use strict;
+use warnings;
 use Test::More tests => 4;
-
 use Net::SSLeay;
+
 eval "use Test::Exception;";
 
 SKIP: {

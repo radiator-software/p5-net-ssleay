@@ -2,6 +2,7 @@
 # Test complete connection a number of external SSL web servers
 
 use strict;
+use warnings;
 use Test::More;
 use Net::SSLeay;
 
