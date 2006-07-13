@@ -511,7 +511,7 @@ sub die_if_ssl_error {
 }
 
 # Unconditional death. Used to print SSLeay errors before dying.
-# usage: Net::SSLeay:connect($ssl) or die_now("Failed SSL connect ($!)");
+# usage: Net::SSLeay::connect($ssl) or die_now("Failed SSL connect ($!)");
 
 sub die_now {
     my ($msg) = @_;    
@@ -903,7 +903,7 @@ the following encantation:
 C<die_now()> and C<die_if_ssl_error()> are used to conveniently print SSLeay error
 stack when something goes wrong, thusly:
 
-	Net::SSLeay:connect($ssl) or die_now("Failed SSL connect ($!)");
+	Net::SSLeay::connect($ssl) or die_now("Failed SSL connect ($!)");
 	Net::SSLeay::write($ssl, "foo") or die_if_ssl_error("SSL write ($!)");
 
 You can also use C<Net::SSLeay::print_errs()> to dump the error stack without
