@@ -133,11 +133,6 @@ sub find_openssl_exec {
     for my $subdir (qw( bin sbin out32dll )) {
         my $path = File::Spec->catfile($prefix, $subdir, "openssl$Config{_exe}");
         if ( -x $path ) {
-            { #FIXME: Remove as soon as test.pl is removed
-                open(FH, '>openssl_path') or die;
-                print FH $path;
-                close FH;
-            }
             return $path;
         }
     }
