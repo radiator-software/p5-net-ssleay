@@ -23,18 +23,18 @@ int main(argc, argv)
   FROMTYPE bufptr = (FROMTYPE) malloc(500);
   volatile TOTYPE i; /* prevent optimization */
 
-  printf("%s: '%s' len: %d, '%s' len: %d.\n", argv[0], FROMTYPESTR,
+  printf("# %s: '%s' len: %d, '%s' len: %d.\n", argv[0], FROMTYPESTR,
 	 sizeof(TOTYPE), TOTYPESTR, sizeof(char *));
 
   i = (TOTYPE)bufptr;
   if( ((FROMTYPE)i) != bufptr ) {
-    printf("%s: failed: (%p != %p).\n", argv[0], (FROMTYPE)i, bufptr);
-    printf("ERROR: a '%s' can't be cast to a '%s' and back \n",
+    printf("# %s: failed: (%p != %p).\n", argv[0], (FROMTYPE)i, bufptr);
+    printf("# ERROR: a '%s' can't be cast to a '%s' and back \n",
 	   FROMTYPESTR, TOTYPESTR);
-    printf("ERROR: without loss of information on this architecture.\n");
+    printf("# ERROR: without loss of information on this architecture.\n");
     exit(1);
   } else {
-    printf("ptrcasttst: ok (%p == %p).\n", (FROMTYPE)i, bufptr);
+    printf("# ptrcasttst: ok (%p == %p).\n", (FROMTYPE)i, bufptr);
     exit(0);
   }
 
