@@ -28,10 +28,9 @@ features(
 clean_files(map { fixpath($_) } qw(
     makecert.out
     makecert.err
-    openssl_path
     sslecho.log
     tcpecho.log
-    ptrcasttst
+    t/local/ptr_cast_test
     examples/cert.pem
     examples/key.pem
     examples/key.pem.e

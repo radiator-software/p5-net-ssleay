@@ -1,6 +1,7 @@
 ^MANIFEST.bak$                          
 ^_darcs/
 ^Net-SSLeay-
+^SSLeay\.c$
 \.hsc$
 \.bs$
 \.o.*$
@@ -20,4 +21,6 @@ svn-commit\.tmp$
 ^sslecho\.log$
 ^ptrcasttst$
 ^makecert\.
+^t/local/ptr_cast_test$
+^\.rnd$
 #defaults
