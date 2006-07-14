@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use Test::More;
 
+plan skip_all => 'Currently disabled';
+
 eval "use Test::Exception;";
 plan skip_all => "Test::Exception required." if $@;
 
