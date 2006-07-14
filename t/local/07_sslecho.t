@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 34;
+use Test::More tests => 44;
 use Socket;
 use IO::Select;
 use File::Spec;
@@ -13,9 +13,15 @@ my $sock;
 my $pid;
 
 my $port = 1212;
+my $dest_ip = gethostbyname('localhost');
+my $dest_serv_params  = pack ('S n a4 x8', AF_INET, $port, $dest_ip);
+
 my $msg = 'ssleay-test';
 my $cert_pem = File::Spec->catfile('t', 'data', 'cert.pem');
 my $key_pem = File::Spec->catfile('t', 'data', 'key.pem');
+
+my $cert_name = '/C=PL/ST=Peoples Republic of Perl/L=Net::/O=Net::SSLeay/'
+    . 'OU=Net::SSLeay developers/CN=127.0.0.1/emailAddress=rafl@debian.org';
 
 $ENV{RND_SEED} = '1234567890123456789012345678901234567890';
 
@@ -41,7 +47,7 @@ Net::SSLeay::SSLeay_add_ssl_algorithms();
     $pid = fork();
     die unless defined $pid;
     if ($pid == 0) {
-        for (1 .. 3) {
+        for (1 .. 4) {
             my $select = IO::Select->new($sock);
             $select->can_read();
 
@@ -61,7 +67,7 @@ Net::SSLeay::SSLeay_add_ssl_algorithms();
             ok(Net::SSLeay::get_cipher($ssl), 'get_cipher');
 
             my $got = Net::SSLeay::ssl_read_all($ssl);
-            is($got, $msg, 'ssl_read_all');
+            is($got, $msg, 'ssl_read_all') if $_ < 4;
             ok(Net::SSLeay::ssl_write_all($ssl, uc($got)), 'ssl_write_all');
 
             Net::SSLeay::free($ssl);
@@ -83,10 +89,6 @@ my @results;
 }
 
 {
-
-    my $dest_ip = gethostbyname('localhost');
-    my $dest_serv_params = sockaddr_in($port, $dest_ip);
-
     my $s = gensym();
     socket($s, AF_INET, SOCK_STREAM, 0) or die;
     connect($s, $dest_serv_params) or die;
@@ -123,15 +125,67 @@ my @results;
 }
 
 {
-    my $cert_dir = 't/data';
+    my $verify_cb_called = 0;
+    {
+        my $cert_dir = 't/data';
 
-    my $dest_ip = gethostbyname('localhost');
-    my $dest_serv_params  = pack ('S n a4 x8', AF_INET, $port, $dest_ip);
+        my $s = gensym();
+        socket($s, AF_INET, SOCK_STREAM, 0) or die;
+        connect($s, $dest_serv_params) or die;
+        
+        {
+            my $old_out = select($s);
+            $| = 1;
+            select($old_out);
+        }
 
+        my $ctx = Net::SSLeay::CTX_new();
+        push @results, [Net::SSLeay::CTX_load_verify_locations($ctx, '', $cert_dir), 'CTX_load_verify_locations'];
+        Net::SSLeay::CTX_set_verify($ctx, &Net::SSLeay::VERIFY_PEER, \&verify);
+
+        my $ssl = Net::SSLeay::new($ctx);
+        Net::SSLeay::set_fd($ssl, fileno($s));
+        Net::SSLeay::connect($ssl);
+
+        Net::SSLeay::write($ssl, $msg);
+
+        Net::SSLeay::free($ssl);
+        Net::SSLeay::CTX_free($ctx);
+        shutdown $s, 2;
+        close $s;
+
+        push @results, [$verify_cb_called == 1, 'verify cb called once'];
+    }
+
+    sub verify {
+        my ($ok, $x509_store_ctx) = @_;
+        $verify_cb_called++;
+
+        push @results, [$ok, 'verify cb'];
+
+        my $cert = Net::SSLeay::X509_STORE_CTX_get_current_cert($x509_store_ctx);
+        push @results, [$cert, 'verify cb cert'];
+
+        my $issuer  = Net::SSLeay::X509_NAME_oneline(
+                Net::SSLeay::X509_get_issuer_name($cert)
+        );
+
+        my $subject = Net::SSLeay::X509_NAME_oneline(
+                Net::SSLeay::X509_get_subject_name($cert)
+        );
+
+        push @results, [$issuer  eq $cert_name, 'cert issuer' ];
+        push @results, [$subject eq $cert_name, 'cert subject'];
+
+        return 1;
+    }
+}
+
+{
     my $s = gensym();
     socket($s, AF_INET, SOCK_STREAM, 0) or die;
     connect($s, $dest_serv_params) or die;
-    
+
     {
         my $old_out = select($s);
         $| = 1;
@@ -139,54 +193,43 @@ my @results;
     }
 
     my $ctx = Net::SSLeay::CTX_new();
-    push @results, [Net::SSLeay::CTX_load_verify_locations($ctx, '', $cert_dir), 'CTX_load_verify_locations'];
-    Net::SSLeay::CTX_set_verify($ctx, &Net::SSLeay::VERIFY_PEER, \&verify);
-
     my $ssl = Net::SSLeay::new($ctx);
+
     Net::SSLeay::set_fd($ssl, fileno($s));
     Net::SSLeay::connect($ssl);
 
-    Net::SSLeay::write($ssl, $msg);
-
-    Net::SSLeay::free($ssl);
-    Net::SSLeay::CTX_free($ctx);
-    shutdown $s, 2;
-    close $s;
-
-}
-
-my $verify_cb_called = 0;
-
-sub verify {
-    my ($ok, $x509_store_ctx) = @_;
-    $verify_cb_called++;
-
-    push @results, [$ok, 'verify cb'];
-
-    my $cert = Net::SSLeay::X509_STORE_CTX_get_current_cert($x509_store_ctx);
-    push @results, [$cert, 'verify cb cert'];
-
-    my $issuer  = Net::SSLeay::X509_NAME_oneline(
-            Net::SSLeay::X509_get_issuer_name($cert)
-    );
+    my $cert = Net::SSLeay::get_peer_certificate($ssl);
 
     my $subject = Net::SSLeay::X509_NAME_oneline(
             Net::SSLeay::X509_get_subject_name($cert)
     );
 
-    my $cert_name = '/C=PL/ST=Peoples Republic of Perl/L=Net::/O=Net::SSLeay/'
-        . 'OU=Net::SSLeay developers/CN=127.0.0.1/emailAddress=rafl@debian.org';
+    my $issuer  = Net::SSLeay::X509_NAME_oneline(
+            Net::SSLeay::X509_get_issuer_name($cert)
+    );
 
-    push @results, [$issuer  eq $cert_name, 'cert issuer' ];
-    push @results, [$subject eq $cert_name, 'cert subject'];
+    push @results, [$subject eq $cert_name, 'get_peer_certificate subject'];
+    push @results, [$issuer  eq $cert_name, 'get_peer_certificate issuer' ];
 
-    return 1;
+    my $data = 'a' x 1024 ** 2;
+    my $written = Net::SSLeay::ssl_write_all($ssl, \$data);
+    push @results, [$written == length $data, 'ssl_write_all'];
+
+    shutdown $s, 1;
+
+    my $got = Net::SSLeay::ssl_read_all($ssl);
+    push @results, [$got eq uc($data), 'ssl_read_all'];
+
+    Net::SSLeay::free($ssl);
+    Net::SSLeay::CTX_free($ctx);
+
+    close $s;
 }
 
 END {
     waitpid $pid, 0;
 
-    Test::More->builder->current_test(21);
+    Test::More->builder->current_test(26);
     for my $test (@results) {
         ok($test->[0], $test->[1]);
     }
