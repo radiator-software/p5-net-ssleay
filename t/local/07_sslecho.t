@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 23;
+use Test::More tests => 34;
 use Socket;
 use IO::Select;
 use File::Spec;
@@ -17,17 +17,21 @@ my $msg = 'ssleay-test';
 my $cert_pem = File::Spec->catfile('t', 'data', 'cert.pem');
 my $key_pem = File::Spec->catfile('t', 'data', 'key.pem');
 
+$ENV{RND_SEED} = '1234567890123456789012345678901234567890';
+
+Net::SSLeay::randomize();
+Net::SSLeay::load_error_strings();
+Net::SSLeay::ERR_load_crypto_strings();
+Net::SSLeay::SSLeay_add_ssl_algorithms();
+
 {
     my $ip = "\x7F\0\0\x01";
     my $serv_params = pack ('S n a4 x8', AF_INET, $port, $ip);
     $sock = gensym();
     socket($sock, AF_INET, SOCK_STREAM, 0) or die;
     bind($sock, $serv_params) or die;
-    listen($sock, 2) or die;
+    listen($sock, 3) or die;
 
-    Net::SSLeay::load_error_strings();
-    Net::SSLeay::SSLeay_add_ssl_algorithms();
-    Net::SSLeay::randomize();
 
     my $ctx = Net::SSLeay::CTX_new();
     ok($ctx, 'CTX_new');
@@ -37,7 +41,7 @@ my $key_pem = File::Spec->catfile('t', 'data', 'key.pem');
     $pid = fork();
     die unless defined $pid;
     if ($pid == 0) {
-        for (1 .. 2) {
+        for (1 .. 3) {
             my $select = IO::Select->new($sock);
             $select->can_read();
 
@@ -62,9 +66,6 @@ my $key_pem = File::Spec->catfile('t', 'data', 'key.pem');
 
             Net::SSLeay::free($ssl);
             close $ns;
-            Test::More->builder->current_test(
-                Test::More->builder->current_test() + 1
-            );
         }
 
         Net::SSLeay::CTX_free($ctx);
@@ -74,15 +75,14 @@ my $key_pem = File::Spec->catfile('t', 'data', 'key.pem');
     }
 }
 
+my @results;
 {
     my ($got) = Net::SSLeay::sslcat('localhost', $port, $msg);
-    Test::More->builder->current_test(9);
-    is($got, uc($msg), 'sent and recieved correctly');
+    push @results, [$got eq uc($msg), 'send and recieved correctly'];
 
 }
 
 {
-    my @results;
 
     my $dest_ip = gethostbyname('localhost');
     my $dest_serv_params = sockaddr_in($port, $dest_ip);
@@ -112,6 +112,7 @@ my $key_pem = File::Spec->catfile('t', 'data', 'key.pem');
     shutdown($s, 1);
 
     my ($got) = Net::SSLeay::read($ssl);
+    push @results, [$got eq uc($msg), 'read'];
 
     Net::SSLeay::free($ssl);
     Net::SSLeay::CTX_free($ctx);
@@ -119,10 +120,73 @@ my $key_pem = File::Spec->catfile('t', 'data', 'key.pem');
     shutdown($s, 2);
     close $s;
 
+}
+
+{
+    my $cert_dir = 't/data';
+
+    my $dest_ip = gethostbyname('localhost');
+    my $dest_serv_params  = pack ('S n a4 x8', AF_INET, $port, $dest_ip);
+
+    my $s = gensym();
+    socket($s, AF_INET, SOCK_STREAM, 0) or die;
+    connect($s, $dest_serv_params) or die;
+    
+    {
+        my $old_out = select($s);
+        $| = 1;
+        select($old_out);
+    }
+
+    my $ctx = Net::SSLeay::CTX_new();
+    push @results, [Net::SSLeay::CTX_load_verify_locations($ctx, '', $cert_dir), 'CTX_load_verify_locations'];
+    Net::SSLeay::CTX_set_verify($ctx, &Net::SSLeay::VERIFY_PEER, \&verify);
+
+    my $ssl = Net::SSLeay::new($ctx);
+    Net::SSLeay::set_fd($ssl, fileno($s));
+    Net::SSLeay::connect($ssl);
+
+    Net::SSLeay::write($ssl, $msg);
+
+    Net::SSLeay::free($ssl);
+    Net::SSLeay::CTX_free($ctx);
+    shutdown $s, 2;
+    close $s;
+
+}
+
+my $verify_cb_called = 0;
+
+sub verify {
+    my ($ok, $x509_store_ctx) = @_;
+    $verify_cb_called++;
+
+    push @results, [$ok, 'verify cb'];
+
+    my $cert = Net::SSLeay::X509_STORE_CTX_get_current_cert($x509_store_ctx);
+    push @results, [$cert, 'verify cb cert'];
+
+    my $issuer  = Net::SSLeay::X509_NAME_oneline(
+            Net::SSLeay::X509_get_issuer_name($cert)
+    );
+
+    my $subject = Net::SSLeay::X509_NAME_oneline(
+            Net::SSLeay::X509_get_subject_name($cert)
+    );
+
+    my $cert_name = '/C=PL/ST=Peoples Republic of Perl/L=Net::/O=Net::SSLeay/'
+        . 'OU=Net::SSLeay developers/CN=127.0.0.1/emailAddress=rafl@debian.org';
+
+    push @results, [$issuer  eq $cert_name, 'cert issuer' ];
+    push @results, [$subject eq $cert_name, 'cert subject'];
+
+    return 1;
+}
+
+END {
     waitpid $pid, 0;
 
-    Test::More->builder->current_test(16);
-    is($got, uc($msg), 'read');
+    Test::More->builder->current_test(21);
     for my $test (@results) {
         ok($test->[0], $test->[1]);
     }
