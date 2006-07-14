@@ -38,7 +38,7 @@ die("Incorrect result from BIO_pending: $pending. Should be $len")
 # Read the rest
 $part = &Net::SSLeay::BIO_read($b);
 $nlen = length($part);
-die("Incorrect result from BIO_read: $len. Should be 9")
+die("Incorrect result from BIO_read: $len. Should be 991")
     unless $len == $nlen;
 
 &Net::SSLeay::BIO_free($b);
