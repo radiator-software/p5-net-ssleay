@@ -8,6 +8,9 @@ use Symbol qw(gensym);
 use IO::Select;
 use Net::SSLeay;
 
+Test::More->builder->use_numbers(0);
+Test::More->builder->no_ending(1);
+
 my $sock;
 my $pid;
 
@@ -51,6 +54,5 @@ my $msg = 'ssleay-tcp-test';
 {
     my ($got) = Net::SSLeay::tcpcat('localhost', $port, $msg);
     waitpid $pid, 0;
-    Test::More->builder->current_test(2);
     is($got, uc($msg), 'sent and recieved correctly');
 }
