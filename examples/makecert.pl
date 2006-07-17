@@ -8,15 +8,21 @@
 #
 # Make a self signed cert
 
+use strict;
+use warnings;
 use File::Copy;
+use File::Spec::Functions qw(catfile);
 
-$dir = shift;
-$exe_path = shift || '/usr/local/ssl/bin/openssl';
+my $dir      = shift || usage();
+my $exe_path = shift || '/usr/local/ssl/bin/openssl';
+my $egd      = defined( $ENV{EGD_POOL} ) ? "-rand $ENV{EGD_POOL}" : '';
 
-$egd = defined( $ENV{EGD_POOL} ) ?  "-rand $ENV{EGD_POOL}" : '';
+my $conf = catfile($dir, 'req.conf');
+my $key  = catfile($dir, 'key.pem' );
+my $cert = catfile($dir, 'cert.pem');
 
-open (REQ, "|$exe_path req -config $dir/req.conf "
-      . "-x509 -days 3650 -new -keyout $dir/key.pem $egd >$dir/cert.pem")
+open (REQ, "|$exe_path req -config $conf "
+      . "-x509 -days 3650 -new -keyout $key $egd >$cert")
     or die "cant open req. check your path ($!)";
 print REQ <<DISTINGUISHED_NAME;
 XX
@@ -30,16 +36,20 @@ sampo\@iki.fi
 DISTINGUISHED_NAME
     ;
 close REQ;
-system "$exe_path verify $dir/cert.pem";  # Just to check
+system "$exe_path verify $cert";  # Just to check
 
 # Generate an encrypted password too
-system "$exe_path rsa -in $dir/key.pem -des -passout pass:secret -out $dir/key.pem.e"; 
+system "$exe_path rsa -in $key -des -passout pass:secret -out $key.e"; 
 
 ### Prepare examples directory as certificate directory
 
-$hash = `$exe_path x509 -inform pem -hash -noout <$dir/cert.pem`;
+my $hash = `$exe_path x509 -inform pem -hash -noout <$cert`;
 chomp $hash;
-unlink "$dir/$hash.0";
-copy "$dir/cert.pem", "$dir/$hash.0" or die "Can't symlink $dir/$hash.0 ($!)";
 
-__END__
+my $hash_file = catfile($dir, "$hash.0");
+unlink $hash_file;
+copy($cert, $hash_file) or die "Can't symlink $dir/$hash.0 ($!)";
+
+sub usage {
+    die "Usage: $0 DIR [PATH_TO_OPENSSL]";
+}
