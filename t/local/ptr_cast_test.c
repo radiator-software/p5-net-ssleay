@@ -34,7 +34,7 @@ int main(argc, argv)
     printf("# ERROR: without loss of information on this architecture.\n");
     exit(1);
   } else {
-    printf("# ptrcasttst: ok (%p == %p).\n", (FROMTYPE)i, bufptr);
+    printf("# ptr_cast_test: ok (%p == %p).\n", (FROMTYPE)i, bufptr);
     exit(0);
   }
 
