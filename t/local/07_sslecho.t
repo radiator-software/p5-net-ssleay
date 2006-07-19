@@ -2,15 +2,12 @@
 
 use strict;
 use warnings;
-use Test::More tests => 44;
+use Test::More tests => 45;
 use Socket;
 use IO::Select;
 use File::Spec;
 use Symbol qw(gensym);
 use Net::SSLeay;
-
-Test::More->builder->use_numbers(0);
-Test::More->builder->no_ending(1);
 
 my $sock;
 my $pid;
@@ -84,9 +81,10 @@ Net::SSLeay::SSLeay_add_ssl_algorithms();
     }
 }
 
+my @results;
 {
     my ($got) = Net::SSLeay::sslcat('localhost', $port, $msg);
-    is( $got, uc($msg), 'send and recieved correctly' );
+    push @results, [ $got eq uc($msg), 'send and recieved correctly' ];
 
 }
 
@@ -101,19 +99,19 @@ Net::SSLeay::SSLeay_add_ssl_algorithms();
         select($old_out);
     }
 
-    ok( my $ctx = Net::SSLeay::CTX_new(), 'CTX_new' );
-    ok( my $ssl = Net::SSLeay::new($ctx), 'new' );
+    push @results, [ my $ctx = Net::SSLeay::CTX_new(), 'CTX_new' ];
+    push @results, [ my $ssl = Net::SSLeay::new($ctx), 'new' ];
 
-    ok( Net::SSLeay::set_fd($ssl, fileno($s)), 'set_fd' );
-    ok( Net::SSLeay::connect($ssl) );
+    push @results, [ Net::SSLeay::set_fd($ssl, fileno($s)), 'set_fd' ];
+    push @results, [ Net::SSLeay::connect($ssl), 'connect' ];
 
-    ok( Net::SSLeay::get_cipher($ssl), 'get_cipher' );
+    push @results, [ Net::SSLeay::get_cipher($ssl), 'get_cipher' ];
 
-    ok( Net::SSLeay::write($ssl, $msg), 'write' );
+    push @results, [ Net::SSLeay::write($ssl, $msg), 'write' ];
     shutdown($s, 1);
 
     my ($got) = Net::SSLeay::read($ssl);
-    is( $got, uc($msg), 'read' );
+    push @results, [ $got eq uc($msg), 'read' ];
 
     Net::SSLeay::free($ssl);
     Net::SSLeay::CTX_free($ctx);
@@ -139,7 +137,7 @@ Net::SSLeay::SSLeay_add_ssl_algorithms();
         }
 
         my $ctx = Net::SSLeay::CTX_new();
-        ok( Net::SSLeay::CTX_load_verify_locations($ctx, '', $cert_dir), 'CTX_load_verify_locations' );
+        push @results, [ Net::SSLeay::CTX_load_verify_locations($ctx, '', $cert_dir), 'CTX_load_verify_locations' ];
         Net::SSLeay::CTX_set_verify($ctx, &Net::SSLeay::VERIFY_PEER, \&verify);
 
         my $ssl = Net::SSLeay::new($ctx);
@@ -153,17 +151,17 @@ Net::SSLeay::SSLeay_add_ssl_algorithms();
         shutdown $s, 2;
         close $s;
 
-        is( $verify_cb_called, 1, 'verify cb called once' );
+        push @results, [ $verify_cb_called == 1, 'verify cb called once' ];
     }
 
     sub verify {
         my ($ok, $x509_store_ctx) = @_;
         $verify_cb_called++;
 
-        ok( $ok, 'verify cb' );
+        push @results, [ $ok, 'verify cb' ];
 
         my $cert = Net::SSLeay::X509_STORE_CTX_get_current_cert($x509_store_ctx);
-        ok( $cert, 'verify cb cert' );
+        push @results, [ $cert, 'verify cb cert' ];
 
         my $issuer  = Net::SSLeay::X509_NAME_oneline(
                 Net::SSLeay::X509_get_issuer_name($cert)
@@ -173,8 +171,8 @@ Net::SSLeay::SSLeay_add_ssl_algorithms();
                 Net::SSLeay::X509_get_subject_name($cert)
         );
 
-        is( $issuer,  $cert_name, 'cert issuer'  );
-        is( $subject, $cert_name, 'cert subject' );
+        push @results, [ $issuer  eq $cert_name, 'cert issuer'  ];
+        push @results, [ $subject eq $cert_name, 'cert subject' ];
 
         return 1;
     }
@@ -207,17 +205,17 @@ Net::SSLeay::SSLeay_add_ssl_algorithms();
             Net::SSLeay::X509_get_issuer_name($cert)
     );
 
-    is( $subject, $cert_name, 'get_peer_certificate subject' );
-    is( $issuer,  $cert_name, 'get_peer_certificate issuer'  );
+    push @results, [ $subject eq $cert_name, 'get_peer_certificate subject' ];
+    push @results, [ $issuer  eq $cert_name, 'get_peer_certificate issuer'  ];
 
     my $data = 'a' x 1024 ** 2;
     my $written = Net::SSLeay::ssl_write_all($ssl, \$data);
-    is( $written, length $data, 'ssl_write_all' );
+    push @results, [ $written == length $data, 'ssl_write_all' ];
 
     shutdown $s, 1;
 
     my $got = Net::SSLeay::ssl_read_all($ssl);
-    is( $got, uc($data), 'ssl_read_all' );
+    push @results, [ $got eq uc($data), 'ssl_read_all' ];
 
     Net::SSLeay::free($ssl);
     Net::SSLeay::CTX_free($ctx);
@@ -225,6 +223,12 @@ Net::SSLeay::SSLeay_add_ssl_algorithms();
     close $s;
 }
 
+waitpid $pid, 0;
+push @results, [ $? == 0, 'server exited wiht 0' ];
+
 END {
-    waitpid $pid, 0;
+    Test::More->builder->current_test(26);
+    for my $t (@results) {
+        ok( $t->[0], $t->[1] );
+    }
 }
