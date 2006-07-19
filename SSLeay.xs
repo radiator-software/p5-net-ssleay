@@ -106,6 +106,8 @@ extern "C" {
 #include <openssl/buffer.h>
 #include <openssl/ssl.h>
 #include <openssl/comp.h>    /* openssl-0.9.6a forgets to include this */
+#include <openssl/md2.h>
+#include <openssl/md4.h>
 #include <openssl/md5.h>     /* openssl-SNAP-20020227 does not automatically include this */
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
@@ -2673,6 +2675,38 @@ PEM_get_string_X509(x509)
          sv_setpvn( ST(0), buffer, i );
      BIO_free(bp);
 
+void
+MD2(data)
+	PREINIT:
+	STRLEN len;
+	unsigned char md[MD2_DIGEST_LENGTH];
+	unsigned char * ret;
+	INPUT:
+	unsigned char* data = (unsigned char *) SvPV( ST(0), len);
+	CODE:
+	ret = MD2(data,len,md);
+	if (ret!=NULL) {
+		XSRETURN_PVN((char *) md, MD2_DIGEST_LENGTH);
+	} else {
+		XSRETURN_UNDEF;
+	}
+
+void
+MD4(data)
+	PREINIT:
+	STRLEN len;
+	unsigned char md[MD4_DIGEST_LENGTH];
+	unsigned char * ret;
+	INPUT:
+	unsigned char* data = (unsigned char *) SvPV( ST(0), len );
+	CODE:
+	ret = MD4(data,len,md);
+	if (ret!=NULL) {
+		XSRETURN_PVN((char *) md, MD4_DIGEST_LENGTH);
+	} else {
+		XSRETURN_UNDEF;
+	}
+
 void 
 MD5(data)
      PREINIT:
@@ -2684,7 +2718,7 @@ MD5(data)
      CODE:
      ret = MD5(data,len,md);
      if (ret!=NULL) {
-	  XSRETURN_PVN((char *) md, 16);
+	  XSRETURN_PVN((char *) md, MD5_DIGEST_LENGTH);
      } else {
 	  XSRETURN_UNDEF;
      }
