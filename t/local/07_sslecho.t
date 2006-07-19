@@ -5,7 +5,6 @@ use warnings;
 use Test::More tests => 45;
 use Socket;
 use File::Spec;
-use IO::Handle;
 use Symbol qw(gensym);
 use Net::SSLeay;
 
