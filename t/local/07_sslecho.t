@@ -99,11 +99,6 @@ my @results;
     push @results, [ my $ctx = Net::SSLeay::CTX_new(), 'CTX_new' ];
     push @results, [ my $ssl = Net::SSLeay::new($ctx), 'new' ];
 
-    use Data::Dumper;
-    diag Dumper($s);
-
-    my $s_handle = IO::Handle->new_from_fd( fileno($s), 'r+' );
-
     push @results, [ Net::SSLeay::set_fd($ssl, $s), 'set_fd using glob ref' ];
     push @results, [ Net::SSLeay::connect($ssl), 'connect' ];
 
