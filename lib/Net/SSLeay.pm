@@ -1539,7 +1539,7 @@ Maintained by Mike McCauley and Florian Ragwitz since November 2005
 
 Copyright (c) 1996-2003 Sampo Kellomäki <sampo@symlabs.com>
 
-Copyright (C) 2005 Florian Ragwitz <rafl@debian.org>
+Copyright (C) 2005-2006 Florian Ragwitz <rafl@debian.org>
 
 Copyright (C) 2005 Mike McCauley <mikem@open.com.au>
 
