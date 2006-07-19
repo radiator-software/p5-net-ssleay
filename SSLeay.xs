@@ -124,14 +124,6 @@ extern "C" {
 #undef  SEX_DEBUG
 #endif
 
-static int
-not_here(s)
-char *s;
-{
-    croak("%s not implemented on this architecture", s);
-    return -1;
-}
-
 /* xsub automagically generated constant evaluator function */
 
 static double
@@ -1780,7 +1772,6 @@ SSL_CTX_tlsv1_new()
 
 SSL_CTX *
 SSL_CTX_new_with_method(meth)
-     SSL_METHOD *   meth
      CODE:
      RETVAL = SSL_CTX_new (SSLv23_method());
      OUTPUT:
