@@ -26,7 +26,6 @@ handled as standard file handles.
   shutdown(\*SSL, 1);
   print while (<SSL>);
   close SSL;                                                       
-  
 
 =head1 DESCRIPTION
 
@@ -170,7 +169,7 @@ sub FILENO  { $_[0]->{fileno} }
 =item shutdown
 
   shutdown(\*SOCKET, $mode)
-	
+
 Calls to the main shutdown() don't work with tied sockets created with this
 module.  This shutdown should be able to distinquish between tied and untied
 sockets and do the right thing.
