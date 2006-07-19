@@ -5,6 +5,7 @@ use warnings;
 use Test::More tests => 45;
 use Socket;
 use File::Spec;
+use IO::Handle;
 use Symbol qw(gensym);
 use Net::SSLeay;
 
@@ -57,7 +58,7 @@ Net::SSLeay::SSLeay_add_ssl_algorithms();
             my $ssl = Net::SSLeay::new($ctx);
             ok($ssl, 'new');
 
-            ok(Net::SSLeay::set_fd($ssl, fileno($ns)), 'set_fd');
+            ok(Net::SSLeay::set_fd($ssl, fileno($ns)), 'set_fd using fileno');
             ok(Net::SSLeay::accept($ssl), 'accept');
 
             ok(Net::SSLeay::get_cipher($ssl), 'get_cipher');
@@ -98,7 +99,12 @@ my @results;
     push @results, [ my $ctx = Net::SSLeay::CTX_new(), 'CTX_new' ];
     push @results, [ my $ssl = Net::SSLeay::new($ctx), 'new' ];
 
-    push @results, [ Net::SSLeay::set_fd($ssl, fileno($s)), 'set_fd' ];
+    use Data::Dumper;
+    diag Dumper($s);
+
+    my $s_handle = IO::Handle->new_from_fd( fileno($s), 'r+' );
+
+    push @results, [ Net::SSLeay::set_fd($ssl, $s), 'set_fd using glob ref' ];
     push @results, [ Net::SSLeay::connect($ssl), 'connect' ];
 
     push @results, [ Net::SSLeay::get_cipher($ssl), 'get_cipher' ];

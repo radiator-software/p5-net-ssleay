@@ -124,6 +124,8 @@ extern "C" {
 #undef  SEX_DEBUG
 #endif
 
+typedef int perl_filehandle_t;
+
 /* xsub automagically generated constant evaluator function */
 
 static double
@@ -1897,17 +1899,17 @@ SSL_set_wfd(s,fd)
 int
 SSL_set_fd(s,fd)
      SSL *   s
-     int     fd
+     perl_filehandle_t     fd
 
 int
 SSL_set_rfd(s,fd)
      SSL *   s
-     int     fd
+     perl_filehandle_t     fd
 
 int
 SSL_set_wfd(s,fd)
      SSL *   s
-     int     fd
+     perl_filehandle_t     fd
 
 #endif
 

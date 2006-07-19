@@ -5,6 +5,7 @@ use warnings;
 use Test::More tests => 11;
 use Net::SSLeay;
 use Symbol qw( gensym );
+use IO::Handle;
 use File::Spec;
 
 Net::SSLeay::randomize();
@@ -39,8 +40,8 @@ if ($pid == 0) {
 
     my $ssl = Net::SSLeay::new($ctx);
 
-    ok( Net::SSLeay::set_rfd($ssl, fileno($rs)), 'set_rfd' );
-    ok( Net::SSLeay::set_wfd($ssl, fileno($ws)), 'set_wfd' );
+    ok( Net::SSLeay::set_rfd($ssl, fileno($rs)), 'set_rfd using fileno' );
+    ok( Net::SSLeay::set_wfd($ssl, fileno($ws)), 'set_wfd using fileno' );
 
     ok( Net::SSLeay::accept($ssl), 'accept' );
 
@@ -61,8 +62,10 @@ my @results;
     my $ctx = Net::SSLeay::CTX_new();
     my $ssl = Net::SSLeay::new($ctx);
 
-    push @results, [ Net::SSLeay::set_rfd($ssl, fileno($rc)), 'set_rfd' ];
-    push @results, [ Net::SSLeay::set_wfd($ssl, fileno($wc)), 'set_wfd' ];
+    my $rc_handle = IO::Handle->new_from_fd( fileno($rc), 'r' );
+    my $wc_handle = IO::Handle->new_from_fd( fileno($wc), 'w' );
+    push @results, [ Net::SSLeay::set_rfd($ssl, $rc_handle), 'set_rfd using an io handle' ];
+    push @results, [ Net::SSLeay::set_wfd($ssl, $wc_handle), 'set_wfd using an io handle' ];
 
     push @results, [ Net::SSLeay::connect($ssl), 'connect' ];
 
