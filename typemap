@@ -42,7 +42,7 @@ INPUT
 
 T_PERL_IO_HANDLE
 	if ($arg && SvOK($arg) && SvROK($arg)) {
-		$var = PerlIO_fileno( IoIFP( sv_2io(SvRV($arg)) ) );
+		$var = ($type)PerlIO_fileno( IoIFP( sv_2io(SvRV($arg)) ) );
 	} else {
-		$var = (perl_filehandle_t)SvIV($arg);
+		$var = ($type)SvIV($arg);
 	}
