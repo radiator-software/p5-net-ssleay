@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use Test::More tests => 45;
 use Socket;
-use IO::Select;
 use File::Spec;
 use Symbol qw(gensym);
 use Net::SSLeay;
@@ -48,9 +47,6 @@ Net::SSLeay::SSLeay_add_ssl_algorithms();
     die unless defined $pid;
     if ($pid == 0) {
         for (1 .. 4) {
-            my $select = IO::Select->new($sock);
-            $select->can_read();
-
             my $ns = gensym();
             my $addr = accept($ns, $sock);
 

@@ -5,7 +5,6 @@ use warnings;
 use Test::More tests => 4;
 use Socket;
 use Symbol qw(gensym);
-use IO::Select;
 use Net::SSLeay;
 
 my $sock;
@@ -27,9 +26,6 @@ my $msg = 'ssleay-tcp-test';
     $pid = fork();
     die unless defined $pid;
     if ($pid == 0) {
-        my $select = IO::Select->new($sock);
-        $select->can_read();
-
         my $addr = accept(Net::SSLeay::SSLCAT_S, $sock) or die;
 
         my $old_out = select(Net::SSLeay::SSLCAT_S);
