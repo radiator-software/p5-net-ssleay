@@ -989,8 +989,12 @@ SSL_load_error_strings()
 void
 ERR_load_crypto_strings()
 
-void
-SSLeay_add_ssl_algorithms()
+int
+SSL_library_init()
+	ALIAS:
+		SSLeay_add_ssl_algorithms  = 1
+		OpenSSL_add_ssl_algorithms = 2
+		add_ssl_algorithms         = 3
 
 void
 ERR_load_SSL_strings()
@@ -1677,9 +1681,6 @@ SSL_get_verify_result(ssl)
      SSL *	ssl
 
 int 
-SSL_library_init()
-
-int 
 SSL_renegotiate(s)
      SSL *	s
 
@@ -1865,13 +1866,6 @@ SSL_SESSION_get_ex_new_index(argl, argp, new_func, dup_func, free_func)
      CRYPTO_EX_free * free_func
 
 #define REM_SEMIAUTOMATIC_MACRO_GEN_1_09
-
-int 
-OpenSSL_add_ssl_algorithms()
-  CODE:
-  RETVAL = SSL_library_init();
-  OUTPUT:
-  RETVAL
 
 long
 SSL_clear_num_renegotiations(ssl)
