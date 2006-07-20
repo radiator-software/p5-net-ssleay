@@ -13,17 +13,7 @@ ssleay();
 build_requires('Test::More' => 0.42);
 build_requires('Test::Exception');
 
-features(
-    'POD Testing' => [
-        -default => 0,
-        recommends('Test::Pod'),
-        recommends('Test::Pod::Coverage'),
-    ],
-    'Proxy authentication' => [
-        -default => 1,
-        recommends('MIME::Base64'),
-    ],
-);
+requires('MIME::Base64');
 
 clean_files(map { fixpath($_) } qw(
     makecert.out
