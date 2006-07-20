@@ -64,24 +64,6 @@
  * The distribution and use of this module are subject to the conditions
  * listed in LICENSE file at the root of OpenSSL-0.9.6b
  * distribution (i.e. free, but mandatory attribution and NO WARRANTY).
-
-Removed, perhaps permanently?
-
-int
-SSL_add_session(ctx,ses)
-     SSL_CTX *          ctx
-     SSL_SESSION *      ses
-
-int
-SSL_remove_session(ctx,ses)
-     SSL_CTX *          ctx
-     SSL_SESSION *      ses
-
-void
-SSL_flush_sessions(ctx,tm)
-     SSL_CTX *          ctx
-     long               tm
-
  */
 
 #ifdef __cplusplus
