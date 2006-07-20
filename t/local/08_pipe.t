@@ -10,7 +10,7 @@ use File::Spec;
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();
-Net::SSLeay::SSLeay_add_ssl_algorithms();
+Net::SSLeay::OpenSSL_add_ssl_algorithms();
 
 my $cert = File::Spec->catfile(qw( t data cert.pem ));
 my $key  = File::Spec->catfile(qw( t data key.pem  ));

@@ -27,7 +27,7 @@ $ENV{RND_SEED} = '1234567890123456789012345678901234567890';
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();
 Net::SSLeay::ERR_load_crypto_strings();
-Net::SSLeay::SSLeay_add_ssl_algorithms();
+Net::SSLeay::library_init();
 
 {
     my $ip = "\x7F\0\0\x01";
