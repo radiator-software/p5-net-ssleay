@@ -5,6 +5,7 @@ use Module::Install::Base;
 use File::Basename ();
 use File::Spec;
 use Config;
+use Symbol qw(gensym);
 
 use vars qw{$VERSION @ISA};
 BEGIN {
@@ -143,7 +144,8 @@ sub check_openssl_version {
     my ($major, $minor, $letter);
 
     {
-        open my $pipe, '-|', $exec, 'version'
+        my $pipe = gensym();
+        open($pipe, "$exec version |")
             or die "Could not execute $exec";
         my $output = <$pipe>;
         chomp $output;

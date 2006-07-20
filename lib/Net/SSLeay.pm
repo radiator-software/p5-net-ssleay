@@ -1531,9 +1531,9 @@ L<http://search.cpan.org/dist/Net_SSLeay.pm>
 
 =head1 AUTHOR
 
-Originally written by Sampo Kellomäki <sampo@symlabs.com>
-
 Maintained by Mike McCauley and Florian Ragwitz since November 2005
+
+Originally written by Sampo Kellomäki <sampo@symlabs.com>
 
 =head1 COPYRIGHT
 
