@@ -1652,53 +1652,149 @@ ssleay_verify_callback_invoke (int ok, X509_STORE_CTX* x509_store) {
 	return res;
 }
 
-static SV * ssleay_ctx_set_default_passwd_cb_callback = (SV*)NULL;
+static HV* ssleay_ctx_passwd_cbs = (HV*)NULL;
+
+struct _ssleay_ctx_passwd_cb_t {
+	SV* func;
+	SV* data;
+};
+typedef struct _ssleay_ctx_passwd_cb_t ssleay_ctx_passwd_cb_t;
+
+ssleay_ctx_passwd_cb_t*
+ssleay_ctx_passwd_cb_new(SSL_CTX* ctx) {
+	ssleay_ctx_passwd_cb_t* cb;
+	SV* hash_value;
+	SV* key;
+	char* key_str;
+	STRLEN key_len;
+
+	cb = (ssleay_ctx_passwd_cb_t*)malloc( sizeof(ssleay_ctx_passwd_cb_t) );
+
+	if (ctx == NULL)
+		croak( "Net::SSLeay: ctx == NULL in ssleay_ctx_passwd_cb_new" );
+
+	hash_value = sv_2mortal(newSViv( (IV)cb ));
+
+	key = sv_2mortal(newSViv( (IV)ctx ));
+	key_str = SvPV(key, key_len);
+
+	if (ssleay_ctx_passwd_cbs == (HV*)NULL)
+		ssleay_ctx_passwd_cbs = newHV();
+
+	SvREFCNT_inc(hash_value);
+	hv_store( ssleay_ctx_passwd_cbs, key_str, key_len, hash_value, 0 );
+
+	return cb;
+}
+
+ssleay_ctx_passwd_cb_t*
+ssleay_ctx_passwd_cb_get(SSL_CTX* ctx) {
+	SV* key;
+	char* key_str;
+	STRLEN key_len;
+	SV** hash_value;
+	ssleay_ctx_passwd_cb_t* cb;
+
+	key = sv_2mortal(newSViv( (IV)ctx ));
+	key_str = SvPV(key, key_len);
+
+	hash_value = hv_fetch( ssleay_ctx_passwd_cbs, key_str, key_len, 0 );
+
+	if (hash_value == NULL || *hash_value == NULL) {
+		cb = ssleay_ctx_passwd_cb_new(ctx);
+	} else {
+		cb = (ssleay_ctx_passwd_cb_t*)SvIV( *hash_value );
+	}
+
+	return cb;
+
+}
+
+void
+ssleay_ctx_passwd_cb_func_set(SSL_CTX* ctx, SV* func) {
+	ssleay_ctx_passwd_cb_t* cb;
+
+	cb = ssleay_ctx_passwd_cb_get(ctx);
+
+	SvREFCNT_inc(func);
+	cb->func = func;
+}
+
+void
+ssleay_ctx_passwd_cb_userdata_set(SSL_CTX* ctx, SV* data) {
+	ssleay_ctx_passwd_cb_t* cb;
+
+	cb = ssleay_ctx_passwd_cb_get(ctx);
+	
+	SvREFCNT_inc(data);
+	cb->data = data;
+}
+
+void ssleay_ctx_passwd_cb_free(SSL_CTX* ctx) {
+	ssleay_ctx_passwd_cb_t* cb;
+
+	cb = ssleay_ctx_passwd_cb_get(ctx);
+
+	if (cb) {
+		if (cb->func) {
+			SvREFCNT_dec(cb->func);
+			cb->func = NULL;
+		}
+
+		if (cb->data) {
+			SvREFCNT_dec(cb->data);
+			cb->data = NULL;
+		}
+	}
+
+	/* TODO dec refcnt for hash key */
+}
 
 /* pem_password_cb function */
 
 static int
-ssleay_ctx_set_default_passwd_cb_callback_glue (char *buf, int size,
-				 		int rwflag, void *userdata)
-{
-      dSP;
-      int count;
-      char *res;
+ssleay_ctx_passwd_cb_invoke(char *buf, int size, int rwflag, void *userdata) {
+	dSP;
 
-      ENTER;
-      SAVETMPS;
+	int count;
+	char *res;
+	ssleay_ctx_passwd_cb_t* cb = (ssleay_ctx_passwd_cb_t*)userdata;
 
-      PUSHMARK(sp);
-      XPUSHs(sv_2mortal(newSViv(rwflag)));
-      XPUSHs(sv_2mortal(newSViv((unsigned long)userdata)));
-      PUTBACK;
+	ENTER;
+	SAVETMPS;
 
-      if (ssleay_ctx_set_default_passwd_cb_callback == NULL)
-              croak ("Net::SSLeay: ctx_passwd_callback called, but not "
-                     "set to point to any perl function.\n");
+	PUSHMARK(sp);
+	XPUSHs( sv_2mortal( newSViv(rwflag)) );
+	if (cb->data)
+		XPUSHs( cb->data );
+	PUTBACK;
 
-      PR("About to call passwd callback.\n");
-      count = call_sv(ssleay_ctx_set_default_passwd_cb_callback, G_SCALAR);
-      PR("Returned from ctx passwd callback.\n");
+	if (cb->func == NULL)
+		croak ("Net::SSLeay: ssleay_ctx_passwd_cb_invoke called, but not "
+			   "set to point to any perl function.\n");
 
-      SPAGAIN;
+	count = call_sv( cb->func, G_SCALAR );
 
-      if (count != 1)
-              croak ("Net::SSLeay: ctx_passwd_callback "
-                     "perl function did not return a scalar.\n");
-      res = POPp;
-      
-      if (res == NULL) {
-              *buf = '\0';
-      } else {
-              strncpy(buf, res, size);
-              buf[size - 1] = '\0';
-      }
+	SPAGAIN;
 
-      PUTBACK;
-      FREETMPS;
-      LEAVE;
+	if (count != 1)
+		croak ("Net::SSLeay: ssleay_ctx_passwd_cb_invoke "
+			   "perl function did not return a scalar.\n");
 
-      return strlen(buf);
+	res = POPp;
+
+	if (res == NULL) {
+		*buf = '\0';
+	} else {
+		strncpy(buf, res, size);
+		buf[size - 1] = '\0';
+	}
+
+	PUTBACK;
+	FREETMPS;
+	LEAVE;
+
+	return strlen(buf);
 }
 
 MODULE = Net::SSLeay		PACKAGE = Net::SSLeay          PREFIX = SSL_
@@ -2916,23 +3012,28 @@ SSL_CTX_set_client_CA_list(ctx,list)
      X509_NAME_STACK * list
 
 void 
-SSL_CTX_set_default_passwd_cb(ctx,cb)
-    	SSL_CTX *	ctx
-	SV * cb
+SSL_CTX_set_default_passwd_cb(ctx,func=NULL)
+	SSL_CTX *	ctx
+	SV * func
+	PREINIT:
+	ssleay_ctx_passwd_cb_t* cb;
 	CODE:
-     if (ssleay_ctx_set_default_passwd_cb_callback == (SV*)NULL)
-        ssleay_ctx_set_default_passwd_cb_callback = newSVsv(cb);
-     else
-         SvSetSV (ssleay_ctx_set_default_passwd_cb_callback, cb);
-     if (SvTRUE(ssleay_ctx_set_default_passwd_cb_callback))
-         SSL_CTX_set_default_passwd_cb(ctx,&ssleay_ctx_set_default_passwd_cb_callback_glue);
-     else
-         SSL_CTX_set_default_passwd_cb(ctx,NULL);
+	if (func == NULL || func == &PL_sv_undef) {
+		ssleay_ctx_passwd_cb_free(ctx);
+		SSL_CTX_set_default_passwd_cb(ctx, NULL);
+	} else {
+		cb = ssleay_ctx_passwd_cb_get(ctx);
+		ssleay_ctx_passwd_cb_func_set(ctx, func);
+		SSL_CTX_set_default_passwd_cb(ctx, &ssleay_ctx_passwd_cb_invoke);
+		SSL_CTX_set_default_passwd_cb_userdata(ctx, (void*)cb);
+	}
 
 void 
-SSL_CTX_set_default_passwd_cb_userdata(ctx,u)
-     SSL_CTX *	ctx
-     void *	u
+SSL_CTX_set_default_passwd_cb_userdata(ctx,u=NULL)
+	SSL_CTX *	ctx
+	SV*	u
+	CODE:
+		ssleay_ctx_passwd_cb_userdata_set(ctx, u);
 
 int 
 SSL_CTX_set_ex_data(ssl,idx,data)
