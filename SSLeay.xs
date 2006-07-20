@@ -1590,83 +1590,65 @@ typedef STACK_OF(X509_NAME) X509_NAME_STACK;
 
 /* ============= callback stuff ============== */
 
-static SV * ssleay_verify_callback = (SV*)NULL;
+static HV* ssleay_ctx_verify_callbacks = (HV*)NULL;
 
 static int
-ssleay_verify_callback_glue (int ok, X509_STORE_CTX* ctx)
-{
-	dSP ;
-	int count,res;
-	
-	ENTER ;
+ssleay_verify_callback_invoke (int ok, X509_STORE_CTX* x509_store) {
+	SSL* ssl;
+	SV* key;
+	char* key_str;
+	STRLEN key_len;
+	SV** callback;
+	int count, res;
+
+	ssl = X509_STORE_CTX_get_ex_data( x509_store, SSL_get_ex_data_X509_STORE_CTX_idx() );
+	key = sv_2mortal(newSViv( (IV)ssl ));
+	key_str = SvPV(key, key_len);
+
+	callback = hv_fetch( ssleay_ctx_verify_callbacks, key_str, key_len, 0 );
+
+	if (callback == NULL) {
+		SSL_CTX* ssl_ctx = SSL_get_SSL_CTX(ssl);
+		key = sv_2mortal(newSViv( (IV)ssl_ctx ));
+		key_str = SvPV(key, key_len);
+
+		callback = hv_fetch( ssleay_ctx_verify_callbacks, key_str, key_len, 0 );
+
+		if (callback == NULL) {
+			croak ("Net::SSLeay: verify_callback called, but not "
+				"set to point to any perl function.\n");
+		}
+	}
+
+	dSP;
+
+	ENTER;
 	SAVETMPS;
 
 	PRN("verify callback glue", ok);
 
 	PUSHMARK(sp);
-	XPUSHs(sv_2mortal(newSViv(ok)));
-	XPUSHs(sv_2mortal(newSViv((unsigned long int)ctx)));
-	PUTBACK ;
-	
-	if (ssleay_verify_callback == NULL)
-		croak ("Net::SSLeay: verify_callback called, but not "
-			"set to point to any perl function.\n");
+	XPUSHs( sv_2mortal(newSViv(ok)) );
+	XPUSHs( sv_2mortal(newSViv((unsigned long int)x509_store)) );
+	PUTBACK;
 
-	PR("About to call verify callback.\n");	
-	count = call_sv(ssleay_verify_callback, G_SCALAR);
-	PR("Returned from verify callback.\n");	
+	PR("About to call verify callback.\n");
+	count = call_sv(*callback, G_SCALAR);
+	PR("Returned from verify callback.\n");
 
 	SPAGAIN;
-	
-	if (count != 1)
+
+	if (count != 1) {
 		croak ( "Net::SSLeay: verify_callback "
 			"perl function did not return a scalar.\n");
-	res = POPi ;
+	}
 
-	PUTBACK ;
-	FREETMPS ;
-	LEAVE ;
+	res = POPi;
 
-	return res;
-}
+	PUTBACK;
+	FREETMPS;
+	LEAVE;
 
-static SV * ssleay_ctx_verify_callback = (SV*)NULL;
-
-static int
-ssleay_ctx_verify_callback_glue (int ok, X509_STORE_CTX* ctx)
-{
-	dSP ;
-	int count,res;
-	
-	ENTER ;
-	SAVETMPS;
-	
-	PRN("ctx verify callback glue", ok);
-
-	PUSHMARK(sp);
-	XPUSHs(sv_2mortal(newSViv(ok)));
-	XPUSHs(sv_2mortal(newSViv((unsigned long int)ctx)));
-	PUTBACK ;
-	
-	if (ssleay_ctx_verify_callback == NULL)
-		croak ("Net::SSLeay: ctx_verify_callback called, but not "
-			"set to point to any perl function.\n");
-
-	PR("About to call ctx verify callback.\n");	
-	count = call_sv(ssleay_ctx_verify_callback, G_SCALAR);
-	PR("Returned from ctx verify callback.\n");	
-
-	SPAGAIN;
-	
-	if (count != 1)
-		croak ( "Net::SSLeay: ctx_verify_callback "
-			"perl function did not return a scalar.\n");
-	res = POPi ;
-
-	PUTBACK ;
-	FREETMPS ;
-	LEAVE ;
-	
 	return res;
 }
 
@@ -1816,19 +1798,29 @@ SSL_CTX_load_verify_locations(ctx,CAfile,CApath)
      RETVAL
 
 void
-SSL_CTX_set_verify(ctx,mode,callback)
-     SSL_CTX * ctx
-     int                mode
-     SV *               callback
-     CODE:
-     if (ssleay_ctx_verify_callback == (SV*)NULL)
-        ssleay_ctx_verify_callback = newSVsv(callback);
-     else
-         SvSetSV (ssleay_ctx_verify_callback, callback);
-     if (SvTRUE(ssleay_ctx_verify_callback))
-         SSL_CTX_set_verify(ctx,mode,&ssleay_ctx_verify_callback_glue);
-     else
-         SSL_CTX_set_verify(ctx,mode,NULL);
+SSL_CTX_set_verify(ctx,mode,callback=NULL)
+	SSL_CTX * ctx
+	int                mode
+	SV *               callback
+	PREINIT:
+	SV* key;
+	char* key_str;
+	STRLEN key_len;
+	CODE:
+
+	if (ssleay_ctx_verify_callbacks == (HV*)NULL)
+		ssleay_ctx_verify_callbacks = newHV();
+
+	key = sv_2mortal(newSViv( (IV)ctx ));
+	key_str = SvPV(key, key_len);
+
+	if (callback == NULL) {
+		hv_delete( ssleay_ctx_verify_callbacks, key_str, key_len, G_DISCARD );
+		SSL_CTX_set_verify( ctx, mode, NULL );
+	} else {
+		hv_store( ssleay_ctx_verify_callbacks, key_str, key_len, newSVsv(callback), 0 );
+		SSL_CTX_set_verify( ctx, mode, &ssleay_verify_callback_invoke );
+	}
 
 int
 SSL_get_error(s,ret)
@@ -2140,18 +2132,28 @@ SSL_get_peer_certificate(s)
 
 void
 SSL_set_verify(s,mode,callback)
-     SSL *              s
-     int                mode
-     SV *               callback
-     CODE:
-     if (ssleay_verify_callback == (SV*)NULL)
-         ssleay_verify_callback = newSVsv(callback);
-     else
-         SvSetSV (ssleay_verify_callback, callback);
-     if (SvTRUE(ssleay_verify_callback))
-         SSL_set_verify(s,mode,&ssleay_verify_callback_glue);
-     else
-         SSL_set_verify(s,mode,NULL);
+    SSL *              s
+    int                mode
+    SV *               callback
+	PREINIT:
+	SV* key;
+	char* key_str;
+	STRLEN key_len;
+    CODE:
+
+	if (ssleay_ctx_verify_callbacks == (HV*)NULL)
+		ssleay_ctx_verify_callbacks = newHV();
+
+	key = sv_2mortal(newSViv( (IV)s ));
+	key_str = SvPV(key, key_len);
+
+	if (callback == NULL) {
+		hv_delete( ssleay_ctx_verify_callbacks, key_str, key_len, G_DISCARD );
+		SSL_set_verify( s, mode, NULL );
+	} else {
+		hv_store( ssleay_ctx_verify_callbacks, key_str, key_len, newSVsv(callback), 0 );
+		SSL_set_verify( s, mode, &ssleay_verify_callback_invoke );
+	}
 
 void
 SSL_set_bio(s,rbio,wbio)
