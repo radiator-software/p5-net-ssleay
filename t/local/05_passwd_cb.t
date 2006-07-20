@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 5;
+use Test::More tests => 7;
 use File::Spec;
 use Net::SSLeay;
 
@@ -15,21 +15,26 @@ my $key_password = 'secret';
 my $calls = 0;
 
 sub callback {
+    my ($rwflag, $userdata) = @_;
+
     $calls++;
-    return $key_password;
+
+    is( $$userdata, $key_password, 'recieved userdata properly' );
+    return $$userdata;
 }
 
 my $ctx = Net::SSLeay::CTX_new();
 ok($ctx, 'CTX_new');
 
 Net::SSLeay::CTX_set_default_passwd_cb($ctx, \&callback);
+Net::SSLeay::CTX_set_default_passwd_cb_userdata($ctx, \$key_password);
 
 ok( Net::SSLeay::CTX_use_PrivateKey_file($ctx, $key_pem, Net::SSLeay::FILETYPE_PEM()),
         'CTX_use_PrivateKey_file works with right passphrase' );
 
 is($calls, 1, 'callback called 1 time');
 
-$key_password = 'incorrect';
+$key_password = \'incorrect';
 
 ok( !Net::SSLeay::CTX_use_PrivateKey_file($ctx, $key_pem, Net::SSLeay::FILETYPE_PEM()),
         'CTX_use_PrivateKey_file doesn\'t work with wrong passphrase' );
