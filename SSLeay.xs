@@ -1108,13 +1108,14 @@ X509_get_subject_name(cert)
 
 void
 X509_NAME_oneline(name)
-     X509_NAME *    name
-     PREINIT:
-     char buf[32768];
-     CODE:
-     ST(0) = sv_newmortal();   /* Undefined to start with */
-     if (X509_NAME_oneline(name, buf, sizeof(buf)))
-         sv_setpvn( ST(0), buf, strlen(buf));
+	X509_NAME *    name
+	PREINIT:
+	char * buf;
+	CODE:
+	ST(0) = sv_newmortal();   /* Undefined to start with */
+	if (buf = X509_NAME_oneline(name, NULL, 0))
+		sv_setpvn( ST(0), buf, strlen(buf));
+	free(buf);
 
 void
 X509_NAME_get_text_by_NID(name,nid)
