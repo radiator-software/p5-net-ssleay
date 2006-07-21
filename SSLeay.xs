@@ -1397,19 +1397,18 @@ BIO_free(bio)
      BIO * bio;
 
 void
-BIO_read(s,max=sizeof(buf))
-     BIO *   s
-     PREINIT:
-     char buf[32768];
-     INPUT:
-     int     max
-     PREINIT:
-     int got;
-     CODE:
-     ST(0) = sv_newmortal();   /* Undefined to start with */
-     if ((got = BIO_read(s, buf, max)) >= 0)
-         sv_setpvn( ST(0), buf, got);
-
+BIO_read(s,max=32768)
+	BIO *   s
+	int max
+	PREINIT:
+	char *buf = NULL;
+	int got;
+	CODE:
+	printf("max: %d\n", max);
+	buf = (char*)malloc( sizeof(char) * max );
+	ST(0) = sv_newmortal();   /* Undefined to start with */
+	if ((got = BIO_read(s, buf, max)) >= 0)
+		sv_setpvn( ST(0), buf, got);
 
 int
 BIO_write(s,buf)
