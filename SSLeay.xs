@@ -538,18 +538,17 @@ SSL_get_fd(s)
      SSL *   s
 
 void
-SSL_read(s,max=sizeof(buf))
-     SSL *   s
-     PREINIT:
-     char buf[32768];
-     INPUT:
-     int     max
-     PREINIT:
-     int got;
-     CODE:
-     ST(0) = sv_newmortal();   /* Undefined to start with */
-     if ((got = SSL_read(s, buf, max)) >= 0)
-         sv_setpvn( ST(0), buf, got);
+SSL_read(s,max=32768)
+	SSL *   s
+	int     max
+	PREINIT:
+	char *buf;
+	int got;
+	CODE:
+	buf = (char*)malloc( sizeof(char) * max );
+	ST(0) = sv_newmortal();   /* Undefined to start with */
+	if ((got = SSL_read(s, buf, max)) >= 0)
+		sv_setpvn( ST(0), buf, got);
 
 void
 SSL_peek(s,max=sizeof(buf))
