@@ -1117,16 +1117,25 @@ X509_NAME_oneline(name)
 		sv_setpvn( ST(0), buf, strlen(buf));
 	free(buf);
 
+# WTF is the point of this function?
+# The NID_* constants aren't bound anyway and no one can remember
+# those undocumented numbers anyway.
 void
 X509_NAME_get_text_by_NID(name,nid)
-     X509_NAME *    name
-     int nid
-     PREINIT:
-     char buf[32768];
-     CODE:
-     ST(0) = sv_newmortal();   /* Undefined to start with */
-     if (X509_NAME_get_text_by_NID(name, nid, buf, sizeof(buf)))
-         sv_setpvn( ST(0), buf, strlen(buf));
+	X509_NAME *    name
+	int nid
+	PREINIT:
+	char* buf;
+	int length;
+	CODE:
+	ST(0) = sv_newmortal();   /* Undefined to start with */
+	length = X509_NAME_get_text_by_NID(name, nid, NULL, 0);
+	printf("length: %d\n", length);
+
+	buf = (char*)malloc( sizeof(char) * (length + 1) );
+
+	if (X509_NAME_get_text_by_NID(name, nid, buf, length + 1))
+		sv_setpvn( ST(0), buf, length + 1);
 
 X509 *
 X509_STORE_CTX_get_current_cert(x509_store_ctx)

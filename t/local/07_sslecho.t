@@ -216,13 +216,11 @@ my @results;
         my $cert = Net::SSLeay::X509_STORE_CTX_get_current_cert($x509_store_ctx);
         push @results, [ $cert, 'verify cb cert' ];
 
-        my $issuer  = Net::SSLeay::X509_NAME_oneline(
-                Net::SSLeay::X509_get_issuer_name($cert)
-        );
+        my $issuer_name = Net::SSLeay::X509_get_issuer_name( $cert );
+        my $issuer  = Net::SSLeay::X509_NAME_oneline( $issuer_name );
 
-        my $subject = Net::SSLeay::X509_NAME_oneline(
-                Net::SSLeay::X509_get_subject_name($cert)
-        );
+        my $subject_name = Net::SSLeay::X509_get_subject_name( $cert );
+        my $subject = Net::SSLeay::X509_NAME_oneline( $subject_name );
 
         push @results, [ $issuer  eq $cert_name, 'cert issuer'  ];
         push @results, [ $subject eq $cert_name, 'cert subject' ];
