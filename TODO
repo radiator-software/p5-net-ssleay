@@ -3,6 +3,8 @@
 * Update documentation with regard to the various limitations which have been
   removed recently.
 
+* Tests for ssl_read_until.
+
 * Fix this issue on hpux:
 	two major diffs to the rest of the world:
 	1. libssl.sl instead of libssl.so
