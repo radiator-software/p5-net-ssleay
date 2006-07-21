@@ -1670,13 +1670,16 @@ sub ssl_read_all {
     my $reply = '';
 
     while ($how_much > 0) {
-	$got = Net::SSLeay::read($ssl,$how_much);
-	last if $errs = print_errs('SSL_read');
-	$how_much -= blength($got);
-	debug_read(\$reply, \$got) if $trace>1;
-	last if $got eq '';  # EOF
-	$reply .= $got;
+        $got = Net::SSLeay::read($ssl,
+                ($how_much > 32768) ? 32768 : $how_much
+        );
+        last if $errs = print_errs('SSL_read');
+        $how_much -= blength($got);
+        debug_read(\$reply, \$got) if $trace>1;
+        last if $got eq '';  # EOF
+        $reply .= $got;
     }
+
     return wantarray ? ($reply, $errs) : $reply;
 }
 
