@@ -549,20 +549,21 @@ SSL_read(s,max=32768)
 	ST(0) = sv_newmortal();   /* Undefined to start with */
 	if ((got = SSL_read(s, buf, max)) >= 0)
 		sv_setpvn( ST(0), buf, got);
+	free(buf);
 
 void
-SSL_peek(s,max=sizeof(buf))
-     SSL *   s
-     PREINIT:
-     char buf[32768];
-     INPUT:
-     int     max
-     PREINIT:
-     int got;
-     CODE:
-     ST(0) = sv_newmortal();   /* Undefined to start with */
-     if ((got = SSL_peek(s, buf, max)) >= 0)
-         sv_setpvn( ST(0), buf, got);
+SSL_peek(s,max=32768)
+	SSL *   s
+	int     max
+	PREINIT:
+	char *buf;
+	int got;
+	CODE:
+	buf = (char*)malloc( sizeof(char) * max );
+	ST(0) = sv_newmortal();   /* Undefined to start with */
+	if ((got = SSL_peek(s, buf, max)) >= 0)
+		sv_setpvn( ST(0), buf, got);
+	free(buf);
 
 int
 SSL_write(s,buf)
@@ -1408,6 +1409,7 @@ BIO_read(s,max=32768)
 	ST(0) = sv_newmortal();   /* Undefined to start with */
 	if ((got = BIO_read(s, buf, max)) >= 0)
 		sv_setpvn( ST(0), buf, got);
+	free(buf);
 
 int
 BIO_write(s,buf)
