@@ -830,7 +830,9 @@ d2i_SSL_SESSION(a,pp,length)
 
 SSL_SESSION *
 SSL_get_session(s)
-     SSL *              s
+	ALIAS:
+		SSL_get0_session = 1
+	SSL *              s
 
 SSL_SESSION *
 SSL_get1_session(s)
