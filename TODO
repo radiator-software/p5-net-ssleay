@@ -22,10 +22,6 @@
   + Write a test for http://rt.cpan.org/Ticket/Display.html?id=9611
   + Test if exports work correctly
 
-* Net::SSLeay::Handle
-  + Modify READLINE behaviour to return all available lines in list context?
-    See -devel.
-
 * Changelogging!
 
 * Improve the search for installed openssl and zlib libs so it will recognize
