@@ -442,7 +442,14 @@ SSL_CTX_set_verify(ctx,mode,callback=NULL)
 	key = sv_2mortal(newSViv( (IV)ctx ));
 	key_str = SvPV(key, key_len);
 
-	if (callback == NULL) {
+	/* Former versions of SSLeay checked if the callback was a true boolean value
+	 * and didn't call it if it was false. Therefor some people set the callback
+	 * to '0' if they don't want to use it (IO::Socket::SSL for example). Therefor
+	 * we don't execute the callback if it's value isn't something true to retain
+	 * backwards compatibility.
+	 */
+
+	if (callback == NULL || !SvTRUE(callback)) {
 		hv_delete( ssleay_ctx_verify_callbacks, key_str, key_len, G_DISCARD );
 		SSL_CTX_set_verify( ctx, mode, NULL );
 	} else {
