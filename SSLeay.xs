@@ -201,6 +201,8 @@ ssleay_ctx_passwd_cb_new(SSL_CTX* ctx) {
 	STRLEN key_len;
 
 	cb = (ssleay_ctx_passwd_cb_t*)malloc( sizeof(ssleay_ctx_passwd_cb_t) );
+	cb->func = NULL;
+	cb->data = NULL;
 
 	if (ctx == NULL)
 		croak( "Net::SSLeay: ctx == NULL in ssleay_ctx_passwd_cb_new" );
@@ -1139,7 +1141,6 @@ X509_NAME_get_text_by_NID(name,nid)
 	CODE:
 	ST(0) = sv_newmortal();   /* Undefined to start with */
 	length = X509_NAME_get_text_by_NID(name, nid, NULL, 0);
-	printf("length: %d\n", length);
 
 	buf = (char*)malloc( sizeof(char) * (length + 1) );
 
@@ -1423,7 +1424,6 @@ BIO_read(s,max=32768)
 	char *buf = NULL;
 	int got;
 	CODE:
-	printf("max: %d\n", max);
 	buf = (char*)malloc( sizeof(char) * max );
 	ST(0) = sv_newmortal();   /* Undefined to start with */
 	if ((got = BIO_read(s, buf, max)) >= 0)
