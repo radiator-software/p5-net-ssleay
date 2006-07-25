@@ -432,6 +432,8 @@ $VERSION = '1.30';
     post_http
     get_httpx
     post_httpx
+    get_https3
+    post_https3
     get_http4
     post_http4
     get_httpx4
