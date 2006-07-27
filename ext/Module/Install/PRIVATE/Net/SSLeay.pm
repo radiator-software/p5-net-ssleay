@@ -71,7 +71,7 @@ EOM
 
     if ($^O eq 'MSWin32') {
         print "*** RSAREF build on Windows not supported out of box" if $rsaref;
-        push @{ $opts->{lib_paths} }, "-L$prefix/lib/VC";
+        push @{ $opts->{lib_paths} }, "$prefix/lib/VC";
         push @{ $opts->{lib_links} }, qw( libeay32 ssleay32 );
     } else {
         push @{ $opts->{lib_links} },
