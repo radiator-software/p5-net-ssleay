@@ -58,6 +58,9 @@
  * 13.12.2005 Reinstated the thread safety fix from 01.12.2005 due memory leaks
  *	      It is better to reset the callback with undef after use to prevent
  *	      leaks and thread safety problems.
+ * 28.7.2006  Use New and Safefree insted of malloc/free. Use OPENSSL_free 
+ *            instead of free to release memory allocated by X509_NAME_oneline.
+ *            These changes to deal with thread safety issues.
  *
  * $Id$
  * 
@@ -554,11 +557,11 @@ SSL_read(s,max=32768)
 	char *buf;
 	int got;
 	CODE:
-	buf = (char*)malloc( sizeof(char) * max );
+	New(0, buf, max, char);
 	ST(0) = sv_newmortal();   /* Undefined to start with */
 	if ((got = SSL_read(s, buf, max)) >= 0)
 		sv_setpvn( ST(0), buf, got);
-	free(buf);
+	Safefree(buf);
 
 void
 SSL_peek(s,max=32768)
@@ -568,11 +571,11 @@ SSL_peek(s,max=32768)
 	char *buf;
 	int got;
 	CODE:
-	buf = (char*)malloc( sizeof(char) * max );
+	New(0, buf, max, char);
 	ST(0) = sv_newmortal();   /* Undefined to start with */
 	if ((got = SSL_peek(s, buf, max)) >= 0)
 		sv_setpvn( ST(0), buf, got);
-	free(buf);
+	Safefree(buf);
 
 int
 SSL_write(s,buf)
@@ -1126,7 +1129,7 @@ X509_NAME_oneline(name)
 	ST(0) = sv_newmortal();   /* Undefined to start with */
 	if (buf = X509_NAME_oneline(name, NULL, 0))
 		sv_setpvn( ST(0), buf, strlen(buf));
-	free(buf);
+	OPENSSL_free(buf); // mem was allocated by openssl
 
 # WTF is the point of this function?
 # The NID_* constants aren't bound anyway and no one can remember
@@ -1142,10 +1145,10 @@ X509_NAME_get_text_by_NID(name,nid)
 	ST(0) = sv_newmortal();   /* Undefined to start with */
 	length = X509_NAME_get_text_by_NID(name, nid, NULL, 0);
 
-	buf = (char*)malloc( sizeof(char) * (length + 1) );
-
+	New(0, buf, length+1, char);
 	if (X509_NAME_get_text_by_NID(name, nid, buf, length + 1))
 		sv_setpvn( ST(0), buf, length + 1);
+	Safefree(buf);
 
 X509 *
 X509_STORE_CTX_get_current_cert(x509_store_ctx)
@@ -1424,11 +1427,11 @@ BIO_read(s,max=32768)
 	char *buf = NULL;
 	int got;
 	CODE:
-	buf = (char*)malloc( sizeof(char) * max );
+	New(0, buf, max, char);
 	ST(0) = sv_newmortal();   /* Undefined to start with */
 	if ((got = BIO_read(s, buf, max)) >= 0)
 		sv_setpvn( ST(0), buf, got);
-	free(buf);
+	Safefree(buf);
 
 int
 BIO_write(s,buf)
