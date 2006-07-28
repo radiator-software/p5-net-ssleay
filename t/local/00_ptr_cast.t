@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use File::Spec;
-use Test::More tests => 6;
+use Test::More tests => 5;
 use Symbol qw(gensym);
 use IPC::Open3;
 use Config;
@@ -11,20 +11,21 @@ use Config;
 my $input  = File::Spec->catfile(qw( t local ptr_cast_test.c ));
 my $output = File::Spec->catfile(qw( t local ptr_cast_test   ));
 
-diag( "cc: $Config{'cc'}" );
+#diag( "cc: $Config{'cc'}" );
 
 unlink $output;
 
 my $out = gensym();
 my $err = gensym();
 
-my $pid = open3(undef, $out, $err, $Config{cc}, '-o', $output, $input);
+my @extraargs;
+push(@extraargs, '/nologo') if $^O eq 'MSWin32' && $Config{cc} eq 'cl';
+my $pid = open3(undef, $out, $err, $Config{cc}, '-o', $output, $input, @extraargs);
 waitpid $pid, 0;
 
 is( $?, 0, 'compiling ptr_cast_test.c' );
 
-is( do { local $/ = undef; <$out> }, '', 'STDOUT empty after compiling' );
-is( do { local $/ = undef; <$err> }, '', 'STDERR empty after compoling' );
+is( do { local $/ = undef; <$err>}, '', 'STDERR empty after compiling' );
 
 $pid = open3(undef, $out, $err, "./$output");
 waitpid $pid, 0;
