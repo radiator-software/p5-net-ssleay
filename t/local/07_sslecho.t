@@ -98,7 +98,7 @@ my @results;
     push @results, [ my $ctx = Net::SSLeay::CTX_new(), 'CTX_new' ];
     push @results, [ my $ssl = Net::SSLeay::new($ctx), 'new' ];
 
-    push @results, [ Net::SSLeay::set_fd($ssl, $s), 'set_fd using glob ref' ];
+    push @results, [ Net::SSLeay::set_fd($ssl, fileno($s)), 'set_fd using glob ref' ];
     push @results, [ Net::SSLeay::connect($ssl), 'connect' ];
 
     push @results, [ Net::SSLeay::get_cipher($ssl), 'get_cipher' ];
@@ -177,11 +177,11 @@ my @results;
 
             my $ssl1 = Net::SSLeay::new($ctx);
             Net::SSLeay::set_verify($ssl1, &Net::SSLeay::VERIFY_PEER, \&verify2);
-            Net::SSLeay::set_fd($ssl1, $s1);
+            Net::SSLeay::set_fd($ssl1, fileno($s1));
 
             my $ssl2 = Net::SSLeay::new($ctx);
             Net::SSLeay::set_verify($ssl2, &Net::SSLeay::VERIFY_PEER, \&verify3);
-            Net::SSLeay::set_fd($ssl2, $s2);
+            Net::SSLeay::set_fd($ssl2, fileno($s2));
 
             Net::SSLeay::connect($ssl1);
             Net::SSLeay::write($ssl1, $msg);
