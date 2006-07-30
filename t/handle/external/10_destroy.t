@@ -21,7 +21,7 @@ use Net::SSLeay::Handle qw(shutdown);
 # the fd counting algorithm below. Make sure the DNS is operating before
 # we count the FDs for the first time.
 for my $uri (@uris) {
-    gethostbyname($uri);
+    my $dummy = gethostbyname($uri);
 }
 
 my $fdcount_start = count_fds();
