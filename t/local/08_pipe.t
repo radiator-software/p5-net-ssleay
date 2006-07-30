@@ -10,7 +10,7 @@ use File::Spec;
 
 if ($^O eq 'MSWin32')
 {
-    plan skip_all => 'pipes not properly supported on Windows';
+    plan skip_all => 'pipes not properly supported on Windows' if 1;
     exit;
 }
 else

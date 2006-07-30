@@ -16,6 +16,14 @@ use File::Spec;
 use Symbol qw(gensym);
 use Net::SSLeay::Handle qw(shutdown);
 
+# On some platforms, such as Solaris, the act of resolving the host name
+# opens (and leaves open) a connection to the DNS client, which breaks 
+# the fd counting algorithm below. Make sure the DNS is operating before
+# we count the FDs for the first time.
+for my $uri (@uris) {
+    gethostbyname($uri);
+}
+
 my $fdcount_start = count_fds();
 
 for my $uri (@uris) {
