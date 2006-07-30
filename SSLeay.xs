@@ -135,6 +135,7 @@ ssleay_verify_callback_invoke (int ok, X509_STORE_CTX* x509_store) {
 	STRLEN key_len;
 	SV** callback;
 	int count, res;
+	dSP;
 
 	ssl = X509_STORE_CTX_get_ex_data( x509_store, SSL_get_ex_data_X509_STORE_CTX_idx() );
 	key = sv_2mortal(newSViv( (IV)ssl ));
@@ -155,7 +156,6 @@ ssleay_verify_callback_invoke (int ok, X509_STORE_CTX* x509_store) {
 		}
 	}
 
-	dSP;
 
 	ENTER;
 	SAVETMPS;
