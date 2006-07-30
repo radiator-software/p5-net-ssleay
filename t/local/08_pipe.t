@@ -2,11 +2,21 @@
 
 use strict;
 use warnings;
-use Test::More tests => 11;
+use Test::More;
 use Net::SSLeay;
 use Symbol qw( gensym );
 use IO::Handle;
 use File::Spec;
+
+if ($^O eq 'MSWin32')
+{
+    plan skip_all => 'pipes not properly supported on Windows';
+    exit;
+}
+else
+{
+    plan tests => 11;
+}
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();
@@ -86,9 +96,7 @@ my @results;
 waitpid $pid, 0;
 push @results, [ $? == 0, 'server exited with 0' ];
 
-END {
-    Test::More->builder->current_test(5);
-    for my $t (@results) {
-        ok( $t->[0], $t->[1] );
+Test::More->builder->current_test(5);
+for my $t (@results) {
+    ok( $t->[0], $t->[1] );
     }
-}
