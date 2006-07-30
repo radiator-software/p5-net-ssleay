@@ -11,8 +11,6 @@ use Config;
 my $input  = File::Spec->catfile(qw( t local ptr_cast_test.c ));
 my $output = File::Spec->catfile(qw( t local ptr_cast_test   ));
 
-#diag( "cc: $Config{'cc'}" );
-
 unlink $output;
 
 my $out = gensym();
@@ -20,7 +18,9 @@ my $err = gensym();
 
 my @extraargs;
 push(@extraargs, '/nologo') if $^O eq 'MSWin32' && $Config{cc} eq 'cl';
-my $pid = open3(undef, $out, $err, $Config{cc}, '-o', $output, $input, @extraargs);
+my $cmd = "$Config{cc} -o $output $input " . join(' ', @extraargs);
+diag( "compiling test program with: $cmd" );
+my $pid = open3(undef, $out, $err, $cmd);
 waitpid $pid, 0;
 
 is( $?, 0, 'compiling ptr_cast_test.c' );
