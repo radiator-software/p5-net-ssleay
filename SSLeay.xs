@@ -61,6 +61,7 @@
  * 28.7.2006  Use New and Safefree insted of malloc/free. Use OPENSSL_free 
  *            instead of free to release memory allocated by X509_NAME_oneline.
  *            These changes to deal with thread safety issues.
+ * 01.08.2006 set_*fd nw woork with filehandles as well as filenos on Windows
  *
  * $Id$
  * 
@@ -502,7 +503,7 @@ SSL_connect(s)
 int
 SSL_set_fd(s,fd)
      SSL *   s
-     int     fd
+     perl_filehandle_t     fd
      CODE:
      RETVAL = SSL_set_fd(s,_get_osfhandle(fd));
      OUTPUT:
@@ -511,7 +512,7 @@ SSL_set_fd(s,fd)
 int
 SSL_set_rfd(s,fd)
      SSL *   s
-     int     fd
+     perl_filehandle_t     fd
      CODE:
      RETVAL = SSL_set_rfd(s,_get_osfhandle(fd));
      OUTPUT:
@@ -520,7 +521,7 @@ SSL_set_rfd(s,fd)
 int
 SSL_set_wfd(s,fd)
      SSL *   s
-     int     fd
+     perl_filehandle_t     fd
      CODE:
      RETVAL = SSL_set_wfd(s,_get_osfhandle(fd));
      OUTPUT:
