@@ -255,6 +255,9 @@ ssleay_ctx_passwd_cb_func_set(SSL_CTX* ctx, SV* func) {
 
 	cb = ssleay_ctx_passwd_cb_get(ctx);
 
+	if (cb->func)
+		SvREFCNT_dec(cb->func);
+
 	SvREFCNT_inc(func);
 	cb->func = func;
 }
@@ -264,7 +267,10 @@ ssleay_ctx_passwd_cb_userdata_set(SSL_CTX* ctx, SV* data) {
 	ssleay_ctx_passwd_cb_t* cb;
 
 	cb = ssleay_ctx_passwd_cb_get(ctx);
-	
+
+	if (cb->data)
+		SvREFCNT_dec(cb->data);
+
 	SvREFCNT_inc(data);
 	cb->data = data;
 }
