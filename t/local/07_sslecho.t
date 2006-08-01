@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 62;
+use Test::More tests => 69;
 use Socket;
 use File::Spec;
 use Symbol qw(gensym);
@@ -46,7 +46,7 @@ Net::SSLeay::library_init();
     $pid = fork();
     die unless defined $pid;
     if ($pid == 0) {
-        for (1 .. 6) {
+        for (1 .. 7) {
             my $ns = gensym();
             my $addr = accept($ns, $sock);
 
@@ -63,7 +63,7 @@ Net::SSLeay::library_init();
             ok(Net::SSLeay::get_cipher($ssl), 'get_cipher');
 
             my $got = Net::SSLeay::ssl_read_all($ssl);
-            is($got, $msg, 'ssl_read_all') if $_ < 6;
+            is($got, $msg, 'ssl_read_all') if $_ < 7;
             ok(Net::SSLeay::ssl_write_all($ssl, uc($got)), 'ssl_write_all');
 
             Net::SSLeay::free($ssl);
@@ -128,6 +128,9 @@ my @results;
         push @results, [ Net::SSLeay::CTX_load_verify_locations($ctx, '', $cert_dir), 'CTX_load_verify_locations' ];
         Net::SSLeay::CTX_set_verify($ctx, &Net::SSLeay::VERIFY_PEER, \&verify);
 
+        my $ctx2 = Net::SSLeay::CTX_new();
+        Net::SSLeay::CTX_set_cert_verify_callback($ctx2, \&verify4, 1);
+
         {
             my $s = gensym();
             socket($s, AF_INET, SOCK_STREAM, 0) or die;
@@ -175,6 +178,16 @@ my @results;
                 select($old_out);
             }
 
+            my $s3 = gensym();
+            socket($s3, AF_INET, SOCK_STREAM, 0) or die;
+            connect($s3, $dest_serv_params) or die;
+            
+            {
+                my $old_out = select($s3);
+                $| = 1;
+                select($old_out);
+            }
+
             my $ssl1 = Net::SSLeay::new($ctx);
             Net::SSLeay::set_verify($ssl1, &Net::SSLeay::VERIFY_PEER, \&verify2);
             Net::SSLeay::set_fd($ssl1, $s1);
@@ -182,6 +195,9 @@ my @results;
             my $ssl2 = Net::SSLeay::new($ctx);
             Net::SSLeay::set_verify($ssl2, &Net::SSLeay::VERIFY_PEER, \&verify3);
             Net::SSLeay::set_fd($ssl2, $s2);
+
+            my $ssl3 = Net::SSLeay::new($ctx2);
+            Net::SSLeay::set_fd($ssl3, $s3);
 
             Net::SSLeay::connect($ssl1);
             Net::SSLeay::write($ssl1, $msg);
@@ -191,11 +207,17 @@ my @results;
             Net::SSLeay::write($ssl2, $msg);
             shutdown $s2, 2;
 
+            Net::SSLeay::connect($ssl3);
+            Net::SSLeay::write($ssl3, $msg);
+            shutdown $s3, 2;
+
             close $s1;
             close $s2;
+            close $s3;
 
             Net::SSLeay::free($ssl1);
             Net::SSLeay::free($ssl2);
+            Net::SSLeay::free($ssl3);
 
             push @results, [ $verify_cb_1_called == 1, 'verify cb 1 wasn\'t called again' ];
             push @results, [ $verify_cb_2_called == 1, 'verify cb 2 called once' ];
@@ -204,7 +226,7 @@ my @results;
 
 
         Net::SSLeay::CTX_free($ctx);
-
+        Net::SSLeay::CTX_free($ctx2);
     }
 
     sub verify {
@@ -236,6 +258,12 @@ my @results;
     sub verify3 {
         $verify_cb_3_called++;
         return 1;
+    }
+
+    sub verify4 {
+        my ($cert_store, $userdata) = @_;
+        push @results, [$userdata == 1, 'CTX_set_cert_verify_callback'];
+        return $userdata;
     }
 }
 
@@ -288,7 +316,7 @@ waitpid $pid, 0;
 push @results, [ $? == 0, 'server exited wiht 0' ];
 
 END {
-    Test::More->builder->current_test(38);
+    Test::More->builder->current_test(44);
     for my $t (@results) {
         ok( $t->[0], $t->[1] );
     }

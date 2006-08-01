@@ -164,8 +164,9 @@ ssleay_verify_callback_invoke (int ok, X509_STORE_CTX* x509_store) {
 	PRN("verify callback glue", ok);
 
 	PUSHMARK(sp);
-	XPUSHs( sv_2mortal(newSViv(ok)) );
-	XPUSHs( sv_2mortal(newSViv((unsigned long int)x509_store)) );
+	EXTEND( sp, 2 );
+	PUSHs( sv_2mortal(newSViv(ok)) );
+	PUSHs( sv_2mortal(newSViv((unsigned long int)x509_store)) );
 	PUTBACK;
 
 	PR("About to call verify callback.\n");
@@ -190,11 +191,12 @@ ssleay_verify_callback_invoke (int ok, X509_STORE_CTX* x509_store) {
 
 static HV* ssleay_ctx_passwd_cbs = (HV*)NULL;
 
-struct _ssleay_ctx_passwd_cb_t {
+struct _ssleay_cb_t {
 	SV* func;
 	SV* data;
 };
-typedef struct _ssleay_ctx_passwd_cb_t ssleay_ctx_passwd_cb_t;
+typedef struct _ssleay_cb_t ssleay_ctx_passwd_cb_t;
+typedef struct _ssleay_cb_t ssleay_ctx_cert_verify_cb_t;
 
 ssleay_ctx_passwd_cb_t*
 ssleay_ctx_passwd_cb_new(SSL_CTX* ctx) {
@@ -245,7 +247,6 @@ ssleay_ctx_passwd_cb_get(SSL_CTX* ctx) {
 	}
 
 	return cb;
-
 }
 
 void
@@ -334,6 +335,124 @@ ssleay_ctx_passwd_cb_invoke(char *buf, int size, int rwflag, void *userdata) {
 
 	return strlen(buf);
 }
+
+static HV* ssleay_ctx_cert_verify_cbs = (HV*)NULL;
+
+ssleay_ctx_cert_verify_cb_t*
+ssleay_ctx_cert_verify_cb_new(SSL_CTX* ctx, SV* func, SV* data) {
+	ssleay_ctx_passwd_cb_t* cb;
+	SV* hash_value;
+	SV* key;
+	char* key_str;
+	STRLEN key_len;
+
+	cb = (ssleay_ctx_passwd_cb_t*)malloc( sizeof(ssleay_ctx_cert_verify_cb_t) );
+
+	SvREFCNT_inc(func);
+	SvREFCNT_inc(data);
+	cb->func = func;
+	cb->data = data;
+
+	if (ctx == NULL) {
+		croak( "Net::SSLeay: ctx == NULL in ssleay_ctx_cert_verify_cb_new" );
+	}
+
+	hash_value = sv_2mortal(newSViv( (IV)cb ));
+
+	key = sv_2mortal(newSViv( (IV)ctx ));
+	key_str = SvPV(key, key_len);
+
+	if (ssleay_ctx_cert_verify_cbs == (HV*)NULL)
+		ssleay_ctx_cert_verify_cbs = newHV();
+
+	SvREFCNT_inc(hash_value);
+	hv_store( ssleay_ctx_cert_verify_cbs, key_str, key_len, hash_value, 0 );
+
+	return cb;
+}
+
+ssleay_ctx_cert_verify_cb_t*
+ssleay_ctx_cert_verify_cb_get(SSL_CTX* ctx) {
+	SV* key;
+	char* key_str;
+	STRLEN key_len;
+	SV** hash_value;
+	ssleay_ctx_cert_verify_cb_t* cb;
+
+	key = sv_2mortal(newSViv( (IV)ctx ));
+	key_str = SvPV(key, key_len);
+
+	hash_value = hv_fetch( ssleay_ctx_cert_verify_cbs, key_str, key_len, 0 );
+
+	if (hash_value == NULL || *hash_value == NULL) {
+		cb = NULL;
+	} else {
+		cb = (ssleay_ctx_cert_verify_cb_t*)SvIV( *hash_value );
+	}
+
+	return cb;
+}
+
+void
+ssleay_ctx_cert_verify_cb_free(SSL_CTX* ctx) {
+	ssleay_ctx_passwd_cb_t* cb;
+
+	cb = ssleay_ctx_cert_verify_cb_get(ctx);
+
+	if (cb) {
+		if (cb->func) {
+			SvREFCNT_dec(cb->func);
+			cb->func = NULL;
+		}
+
+		if (cb->data) {
+			SvREFCNT_dec(cb->data);
+			cb->data = NULL;
+		}
+	}
+}
+
+int
+ssleay_ctx_cert_verify_cb_invoke(X509_STORE_CTX* x509_store_ctx, void* data) {
+	dSP;
+
+	int count;
+	int res;
+	ssleay_ctx_cert_verify_cb_t* cb = (ssleay_ctx_cert_verify_cb_t*)data;
+
+	ENTER;
+	SAVETMPS;
+
+	PUSHMARK(SP);
+	XPUSHs(sv_2mortal(newSViv( (IV)x509_store_ctx )));
+	if (cb->data) {
+		XPUSHs( cb->data );
+	}
+	PUTBACK;
+
+	if (cb->func == NULL) {
+		croak ("Net::SSLeay: ssleay_ctx_cert_verify_cb_invoke called, but not "
+				"set to point to any perl function.\n");
+	}
+
+	count = call_sv( cb->func, G_SCALAR );
+
+	SPAGAIN;
+
+	if (count != 1) {
+		croak ("Net::SSLeay: ssleay_ctx_cert_verify_cb_invoke "
+				"perl function did not return a scalar.\n");
+	}
+
+	res = POPi;
+
+	PUTBACK;
+	FREETMPS;
+	LEAVE;
+
+	return res;
+}
+
 
 MODULE = Net::SSLeay		PACKAGE = Net::SSLeay          PREFIX = SSL_
 
@@ -1162,26 +1281,27 @@ X509_STORE_CTX_get_ex_data(x509_store_ctx,idx)
 
 void
 X509_get_subjectAltNames(cert)
-     X509 *      cert
-     PPCODE:
-     int                    i, j = 0;
-     X509_EXTENSION         *subjAltNameExt = NULL;
-     STACK_OF(GENERAL_NAME) *subjAltNameDNs = NULL;
-     GENERAL_NAME           *subjAltNameDN  = NULL;
-     int                    num_gnames;
-     if (  (i = X509_get_ext_by_NID(cert, NID_subject_alt_name, -1))
-         && (subjAltNameExt = X509_get_ext(cert, i))
-	 && (subjAltNameDNs = X509V3_EXT_d2i(subjAltNameExt)))
-     {
-         num_gnames = sk_GENERAL_NAME_num(subjAltNameDNs);
-	 for (j = 0; j < num_gnames; j++) 
-	 {
-	    subjAltNameDN = sk_GENERAL_NAME_value(subjAltNameDNs, j);
-	    XPUSHs(sv_2mortal(newSViv(subjAltNameDN->type)));
-	    XPUSHs(sv_2mortal(newSVpv((const char*)ASN1_STRING_data(subjAltNameDN->d.ia5), ASN1_STRING_length(subjAltNameDN->d.ia5))));
-	 }
-     }
-     XSRETURN(j*2);
+	X509 *      cert
+	PPCODE:
+	int                    i, j = 0;
+	X509_EXTENSION         *subjAltNameExt = NULL;
+	STACK_OF(GENERAL_NAME) *subjAltNameDNs = NULL;
+	GENERAL_NAME           *subjAltNameDN  = NULL;
+	int                    num_gnames;
+	if (  (i = X509_get_ext_by_NID(cert, NID_subject_alt_name, -1))
+		&& (subjAltNameExt = X509_get_ext(cert, i))
+		&& (subjAltNameDNs = X509V3_EXT_d2i(subjAltNameExt)))
+	{
+		num_gnames = sk_GENERAL_NAME_num(subjAltNameDNs);
+	
+		EXTEND(SP, (num_gnames - 1) * 2);
+		for (j = 0; j < num_gnames; j++)  {
+			subjAltNameDN = sk_GENERAL_NAME_value(subjAltNameDNs, j);
+		PUSHs(sv_2mortal(newSViv(subjAltNameDN->type)));
+		PUSHs(sv_2mortal(newSVpv((const char*)ASN1_STRING_data(subjAltNameDN->d.ia5), ASN1_STRING_length(subjAltNameDN->d.ia5))));
+		}
+	}
+	XSRETURN(j*2);
 
 int
 X509_get_ext_by_NID(x,nid,loc)
@@ -1560,10 +1680,20 @@ SSL_CTX_get_cert_store(ctx)
      SSL_CTX *     ctx
 
 void 
-SSL_CTX_set_cert_verify_callback(ctx,cb,arg)
-     SSL_CTX *	ctx
-     callback_ret_int *  cb
-     char *	arg
+SSL_CTX_set_cert_verify_callback(ctx,func,data=NULL)
+	SSL_CTX* ctx
+	SV* func
+	SV*	data
+	PREINIT:
+	ssleay_ctx_cert_verify_cb_t* cb;
+	CODE:
+	if (func == NULL || func == &PL_sv_undef) {
+		ssleay_ctx_cert_verify_cb_free(ctx);
+		SSL_CTX_set_cert_verify_callback(ctx, NULL, NULL);
+	} else {
+		cb = ssleay_ctx_cert_verify_cb_new(ctx, func, data);
+		SSL_CTX_set_cert_verify_callback(ctx, ssleay_ctx_cert_verify_cb_invoke, cb);
+	}
 
 void 
 SSL_CTX_set_client_CA_list(ctx,list)
