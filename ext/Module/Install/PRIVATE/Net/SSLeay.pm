@@ -59,7 +59,7 @@ sub ssleay_get_build_opts {
         lib_paths  => [$prefix, "$prefix/lib", "$prefix/out32dll"],
         lib_links  => [],
         optimize   => '-O2 -g',
-        cccldflags => '',
+        cccdlflags => '',
     };
 
     my $rsaref  = $self->ssleay_is_rsaref;
