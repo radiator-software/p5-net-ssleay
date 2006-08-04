@@ -115,7 +115,6 @@ extern "C" {
 /* ============= typedefs to agument TYPEMAP ============== */
 
 typedef void generate_key_cb (int, int, void *);
-typedef int callback_ret_int();
 typedef void callback_no_ret();
 typedef RSA * cb_ssl_int_int_ret_RSA(SSL * ssl,int is_export, int keylength);
 typedef DH * cb_ssl_int_int_ret_DH(SSL * ssl,int is_export, int keylength);
@@ -275,24 +274,28 @@ ssleay_ctx_passwd_cb_userdata_set(SSL_CTX* ctx, SV* data) {
 	cb->data = data;
 }
 
-void ssleay_ctx_passwd_cb_free(SSL_CTX* ctx) {
+void
+ssleay_ctx_passwd_cb_free_func(SSL_CTX* ctx) {
 	ssleay_ctx_passwd_cb_t* cb;
 
 	cb = ssleay_ctx_passwd_cb_get(ctx);
 
-	if (cb) {
-		if (cb->func) {
-			SvREFCNT_dec(cb->func);
-			cb->func = NULL;
-		}
-
-		if (cb->data) {
-			SvREFCNT_dec(cb->data);
-			cb->data = NULL;
-		}
+	if (cb && cb->func) {
+		SvREFCNT_dec(cb->func);
+		cb->func = NULL;
 	}
+}
 
-	/* TODO dec refcnt for hash key */
+void
+ssleay_ctx_passwd_cb_free_userdata(SSL_CTX* ctx) {
+	ssleay_ctx_passwd_cb_t* cb;
+
+	cb = ssleay_ctx_passwd_cb_get(ctx);
+
+	if (cb && cb->data) {
+		SvREFCNT_dec(cb->data);
+		cb->data = NULL;
+	}
 }
 
 /* pem_password_cb function */
@@ -1714,7 +1717,7 @@ SSL_CTX_set_default_passwd_cb(ctx,func=NULL)
 	ssleay_ctx_passwd_cb_t* cb;
 	CODE:
 	if (func == NULL || func == &PL_sv_undef) {
-		ssleay_ctx_passwd_cb_free(ctx);
+		ssleay_ctx_passwd_cb_free_func(ctx);
 		SSL_CTX_set_default_passwd_cb(ctx, NULL);
 	} else {
 		cb = ssleay_ctx_passwd_cb_get(ctx);
@@ -1728,7 +1731,11 @@ SSL_CTX_set_default_passwd_cb_userdata(ctx,u=NULL)
 	SSL_CTX *	ctx
 	SV*	u
 	CODE:
+	if (u == NULL) {
+		ssleay_ctx_passwd_cb_free_userdata(ctx);
+	} else {
 		ssleay_ctx_passwd_cb_userdata_set(ctx, u);
+	}
 
 int 
 SSL_CTX_set_ex_data(ssl,idx,data)
