@@ -542,7 +542,7 @@ Net::SSLeay - Perl extension for using OpenSSL
 
 =head1 SYNOPSIS
 
-  use Net::SSLeay, qw(get_https post_https sslcat make_headers make_form);
+  use Net::SSLeay qw(get_https post_https sslcat make_headers make_form);
 
   ($page) = get_https('www.bacus.pt', 443, '/');                 # 1
 
@@ -1061,7 +1061,7 @@ LWP for heavy weight object oriented approach). In fact it would be
 nice to be able to flip https on and off on the fly. Thus regular HTTP
 support was evolved.
 
-  use Net::SSLeay, qw(get_http post_http tcpcat
+  use Net::SSLeay qw(get_http post_http tcpcat
                       get_httpx post_httpx tcpxcat
                       make_headers make_form);
 
