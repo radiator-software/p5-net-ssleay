@@ -10,8 +10,9 @@ all_from('lib/Net/SSLeay.pm');
 
 ssleay();
 
-build_requires('Test::More' => 0.42);
+build_requires('Test::Warn');
 build_requires('Test::Exception');
+build_requires('Test::NoWarnings');
 
 requires('MIME::Base64');
 
