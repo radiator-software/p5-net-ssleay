@@ -1012,6 +1012,18 @@ constant(char* name)
 #else
 	    goto not_there;
 #endif
+	if (strEQ(name, "RSA_3"))
+#ifdef RSA_3
+		return RSA_3;
+#else
+		goto not_there;
+#endif
+	if (strEQ(name, "RSA_F4"))
+#ifdef RSA_F4
+		return RSA_F4;
+#else
+		goto not_there;
+#endif
 	break;
     case 'S':
 	if (strEQ(name, "SERVER_VERSION"))
