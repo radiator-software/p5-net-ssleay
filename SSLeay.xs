@@ -1332,7 +1332,7 @@ X509_NAME_oneline(name)
 	ST(0) = sv_newmortal();   /* Undefined to start with */
 	if (buf = X509_NAME_oneline(name, NULL, 0))
 		sv_setpvn( ST(0), buf, strlen(buf));
-	OPENSSL_free(buf); // mem was allocated by openssl
+	OPENSSL_free(buf); /* mem was allocated by openssl */
 
 # WTF is the point of this function?
 # The NID_* constants aren't bound anyway and no one can remember
