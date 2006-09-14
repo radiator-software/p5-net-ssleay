@@ -205,7 +205,7 @@ ssleay_ctx_passwd_cb_new(SSL_CTX* ctx) {
 	char* key_str;
 	STRLEN key_len;
 
-	cb = (ssleay_ctx_passwd_cb_t*)malloc( sizeof(ssleay_ctx_passwd_cb_t) );
+	Newx(cb, 1, ssleay_ctx_passwd_cb_t);
 	cb->func = NULL;
 	cb->data = NULL;
 
@@ -349,13 +349,13 @@ static HV* ssleay_ctx_cert_verify_cbs = (HV*)NULL;
 
 ssleay_ctx_cert_verify_cb_t*
 ssleay_ctx_cert_verify_cb_new(SSL_CTX* ctx, SV* func, SV* data) {
-	ssleay_ctx_passwd_cb_t* cb;
+	ssleay_ctx_cert_verify_cb_t* cb;
 	SV* hash_value;
 	SV* key;
 	char* key_str;
 	STRLEN key_len;
 
-	cb = (ssleay_ctx_passwd_cb_t*)malloc( sizeof(ssleay_ctx_cert_verify_cb_t) );
+	cb = Newx(cb, 1, ssleay_ctx_cert_verify_cb_t);
 
 	SvREFCNT_inc(func);
 	SvREFCNT_inc(data);
@@ -420,7 +420,7 @@ ssleay_ctx_cert_verify_cb_free(SSL_CTX* ctx) {
 		}
 	}
 
-	free(cb);
+	Safefree(cb);
 }
 
 int
@@ -468,7 +468,7 @@ ssleay_RSA_generate_key_cb_t*
 ssleay_RSA_generate_key_cb_new(SV* func, SV* data) {
 	ssleay_RSA_generate_key_cb_t* cb;
 
-	cb = (ssleay_RSA_generate_key_cb_t*)malloc( sizeof(ssleay_RSA_generate_key_cb_t) );
+	Newx(cb, 1, ssleay_RSA_generate_key_cb_t);
 	cb->func = NULL;
 	cb->data = NULL;
 
@@ -499,7 +499,7 @@ ssleay_RSA_generate_key_cb_free(ssleay_RSA_generate_key_cb_t* cb) {
 		}
 	}
 
-	free(cb);
+	Safefree(cb);
 }
 
 void
@@ -760,7 +760,7 @@ SSL_read(s,max=32768)
 	char *buf;
 	int got;
 	CODE:
-	New(0, buf, max, char);
+	Newx(buf, max, char);
 	ST(0) = sv_newmortal();   /* Undefined to start with */
 	if ((got = SSL_read(s, buf, max)) >= 0)
 		sv_setpvn( ST(0), buf, got);
@@ -774,7 +774,7 @@ SSL_peek(s,max=32768)
 	char *buf;
 	int got;
 	CODE:
-	New(0, buf, max, char);
+	Newx(buf, max, char);
 	ST(0) = sv_newmortal();   /* Undefined to start with */
 	if ((got = SSL_peek(s, buf, max)) >= 0)
 		sv_setpvn( ST(0), buf, got);
@@ -1227,7 +1227,7 @@ RAND_bytes(buf, num)
         int rc;
         unsigned char *random;
     CODE:
-        New(0, random, num, unsigned char);
+        Newx(random, num, unsigned char);
         rc = RAND_bytes(random, num);
         sv_setpvn(buf, (const char*)random, num);
         Safefree(random);
@@ -1243,7 +1243,7 @@ RAND_pseudo_bytes(buf, num)
         int rc;
         unsigned char *random;
     CODE:
-        New(0, random, num, unsigned char);
+        Newx(random, num, unsigned char);
         rc = RAND_pseudo_bytes(random, num);
         sv_setpvn(buf, (const char*)random, num);
         Safefree(random);
@@ -1278,7 +1278,7 @@ RAND_file_name(num)
     PREINIT:
         char *buf;
     CODE:
-        New(0, buf, num, char);
+        Newx(buf, num, char);
         if (!RAND_file_name(buf, num)) {
             Safefree(buf);
             XSRETURN_UNDEF;
@@ -1348,7 +1348,7 @@ X509_NAME_get_text_by_NID(name,nid)
 	ST(0) = sv_newmortal();   /* Undefined to start with */
 	length = X509_NAME_get_text_by_NID(name, nid, NULL, 0);
 
-	New(0, buf, length+1, char);
+	Newx(buf, length+1, char);
 	if (X509_NAME_get_text_by_NID(name, nid, buf, length + 1))
 		sv_setpvn( ST(0), buf, length + 1);
 	Safefree(buf);
@@ -1631,7 +1631,7 @@ BIO_read(s,max=32768)
 	char *buf = NULL;
 	int got;
 	CODE:
-	New(0, buf, max, char);
+	Newx(buf, max, char);
 	ST(0) = sv_newmortal();   /* Undefined to start with */
 	if ((got = BIO_read(s, buf, max)) >= 0)
 		sv_setpvn( ST(0), buf, got);
