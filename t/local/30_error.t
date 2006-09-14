@@ -4,9 +4,9 @@ use strict;
 use warnings;
 use Test::More;
 
-eval "use Test::Exception; use Test::Warn; 1;";
-plan skip_all => "Test::Exception and Test::Warn required." if $@;
-plan tests => 10;
+eval "use Test::Exception; use Test::Warn; use Test::NoWarnings; 1;";
+plan skip_all => 'Requires Test::Exception, Test::Warn and Test::NoWarnings' if $@;
+plan tests => 11;
 
 use Net::SSLeay;
 Net::SSLeay::load_error_strings();
