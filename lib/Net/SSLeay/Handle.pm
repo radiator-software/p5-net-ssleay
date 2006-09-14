@@ -1,5 +1,3 @@
-# $Id: Handle.pm,v 1.9 2003/08/03 20:52:40 sampo Exp $
-
 package Net::SSLeay::Handle;
 
 require 5.005_03;
