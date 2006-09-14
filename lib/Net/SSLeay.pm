@@ -2346,54 +2346,54 @@ sub do_https4 { splice(@_,1,0) = 1; do_httpx4; }  # Legacy undocumented
 
 # https
 
-sub get_https  ($$$;***) { do_httpx2(GET  => 1, @_) }
-sub post_https ($$$;***) { do_httpx2(POST => 1, @_) }
-sub put_https  ($$$;***) { do_httpx2(PUT  => 1, @_) }
-sub head_https ($$$;***) { do_httpx2(HEAD => 1, @_) }
+sub get_https  { do_httpx2(GET  => 1, @_) }
+sub post_https { do_httpx2(POST => 1, @_) }
+sub put_https  { do_httpx2(PUT  => 1, @_) }
+sub head_https { do_httpx2(HEAD => 1, @_) }
 
-sub get_https3  ($$$;***) { do_httpx3(GET  => 1, @_) }
-sub post_https3 ($$$;***) { do_httpx3(POST => 1, @_) }
-sub put_https3  ($$$;***) { do_httpx3(PUT  => 1, @_) }
-sub head_https3 ($$$;***) { do_httpx3(HEAD => 1, @_) }
+sub get_https3  { do_httpx3(GET  => 1, @_) }
+sub post_https3 { do_httpx3(POST => 1, @_) }
+sub put_https3  { do_httpx3(PUT  => 1, @_) }
+sub head_https3 { do_httpx3(HEAD => 1, @_) }
 
-sub get_https4  ($$$;***) { do_httpx4(GET  => 1, @_) }
-sub post_https4 ($$$;***) { do_httpx4(POST => 1, @_) }
-sub put_https4  ($$$;***) { do_httpx4(PUT  => 1, @_) }
-sub head_https4 ($$$;***) { do_httpx4(HEAD => 1, @_) }
+sub get_https4  { do_httpx4(GET  => 1, @_) }
+sub post_https4 { do_httpx4(POST => 1, @_) }
+sub put_https4  { do_httpx4(PUT  => 1, @_) }
+sub head_https4 { do_httpx4(HEAD => 1, @_) }
 
 # http
 
-sub get_http  ($$$;***) { do_httpx2(GET  => 0, @_) }
-sub post_http ($$$;***) { do_httpx2(POST => 0, @_) }
-sub put_http  ($$$;***) { do_httpx2(PUT  => 0, @_) }
-sub head_http ($$$;***) { do_httpx2(HEAD => 0, @_) }
+sub get_http  { do_httpx2(GET  => 0, @_) }
+sub post_http { do_httpx2(POST => 0, @_) }
+sub put_http  { do_httpx2(PUT  => 0, @_) }
+sub head_http { do_httpx2(HEAD => 0, @_) }
 
-sub get_http3  ($$$;***) { do_httpx3(GET  => 0, @_) }
-sub post_http3 ($$$;***) { do_httpx3(POST => 0, @_) }
-sub put_http3  ($$$;***) { do_httpx3(PUT  => 0, @_) }
-sub head_http3 ($$$;***) { do_httpx3(HEAD => 0, @_) }
+sub get_http3  { do_httpx3(GET  => 0, @_) }
+sub post_http3 { do_httpx3(POST => 0, @_) }
+sub put_http3  { do_httpx3(PUT  => 0, @_) }
+sub head_http3 { do_httpx3(HEAD => 0, @_) }
 
-sub get_http4  ($$$;***) { do_httpx4(GET  => 0, @_) }
-sub post_http4 ($$$;***) { do_httpx4(POST => 0, @_) }
-sub put_http4  ($$$;***) { do_httpx4(PUT  => 0, @_) }
-sub head_http4 ($$$;***) { do_httpx4(HEAD => 0, @_) }
+sub get_http4  { do_httpx4(GET  => 0, @_) }
+sub post_http4 { do_httpx4(POST => 0, @_) }
+sub put_http4  { do_httpx4(PUT  => 0, @_) }
+sub head_http4 { do_httpx4(HEAD => 0, @_) }
 
 # Either https or http
 
-sub get_httpx  ($$$;***) { do_httpx2(GET  => @_) }
-sub post_httpx ($$$;***) { do_httpx2(POST => @_) }
-sub put_httpx  ($$$;***) { do_httpx2(PUT  => @_) }
-sub head_httpx ($$$;***) { do_httpx2(HEAD => @_) }
+sub get_httpx  { do_httpx2(GET  => @_) }
+sub post_httpx { do_httpx2(POST => @_) }
+sub put_httpx  { do_httpx2(PUT  => @_) }
+sub head_httpx { do_httpx2(HEAD => @_) }
 
-sub get_httpx3  ($$$;***) { do_httpx3(GET  => @_) }
-sub post_httpx3 ($$$;***) { do_httpx3(POST => @_) }
-sub put_httpx3  ($$$;***) { do_httpx3(PUT  => @_) }
-sub head_httpx3 ($$$;***) { do_httpx3(HEAD => @_) }
+sub get_httpx3  { do_httpx3(GET  => @_) }
+sub post_httpx3 { do_httpx3(POST => @_) }
+sub put_httpx3  { do_httpx3(PUT  => @_) }
+sub head_httpx3 { do_httpx3(HEAD => @_) }
 
-sub get_httpx4  ($$$;***) { do_httpx4(GET  => @_) }
-sub post_httpx4 ($$$;***) { do_httpx4(POST => @_) }
-sub put_httpx4  ($$$;***) { do_httpx4(PUT  => @_) }
-sub head_httpx4 ($$$;***) { do_httpx4(HEAD => @_) }
+sub get_httpx4  { do_httpx4(GET  => @_) }
+sub post_httpx4 { do_httpx4(POST => @_) }
+sub put_httpx4  { do_httpx4(PUT  => @_) }
+sub head_httpx4 { do_httpx4(HEAD => @_) }
 
 ### Legacy, don't use
 # ($page, $respone_or_err, %headers) = do_https(...);
