@@ -2,15 +2,35 @@
 
 use strict;
 use warnings;
-use Test::More tests => 3;
+use Test::More tests => 6;
 use Net::SSLeay;
 
-ok( defined &Net::SSLeay::OP_NO_TLSv1(), 'some random constant exists' );
+eval "use Test::Exception;";
+plan skip_all => 'Some tests need Test::Exception' if $@;
 
-SKIP: {
-    eval "use Test::Exception;";
-    skip 'Some tests need Test::Exception', 2 if $@;
+{
+    my $const;
+    lives_ok(sub {
+            $const = Net::SSLeay::OP_NO_TLSv1();
+    }, 'some random constant exists');
 
-    dies_ok( sub { &Net::SSLeay::TXT_RC2_128_CBC_EXPORT40_WITH_MD5() }, 'disabled constant doesn\'t exist' );
-    dies_ok( sub { &Net::SSLeay::123x() }, 'invalid constant doesn\'t exist' );
+    ok( defined $const, '  and has a defined value' );
 }
+
+lives_ok(sub {
+        Net::SSLeay::make_form( foo => 'bar' );
+}, 'some random function gets autoloaded');
+
+
+throws_ok(sub {
+        Net::SSLeay::TXT_RC2_128_CBC_EXPORT40_WITH_MD5();
+}, qr/^Can't locate .*?TXT_RC2_128\.al/, 'disabled constant doesn\'t exist');
+
+throws_ok(sub {
+        Net::SSLeay::123x();
+}, qr/^Can't locate .*?123x\.al/, 'invalid constant doesn\'t exist' );
+
+throws_ok(sub {
+        Net::SSLeay::_TEST_INVALID_CONSTANT();
+}, qr/^Your vendor has not defined SSLeay macro _TEST_INVALID_CONSTANT /,
+'raises an appropriate error when an openssl macro isn\'t defined');

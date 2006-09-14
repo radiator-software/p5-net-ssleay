@@ -1453,6 +1453,9 @@ constant(char* name)
 	break;
     case 'Z':
 	break;
+	case '_':
+	if (strEQ(name, "_TEST_INVALID_CONSTANT"))
+		goto not_there;
     }
     errno = EINVAL;
     return 0;
