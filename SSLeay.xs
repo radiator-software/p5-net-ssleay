@@ -114,7 +114,6 @@ extern "C" {
 
 /* ============= typedefs to agument TYPEMAP ============== */
 
-typedef void generate_key_cb (int, int, void *);
 typedef void callback_no_ret();
 typedef RSA * cb_ssl_int_int_ret_RSA(SSL * ssl,int is_export, int keylength);
 typedef DH * cb_ssl_int_int_ret_DH(SSL * ssl,int is_export, int keylength);
@@ -196,6 +195,7 @@ struct _ssleay_cb_t {
 };
 typedef struct _ssleay_cb_t ssleay_ctx_passwd_cb_t;
 typedef struct _ssleay_cb_t ssleay_ctx_cert_verify_cb_t;
+typedef struct _ssleay_cb_t ssleay_RSA_generate_key_cb_t;
 
 ssleay_ctx_passwd_cb_t*
 ssleay_ctx_passwd_cb_new(SSL_CTX* ctx) {
@@ -419,6 +419,8 @@ ssleay_ctx_cert_verify_cb_free(SSL_CTX* ctx) {
 			cb->data = NULL;
 		}
 	}
+
+	free(cb);
 }
 
 int
@@ -460,6 +462,78 @@ ssleay_ctx_cert_verify_cb_invoke(X509_STORE_CTX* x509_store_ctx, void* data) {
 	LEAVE;
 
 	return res;
+}
+
+ssleay_RSA_generate_key_cb_t*
+ssleay_RSA_generate_key_cb_new(SV* func, SV* data) {
+	ssleay_RSA_generate_key_cb_t* cb;
+
+	cb = (ssleay_RSA_generate_key_cb_t*)malloc( sizeof(ssleay_RSA_generate_key_cb_t) );
+	cb->func = NULL;
+	cb->data = NULL;
+
+	if (func) {
+		SvREFCNT_inc(func);
+		cb->func = func;
+	}
+
+	if (data) {
+		SvREFCNT_inc(data);
+		cb->data = data;
+	}
+
+	return cb;
+}
+
+void
+ssleay_RSA_generate_key_cb_free(ssleay_RSA_generate_key_cb_t* cb) {
+	if (cb) {
+		if (cb->func) {
+			SvREFCNT_dec(cb->func);
+			cb->func = NULL;
+		}
+
+		if (cb->data) {
+			SvREFCNT_dec(cb->data);
+			cb->data = NULL;
+		}
+	}
+
+	free(cb);
+}
+
+void
+ssleay_RSA_generate_key_cb_invoke(int i, int n, void* data) {
+	dSP;
+
+	ssleay_RSA_generate_key_cb_t* cb = (ssleay_RSA_generate_key_cb_t*)data;
+
+	if (cb->func) {
+		int count;
+
+		ENTER;
+		SAVETMPS;
+
+		PUSHMARK(sp);
+
+		XPUSHs(sv_2mortal( newSViv(i) ));
+		XPUSHs(sv_2mortal( newSViv(n) ));
+
+		if (cb->data)
+			XPUSHs( cb->data );
+
+		PUTBACK;
+
+		count = call_sv( cb->func, G_VOID|G_DISCARD );
+
+		if (count != 0)
+			croak ("Net::SSLeay: ssleay_RSA_generate_key_cb_invoke "
+					"perl function did return something in void context.\n");
+
+		PUTBACK;
+		FREETMPS;
+		LEAVE;
+	}
 }
 
 
@@ -2256,11 +2330,19 @@ SSL_set_tmp_rsa(ssl,rsa)
   RETVAL
 
 RSA *
-RSA_generate_key(bits,e,callback=NULL,cb_arg=NULL)
-    int           bits
-    unsigned long e
-    generate_key_cb *        callback
-    void *        cb_arg
+RSA_generate_key(bits,e,perl_cb=NULL,perl_cb_arg=NULL)
+		int bits
+		unsigned long e
+		SV* perl_cb
+		SV* perl_cb_arg
+	PREINIT:
+		ssleay_RSA_generate_key_cb_t* cb = NULL;
+	CODE:
+		cb = ssleay_RSA_generate_key_cb_new(perl_cb, perl_cb_arg);
+		RETVAL = RSA_generate_key(bits, e, ssleay_RSA_generate_key_cb_invoke, cb);
+		ssleay_RSA_generate_key_cb_free(cb);
+	OUTPUT:
+		RETVAL
 
 void
 RSA_free(r)
