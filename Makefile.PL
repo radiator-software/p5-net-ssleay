@@ -10,8 +10,11 @@ all_from('lib/Net/SSLeay.pm');
 
 ssleay();
 
-build_requires('Test::Warn');
+build_requires('Sub::Uplevel');
 build_requires('Test::Exception');
+build_requires('Array::Compare');
+build_requires('Tree::DAG_Node');
+build_requires('Test::Warn');
 build_requires('Test::NoWarnings');
 
 requires('MIME::Base64');
