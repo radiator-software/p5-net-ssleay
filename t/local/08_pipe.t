@@ -99,4 +99,4 @@ push @results, [ $? == 0, 'server exited with 0' ];
 Test::More->builder->current_test(5);
 for my $t (@results) {
     ok( $t->[0], $t->[1] );
-    }
+}
