@@ -24,4 +24,6 @@ svn-commit\.tmp$
 ^makecert\.
 ^t/local/ptr_cast_test$
 ^\.rnd$
+~$
+\..*\.swp$
 #defaults
