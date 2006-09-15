@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Test::More;
 use Symbol qw(gensym);
-use Net::SSLeay::Handle qw(shutdown);
+use Net::SSLeay::Handle;
 
 my @sites = qw(
         www.cdw.com

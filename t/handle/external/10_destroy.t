@@ -14,7 +14,7 @@ plan tests => scalar @uris * 2;
 
 use File::Spec;
 use Symbol qw(gensym);
-use Net::SSLeay::Handle qw(shutdown);
+use Net::SSLeay::Handle;
 
 # On some platforms, such as Solaris, the act of resolving the host name
 # opens (and leaves open) a connection to the DNS client, which breaks 
