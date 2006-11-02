@@ -682,6 +682,12 @@ constant(char* name)
 #else
 	    goto not_there;
 #endif
+	if (strEQ(name, "OP_DONT_INSERT_EMPTY_FRAGMENTS"))
+#ifdef SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS
+	    return SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS;
+#else
+	    goto not_there;
+#endif
 	if (strEQ(name, "OP_ALL"))
 #ifdef SSL_OP_ALL
 	    return SSL_OP_ALL;
