@@ -115,6 +115,7 @@ sub find_openssl_prefix {
             '/usr/local/ssl/bin/openssl'     => '/usr/local/ssl',
             '/usr/local/openssl/bin/openssl' => '/usr/local/openssl',
             '/apps/openssl/std/bin/openssl'  => '/apps/openssl/std',
+	    '/usr/sfw/bin/openssl'           => '/usr/sfw', # Open Solaris
             'C:\OpenSSL'                     => 'C:\OpenSSL',
     );
 
