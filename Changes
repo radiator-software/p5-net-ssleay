@@ -202,4 +202,6 @@ Revision history for Perl extension Net::SSLeay.
             mikem, with patches from Stas Bekman
 	- Added /usr/sfw/bin/openssl to path guessing for Open Solaris,
 	suggested by Igor Boehme.
+	- Fixed a problem with X509_get_subjectAltNames not working when the 
+	subjectAltNAmes are the first extension. Reported by Achim Grolms
 #EOF
