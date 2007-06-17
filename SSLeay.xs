@@ -1371,7 +1371,7 @@ X509_get_subjectAltNames(cert)
 	STACK_OF(GENERAL_NAME) *subjAltNameDNs = NULL;
 	GENERAL_NAME           *subjAltNameDN  = NULL;
 	int                    num_gnames;
-	if (  (i = X509_get_ext_by_NID(cert, NID_subject_alt_name, -1))
+	if (  (i = X509_get_ext_by_NID(cert, NID_subject_alt_name, -1)) >= 0
 		&& (subjAltNameExt = X509_get_ext(cert, i))
 		&& (subjAltNameDNs = X509V3_EXT_d2i(subjAltNameExt)))
 	{
