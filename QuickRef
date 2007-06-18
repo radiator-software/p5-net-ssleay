@@ -125,7 +125,7 @@ $asn1_utctime = Net::SSLeay::X509_get_notBefore($x509);
 $asn1_utctime = Net::SSLeay::X509_get_notAfter($x509);
 $x509_name = Net::SSLeay::X509_get_subject_name($x509);
 $x509_name = Net::SSLeay::X509_get_issuer_name($x509);
-($type1, $subject1, $type2, $subject2, ...) = Net::SSLeay::get_subjectAltNames($x509)
+($type1, $subject1, $type2, $subject2, ...) = Net::SSLeay::X509_get_subjectAltNames($x509)
 	 subjectAltName types as per x509v3.h GEN_* for example:
 	 GEN_DNS == 2
 	 GEN_IPADD == 7
