@@ -19,7 +19,7 @@ my $site;
 for $site (@sites) {
     SKIP: {
         my ($p, $r, %h) =  Net::SSLeay::get_https($site, 443, '/');
-        skip 'could not connect', 2 unless defined $h{SERVER};
+        skip 'could not connect', 2 unless defined $h{'CONTENT-TYPE'};
         pass('connection');
         ok($r =~ /^HTTP\/1/s, 'correct response');
     }
