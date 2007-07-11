@@ -222,4 +222,5 @@ Revision history for Perl extension Net::SSLeay.
 	- Changed type of SSL_set_info_callback args to stop compiler warnings
 	on Windows
 	- Removed auto_include from Makefile.PL
+	- Removed build_requires('Test::NoWarnings') from Makefile.PL
 #EOF

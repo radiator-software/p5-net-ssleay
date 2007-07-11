@@ -9,7 +9,7 @@ $Id$
 
 1. Windows Server 2003
    ActivePerl 5.8.8.820
-   VC++ 6.5
+   VC++ 6.0
    Microsoft Platform SDK SVR2003R2
    Shining Light Win32 OpenSSL 0.9.7L
       http://www.shininglightpro.com/products/Win32OpenSSL.html
@@ -32,7 +32,7 @@ versions, where they will revert to the earlier build procedures.
 
 2. Windows Server 2003
    ActivePerl 5.8.8.820
-   VC++ 6.5
+   VC++ 6.0
    Microsoft Platform SDK SVR2003R2
    OpenSSL 0.9.8e source openssl-0.9.8e.tar.gz
    Dynamic linking to SSL DLLs
