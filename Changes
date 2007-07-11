@@ -204,4 +204,21 @@ Revision history for Perl extension Net::SSLeay.
 	suggested by Igor Boehme.
 	- Fixed a problem with X509_get_subjectAltNames not working when the
 	subjectAltNAmes are the first extension. Reported by Achim Grolms
+
+	09.07.2007
+	- Fix linking problems on Windows. Tested with VC++ 6.0, Shining Light
+	0.9.7L on Windows Server 2003 with ActivePerl 5.8.8.820. Also tested
+	with OpenSSL 0.9.8e compiled from source.
+	- Unable to get working systems when compiling with MS Visual Studio
+	Express 2005. Contributions requested. This may be relevant:
+	  http://www.itwriting.com/blog/?postid=261&replyto=2542
+	- Fixed a number of minor compile warnings on Windows
+	- Updated README.Win32 to define building procedures on Windows
+	- Fixed incorrect test failure reports in 08_external.
+	- Add parens to function calls in Makefile.PL to prevent
+	warnings with some perls.
+	- Tested on Sparc Solaris 8, Sparc Solaris 10, OpenSuSE 10.2 x64,
+	OpenSuSE 10.0 x86, FreeBSD 6.0 x86, Ubuntu 6.10, Fedora Core 6 x86
+	- Changed type of SSL_set_info_callback args to stop compiler warnings
+	on Windows
 #EOF

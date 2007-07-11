@@ -13,6 +13,10 @@ BEGIN {
     @ISA     = qw{Module::Install::Base};
 }
 
+# Define this to one if you want to link the openssl libraries statically into 
+# the Net-SSLeay loadable object on Windows
+my $win_link_statically = 0;
+
 sub ssleay {
     my ($self) = @_;
 
@@ -58,7 +62,6 @@ sub ssleay_get_build_opts {
         inc_paths  => ["$prefix/include", "$prefix/inc32", 'usr/kerberos/include'],
         lib_paths  => [$prefix, "$prefix/lib", "$prefix/out32dll"],
         lib_links  => [],
-        optimize   => '-O2 -g',
         cccdlflags => '',
     };
 
@@ -71,9 +74,22 @@ EOM
 
     if ($^O eq 'MSWin32') {
         print "*** RSAREF build on Windows not supported out of box" if $rsaref;
-        push @{ $opts->{lib_paths} }, "$prefix/lib/VC";
-        push @{ $opts->{lib_links} }, qw( libeay32 ssleay32 );
+	if ($win_link_statically)
+	{
+	    # Link to static libs
+	    push @{ $opts->{lib_paths} }, "$prefix/lib/VC/static";
+	}
+	else
+	{
+	    push @{ $opts->{lib_paths} }, "$prefix/lib/VC";
+	}
+	# Library names depend on the compiler. We expect either 
+	# libeay32MD and ssleay32MD or
+	# libeay32 and ssleay32.
+	# This construction will not complain as long as it find at least one
+	push @{ $opts->{lib_links} }, qw( libeay32MD ssleay32MD libeay32 ssleay32 );
     } else {
+        $opts->{optimize} = '-O2 -g';
         push @{ $opts->{lib_links} },
              ($rsaref
               ? qw( ssl crypto RSAglue rsaref z )
@@ -116,7 +132,7 @@ sub find_openssl_prefix {
             '/usr/local/openssl/bin/openssl' => '/usr/local/openssl',
             '/apps/openssl/std/bin/openssl'  => '/apps/openssl/std',
 	    '/usr/sfw/bin/openssl'           => '/usr/sfw', # Open Solaris
-            'C:\OpenSSL'                     => 'C:\OpenSSL',
+            'C:\OpenSSL\bin\openssl.exe'     => 'C:\OpenSSL',
     );
 
     while (my ($k, $v) = each %guesses) {

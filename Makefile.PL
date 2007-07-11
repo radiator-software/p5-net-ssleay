@@ -33,6 +33,6 @@ clean_files(map { fixpath($_) } qw(
 
 no_index( directory => qw( inc ext ) );
 
-auto_include;
-auto_install;
-WriteAll;
+auto_include();
+auto_install();
+WriteAll();
