@@ -221,4 +221,5 @@ Revision history for Perl extension Net::SSLeay.
 	OpenSuSE 10.0 x86, FreeBSD 6.0 x86, Ubuntu 6.10, Fedora Core 6 x86
 	- Changed type of SSL_set_info_callback args to stop compiler warnings
 	on Windows
+	- Removed auto_include from Makefile.PL
 #EOF
