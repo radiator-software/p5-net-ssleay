@@ -16,7 +16,6 @@ build_requires('Array::Compare');
 build_requires('Tree::DAG_Node');
 build_requires('Test::Warn');
 build_requires('Test::NoWarnings');
-
 requires('MIME::Base64');
 
 clean_files(map { fixpath($_) } qw(
