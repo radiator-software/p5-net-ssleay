@@ -205,7 +205,7 @@ Revision history for Perl extension Net::SSLeay.
 	- Fixed a problem with X509_get_subjectAltNames not working when the
 	subjectAltNAmes are the first extension. Reported by Achim Grolms
 
-	09.07.2007
+1.31_02 14.07.2007
 	- Fix linking problems on Windows. Tested with VC++ 6.0, Shining Light
 	0.9.7L on Windows Server 2003 with ActivePerl 5.8.8.820. Also tested
 	with OpenSSL 0.9.8e compiled from source.
