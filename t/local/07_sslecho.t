@@ -33,9 +33,9 @@ Net::SSLeay::library_init();
     my $ip = "\x7F\0\0\x01";
     my $serv_params = pack ('S n a4 x8', AF_INET, $port, $ip);
     $sock = gensym();
-    socket($sock, AF_INET, SOCK_STREAM, 0) or die;
-    bind($sock, $serv_params) or die;
-    listen($sock, 3) or die;
+    socket($sock, AF_INET, SOCK_STREAM, 0) or BAIL_OUT("failed to open socket: $!");
+    bind($sock, $serv_params) or BAIL_OUT("failed to bind socket: $!");
+    listen($sock, 3) or BAIL_OUT("failed to listen on socket: $!");
 
 
     my $ctx = Net::SSLeay::CTX_new();
@@ -44,7 +44,7 @@ Net::SSLeay::library_init();
     ok(Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem), 'set_cert_and_key');
 
     $pid = fork();
-    die unless defined $pid;
+    BAIL_OUT("failed to fork: $!") unless defined $pid;
     if ($pid == 0) {
         for (1 .. 7) {
             my $ns = gensym();
@@ -86,8 +86,8 @@ my @results;
 
 {
     my $s = gensym();
-    socket($s, AF_INET, SOCK_STREAM, 0) or die;
-    connect($s, $dest_serv_params) or die;
+    socket($s, AF_INET, SOCK_STREAM, 0) or BAIL_OUT("failed to open socket");
+    connect($s, $dest_serv_params) or BAIL_OUT("failed to connect");
 
     {
         my $old_out = select($s);
@@ -133,9 +133,9 @@ my @results;
 
         {
             my $s = gensym();
-            socket($s, AF_INET, SOCK_STREAM, 0) or die;
-            connect($s, $dest_serv_params) or die;
-            
+            socket($s, AF_INET, SOCK_STREAM, 0) or BAIL_OUT("failed to open socket: $!");
+            connect($s, $dest_serv_params) or BAIL_OUT("failed to connect: $!");
+
             {
                 my $old_out = select($s);
                 $| = 1;
@@ -159,9 +159,9 @@ my @results;
 
         {
             my $s1 = gensym();
-            socket($s1, AF_INET, SOCK_STREAM, 0) or die;
-            connect($s1, $dest_serv_params) or die;
-            
+            socket($s1, AF_INET, SOCK_STREAM, 0) or BAIL_OUT("failed to open socket: $!");
+            connect($s1, $dest_serv_params) or BAIL_OUT("failed to connect: $!");
+
             {
                 my $old_out = select($s1);
                 $| = 1;
@@ -169,9 +169,9 @@ my @results;
             }
 
             my $s2 = gensym();
-            socket($s2, AF_INET, SOCK_STREAM, 0) or die;
-            connect($s2, $dest_serv_params) or die;
-            
+            socket($s2, AF_INET, SOCK_STREAM, 0) or BAIL_OUT("failed to open socket: $!");
+            connect($s2, $dest_serv_params) or BAIL_OUT("failed to connect: $!");
+
             {
                 my $old_out = select($s2);
                 $| = 1;
@@ -179,9 +179,9 @@ my @results;
             }
 
             my $s3 = gensym();
-            socket($s3, AF_INET, SOCK_STREAM, 0) or die;
-            connect($s3, $dest_serv_params) or die;
-            
+            socket($s3, AF_INET, SOCK_STREAM, 0) or BAIL_OUT("failed to open socket: $!");
+            connect($s3, $dest_serv_params) or BAIL_OUT("failed to connect: $!");
+
             {
                 my $old_out = select($s3);
                 $| = 1;
@@ -269,8 +269,8 @@ my @results;
 
 {
     my $s = gensym();
-    socket($s, AF_INET, SOCK_STREAM, 0) or die;
-    connect($s, $dest_serv_params) or die;
+    socket($s, AF_INET, SOCK_STREAM, 0) or BAIL_OUT("failed to open socket: $!");
+    connect($s, $dest_serv_params) or BAIL_OUT("failed to connect: $!");
 
     {
         my $old_out = select($s);
