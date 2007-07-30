@@ -87,7 +87,8 @@ EOM
 	# libeay32MD and ssleay32MD or
 	# libeay32 and ssleay32.
 	# This construction will not complain as long as it find at least one
-	push @{ $opts->{lib_links} }, qw( libeay32MD ssleay32MD libeay32 ssleay32 );
+	# libssl32.a is made by openssl onWin21 with the ms/minw32.bat builder
+	push @{ $opts->{lib_links} }, qw( libeay32MD ssleay32MD libeay32 ssleay32 libssl32);
     } else {
         $opts->{optimize} = '-O2 -g';
         push @{ $opts->{lib_links} },

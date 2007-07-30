@@ -79,5 +79,33 @@ Unpack and install the Net-SSLeay package
 - nmake test
   CAUTION: nmake test fails at this stage. Any suggestions?? This may be
    relevant: http://www.itwriting.com/blog/?postid=261&replyto=2542
- 
+- nmake install
 
+4. Windows XP SP2
+   Strawberry Perl 5.8.8-alpha-2
+   OpenSSL 0.9.8e source openssl-0.9.8e.tar.gz
+
+- Install Strawberry Perl by running the installer
+  (strawberry-perl-5.8.8-alpha-2.exe in this example)
+- Unpack openssl-0.9.8e.tar.gz
+- cd openssl-0.9.8e
+- ms\mingw32
+- cd out
+- ..\ms\test
+   (if you have trouble getting to this stage, consult INSTALL.W32)
+- md c:\openssl 
+- md c:\openssl\bin
+- md c:\openssl\lib
+- md c:\openssl\include
+- md c:\openssl\include\openssl
+- copy /b inc32\openssl\*       c:\openssl\include\openssl
+- copy /b out\libssl32.a c:\openssl\lib
+- copy /b out\libeay32.a c:\openssl\lib
+- copy /b libssl32.dll c:\openssl\bin
+- copy /b libeay32.dll c:\openssl\bin
+- copy /b out\openssl.exe  c:\openssl\bin
+- cd Net-SSLeay-xxxx
+- c:\strawberry-perl\perl\bin\perl Makefile.PL
+- dmake
+- copy c:\openssl\bin\*.dll blib/arch/auto/Net/SSLeay
+- dmake install
