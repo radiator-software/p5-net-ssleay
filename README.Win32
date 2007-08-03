@@ -109,3 +109,17 @@ Unpack and install the Net-SSLeay package
 - dmake
 - copy c:\openssl\bin\*.dll blib/arch/auto/Net/SSLeay
 - dmake install
+
+4. Windows XP SP2
+   Perl CamelPack perl-camelpack-5.8.7.exe
+   Shining Light Win32 OpenSSL 0.9.7L
+      http://www.shininglightpro.com/products/Win32OpenSSL.html
+
+Install all packages in the order listed above
+Unpack and install the Net-SSLeay package
+ cd Net-SSLeay-xxxx
+ perl Makefile.PL (accept external tests and extra CPAN installs)
+ nmake
+ nmake install
+
+(Note that 'nmake test' does not seem to work with CamelPack)
