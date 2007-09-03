@@ -228,4 +228,8 @@ Revision history for Perl extension Net::SSLeay.
 	- Testing with Perl CamelPack 5.8.7 on Windows XP SP2,added doc to
 	README.Win32
 
+1.32 03.08.2007
+	- Don't let the tests die when something unexpected happens. Just BAIL_OUT.
+	- Some Win32 improvements.
+
 #EOF
