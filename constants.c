@@ -676,9 +676,77 @@ constant(char* name)
 #else
 	    goto not_there;
 #endif
+	if (strEQ(name, "OP_NO_TICKET"))
+#ifdef SSL_OP_NO_TICKET
+	    return SSL_OP_NO_TICKET;
+#else
+	    goto not_there;
+#endif
 	if (strEQ(name, "OP_NO_TLSv1"))
 #ifdef SSL_OP_NO_TLSv1
 	    return SSL_OP_NO_TLSv1;
+#else
+	    goto not_there;
+#endif
+
+
+	if (strEQ(name, "OP_NO_QUERY_MTU"))
+#ifdef SSL_OP_NO_QUERY_MTU
+	    return SSL_OP_NO_QUERY_MTU;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "OP_COOKIE_EXCHANGE"))
+#ifdef SSL_OP_COOKIE_EXCHANGE
+	    return SSL_OP_COOKIE_EXCHANGE;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION"))
+#ifdef SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION
+	    return SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "OP_NO_COMPRESSION"))
+#ifdef SSL_OP_NO_COMPRESSION
+	    return SSL_OP_NO_COMPRESSION;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "OP_CIPHER_SERVER_PREFERENCE"))
+#ifdef SSL_OP_CIPHER_SERVER_PREFERENCE
+	    return SSL_OP_CIPHER_SERVER_PREFERENCE;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "OP_TLS_ROLLBACK_BUG"))
+#ifdef SSL_OP_TLS_ROLLBACK_BUG
+	    return SSL_OP_TLS_ROLLBACK_BUG;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "OP_PKCS1_CHECK_1"))
+#ifdef SSL_OP_PKCS1_CHECK_1
+	    return SSL_OP_PKCS1_CHECK_1;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "OP_PKCS1_CHECK_2"))
+#ifdef SSL_OP_PKCS1_CHECK_2
+	    return SSL_OP_PKCS1_CHECK_2;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "OP_NETSCAPE_CA_DN_BUG"))
+#ifdef SSL_OP_NETSCAPE_CA_DN_BUG
+	    return SSL_OP_NETSCAPE_CA_DN_BUG;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG"))
+#ifdef SSL_OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG
+	    return SSL_OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG;
 #else
 	    goto not_there;
 #endif

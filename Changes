@@ -227,9 +227,24 @@ Revision history for Perl extension Net::SSLeay.
 	README.Win32
 	- Testing with Perl CamelPack 5.8.7 on Windows XP SP2,added doc to
 	README.Win32
-
+	- Added optional support for SSL_set_hello_extension,
+	SSL_set_session_secret_cb to support various extension patches from 
+	a patch to openssl-0.9.9-dev contributed by Jouni Malinen. 
+	See wpa_supplicant/patches/openssl-0.9.9-session-ticket.patch in the
+	latest (git) version 0.6 and later of wpa_suplicant at 
+	http://hostap.epitest.fi/. These additions are ifdefed to 
+	SSL_F_SSL_SET_HELLO_EXTENSION which is added by the patch
+	Tested with openssl-SNAP-20070816.
+	- Added SSL_SESSION_set_master_key and SSL_get_keyblock_size.
+	- Added all SSL_OP_* options flags present in 0.9.9
+	- Fixed a bug in SSL_set_tmp_dh
+	- Doc improvements in README.Win32
 1.32 03.08.2007
 	- Don't let the tests die when something unexpected happens. Just BAIL_OUT.
 	- Some Win32 improvements.
 
+???
+	- Fixed a compile problem with inc_paths /usr/kerberos/include
+	in inc/Module/Install/PRIVATE/Net/SSLeay.pm. Reported by "J. Nick
+	Koston via RT"
 #EOF

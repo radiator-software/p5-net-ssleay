@@ -51,6 +51,7 @@ Unpack and install the Net-SSLeay package
  cd Net-SSLeay-xxxx
  perl Makefile.PL
  nmake
+ copy c:\OpenSSL\bin\*.dll blib\arch\auto\Net\SSLeay\
  nmake test
  nmake install
 
@@ -122,4 +123,4 @@ Unpack and install the Net-SSLeay package
  nmake
  nmake install
 
-(Note that 'nmake test' does not seem to work with CamelPack)
+(Note that 'nmake test' does not seem to work with CamelPack 5.8.7)

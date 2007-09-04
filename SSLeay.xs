@@ -199,6 +199,7 @@ struct _ssleay_cb_t {
 };
 typedef struct _ssleay_cb_t ssleay_ctx_passwd_cb_t;
 typedef struct _ssleay_cb_t ssleay_ctx_cert_verify_cb_t;
+typedef struct _ssleay_cb_t ssleay_session_secret_cb_t;
 typedef struct _ssleay_cb_t ssleay_RSA_generate_key_cb_t;
 
 ssleay_ctx_passwd_cb_t*
@@ -467,6 +468,130 @@ ssleay_ctx_cert_verify_cb_invoke(X509_STORE_CTX* x509_store_ctx, void* data) {
 
 	return res;
 }
+
+#ifdef SSL_F_SSL_SET_HELLO_EXTENSION
+static HV* ssleay_session_secret_cbs = (HV*)NULL;
+
+ssleay_session_secret_cb_t*
+ssleay_session_secret_cb_new(SSL* s, SV* func, SV* data) {
+	ssleay_session_secret_cb_t* cb;
+	SV* hash_value;
+	SV* key;
+	char* key_str;
+	STRLEN key_len;
+
+	cb = New(0, cb, 1, ssleay_session_secret_cb_t);
+
+	SvREFCNT_inc(func);
+	SvREFCNT_inc(data);
+	cb->func = func;
+	cb->data = data;
+
+	if (s == NULL) {
+		croak( "Net::SSLeay: s == NULL in ssleay_session_secret_cb_new" );
+	}
+
+	hash_value = sv_2mortal(newSViv( (IV)cb ));
+
+	key = sv_2mortal(newSViv( (IV)s ));
+	key_str = SvPV(key, key_len);
+
+	if (ssleay_session_secret_cbs == (HV*)NULL)
+		ssleay_session_secret_cbs = newHV();
+
+	SvREFCNT_inc(hash_value);
+	hv_store( ssleay_session_secret_cbs, key_str, key_len, hash_value, 0 );
+
+	return cb;
+}
+
+ssleay_session_secret_cb_t*
+ssleay_session_secret_cb_get(SSL* s) {
+	SV* key;
+	char* key_str;
+	STRLEN key_len;
+	SV** hash_value;
+	ssleay_session_secret_cb_t* cb;
+
+	key = sv_2mortal(newSViv( (IV)s ));
+	key_str = SvPV(key, key_len);
+
+	hash_value = hv_fetch( ssleay_session_secret_cbs, key_str, key_len, 0 );
+
+	if (hash_value == NULL || *hash_value == NULL) {
+		cb = NULL;
+	} else {
+		cb = (ssleay_session_secret_cb_t*)SvIV( *hash_value );
+	}
+
+	return cb;
+}
+
+void
+ssleay_session_secret_cb_free(SSL* s) {
+	ssleay_session_secret_cb_t* cb;
+
+	cb = ssleay_session_secret_cb_get(s);
+
+	if (cb) {
+		if (cb->func) {
+			SvREFCNT_dec(cb->func);
+			cb->func = NULL;
+		}
+
+		if (cb->data) {
+			SvREFCNT_dec(cb->data);
+			cb->data = NULL;
+		}
+	}
+
+	Safefree(cb);
+}
+
+int
+ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
+			   STACK_OF(SSL_CIPHER) *peer_ciphers,
+			   SSL_CIPHER **cipher, void *arg) 
+{
+	dSP;
+
+	int count;
+	int res;
+	ssleay_session_secret_cb_t* cb = (ssleay_session_secret_cb_t*)arg;
+
+	ENTER;
+	SAVETMPS;
+
+	PUSHMARK(SP);
+	if (cb->data) {
+		XPUSHs( cb->data );
+	}
+	PUTBACK;
+
+	if (cb->func == NULL) {
+		croak ("Net::SSLeay: ssleay_session_secret_cb_invoke called, but not "
+				"set to point to any perl function.\n");
+	}
+
+	count = call_sv( cb->func, G_SCALAR );
+
+	SPAGAIN;
+
+	if (count != 1) {
+		croak ("Net::SSLeay: ssleay_session_secret_cb_invoke "
+				"perl function did not return a scalar.\n");
+	}
+
+	res = POPi;
+
+	PUTBACK;
+	FREETMPS;
+	LEAVE;
+
+	return res;
+}
+
+#endif
 
 ssleay_RSA_generate_key_cb_t*
 ssleay_RSA_generate_key_cb_new(SV* func, SV* data) {
@@ -2318,11 +2443,7 @@ SSL_set_pref_cipher(s,n)
 long	
 SSL_set_tmp_dh(ssl,dh)
      SSL *	ssl
-     char *	dh
-  CODE:
-  RETVAL = SSL_ctrl(ssl,SSL_CTRL_SET_TMP_DH,0,(char *)dh);
-  OUTPUT:
-  RETVAL
+     DH *	dh
 
 long	
 SSL_set_tmp_rsa(ssl,rsa)
@@ -2390,6 +2511,17 @@ SSL_SESSION_get_master_key(s)
      sv_setpvn(ST(0), (const char*)s->master_key, s->master_key_length);
 
 void
+SSL_SESSION_set_master_key(s,key)
+     SSL_SESSION *   s
+     PREINIT:
+     STRLEN len;
+     INPUT:
+     char * key = SvPV(ST(1), len);
+     CODE:
+     memcpy(s->master_key, key, len);
+     s->master_key_length = len;
+
+void
 SSL_get_client_random(s)
      SSL *   s
      CODE:
@@ -2403,5 +2535,69 @@ SSL_get_server_random(s)
      ST(0) = sv_newmortal();   /* Undefined to start with */
      sv_setpvn(ST(0), (const char*)s->s3->server_random, SSL3_RANDOM_SIZE);
 
+int
+SSL_get_keyblock_size(s)
+     SSL *   s	
+     CODE:
+     if (s == NULL ||
+	 s->enc_read_ctx == NULL ||
+	 s->enc_read_ctx->cipher == NULL ||
+	 s->read_hash == NULL)
+     {
+	RETVAL = -1;
+     }
+     else
+     {
+	const EVP_CIPHER *c;
+	const EVP_MD *h;
+	c = s->enc_read_ctx->cipher;
+#if OPENSSL_VERSION_NUMBER >= 0x00909000L
+	h = EVP_MD_CTX_md(s->read_hash);
+#else
+	h = s->read_hash;
+#endif
+
+	RETVAL = 2 * (EVP_CIPHER_key_length(c) +
+		    EVP_MD_size(h) +
+		    EVP_CIPHER_iv_length(c));
+     }
+     OUTPUT:
+     RETVAL
+
+
+
+#ifdef SSL_F_SSL_SET_HELLO_EXTENSION
+int
+SSL_set_hello_extension(s, type, data)
+     SSL *   s
+     int     type
+     PREINIT:
+     STRLEN len;
+     INPUT:
+     char *  data = SvPV( ST(2), len);
+     CODE:
+     RETVAL = SSL_set_hello_extension(s, type, data, len);
+     OUTPUT:
+     RETVAL
+
+void 
+SSL_set_session_secret_cb(s,func,data=NULL)
+	SSL * s
+	SV* func
+	SV*	data
+	PREINIT:
+	ssleay_session_secret_cb_t* cb;
+	CODE:
+	if (func == NULL || func == &PL_sv_undef) {
+		ssleay_session_secret_cb_free(s);
+		SSL_set_session_secret_cb(s, NULL, NULL);
+	} else {
+		cb = ssleay_session_secret_cb_new(s, func, data);
+		SSL_set_session_secret_cb(s, (int (*)(SSL *s, void *secret, int *secret_len,
+			   STACK_OF(SSL_CIPHER) *peer_ciphers,
+			   SSL_CIPHER **cipher, void *arg))&ssleay_session_secret_cb_invoke, cb);
+	}
+
+#endif
 
 #define REM_EOF "/* EOF - SSLeay.xs */"
