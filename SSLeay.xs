@@ -557,12 +557,23 @@ ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
 
 	int count;
 	int res;
+	int i;
+	AV *ciphers = newAV();
+	SV *pref_cipher = sv_newmortal();
 	ssleay_session_secret_cb_t* cb = (ssleay_session_secret_cb_t*)arg;
 
 	ENTER;
 	SAVETMPS;
 
 	PUSHMARK(SP);
+	XPUSHs( sv_2mortal( newSVpv(secret, *secret_len)) );
+	for (i=0; i<sk_SSL_CIPHER_num(peer_ciphers); i++)
+	{
+	    SSL_CIPHER *c = sk_SSL_CIPHER_value(peer_ciphers,i);
+	    av_store(ciphers, i, sv_2mortal(newSVpv(SSL_CIPHER_get_name(c), 0)));
+	}
+	XPUSHs(sv_2mortal(newRV((SV*)ciphers)));
+	XPUSHs(sv_2mortal(newRV(pref_cipher)));
 	if (cb->data) {
 		XPUSHs( cb->data );
 	}
@@ -583,6 +594,15 @@ ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
 	}
 
 	res = POPi;
+	if (res)
+	{
+	    /* See if there is a preferred cipher selected, if so
+	       it is an index into the stack */
+	    if (SvIOK(pref_cipher))
+	    {
+		*cipher = sk_SSL_CIPHER_value(peer_ciphers, SvIV(pref_cipher));
+	    }
+	}
 
 	PUTBACK;
 	FREETMPS;

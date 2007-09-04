@@ -1054,6 +1054,8 @@ Some very low level API functions are available:
     $server_random = Net::SSLeay::get_server_random($ssl);
     $session = Net::SSLeay::get_session($ssl);
     $master_key = Net::SSLeay::SESSION_get_master_key($session);
+    Net::SSLeay::SESSION_set_master_key($session, $master_secret);
+    $keyblocksize = Net::SSLeay::get_keyblock_size($session);
 
 =head2 HTTP (without S) API
 
