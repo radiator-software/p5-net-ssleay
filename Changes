@@ -259,5 +259,8 @@ Revision history for Perl extension Net::SSLeay.
         - Added all SSL_OP_* options flags present in 0.9.9
         - Fixed a bug in SSL_set_tmp_dh
         - Doc improvements in README.Win32
-
+	- Fixed a problem with proxy connections: open_proxy_tcp_connection
+	was stopping after the first \n from teh proxy, 
+	but instead should have looked for
+	$CRLF . $CRLF to find the beginning of the SSL content
 #EOF

@@ -1649,7 +1649,7 @@ sub open_proxy_tcp_connection {
     ($ret, $errs) =
 	tcp_write_all("CONNECT $dest_serv:$port HTTP/1.0$proxyauth$CRLF$CRLF");
     return wantarray ? (0,$errs) : 0 if $errs;
-    ($line, $errs) = tcp_read_until("\n", 1024);
+    ($line, $errs) = tcp_read_until($CRLF . $CRLF, 1024);
     warn "Proxy response: $line" if $trace>2;
     return wantarray ? (0,$errs) : 0 if $errs;
     return wantarray ? (1,'') : 1;  # Success
