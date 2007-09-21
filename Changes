@@ -263,4 +263,5 @@ Revision history for Perl extension Net::SSLeay.
 	was stopping after the first \n from teh proxy, 
 	but instead should have looked for
 	$CRLF . $CRLF to find the beginning of the SSL content
+	- Fixed missing / on /usr/kerberos/include, reported by several people
 #EOF

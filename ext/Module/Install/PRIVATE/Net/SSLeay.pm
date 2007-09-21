@@ -59,7 +59,7 @@ sub ssleay_get_build_opts {
     my ($self, $prefix, $exec) = @_;
 
     my $opts = {
-        inc_paths  => ["$prefix/include", "$prefix/inc32", 'usr/kerberos/include'],
+        inc_paths  => ["$prefix/include", "$prefix/inc32", '/usr/kerberos/include'],
         lib_paths  => [$prefix, "$prefix/lib", "$prefix/out32dll"],
         lib_links  => [],
         cccdlflags => '',
