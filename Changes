@@ -264,4 +264,13 @@ Revision history for Perl extension Net::SSLeay.
 	but instead should have looked for
 	$CRLF . $CRLF to find the beginning of the SSL content
 	- Fixed missing / on /usr/kerberos/include, reported by several people
+	- removed bacus.pt from host list in t/handle/external/10_destroy.t,
+	since it seems no longer to respond. Reported by tco2.
+	- changed t/handle/external/10_destroy.t so this list of URIs to be
+	tested can be configured with environment variable SSLEAY_URIS, a
+	colon separated list of host names. Suggested by tco2.
+	- changed t/handle/external/50_external.t and t/external/08_external.t 
+	so this list of sites to be
+	tested can be configured with environment variable SSLEAY_SITES, a
+	colon separated list of host names. Suggested by tco2.
 #EOF

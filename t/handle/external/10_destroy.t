@@ -6,11 +6,15 @@ use Test::More;
 
 my @uris = qw(
         debianforum.de
-        bacus.pt
         perldition.org
 );
-
-plan tests => scalar @uris * 2;
+@uris = split(/:/, $ENV{SSLEAY_URIS}) if exists $ENV{SSLEAY_URIS};
+if (@uris) {
+    plan tests => scalar @uris * 2;
+}
+else {
+    plan skip_all => 'No external hosts specified for SSL testing';
+}
 
 use File::Spec;
 use Symbol qw(gensym);

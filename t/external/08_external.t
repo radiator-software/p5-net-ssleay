@@ -12,8 +12,13 @@ my @sites = qw(
         perldition.org
         alioth.debian.org
 );
-
-plan tests => @sites * 2;
+@sites = split(/:/, $ENV{SSLEAY_SITES}) if exists $ENV{SSLEAY_SITES};
+if (@sites) {
+    plan tests => scalar @sites * 6;
+}
+else {
+    plan skip_all => 'No external hosts specified for SSL testing';
+}
 
 my $site;
 for $site (@sites) {
