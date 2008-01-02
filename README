@@ -74,7 +74,7 @@ HPUX:
 
 	Configuring Net::SSLeay:
 	
-		perl Makefile.PL -path /openssl/path CCFLAGS='-D_HPUX_SOURCE \
+		OPENSSL_PREFIX=/openssl/path perl Makefile.PL CCFLAGS='-D_HPUX_SOURCE \
 		 -Aa -I/usr/local/include +e'
 
 	The magic bit seemed to be the `+e' flag. Since version 1.14
@@ -97,12 +97,13 @@ Windows:
 	to system's environment PATH, assuming you installed your openssl
 	in d:\openssl. YMMV
 
-		perl Makefile.PL -path D:\OpenSSL
+		OPENSSL_PREFIX=D:\OpenSSL perl Makefile.PL
 
 	On windows, Makefile.PL will automatically set up library and include
 	paths for windows compile and will automatcially find OpenSSL if it
 	exists in c:\OpenSSL. If your OPenSSL libraries and includes are
-	elsewhere, use the -path flag. If it does not work, please tweak
+	elsewhere, use the OPENSSL_PREFIX environment variable. 
+	If it does not work, please tweak
 	Makefile.PL and submit a patch.
 
 		nmake
@@ -121,9 +122,9 @@ Linking with RSAref is no longer supported (the patent issue is moot
 doe to patent expiring). If you want to try it, you are on your own,
 but here's how it used to work...
 
-  For linking against RSAref add -rsaref flag like this:
+  For linking against RSAref the the OPENSSL_RSAREF environment variable like this:
 
-	./Makefile.PL -rsaref -t  # builds and tests it, link against RSAref
+	OPENSSL_RSAREF=1 ./Makefile.PL -t  # builds and tests it, link against RSAref
 
   You must previously have built OpenSSL with RSAref support (which
   implies first building rsaref itself), I use the RSAglue method. File
