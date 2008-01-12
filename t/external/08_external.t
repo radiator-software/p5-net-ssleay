@@ -14,7 +14,7 @@ my @sites = qw(
 );
 @sites = split(/:/, $ENV{SSLEAY_SITES}) if exists $ENV{SSLEAY_SITES};
 if (@sites) {
-    plan tests => scalar @sites * 6;
+    plan tests => scalar @sites * 2;
 }
 else {
     plan skip_all => 'No external hosts specified for SSL testing';
