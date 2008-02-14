@@ -578,6 +578,1092 @@ constant(char* name)
 #else
 	    goto not_there;
 #endif
+	if (strEQ(name, "NID_undef"))
+#ifdef NID_undef
+	    return NID_undef;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_algorithm"))
+#ifdef NID_algorithm
+	    return NID_algorithm;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_rsadsi"))
+#ifdef NID_rsadsi
+	    return NID_rsadsi;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pkcs"))
+#ifdef NID_pkcs
+	    return NID_pkcs;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_md2"))
+#ifdef NID_md2
+	    return NID_md2;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_md5"))
+#ifdef NID_md5
+	    return NID_md5;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_rc4"))
+#ifdef NID_rc4
+	    return NID_rc4;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_rsaEncryption"))
+#ifdef NID_rsaEncryption
+	    return NID_rsaEncryption;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_md2WithRSAEncryption"))
+#ifdef NID_md2WithRSAEncryption
+	    return NID_md2WithRSAEncryption;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_md5WithRSAEncryption"))
+#ifdef NID_md5WithRSAEncryption
+	    return NID_md5WithRSAEncryption;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pbeWithMD2AndDES_CBC"))
+#ifdef NID_pbeWithMD2AndDES_CBC
+	    return NID_pbeWithMD2AndDES_CBC;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pbeWithMD5AndDES_CBC"))
+#ifdef NID_pbeWithMD5AndDES_CBC
+	    return NID_pbeWithMD5AndDES_CBC;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_X500"))
+#ifdef NID_X500
+	    return NID_X500;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_X509"))
+#ifdef NID_X509
+	    return NID_X509;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_commonName"))
+#ifdef NID_commonName
+	    return NID_commonName;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_countryName"))
+#ifdef NID_countryName
+	    return NID_countryName;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_localityName"))
+#ifdef NID_localityName
+	    return NID_localityName;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_stateOrProvinceName"))
+#ifdef NID_stateOrProvinceName
+	    return NID_stateOrProvinceName;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_organizationName"))
+#ifdef NID_organizationName
+	    return NID_organizationName;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_organizationalUnitName"))
+#ifdef NID_organizationalUnitName
+	    return NID_organizationalUnitName;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_rsa"))
+#ifdef NID_rsa
+	    return NID_rsa;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pkcs7"))
+#ifdef NID_pkcs7
+	    return NID_pkcs7;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pkcs7_data"))
+#ifdef NID_pkcs7_data
+	    return NID_pkcs7_data;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pkcs7_signed"))
+#ifdef NID_pkcs7_signed
+	    return NID_pkcs7_signed;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pkcs7_enveloped"))
+#ifdef NID_pkcs7_enveloped
+	    return NID_pkcs7_enveloped;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pkcs7_signedAndEnveloped"))
+#ifdef NID_pkcs7_signedAndEnveloped
+	    return NID_pkcs7_signedAndEnveloped;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pkcs7_digest"))
+#ifdef NID_pkcs7_digest
+	    return NID_pkcs7_digest;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pkcs7_encrypted"))
+#ifdef NID_pkcs7_encrypted
+	    return NID_pkcs7_encrypted;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pkcs3"))
+#ifdef NID_pkcs3
+	    return NID_pkcs3;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_dhKeyAgreement"))
+#ifdef NID_dhKeyAgreement
+	    return NID_dhKeyAgreement;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_des_ecb"))
+#ifdef NID_des_ecb
+	    return NID_des_ecb;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_des_cfb64"))
+#ifdef NID_des_cfb64
+	    return NID_des_cfb64;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_des_cbc"))
+#ifdef NID_des_cbc
+	    return NID_des_cbc;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_des_ede"))
+#ifdef NID_des_ede
+	    return NID_des_ede;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_des_ede3"))
+#ifdef NID_des_ede3
+	    return NID_des_ede3;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_idea_cbc"))
+#ifdef NID_idea_cbc
+	    return NID_idea_cbc;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_idea_cfb64"))
+#ifdef NID_idea_cfb64
+	    return NID_idea_cfb64;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_idea_ecb"))
+#ifdef NID_idea_ecb
+	    return NID_idea_ecb;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_rc2_cbc"))
+#ifdef NID_rc2_cbc
+	    return NID_rc2_cbc;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_rc2_ecb"))
+#ifdef NID_rc2_ecb
+	    return NID_rc2_ecb;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_rc2_cfb64"))
+#ifdef NID_rc2_cfb64
+	    return NID_rc2_cfb64;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_rc2_ofb64"))
+#ifdef NID_rc2_ofb64
+	    return NID_rc2_ofb64;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_sha"))
+#ifdef NID_sha
+	    return NID_sha;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_shaWithRSAEncryption"))
+#ifdef NID_shaWithRSAEncryption
+	    return NID_shaWithRSAEncryption;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_des_ede_cbc"))
+#ifdef NID_des_ede_cbc
+	    return NID_des_ede_cbc;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_des_ede3_cbc"))
+#ifdef NID_des_ede3_cbc
+	    return NID_des_ede3_cbc;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_des_ofb64"))
+#ifdef NID_des_ofb64
+	    return NID_des_ofb64;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_idea_ofb64"))
+#ifdef NID_idea_ofb64
+	    return NID_idea_ofb64;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pkcs9"))
+#ifdef NID_pkcs9
+	    return NID_pkcs9;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pkcs9_emailAddress"))
+#ifdef NID_pkcs9_emailAddress
+	    return NID_pkcs9_emailAddress;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pkcs9_unstructuredName"))
+#ifdef NID_pkcs9_unstructuredName
+	    return NID_pkcs9_unstructuredName;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pkcs9_contentType"))
+#ifdef NID_pkcs9_contentType
+	    return NID_pkcs9_contentType;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pkcs9_messageDigest"))
+#ifdef NID_pkcs9_messageDigest
+	    return NID_pkcs9_messageDigest;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pkcs9_signingTime"))
+#ifdef NID_pkcs9_signingTime
+	    return NID_pkcs9_signingTime;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pkcs9_countersignature"))
+#ifdef NID_pkcs9_countersignature
+	    return NID_pkcs9_countersignature;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pkcs9_challengePassword"))
+#ifdef NID_pkcs9_challengePassword
+	    return NID_pkcs9_challengePassword;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pkcs9_unstructuredAddress"))
+#ifdef NID_pkcs9_unstructuredAddress
+	    return NID_pkcs9_unstructuredAddress;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pkcs9_extCertAttributes"))
+#ifdef NID_pkcs9_extCertAttributes
+	    return NID_pkcs9_extCertAttributes;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_netscape"))
+#ifdef NID_netscape
+	    return NID_netscape;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_netscape_cert_extension"))
+#ifdef NID_netscape_cert_extension
+	    return NID_netscape_cert_extension;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_netscape_data_type"))
+#ifdef NID_netscape_data_type
+	    return NID_netscape_data_type;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_des_ede_cfb64"))
+#ifdef NID_des_ede_cfb64
+	    return NID_des_ede_cfb64;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_des_ede3_cfb64"))
+#ifdef NID_des_ede3_cfb64
+	    return NID_des_ede3_cfb64;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_des_ede_ofb64"))
+#ifdef NID_des_ede_ofb64
+	    return NID_des_ede_ofb64;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_des_ede3_ofb64"))
+#ifdef NID_des_ede3_ofb64
+	    return NID_des_ede3_ofb64;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_sha1"))
+#ifdef NID_sha1
+	    return NID_sha1;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_sha1WithRSAEncryption"))
+#ifdef NID_sha1WithRSAEncryption
+	    return NID_sha1WithRSAEncryption;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_dsaWithSHA"))
+#ifdef NID_dsaWithSHA
+	    return NID_dsaWithSHA;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_dsa_2"))
+#ifdef NID_dsa_2
+	    return NID_dsa_2;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pbeWithSHA1AndRC2_CBC"))
+#ifdef NID_pbeWithSHA1AndRC2_CBC
+	    return NID_pbeWithSHA1AndRC2_CBC;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_id_pbkdf2"))
+#ifdef NID_id_pbkdf2
+	    return NID_id_pbkdf2;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_dsaWithSHA1_2"))
+#ifdef NID_dsaWithSHA1_2
+	    return NID_dsaWithSHA1_2;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_netscape_cert_type"))
+#ifdef NID_netscape_cert_type
+	    return NID_netscape_cert_type;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_netscape_base_url"))
+#ifdef NID_netscape_base_url
+	    return NID_netscape_base_url;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_netscape_revocation_url"))
+#ifdef NID_netscape_revocation_url
+	    return NID_netscape_revocation_url;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_netscape_ca_revocation_url"))
+#ifdef NID_netscape_ca_revocation_url
+	    return NID_netscape_ca_revocation_url;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_netscape_renewal_url"))
+#ifdef NID_netscape_renewal_url
+	    return NID_netscape_renewal_url;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_netscape_ca_policy_url"))
+#ifdef NID_netscape_ca_policy_url
+	    return NID_netscape_ca_policy_url;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_netscape_ssl_server_name"))
+#ifdef NID_netscape_ssl_server_name
+	    return NID_netscape_ssl_server_name;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_netscape_comment"))
+#ifdef NID_netscape_comment
+	    return NID_netscape_comment;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_netscape_cert_sequence"))
+#ifdef NID_netscape_cert_sequence
+	    return NID_netscape_cert_sequence;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_desx_cbc"))
+#ifdef NID_desx_cbc
+	    return NID_desx_cbc;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_id_ce"))
+#ifdef NID_id_ce
+	    return NID_id_ce;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_subject_key_identifier"))
+#ifdef NID_subject_key_identifier
+	    return NID_subject_key_identifier;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_key_usage"))
+#ifdef NID_key_usage
+	    return NID_key_usage;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_private_key_usage_period"))
+#ifdef NID_private_key_usage_period
+	    return NID_private_key_usage_period;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_subject_alt_name"))
+#ifdef NID_subject_alt_name
+	    return NID_subject_alt_name;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_issuer_alt_name"))
+#ifdef NID_issuer_alt_name
+	    return NID_issuer_alt_name;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_basic_constraints"))
+#ifdef NID_basic_constraints
+	    return NID_basic_constraints;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_crl_number"))
+#ifdef NID_crl_number
+	    return NID_crl_number;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_certificate_policies"))
+#ifdef NID_certificate_policies
+	    return NID_certificate_policies;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_authority_key_identifier"))
+#ifdef NID_authority_key_identifier
+	    return NID_authority_key_identifier;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_bf_cbc"))
+#ifdef NID_bf_cbc
+	    return NID_bf_cbc;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_bf_ecb"))
+#ifdef NID_bf_ecb
+	    return NID_bf_ecb;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_bf_cfb64"))
+#ifdef NID_bf_cfb64
+	    return NID_bf_cfb64;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_bf_ofb64"))
+#ifdef NID_bf_ofb64
+	    return NID_bf_ofb64;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_mdc2"))
+#ifdef NID_mdc2
+	    return NID_mdc2;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_mdc2WithRSA"))
+#ifdef NID_mdc2WithRSA
+	    return NID_mdc2WithRSA;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_rc4_40"))
+#ifdef NID_rc4_40
+	    return NID_rc4_40;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_rc2_40_cbc"))
+#ifdef NID_rc2_40_cbc
+	    return NID_rc2_40_cbc;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_givenName"))
+#ifdef NID_givenName
+	    return NID_givenName;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_surname"))
+#ifdef NID_surname
+	    return NID_surname;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_initials"))
+#ifdef NID_initials
+	    return NID_initials;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_uniqueIdentifier"))
+#ifdef NID_uniqueIdentifier
+	    return NID_uniqueIdentifier;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_crl_distribution_points"))
+#ifdef NID_crl_distribution_points
+	    return NID_crl_distribution_points;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_md5WithRSA"))
+#ifdef NID_md5WithRSA
+	    return NID_md5WithRSA;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_serialNumber"))
+#ifdef NID_serialNumber
+	    return NID_serialNumber;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_title"))
+#ifdef NID_title
+	    return NID_title;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_description"))
+#ifdef NID_description
+	    return NID_description;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_cast5_cbc"))
+#ifdef NID_cast5_cbc
+	    return NID_cast5_cbc;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_cast5_ecb"))
+#ifdef NID_cast5_ecb
+	    return NID_cast5_ecb;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_cast5_cfb64"))
+#ifdef NID_cast5_cfb64
+	    return NID_cast5_cfb64;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_cast5_ofb64"))
+#ifdef NID_cast5_ofb64
+	    return NID_cast5_ofb64;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pbeWithMD5AndCast5_CBC"))
+#ifdef NID_pbeWithMD5AndCast5_CBC
+	    return NID_pbeWithMD5AndCast5_CBC;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_dsaWithSHA1"))
+#ifdef NID_dsaWithSHA1
+	    return NID_dsaWithSHA1;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_md5_sha1"))
+#ifdef NID_md5_sha1
+	    return NID_md5_sha1;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_sha1WithRSA"))
+#ifdef NID_sha1WithRSA
+	    return NID_sha1WithRSA;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_dsa"))
+#ifdef NID_dsa
+	    return NID_dsa;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_ripemd160"))
+#ifdef NID_ripemd160
+	    return NID_ripemd160;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_ripemd160WithRSA"))
+#ifdef NID_ripemd160WithRSA
+	    return NID_ripemd160WithRSA;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_rc5_cbc"))
+#ifdef NID_rc5_cbc
+	    return NID_rc5_cbc;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_rc5_ecb"))
+#ifdef NID_rc5_ecb
+	    return NID_rc5_ecb;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_rc5_cfb64"))
+#ifdef NID_rc5_cfb64
+	    return NID_rc5_cfb64;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_rc5_ofb64"))
+#ifdef NID_rc5_ofb64
+	    return NID_rc5_ofb64;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_rle_compression"))
+#ifdef NID_rle_compression
+	    return NID_rle_compression;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_zlib_compression"))
+#ifdef NID_zlib_compression
+	    return NID_zlib_compression;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_ext_key_usage"))
+#ifdef NID_ext_key_usage
+	    return NID_ext_key_usage;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_id_pkix"))
+#ifdef NID_id_pkix
+	    return NID_id_pkix;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_id_kp"))
+#ifdef NID_id_kp
+	    return NID_id_kp;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_server_auth"))
+#ifdef NID_server_auth
+	    return NID_server_auth;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_client_auth"))
+#ifdef NID_client_auth
+	    return NID_client_auth;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_code_sign"))
+#ifdef NID_code_sign
+	    return NID_code_sign;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_email_protect"))
+#ifdef NID_email_protect
+	    return NID_email_protect;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_time_stamp"))
+#ifdef NID_time_stamp
+	    return NID_time_stamp;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_ms_code_ind"))
+#ifdef NID_ms_code_ind
+	    return NID_ms_code_ind;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_ms_code_com"))
+#ifdef NID_ms_code_com
+	    return NID_ms_code_com;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_ms_ctl_sign"))
+#ifdef NID_ms_ctl_sign
+	    return NID_ms_ctl_sign;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_ms_sgc"))
+#ifdef NID_ms_sgc
+	    return NID_ms_sgc;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_ms_efs"))
+#ifdef NID_ms_efs
+	    return NID_ms_efs;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_ns_sgc"))
+#ifdef NID_ns_sgc
+	    return NID_ns_sgc;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_delta_crl"))
+#ifdef NID_delta_crl
+	    return NID_delta_crl;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_crl_reason"))
+#ifdef NID_crl_reason
+	    return NID_crl_reason;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_invalidity_date"))
+#ifdef NID_invalidity_date
+	    return NID_invalidity_date;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_sxnet"))
+#ifdef NID_sxnet
+	    return NID_sxnet;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pbe_WithSHA1And128BitRC4"))
+#ifdef NID_pbe_WithSHA1And128BitRC4
+	    return NID_pbe_WithSHA1And128BitRC4;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pbe_WithSHA1And40BitRC4"))
+#ifdef NID_pbe_WithSHA1And40BitRC4
+	    return NID_pbe_WithSHA1And40BitRC4;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pbe_WithSHA1And3_Key_TripleDES_CBC"))
+#ifdef NID_pbe_WithSHA1And3_Key_TripleDES_CBC
+	    return NID_pbe_WithSHA1And3_Key_TripleDES_CBC;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pbe_WithSHA1And2_Key_TripleDES_CBC"))
+#ifdef NID_pbe_WithSHA1And2_Key_TripleDES_CBC
+	    return NID_pbe_WithSHA1And2_Key_TripleDES_CBC;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pbe_WithSHA1And128BitRC2_CBC"))
+#ifdef NID_pbe_WithSHA1And128BitRC2_CBC
+	    return NID_pbe_WithSHA1And128BitRC2_CBC;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pbe_WithSHA1And40BitRC2_CBC"))
+#ifdef NID_pbe_WithSHA1And40BitRC2_CBC
+	    return NID_pbe_WithSHA1And40BitRC2_CBC;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_keyBag"))
+#ifdef NID_keyBag
+	    return NID_keyBag;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pkcs8ShroudedKeyBag"))
+#ifdef NID_pkcs8ShroudedKeyBag
+	    return NID_pkcs8ShroudedKeyBag;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_certBag"))
+#ifdef NID_certBag
+	    return NID_certBag;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_crlBag"))
+#ifdef NID_crlBag
+	    return NID_crlBag;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_secretBag"))
+#ifdef NID_secretBag
+	    return NID_secretBag;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_safeContentsBag"))
+#ifdef NID_safeContentsBag
+	    return NID_safeContentsBag;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_friendlyName"))
+#ifdef NID_friendlyName
+	    return NID_friendlyName;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_localKeyID"))
+#ifdef NID_localKeyID
+	    return NID_localKeyID;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_x509Certificate"))
+#ifdef NID_x509Certificate
+	    return NID_x509Certificate;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_sdsiCertificate"))
+#ifdef NID_sdsiCertificate
+	    return NID_sdsiCertificate;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_x509Crl"))
+#ifdef NID_x509Crl
+	    return NID_x509Crl;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pbes2"))
+#ifdef NID_pbes2
+	    return NID_pbes2;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pbmac1"))
+#ifdef NID_pbmac1
+	    return NID_pbmac1;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_hmacWithSHA1"))
+#ifdef NID_hmacWithSHA1
+	    return NID_hmacWithSHA1;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_id_qt_cps"))
+#ifdef NID_id_qt_cps
+	    return NID_id_qt_cps;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_id_qt_unotice"))
+#ifdef NID_id_qt_unotice
+	    return NID_id_qt_unotice;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_rc2_64_cbc"))
+#ifdef NID_rc2_64_cbc
+	    return NID_rc2_64_cbc;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_SMIMECapabilities"))
+#ifdef NID_SMIMECapabilities
+	    return NID_SMIMECapabilities;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pbeWithMD2AndRC2_CBC"))
+#ifdef NID_pbeWithMD2AndRC2_CBC
+	    return NID_pbeWithMD2AndRC2_CBC;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pbeWithMD5AndRC2_CBC"))
+#ifdef NID_pbeWithMD5AndRC2_CBC
+	    return NID_pbeWithMD5AndRC2_CBC;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_pbeWithSHA1AndDES_CBC"))
+#ifdef NID_pbeWithSHA1AndDES_CBC
+	    return NID_pbeWithSHA1AndDES_CBC;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_ms_ext_req"))
+#ifdef NID_ms_ext_req
+	    return NID_ms_ext_req;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_ext_req"))
+#ifdef NID_ext_req
+	    return NID_ext_req;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_name"))
+#ifdef NID_name
+	    return NID_name;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_dnQualifier"))
+#ifdef NID_dnQualifier
+	    return NID_dnQualifier;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_id_pe"))
+#ifdef NID_id_pe
+	    return NID_id_pe;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_id_ad"))
+#ifdef NID_id_ad
+	    return NID_id_ad;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_info_access"))
+#ifdef NID_info_access
+	    return NID_info_access;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_ad_OCSP"))
+#ifdef NID_ad_OCSP
+	    return NID_ad_OCSP;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_ad_ca_issuers"))
+#ifdef NID_ad_ca_issuers
+	    return NID_ad_ca_issuers;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "NID_OCSP_sign"))
+#ifdef NID_OCSP_sign
+	    return NID_OCSP_sign;
+#else
+	    goto not_there;
+#endif
 	break;
     case 'O':
 	if (strEQ(name, "OPENSSL_VERSION_NUMBER"))
