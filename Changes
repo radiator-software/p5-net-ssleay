@@ -243,7 +243,7 @@ Revision history for Perl extension Net::SSLeay.
 	- Don't let the tests die when something unexpected happens. Just BAIL_OUT.
 	- Some Win32 improvements.
 
-???
+1.33_01 14.02.2008
 	- Fixed a compile problem with inc_paths /usr/kerberos/include
 	in inc/Module/Install/PRIVATE/Net/SSLeay.pm. Reported by "J. Nick
 	Koston via RT"
@@ -276,4 +276,6 @@ Revision history for Perl extension Net::SSLeay.
 	- Fixed doucumentation in README of how to use OPENSSL_PREFIX
 	environment variable to control the location of openssl. Reported by 
 	"Quanah Gibson-Mount via RT".
+	- Don't use Module::Installs auto_install.
+	- Bind NID_ constants.
 #EOF
