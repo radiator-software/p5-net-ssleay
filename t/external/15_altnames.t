@@ -28,8 +28,5 @@ for my $site (@sites) {
         my @altnames = Net::SSLeay::X509_get_subjectAltNames($c);
         ok(scalar @altnames, 'get_subjectAltNames works');
         ok(scalar @altnames % 2 == 0, 'get_subjectAltNames returns pairs');
-
-        use Data::Dump qw/dump/;
-        diag dump { @altnames };
     }
 }
