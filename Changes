@@ -278,4 +278,5 @@ Revision history for Perl extension Net::SSLeay.
 	"Quanah Gibson-Mount via RT".
 	- Don't use Module::Installs auto_install.
 	- Bind NID_ and GEN_ constants.
+	- Default to not running external tests.
 #EOF

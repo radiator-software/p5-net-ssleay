@@ -47,7 +47,7 @@ EOM
     if ( $self->prompt(
             "Do you want to run external tests?\n".
             "These tests *will* *fail* if you do not have network connectivity.",
-            'y',
+            'n',
     ) =~ /^y/i ) {
         $self->tests('t/*/*.t t/*/*/*.t');
     } else {
