@@ -277,5 +277,5 @@ Revision history for Perl extension Net::SSLeay.
 	environment variable to control the location of openssl. Reported by 
 	"Quanah Gibson-Mount via RT".
 	- Don't use Module::Installs auto_install.
-	- Bind NID_ constants.
+	- Bind NID_ and GEN_ constants.
 #EOF
