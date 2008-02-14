@@ -474,6 +474,60 @@ constant(char* name)
 #endif
 	break;
     case 'G':
+	if (strEQ(name, "GEN_OTHERNAME"))
+#ifdef GEN_OTHERNAME
+	    return GEN_OTHERNAME;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "GEN_EMAIL"))
+#ifdef GEN_EMAIL
+	    return GEN_EMAIL;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "GEN_DNS"))
+#ifdef GEN_DNS
+	    return GEN_DNS;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "GEN_X400"))
+#ifdef GEN_X400
+	    return GEN_X400;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "GEN_DIRNAME"))
+#ifdef GEN_DIRNAME
+	    return GEN_DIRNAME;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "GEN_EDIPARTY"))
+#ifdef GEN_EDIPARTY
+	    return GEN_EDIPARTY;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "GEN_URI"))
+#ifdef GEN_URI
+	    return GEN_URI;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "GEN_IPADD"))
+#ifdef GEN_IPADD
+	    return GEN_IPADD;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "GEN_RID"))
+#ifdef GEN_RID
+	    return GEN_RID;
+#else
+	    goto not_there;
+#endif
 	break;
     case 'H':
 	break;
