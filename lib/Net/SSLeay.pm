@@ -1195,6 +1195,12 @@ as I was lazy and needed them, the following kludges are implemented:
     print Net::SSLeay::X509_NAME_oneline($x509_name);
     $text = Net::SSLeay::X509_NAME_get_text_by_NID($name, $nid);
 
+    ($type1, $subject1, $type2, $subject2, ...) =
+       Net::SSLeay::X509_get_subjectAltNames($x509_cert)
+
+    subjectAltName types as per x509v3.h GEN_*, for example
+    GEN_DNS or GEN_IPADD which can be imported.
+
     Net::SSLeay::RAND_seed($buf);   # Perlishly figures out buf size
     Net::SSLeay::RAND_bytes($buf, $num);
     Net::SSLeay::RAND_pseudo_bytes($buf, $num);
