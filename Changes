@@ -279,4 +279,8 @@ Revision history for Perl extension Net::SSLeay.
 	- Don't use Module::Installs auto_install.
 	- Bind NID_ and GEN_ constants.
 	- Default to not running external tests.
+	- Fixed problem with X509_get_subjectAltNames, where some types of Alt
+	Name (eg DIRNAMEs) were not properly handled, resulting in seg faults.
+	Reported by Achim Grolms.
+
 #EOF

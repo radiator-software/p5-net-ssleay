@@ -1515,7 +1515,7 @@ void
 X509_get_subjectAltNames(cert)
 	X509 *      cert
 	PPCODE:
-	int                    i, j = 0;
+	int                    i, j, count = 0;
 	X509_EXTENSION         *subjAltNameExt = NULL;
 	STACK_OF(GENERAL_NAME) *subjAltNameDNs = NULL;
 	GENERAL_NAME           *subjAltNameDN  = NULL;
@@ -1526,14 +1526,49 @@ X509_get_subjectAltNames(cert)
 	{
 		num_gnames = sk_GENERAL_NAME_num(subjAltNameDNs);
 	
-		EXTEND(SP, (num_gnames - 1) * 2);
-		for (j = 0; j < num_gnames; j++)  {
-			subjAltNameDN = sk_GENERAL_NAME_value(subjAltNameDNs, j);
-		PUSHs(sv_2mortal(newSViv(subjAltNameDN->type)));
-		PUSHs(sv_2mortal(newSVpv((const char*)ASN1_STRING_data(subjAltNameDN->d.ia5), ASN1_STRING_length(subjAltNameDN->d.ia5))));
+		for (j = 0; j < num_gnames; j++)
+                {
+		     subjAltNameDN = sk_GENERAL_NAME_value(subjAltNameDNs, j);
+
+                     switch (subjAltNameDN->type)
+                     {
+                     case GEN_OTHERNAME:
+                         EXTEND(SP, 2);
+                         count++;
+                         PUSHs(sv_2mortal(newSViv(subjAltNameDN->type)));
+                         PUSHs(sv_2mortal(newSVpv((const char*)ASN1_STRING_data(subjAltNameDN->d.otherName->value->value.utf8string), ASN1_STRING_length(subjAltNameDN->d.otherName->value->value.utf8string))));
+                         break;
+                     
+                     case GEN_EMAIL:
+                     case GEN_DNS:
+                     case GEN_URI:	
+                         EXTEND(SP, 2);
+                         count++;
+                         PUSHs(sv_2mortal(newSViv(subjAltNameDN->type)));
+                         PUSHs(sv_2mortal(newSVpv((const char*)ASN1_STRING_data(subjAltNameDN->d.ia5), ASN1_STRING_length(subjAltNameDN->d.ia5))));
+                         break;
+
+                     case GEN_DIRNAME:
+                         {
+                         char * buf = X509_NAME_oneline(subjAltNameDN->d.dirn, NULL, 0);
+                         EXTEND(SP, 2);
+                         count++;
+                         PUSHs(sv_2mortal(newSViv(subjAltNameDN->type)));
+                         PUSHs(sv_2mortal(newSVpv((buf), strlen((buf)))));
+                         break;
+                         }
+
+                     case GEN_IPADD:
+                         EXTEND(SP, 2);
+                         count++;
+                         PUSHs(sv_2mortal(newSViv(subjAltNameDN->type)));
+                         PUSHs(sv_2mortal(newSVpv((const char*)subjAltNameDN->d.ip->data, subjAltNameDN->d.ip->length)));
+                         break;
+                        
+                     }
 		}
 	}
-	XSRETURN(j*2);
+	XSRETURN(count * 2);
 
 int
 X509_get_ext_by_NID(x,nid,loc)
