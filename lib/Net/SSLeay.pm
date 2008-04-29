@@ -1087,11 +1087,13 @@ Following new functions behave in perlish way:
                                     # figures out the size of $foo
 
 In order to use the low level API you should start your programs with
-the following encantation:
+the following incantation:
 
 	use Net::SSLeay qw(die_now die_if_ssl_error);
 	Net::SSLeay::load_error_strings();
-	Net::SSLeay::SSLeay_add_ssl_algorithms();   # Important!
+	Net::SSLeay::SSLeay_add_ssl_algorithms();    # Important!
+        Net::SSLeay::ENGINE_load_builtin_engines();  # If you want built-in engines
+        Net::SSLeay::ENGINE_register_all_complete(); # If you want built-in engines
         Net::SSLeay::randomize();
 
 C<die_now()> and C<die_if_ssl_error()> are used to conveniently print SSLeay error

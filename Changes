@@ -282,5 +282,8 @@ Revision history for Perl extension Net::SSLeay.
 	- Fixed problem with X509_get_subjectAltNames, where some types of Alt
 	Name (eg DIRNAMEs) were not properly handled, resulting in seg faults.
 	Reported by Achim Grolms.
-
+	- Added support for ENGINE_load_builtin_engines and
+	ENGINE_register_all_complete in order to enable built-in OpenSSL
+	crypto engines for hardware acceleration etc.
+	
 #EOF

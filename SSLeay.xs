@@ -1363,6 +1363,12 @@ SSL_library_init()
 		add_ssl_algorithms         = 3
 
 void
+ENGINE_load_builtin_engines()
+
+void
+ENGINE_register_all_complete()
+
+void
 ERR_load_SSL_strings()
 
 void

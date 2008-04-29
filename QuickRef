@@ -51,6 +51,12 @@ void Net::SSLeay::ERR_load_crypto_strings();
 void Net::SSLeay::SSLeay_add_ssl_algorithms();
 	Add support for supported ciphers.
 
+void Net::SSLeay::ENGINE_load_builtin_engines
+	Load any built-in SSL engines suported by the underlybing OpenSSL
+
+void Net::SSLeay::ENGINE_register_all_complete
+	Register any built-in SSL engines
+
 $ctx = Net::SSLeay::CTX_new();
 	Creates SSL-context. 
 
