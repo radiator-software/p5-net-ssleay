@@ -285,5 +285,7 @@ Revision history for Perl extension Net::SSLeay.
 	- Added support for ENGINE_load_builtin_engines and
 	ENGINE_register_all_complete in order to enable built-in OpenSSL
 	crypto engines for hardware acceleration etc.
+	- Added support for ENGINE_by_id and ENGINE_set_default, required
+	to enable Sun crypto acceleration
 	
 #EOF

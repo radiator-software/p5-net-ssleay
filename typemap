@@ -30,6 +30,7 @@ int *		 T_IV
 COMP_METHOD *	 T_IV
 X509_STORE *	 T_IV
 X509_NAME_STACK *  T_IV
+ENGINE *         T_IV
 pem_password_cb *  T_IV
 generate_key_cb *  T_IV
 callback_ret_int * T_IV

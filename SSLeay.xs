@@ -100,6 +100,7 @@ extern "C" {
 #include <openssl/md5.h>     /* openssl-SNAP-20020227 does not automatically include this */
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
+#include <openssl/engine.h>
 
 /* Debugging output */
 
@@ -1367,6 +1368,15 @@ ENGINE_load_builtin_engines()
 
 void
 ENGINE_register_all_complete()
+
+ENGINE*
+ENGINE_by_id(id)
+	char * id
+
+int
+ENGINE_set_default(e, flags)
+        ENGINE * e
+        int flags
 
 void
 ERR_load_SSL_strings()
