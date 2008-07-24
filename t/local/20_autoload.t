@@ -2,11 +2,13 @@
 
 use strict;
 use warnings;
-use Test::More tests => 6;
+use Test::More;
 use Net::SSLeay;
 
 eval "use Test::Exception;";
 plan skip_all => 'Some tests need Test::Exception' if $@;
+
+plan tests => 6;
 
 {
     my $const;
