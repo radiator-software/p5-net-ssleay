@@ -2,9 +2,13 @@
 
 use strict;
 use warnings;
-use Test::More tests => 14;
-use Test::Exception;
+use Test::More;
 use Net::SSLeay;
+
+eval 'use Test::Exception';
+plan skip_all => 'Test::Exception required' if $@;
+
+plan tests => 14;
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();
