@@ -106,7 +106,7 @@ $Net::SSLeay::slowly = 0;
 $Net::SSLeay::random_device = '/dev/urandom';
 $Net::SSLeay::how_random = 512;
 
-$VERSION = '1.33_01';
+$VERSION = '1.34';
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(
     AT_MD5_WITH_RSA_ENCRYPTION
