@@ -260,7 +260,7 @@ Revision history for Perl extension Net::SSLeay.
         - Fixed a bug in SSL_set_tmp_dh
         - Doc improvements in README.Win32
 	- Fixed a problem with proxy connections: open_proxy_tcp_connection
-	was stopping after the first \n from teh proxy, 
+	was stopping after the first \n from teh proxy,
 	but instead should have looked for
 	$CRLF . $CRLF to find the beginning of the SSL content
 	- Fixed missing / on /usr/kerberos/include, reported by several people
@@ -269,16 +269,18 @@ Revision history for Perl extension Net::SSLeay.
 	- changed t/handle/external/10_destroy.t so this list of URIs to be
 	tested can be configured with environment variable SSLEAY_URIS, a
 	colon separated list of host names. Suggested by tco2.
-	- changed t/handle/external/50_external.t and t/external/08_external.t 
+	- changed t/handle/external/50_external.t and t/external/08_external.t
 	so this list of sites to be
 	tested can be configured with environment variable SSLEAY_SITES, a
 	colon separated list of host names. Suggested by tco2.
 	- Fixed doucumentation in README of how to use OPENSSL_PREFIX
-	environment variable to control the location of openssl. Reported by 
+	environment variable to control the location of openssl. Reported by
 	"Quanah Gibson-Mount via RT".
 	- Don't use Module::Installs auto_install.
 	- Bind NID_ and GEN_ constants.
 	- Default to not running external tests.
+
+1.34 24.07.2008
 	- Fixed problem with X509_get_subjectAltNames, where some types of Alt
 	Name (eg DIRNAMEs) were not properly handled, resulting in seg faults.
 	Reported by Achim Grolms.
@@ -287,5 +289,5 @@ Revision history for Perl extension Net::SSLeay.
 	crypto engines for hardware acceleration etc.
 	- Added support for ENGINE_by_id and ENGINE_set_default, required
 	to enable Sun crypto acceleration
-	
+
 #EOF
