@@ -1512,7 +1512,7 @@ X509_NAME_get_text_by_NID(name,nid)
 
 	New(0, buf, length+1, char);
 	if (X509_NAME_get_text_by_NID(name, nid, buf, length + 1))
-		sv_setpvn( ST(0), buf, length + 1);
+		sv_setpvn( ST(0), buf, length);
 	Safefree(buf);
 
 X509 *
