@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 69;
+use Test::More tests => 70;
 use Socket;
 use File::Spec;
 use Symbol qw(gensym);
@@ -244,8 +244,11 @@ my @results;
         my $subject_name = Net::SSLeay::X509_get_subject_name( $cert );
         my $subject = Net::SSLeay::X509_NAME_oneline( $subject_name );
 
+        my $cn = Net::SSLeay::X509_NAME_get_text_by_NID($subject_name, &Net::SSLeay::NID_commonName);
+
         push @results, [ $issuer  eq $cert_name, 'cert issuer'  ];
         push @results, [ $subject eq $cert_name, 'cert subject' ];
+        push @results, [ substr($cn, length($cn) - 1, 1) ne "\0", 'tailing 0 character is not returned from get_text_by_NID' ];
 
         return 1;
     }
