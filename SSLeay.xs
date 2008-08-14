@@ -1499,9 +1499,6 @@ X509_NAME_oneline(name)
 		sv_setpvn( ST(0), buf, strlen(buf));
 	OPENSSL_free(buf); /* mem was allocated by openssl */
 
-# WTF is the point of this function?
-# The NID_* constants aren't bound anyway and no one can remember
-# those undocumented numbers anyway.
 void
 X509_NAME_get_text_by_NID(name,nid)
 	X509_NAME *    name
