@@ -15,7 +15,7 @@ my $msg = 'ssleay-tcp-test';
 
 {
     my $ip = "\x7F\0\0\x01";
-    my $serv_params = pack('S n a4 x8', AF_INET, $port, $ip);
+    my $serv_params = sockaddr_in($port, $ip);
     $sock = gensym();
     socket($sock, AF_INET, SOCK_STREAM, 0) or die;
     bind($sock, $serv_params) or die;

@@ -294,4 +294,7 @@ Revision history for Perl extension Net::SSLeay.
 	- Fix test plan for autoload.t if Test::Exception isn't available.
 	- Skip rsa_generate_key.t if Test::Exception isn't available.
 
+????
+	- Fix problems with building on GNU/kFreeBSD, to do with use of pack
+	instread of sockaddr_in. Patched by Debian Perl Group.
 #EOF
