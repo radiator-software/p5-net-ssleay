@@ -470,7 +470,7 @@ ssleay_ctx_cert_verify_cb_invoke(X509_STORE_CTX* x509_store_ctx, void* data) {
 	return res;
 }
 
-#ifdef SSL_F_SSL_SET_HELLO_EXTENSION
+#if defined(SSL_F_SSL_SET_HELLO_EXTENSION) || defined(SSL_F_SSL_SET_SESSION_TICKET_EXT)
 static HV* ssleay_session_secret_cbs = (HV*)NULL;
 
 ssleay_session_secret_cb_t*
@@ -1546,7 +1546,7 @@ X509_get_subjectAltNames(cert)
                      switch (subjAltNameDN->type)
                      {
                      case GEN_OTHERNAME:
-                         EXTEND(SP, 2);
+                         EXTND(SP, 2);
                          count++;
                          PUSHs(sv_2mortal(newSViv(subjAltNameDN->type)));
                          PUSHs(sv_2mortal(newSVpv((const char*)ASN1_STRING_data(subjAltNameDN->d.otherName->value->value.utf8string), ASN1_STRING_length(subjAltNameDN->d.otherName->value->value.utf8string))));
@@ -2634,7 +2634,7 @@ SSL_get_keyblock_size(s)
 
 
 
-#ifdef SSL_F_SSL_SET_HELLO_EXTENSION
+#if defined(SSL_F_SSL_SET_HELLO_EXTENSION)
 int
 SSL_set_hello_extension(s, type, data)
      SSL *   s
@@ -2647,6 +2647,10 @@ SSL_set_hello_extension(s, type, data)
      RETVAL = SSL_set_hello_extension(s, type, data, len);
      OUTPUT:
      RETVAL
+
+#endif
+
+#if defined(SSL_F_SSL_SET_HELLO_EXTENSION) || defined(SSL_F_SSL_SET_SESSION_TICKET_EXT)
 
 void 
 SSL_set_session_secret_cb(s,func,data=NULL)

@@ -297,4 +297,8 @@ Revision history for Perl extension Net::SSLeay.
 ????
 	- Fix problems with building on GNU/kFreeBSD, to do with use of pack
 	instread of sockaddr_in. Patched by Debian Perl Group.
+	- SSL_set_session_secret_cb required for EAP-FAST is now enabled for both 
+	SSL_F_SSL_SET_HELLO_EXTENSION and
+	SSL_F_SSL_SET_SESSION_TICKET_EXT. The name of this #define
+	changed after 0.9.8i. SSL_set_hello_extension is not available after  0.9.8i.
 #EOF
