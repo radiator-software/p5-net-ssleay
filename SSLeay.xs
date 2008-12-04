@@ -1546,7 +1546,7 @@ X509_get_subjectAltNames(cert)
                      switch (subjAltNameDN->type)
                      {
                      case GEN_OTHERNAME:
-                         EXTND(SP, 2);
+                         EXTEND(SP, 2);
                          count++;
                          PUSHs(sv_2mortal(newSViv(subjAltNameDN->type)));
                          PUSHs(sv_2mortal(newSVpv((const char*)ASN1_STRING_data(subjAltNameDN->d.otherName->value->value.utf8string), ASN1_STRING_length(subjAltNameDN->d.otherName->value->value.utf8string))));
@@ -1975,6 +1975,10 @@ SSL_CTX_set_cert_verify_callback(ctx,func,data=NULL)
 		SSL_CTX_set_cert_verify_callback(ctx, ssleay_ctx_cert_verify_cb_invoke, cb);
 	}
 
+X509_NAME_STACK *
+SSL_CTX_get_client_CA_list(ctx)
+	SSL_CTX *ctx
+
 void 
 SSL_CTX_set_client_CA_list(ctx,list)
      SSL_CTX *	ctx
@@ -2163,6 +2167,23 @@ SSL_SESSION_set_timeout(s,t)
 void 
 SSL_set_accept_state(s)
      SSL *	s
+
+void
+sk_X509_NAME_free(sk)
+	X509_NAME_STACK *sk
+
+int
+sk_X509_NAME_num(sk)
+	X509_NAME_STACK *sk
+
+X509_NAME *
+sk_X509_NAME_value(sk,i)
+	X509_NAME_STACK *sk
+	int i
+
+X509_NAME_STACK *
+SSL_get_client_CA_list(s)
+	SSL *	s
 
 void 
 SSL_set_client_CA_list(s,list)

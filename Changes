@@ -300,5 +300,9 @@ Revision history for Perl extension Net::SSLeay.
 	- SSL_set_session_secret_cb required for EAP-FAST is now enabled for both 
 	SSL_F_SSL_SET_HELLO_EXTENSION and
 	SSL_F_SSL_SET_SESSION_TICKET_EXT. The name of this #define
-	changed after 0.9.8i. SSL_set_hello_extension is not available after  0.9.8i.
+	changed after 0.9.8i. SSL_set_hello_extension is not available after
+	0.9.8i.
+	- Added SSL_CTX_get_client_CA_list sk_X509_NAME_free sk_X509_NAME_num
+	sk_X509_NAME_value SSL_get_client_CA_list, from patch provided by
+	Joerg Schneider
 #EOF
