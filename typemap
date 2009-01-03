@@ -13,6 +13,7 @@ X509_EXTENSION *	T_IV
 BIO *           T_IV
 BIO_METHOD *    T_IV
 EVP_PKEY *      T_IV
+const EVP_MD *  T_IV
 CERT *          T_IV
 LHASH *         T_IV
 struct cert_st * T_IV

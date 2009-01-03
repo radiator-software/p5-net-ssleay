@@ -2693,4 +2693,12 @@ SSL_set_session_secret_cb(s,func,data=NULL)
 
 #endif
 
+int EVP_add_digest(const EVP_MD *digest)
+
+#ifndef OPENSSL_NO_SHA256
+const EVP_MD *EVP_sha256()
+
+#endif
+
+
 #define REM_EOF "/* EOF - SSLeay.xs */"

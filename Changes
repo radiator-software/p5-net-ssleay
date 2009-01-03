@@ -305,4 +305,5 @@ Revision history for Perl extension Net::SSLeay.
 	- Added SSL_CTX_get_client_CA_list sk_X509_NAME_free sk_X509_NAME_num
 	sk_X509_NAME_value SSL_get_client_CA_list, from patch provided by
 	Joerg Schneider
+	- Added EVP_add_digest and EVP_sha256 (if available)
 #EOF
