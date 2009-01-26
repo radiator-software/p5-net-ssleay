@@ -1132,28 +1132,10 @@ C language OpenSSL in this respect.
 
 =head2 Callbacks
 
-At this moment the implementation of verify_callback is crippeled in
-the sense that at any given time there can be only one call back which
-is shared by all SSL contexts, sessions and connections. This is
-due to having to keep the reference to the perl call back in a
-static variable so that the callback C glue can find it. To remove
-this restriction would require either a more complex data structure
-(like a hash?) in XSUB to map the call backs to their owners or,
-cleaner, adding a context pointer in the SSL structure. This context would
-then be passed to the C callback, which in our case would be the glue
-to look up the proper Perl function from the context and call it.
-
----- inaccurate ----
-The verify call back looks like this in C:
-
-	int (*callback)(int ok,X509 *subj_cert,X509 *issuer_cert,
-                        int depth,int errorcode,char *arg,STACK *cert_chain)
-
-The corresponding Perl function should be something like this:
+You can establish a per-context verify callback function something like this:
 
 	sub verify {
-	    my ($ok, $subj_cert, $issuer_cert, $depth, $errorcode,
-		$arg, $chain) = @_;
+	    my ($ok, $x509_store_ctx) = @_;
 	    print "Verifying certificate...\n";
 		...
 	    return $ok;
@@ -1163,10 +1145,7 @@ It is used like this:
 
 	Net::SSLeay::set_verify ($ssl, Net::SSLeay::VERIFY_PEER, \&verify);
 
-Callbacks for decrypting private keys are implemented, but have the
-same limitation as the verify_callback implementation (one password
-callback shared between all contexts.)  You might use it something
-like this:
+Per-context callbacks for decrypting private keys are implemented.
 
         Net::SSLeay::CTX_set_default_passwd_cb($ctx, sub { "top-secret" });
         Net::SSLeay::CTX_use_PrivateKey_file($ctx, "key.pem",
@@ -1174,15 +1153,27 @@ like this:
             or die "Error reading private key";
         Net::SSLeay::CTX_set_default_passwd_cb($ctx, undef);
 
+If Hello Extensions are supported by your OpenSSL, 
+a session secret callback can be set up to be called when a session secret is set
+by openssl.
+
+Establish it like this:
+    Net::SSLeay::set_session_secret_cb($ssl, \&session_secret_cb, $somedata);
+
+It will be called like this:
+sub session_secret_cb
+{
+    my ($secret, \@cipherlist, \$preferredcipher, $somedata) = @_;
+}
+
+
 No other callbacks are implemented. You do not need to use any
 callback for simple (i.e. normal) cases where the SSLeay built-in
 verify mechanism satisfies your needs.
 
-It is desirable to reset these callbacks to undef immediately after use to prevent 
-thread safety problems and crashes on exit that can occur if different threads 
-set different callbacks.
-
----- end inaccurate ----
+It is required to reset these callbacks to undef immediately after use to prevent 
+memory leaks, thread safety problems and crashes on exit that 
+can occur if different threads set different callbacks. 
 
 If you want to use callback stuff, see examples/callback.pl! Its the
 only one I am able to make work reliably.
