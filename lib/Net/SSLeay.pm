@@ -1921,6 +1921,7 @@ sub ssl_write_all {
 	warn "  written so far $wrote:$written bytes (VM=$vm)\n" if $trace>2;
 	
 	$errs .= print_errs('SSL_write');
+	$errs .= "SSL_write $$: 1 - $!\n" if $wrote < 0 && !$errs;
 	return (wantarray ? (undef, $errs) : undef) if $errs;
     }
     return wantarray ? ($written, $errs) : $written;
