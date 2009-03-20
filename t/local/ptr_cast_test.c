@@ -23,7 +23,7 @@ int main(argc, argv)
   FROMTYPE bufptr = (FROMTYPE) malloc(500);
   volatile TOTYPE i; /* prevent optimization */
 
-  printf("# %s: '%s' len: %d, '%s' len: %d.\n", argv[0], FROMTYPESTR,
+  printf("# %s: '%s' len: %ul, '%s' len: %ul.\n", argv[0], FROMTYPESTR,
 	 sizeof(TOTYPE), TOTYPESTR, sizeof(char *));
 
   i = (TOTYPE)bufptr;
