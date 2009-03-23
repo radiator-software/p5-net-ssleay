@@ -1938,6 +1938,12 @@ constant(char* name)
 #else
 	    goto not_there;
 #endif
+        if (strEQ(name, "RECEIVED_SHUTDOWN"))
+#ifdef SSL_RECEIVED_SHUTDOWN
+                return SSL_RECEIVED_SHUTDOWN;
+#else
+                goto not_there;
+#endif
 	if (strEQ(name, "RWERR_BAD_MAC_DECODE"))
 #ifdef SSL_RWERR_BAD_MAC_DECODE
 	    return SSL_RWERR_BAD_MAC_DECODE;
@@ -2240,6 +2246,12 @@ constant(char* name)
 #endif
 	break;
     case 'S':
+        if (strEQ(name, "SENT_SHUTDOWN"))
+#ifdef SSL_SENT_SHUTDOWN
+                return SSL_SENT_SHUTDOWN;
+#else
+                goto not_there;
+#endif
 	if (strEQ(name, "SERVER_VERSION"))
 #ifdef SSL_SERVER_VERSION
 	    return SSL_SERVER_VERSION;
