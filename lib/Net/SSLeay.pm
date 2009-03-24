@@ -1655,50 +1655,20 @@ during C<make test> to do just that).
 
 =back
 
-=head1 REPORTING BUGS AND SUPPORT
-
-Bug reports, patch submission, feature requests, subversion access to the latest 
-source code etc can be obtained at 
-L<http://alioth.debian.org/projects/net-ssleay>
-
-The developer mailing list (for people interested in contributin to the source code)
-can be found at 
-L<http://lists.alioth.debian.org/mailman/listinfo/net-ssleay-devel>
-
-Commercial support for Net::SSLeay may be obtained from
-
-   Symlabs (netssleay@symlabs.com)
-   Tel: +351-214.222.630
-   Fax: +351-214.222.637
-
-=head1 VERSION
-
-There are currently two perl modules for using OpenSSL C
-library: C<Net::SSLeay> (maintaned by me) and C<SSLeay> (maintained by OpenSSL
-team). This module is the C<Net::SSLeay> variant.
-
-At the time of making this release, Eric's module was still quite
-sketchy and could not be used for real work, thus I felt motivated to
-make this maintenance release. This module is not planned to evolve to
-contain any further functionality, i.e. I will concentrate on just
-making a simple SSL connection over TCP socket. Presumably Eric's own
-module will offer full SSLeay API one day.
-
-This module uses OpenSSL-0.9.6c. It does not work with any earlier
-version and there is no guarantee that it will work with later
-versions either, though as long as C API does not change, it
-should. This module requires Perl 5.005 or newer, though I
-believe it would build with Perl 5.002 or newer.
-
-=head1 BUGS
+=head1 BUGS AND SUPPORT
 
 Please report any bugs or feature requests to
-C<bug-net_ssleay.pm at rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org/Public/Dist/Display.html?Name=Net_SSLeay.pm>.
+C<bug-Net-SSLeay at rt.cpan.org>, or through the web interface at
+L<http://rt.cpan.org/Public/Dist/Display.html?Name=Net-SSLeay>.
 I will be notified, and then you'll automatically be notified of progress on
 your bug as I make changes.
 
-=head1 SUPPORT
+Subversion access to the latest source code etc can be obtained at
+L<http://alioth.debian.org/projects/net-ssleay>
+
+The developer mailing list (for people interested in contributing
+to the source code) can be found at
+L<http://lists.alioth.debian.org/mailman/listinfo/net-ssleay-devel>
 
 You can find documentation for this module with the C<perldoc> command.
 
@@ -1710,21 +1680,23 @@ You can also look for information at:
 
 =item * AnnoCPAN: Annotated CPAN documentation
 
-L<http://annocpan.org/dist/Net_SSLeay.pm>
+L<http://annocpan.org/dist/Net-SSLeay>
 
 =item * CPAN Ratings
 
-L<http://cpanratings.perl.org/d/Net_SSLeay.pm>
-
-=item * RT: CPAN's request tracker
-
-L<http://rt.cpan.org/Public/Dist/Display.html?Name=Net_SSLeay.pm>
+L<http://cpanratings.perl.org/d/Net-SSLeay>
 
 =item * Search CPAN
 
-L<http://search.cpan.org/dist/Net_SSLeay.pm>
+L<http://search.cpan.org/dist/Net-SSLeay>
 
 =back
+
+Commercial support for Net::SSLeay may be obtained from
+
+   Symlabs (netssleay@symlabs.com)
+   Tel: +351-214.222.630
+   Fax: +351-214.222.637
 
 =head1 AUTHOR
 
