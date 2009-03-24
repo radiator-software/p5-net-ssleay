@@ -771,52 +771,53 @@ distribution that you might want to use instead. It has its own pod
 documentation.
 
 This module offers some high level convinience functions for accessing
-web pages on SSL servers (for symmetry, same API is offered for
-accessing http servers, too), a C<sslcat()> function for writing your own
-clients, and finally access to the SSL api of SSLeay/OpenSSL package
+web pages on SSL servers (for symmetry, the same API is offered for
+accessing http servers, too), an C<sslcat()> function for writing your own
+clients, and finally access to the SSL api of the SSLeay/OpenSSL package
 so you can write servers or clients for more complicated applications.
 
-For high level functions it is most convinient to import them to your
+For high level functions it is most convenient to import them into your
 main namespace as indicated in the synopsis.
 
-Case 1 demonstrates typical invocation of get_https() to fetch an HTML
-page from secure server. The first argument provides host name or ip
-in dotted decimal notation of the remote server to contact. Second
+Case 1 demonstrates the typical invocation of get_https() to fetch an HTML
+page from secure server. The first argument provides the hostname or IP
+in dotted decimal notation of the remote server to contact. The second
 argument is the TCP port at the remote end (your own port is picked
 arbitrarily from high numbered ports as usual for TCP). The third
 argument is the URL of the page without the host name part. If in
-doubt consult HTTP specifications at L<http://www.w3c.org>.
+doubt consult the HTTP specifications at L<http://www.w3c.org>.
 
 Case 2 demonstrates full fledged use of C<get_https()>. As can be seen,
 C<get_https()> parses the response and response headers and returns them as
 a list, which can be captured in a hash for later reference. Also a
 fourth argument to C<get_https()> is used to insert some additional headers
 in the request. C<make_headers()> is a function that will convert a list or
-hash to such headers. By default C<get_https()> supplies C<Host> (make virtual
-hosting easy) and C<Accept> (reportedly needed by IIS) headers.
+hash to such headers. By default C<get_https()> supplies C<Host> (to make
+virtual hosting easy) and C<Accept> (reportedly needed by IIS) headers.
 
-Case 2b demonstrates how to get password protected page. Refer to
-HTTP protocol specifications for further details (e.g. RFC-2617).
+Case 2b demonstrates how to get a password protected page. Refer to
+the HTTP protocol specifications for further details (e.g. RFC-2617).
 
-Case 3 invokes C<post_https()> to submit a HTML/CGI form to secure
-server. First four arguments are equal to C<get_https()> (note that empty
-string (C<''>) is passed as header argument). The fifth argument is the
+Case 3 invokes C<post_https()> to submit a HTML/CGI form to a secure
+server. The first four arguments are equal to C<get_https()> (note that 
+the empty string (C<''>) is passed as header argument).
+The fifth argument is the
 contents of the form formatted according to CGI specification. In this
 case the helper function C<make_https()> is used to do the formatting,
-but you could pass any string. The C<post_https()> automatically adds
+but you could pass any string. C<post_https()> automatically adds
 C<Content-Type> and C<Content-Length> headers to the request.
 
 Case 4 shows the fundamental C<sslcat()> function (inspired in spirit by
-C<netcat> utility :-). Its your swiss army knife that allows you to
+the C<netcat> utility :-). It's your swiss army knife that allows you to
 easily contact servers, send some data, and then get the response. You
 are responsible for formatting the data and parsing the response -
 C<sslcat()> is just a transport.
 
-Case 5 is a full invocation of C<sslcat()> which allows return of errors
+Case 5 is a full invocation of C<sslcat()> which allows the return of errors
 as well as the server (peer) certificate.
 
-The C<$trace> global variable can be used to control the verbosity of high
-level functions. Level 0 guarantees silence, level 1 (the default)
+The C<$trace> global variable can be used to control the verbosity of the 
+high level functions. Level 0 guarantees silence, level 1 (the default)
 only emits error messages.
 
 =head2 Alternate versions of the API
@@ -849,13 +850,13 @@ All of the above code fragments accomplish the same thing: display all
 values of all headers. The API functions ending in "3" return the
 headers simply as a scalar string and it is up to the application to
 split them up. The functions ending in "4" return a reference to
-hash of arrays (see L<perlref> and L<perllol> if you are
-not familiar with complex perl data structures). To access single value
-of such header hash you would do something like
+a hash of arrays (see L<perlref> and L<perllol> if you are
+not familiar with complex perl data structures). To access a single value
+of such a header hash you would do something like
 
   print $headers_ref{COOKIE}[0];
 
-The variants 3 and 4 also allow you to discover the server certificate
+Variants 3 and 4 also allow you to discover the server certificate
 in case you would like to store or display it, e.g.
 
   ($p, $resp, $hdrs, $server_cert) = get_https3('www.bacus.pt', 443, '/');
@@ -873,10 +874,10 @@ in case you would like to store or display it, e.g.
 Beware that this method only allows after the fact verification of
 the certificate: by the time C<get_https3()> has returned the https
 request has already been sent to the server, whether you decide to
-tryst it or not. To do the verification correctly you must either
+trust it or not. To do the verification correctly you must either
 employ the OpenSSL certificate verification framework or use
 the lower level API to first connect and verify the certificate
-and only then send the http data. See implementation of C<ds_https3()>
+and only then send the http data. See the implementation of C<ds_https3()>
 for guidance on how to do this.
 
 =head2 Using client certificates
@@ -888,19 +889,19 @@ certificate. This serves both to authenticate the server to the
 clients and to perform the key exchange.
 
 Sometimes it is necessary to authenticate the client as well. Two
-options are available: HTTP basic authentication and client side
+options are available: HTTP basic authentication and a client side
 certificate. The basic authentication over HTTPS is actually quite
 safe because HTTPS guarantees that the password will not travel in
-clear. Never-the-less, problems like easily guessable passwords
+the clear. Never-the-less, problems like easily guessable passwords
 remain. The client certificate method involves authentication of the
-client at SSL level using a certificate. For this to work, both the
-client and the server will have certificates (which typically are
+client at the SSL level using a certificate. For this to work, both the
+client and the server have certificates (which typically are
 different) and private keys.
 
 The API functions outlined above accept additional arguments that
 allow one to supply the client side certificate and key files. The
 format of these files is the same as used for server certificates and
-the caveat about encrypting private key applies.
+the caveat about encrypting private keys applies.
 
   ($page, $result, %headers) =                                   # 2c
          = get_https('www.bacus.pt', 443, '/protected.html',
@@ -915,22 +916,22 @@ the caveat about encrypting private key applies.
 	      make_form(OK   => '1', name => 'Sampo'),
 	      $mime_type6, $path_to_crt7, $path_to_key8);
 
-Case 2c demonstrates getting password protected page that also requires
-client certificate, i.e. it is possible to use both authentication
+Case 2c demonstrates getting a password protected page that also requires
+a client certificate, i.e. it is possible to use both authentication
 methods simultaneously.
 
-Case 3b is full blown post to secure server that requires both password
-authentication and client certificate, just like in case 2c.
+Case 3b is a full blown POST to a secure server that requires both password
+authentication and a client certificate, just like in case 2c.
 
-Note: Client will not send a certificate unless the server requests one.
-This is typically achieved by setting verify mode to C<VERIFY_PEER> on the
+Note: The client will not send a certificate unless the server requests one.
+This is typically achieved by setting the verify mode to C<VERIFY_PEER> on the
 server:
 
   Net::SSLeay::set_verify(ssl, Net::SSLeay::VERIFY_PEER, 0);
 
-See C<perldoc ~openssl/doc/ssl/SSL_CTX_set_verify.pod> for full description.
+See C<perldoc ~openssl/doc/ssl/SSL_CTX_set_verify.pod> for a full description.
 
-=head2 Working through Web proxy
+=head2 Working through a web proxy
 
 C<Net::SSLeay> can use a web proxy to make its connections. You need to
 first set the proxy host and port using C<set_proxy()> and then just
@@ -939,7 +940,7 @@ use the normal API functions, e.g:
   Net::SSLeay::set_proxy('gateway.myorg.com', 8080);
   ($page) = get_https('www.bacus.pt', 443, '/');
 
-If your proxy requires authentication, you can supply username and
+If your proxy requires authentication, you can supply a username and
 password as well
 
   Net::SSLeay::set_proxy('gateway.myorg.com', 8080, 'joe', 'salainen');
@@ -949,9 +950,9 @@ password as well
 			   'Basic ' . MIME::Base64::encode("susie:pass",''))
 	      );
 
-This example demonstrates case where we authenticate to the proxy as
+This example demonstrates the case where we authenticate to the proxy as
 C<"joe"> and to the final web server as C<"susie">. Proxy authentication
-requires C<MIME::Base64> module to work.
+requires the C<MIME::Base64> module to work.
 
 =head2 Certificate verification and Certificate Revoocation Lists (CRLs)
 
@@ -1009,7 +1010,7 @@ To be used with Low level API
     $got = Net::SSLeay::ssl_read_until($ssl [, $delimit [, $max_length]]);
     Net::SSLeay::ssl_write_CRLF($ssl, $message);
 
-C<randomize()> seeds the eay PRNG with C</dev/urandom> (see top of C<SSLeay.pm>
+C<randomize()> seeds the openssl PRNG with C</dev/urandom> (see the top of C<SSLeay.pm>
 for how to change or configure this) and optionally with user provided
 data. It is very important to properly seed your random numbers, so
 do not forget to call this. The high level API functions automatically
@@ -1019,14 +1020,14 @@ C<set_cert_and_key()> takes two file names as arguments and sets
 the certificate and private key to those. This can be used to
 set either cerver certificates or client certificates.
 
-C<dump_peer_certificate()> allows you to get plaintext description of the
-certificate the peer (usually server) presented to us.
+C<dump_peer_certificate()> allows you to get a plaintext description of the
+certificate the peer (usually the server) presented to us.
 
 C<ssl_read_all()> and C<ssl_write_all()> provide true blocking semantics for
 these operations (see limitation, below, for explanation). These are
 much preferred to the low level API equivalents (which implement BSD
 blocking semantics). The message argument to C<ssl_write_all()> can be
-reference. This is helpful to avoid unnecessary copy when writing
+a reference. This is helpful to avoid unnecessary copying when writing
 something big, e.g:
 
     $data = 'A' x 1000000000;
@@ -1047,14 +1048,13 @@ C<ssl_write_CRLF()> writes C<$message> and appends CRLF to the SSL output stream
 =head2 Low level API
 
 In addition to the high level functions outlined above, this module
-contains straight forward access to SSL part of OpenSSL C api. Only the SSL
+contains straight-forward access to SSL part of OpenSSL C api. Only the SSL
 subpart of OpenSSL is implemented (if anyone wants to implement other
 parts, feel free to submit patches).
 
-See C<ssl.h> header from OpenSSL C distribution for list of low lever
-SSLeay functions to call (to check if some function has been
-implemented see directly in SSLeay.xs). The module strips SSLeay names
-of the initial C<"SSL_">, generally you should use C<Net::SSLeay::> in
+See the C<ssl.h> header from OpenSSL C distribution for a list of low level
+SSLeay functions to call (check SSLeay.xs to see if some function has been
+implemented). The module strips the initial C<"SSL_"> off of the SSLeay names. Generally you should use C<Net::SSLeay::> in its
 place. For example:
 
 In C:
@@ -1072,12 +1072,12 @@ In Perl:
 					Net::SSLeay::VERIFY_CLIENT_ONCE,
 					\&your_call_back_here);
 
-If the function does not start by C<SSL_> you should use the full
+If the function does not start with C<SSL_> you should use the full
 function name, e.g.:
 
 	$err = Net::SSLeay::ERR_get_error;
 
-Following new functions behave in perlish way:
+The following new functions behave in perlish way:
 
 	$got = Net::SSLeay::read($ssl);
                                     # Performs SSL_read, but returns $got
@@ -1098,26 +1098,25 @@ the following incantation:
         Net::SSLeay::ENGINE_register_all_complete(); # If you want built-in engines
         Net::SSLeay::randomize();
 
-C<die_now()> and C<die_if_ssl_error()> are used to conveniently print SSLeay error
-stack when something goes wrong, thusly:
+C<die_now()> and C<die_if_ssl_error()> are used to conveniently print the SSLeay error stack when something goes wrong, thusly:
 
 	Net::SSLeay::connect($ssl) or die_now("Failed SSL connect ($!)");
 	Net::SSLeay::write($ssl, "foo") or die_if_ssl_error("SSL write ($!)");
 
 You can also use C<Net::SSLeay::print_errs()> to dump the error stack without
 exiting the program. As can be seen, your code becomes much more readable
-if you import the error reporting functions to your main name space.
+if you import the error reporting functions into your main name space.
 
-I can not emphasize enough the need to check error returns. Use these
-functions even in most simple programs, they will reduce debugging
-time greatly. Do not ask questions in mailing list without having
+I can not emphasize the need to check for error enough. Use these
+functions even in the most simple programs, they will reduce debugging
+time greatly. Do not ask questions on the mailing list without having
 first sprinkled these in your code.
 
 =head2 Sockets
 
-Perl uses file handles for all I/O. While SSLeay has quite flexible BIO
-mechanism and perl has evolved PerlIO mechanism, this module still
-sticks to using file descriptors. Thus to attach SSLeay to socket you
+Perl uses file handles for all I/O. While SSLeay has a quite flexible BIO
+mechanism and perl has an evolved PerlIO mechanism, this module still
+sticks to using file descriptors. Thus to attach SSLeay to a socket you
 should use C<fileno()> to extract the underlying file descriptor:
 
     Net::SSLeay::set_fd($ssl, fileno(S));   # Must use fileno
@@ -1128,7 +1127,7 @@ handle.
 
 If you need to C<select(2)> on the socket, go right ahead, but be warned
 that OpenSSL does some internal buffering so SSL_read does not always
-return data even if socket selected for reading (just keep on
+return data even if the socket selected for reading (just keep on
 selecting and trying to read). C<Net::SSLeay> is no different from the
 C language OpenSSL in this respect.
 
@@ -1163,10 +1162,11 @@ Establish it like this:
     Net::SSLeay::set_session_secret_cb($ssl, \&session_secret_cb, $somedata);
 
 It will be called like this:
-sub session_secret_cb
-{
-    my ($secret, \@cipherlist, \$preferredcipher, $somedata) = @_;
-}
+
+    sub session_secret_cb
+    {
+        my ($secret, \@cipherlist, \$preferredcipher, $somedata) = @_;
+    }
 
 
 No other callbacks are implemented. You do not need to use any
@@ -1251,8 +1251,8 @@ Some very low level API functions are available:
 =head2 HTTP (without S) API
 
 Over the years it has become clear that it would be convenient to use
-the light weight flavour API of C<Net::SSLeay> also for normal HTTP (see
-LWP for heavy weight object oriented approach). In fact it would be
+the light-weight flavour API of C<Net::SSLeay> for normal HTTP as well (see
+C<LWP> for the heavy-weight object-oriented approach). In fact it would be
 nice to be able to flip https on and off on the fly. Thus regular HTTP
 support was evolved.
 
@@ -1286,15 +1286,15 @@ support was evolved.
 
   ($reply, $err, $server_cert) = tcpxcat($usessl, $host, $port, $request);
 
-As can be seen, the C<"x"> family of APIs takes as first argument a flag
-which indicated whether SSL is used or not.
+As can be seen, the C<"x"> family of APIs takes as the first argument a flag
+which indicates whether SSL is used or not.
 
 =head1 EXAMPLES
 
-One very good example is to look at the implementation of C<sslcat()> in the
+One very good example to look at is the implementation of C<sslcat()> in the
 C<SSLeay.pm> file.
 
-Following is a simple SSLeay client (with too little error checking :-(
+The following is a simple SSLeay client (with too little error checking :-(
 
     #!/usr/local/bin/perl
     use Socket;
@@ -1335,7 +1335,7 @@ Following is a simple SSLeay client (with too little error checking :-(
     Net::SSLeay::CTX_free ($ctx);
     close S;
 
-Following is a simple SSLeay echo server (non forking):
+The following is a simple SSLeay echo server (non forking):
 
     #!/usr/local/bin/perl -w
     use Socket;
@@ -1396,7 +1396,7 @@ Following is a simple SSLeay echo server (non forking):
     }
 
 Yet another echo server. This one runs from C</etc/inetd.conf> so it avoids
-all the socket code overhead. Only caveat is opening rsa key file -
+all the socket code overhead. Only caveat is opening an rsa key file -
 it had better be without any encryption or else it will not know where
 to ask for the password. Note how C<STDIN> and C<STDOUT> are wired to SSL.
 
@@ -1463,7 +1463,7 @@ There are also a number of example/test programs in the examples directory:
 
 =head1 LIMITATIONS
 
-C<Net::SSLeay::read()> uses internal buffer of 32KB, thus no single read
+C<Net::SSLeay::read()> uses an internal buffer of 32KB, thus no single read
 will return more. In practice one read returns much less, usually
 as much as fits in one network packet. To work around this,
 you should use a loop like this:
@@ -1484,14 +1484,14 @@ packet size limitation applies here as well, thus use:
         last if print_errs('SSL_write');
     }
 
-Or alternatively you can just use the following convinence functions:
+Or alternatively you can just use the following convenience functions:
 
     Net::SSLeay::ssl_write_all($ssl, $message) or die "ssl write failure";
     $got = Net::SSLeay::ssl_read_all($ssl) or die "ssl read failure";
 
 =head1 KNOWN BUGS AND CAVEATS
 
-Autoloader emits
+Autoloader emits a
 
     Argument "xxx" isn't numeric in entersub at blib/lib/Net/SSLeay.pm'
 
@@ -1499,7 +1499,7 @@ warning if die_if_ssl_error is made autoloadable. If you figure out why,
 drop me a line.
 
 Callback set using C<SSL_set_verify()> does not appear to work. This may
-well be eay problem (e.g. see C<ssl/ssl_lib.c> line 1029). Try using
+well be an openssl problem (e.g. see C<ssl/ssl_lib.c> line 1029). Try using
 C<SSL_CTX_set_verify()> instead and do not be surprised if even this stops
 working in future versions.
 
@@ -1507,7 +1507,7 @@ Callback and certificate verification stuff is generally too little tested.
 
 Random numbers are not initialized randomly enough, especially if you
 do not have C</dev/random> and/or C</dev/urandom> (such as in Solaris
-platforms - but I've been suggested that cryptorand daemon from SUNski
+platforms - but I've been suggested that cryptorand daemon from the SUNski
 package solves this). In this case you should investigate third party
 software that can emulate these devices, e.g. by way of a named pipe
 to some program.
@@ -1555,13 +1555,13 @@ compatibility options.
 Sometimes C<sslcat()> (and the high level HTTPS functions that build on it)
 is too fast in signaling the EOF to legacy HTTPS servers. This causes
 the server to return empty page. To work around this problem you can
-set global variable
+set the global variable
 
     $Net::SSLeay::slowly = 1;   # Add sleep so broken servers can keep up
 
 HTTP/1.1 is not supported. Specifically this module does not know to
 issue or serve multiple http requests per connection. This is a serious
-short coming, but using SSL session cache on your server helps to
+shortcoming, but using the SSL session cache on your server helps to
 alleviate the CPU load somewhat.
 
 As of version 1.09 many newer OpenSSL auxiliary functions were
@@ -1588,7 +1588,7 @@ accepted the SSLeay/OpenSSL way of doing it as the de facto standard. But
 for the few that think differently, you have to explicitly speak
 the correct version. This is not really a bug, but rather a deficiency
 in the standards. If a site refuses to respond or sends back some
-nonsensical error codes (at SSL handshake level), try this option
+nonsensical error codes (at the SSL handshake level), try this option
 before mailing me.
 
 The high level API returns the certificate of the peer, thus allowing
@@ -1599,10 +1599,10 @@ oops.
 
 So, while being able to know the certificate after the fact is surely
 useful, the security minded would still choose to do the connection
-and certificate verification first and only after that exchange data
+and certificate verification first and only then exchange data
 with the site. Currently none of the high level API functions do
 this, thus you would have to program it using the low level API. A
-good place to start is to see how C<Net::SSLeay::http_cat()> function
+good place to start is to see how the C<Net::SSLeay::http_cat()> function
 is implemented.
 
 The high level API functions use a global file handle C<SSLCAT_S>
@@ -1633,9 +1633,9 @@ The name was resolved, but establising the TCP connection failed.
 
 =item msg 123: 1 - error:140770F8:SSL routines:SSL23_GET_SERVER_HELLO:unknown proto
 
-SSLeay error string. First (123) number is PID, second number (1) indicates
-the position of the error message in SSLeay error stack. You often see
-a pile of these messages as errors cascade.
+SSLeay error string. The first number (123) is the PID, the second number
+(1) indicates the position of the error message in SSLeay error stack.
+You often see a pile of these messages as errors cascade.
 
 =item msg 123: 1 - error:02001002::lib(2) :func(1) :reason(2)
 
@@ -1648,7 +1648,7 @@ means with this command:
 =item Password is being asked for private key
 
 This is normal behaviour if your private key is encrypted. Either
-you have to supply the password or you have to use unencrypted
+you have to supply the password or you have to use an unencrypted
 private key. Scan OpenSSL.org for the FAQ that explains how to
 do this (or just study examples/makecert.pl which is used
 during C<make test> to do just that).
@@ -1760,11 +1760,9 @@ backdoors, and general suitability for your application.
 
   Net::SSLeay::Handle                      - File handle interface
   ./Net_SSLeay/examples                    - Example servers and a clients
-  <http://symlabs.com/Net_SSLeay/index.html>  - Net::SSLeay.pm home
-  <http://symlabs.com/Net_SSLeay/smime.html>  - Another module using OpenSSL
   <http://www.openssl.org/>                - OpenSSL source, documentation, etc
   openssl-users-request@openssl.org        - General OpenSSL mailing list
-  <http://home.netscape.com/newsref/std/SSL.html>  - SSL Draft specification
+  <http://www.ietf.org/rfc/rfc2246.txt>    - TLS 1.0 specification
   <http://www.w3c.org>                     - HTTP specifications
   <http://www.ietf.org/rfc/rfc2617.txt>    - How to send password
   <http://www.lothar.com/tech/crypto/>     - Entropy Gathering Daemon (EGD)

@@ -306,4 +306,7 @@ Revision history for Perl extension Net::SSLeay.
 	sk_X509_NAME_value SSL_get_client_CA_list, from patch provided by
 	Joerg Schneider
 	- Added EVP_add_digest and EVP_sha256 (if available)
+	- Patches from "Martijn van Beers via RT" to add SSL_SENT_SHUTDOWN 
+	and SSL_RECEIVED_SHUTDOWN, remove broken URLs,
+	and to fix some documentation issues.
 #EOF
