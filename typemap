@@ -16,6 +16,7 @@ EVP_PKEY *      T_IV
 const EVP_MD *  T_IV
 CERT *          T_IV
 LHASH *         T_IV
+struct lhash_st_SSL_SESSION *	T_IV
 struct cert_st * T_IV
 X509_STORE_CTX * T_IV
 ASN1_UTCTIME *   T_IV

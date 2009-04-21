@@ -89,6 +89,12 @@ extern "C" {
  */
 #undef _
 
+/* Sigh: openssl 1.0 has
+ typedef void *BLOCK;
+which conflicts with perls
+ typedef struct block BLOCK;
+*/
+#define BLOCK OPENSSL_BLOCK
 #include <openssl/err.h>
 #include <openssl/lhash.h>
 #include <openssl/rand.h>
@@ -101,6 +107,7 @@ extern "C" {
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 #include <openssl/engine.h>
+#undef BLOCK
 
 /* Debugging output */
 
@@ -1243,6 +1250,14 @@ SSL_CTX_set_options(ctx,op)
      SSL_CTX *      ctx
      long	    op
 
+#if OPENSSL_VERSION_NUMBER >= 0x10000000L
+
+struct lhash_st_SSL_SESSION *
+SSL_CTX_sessions(ctx)
+     SSL_CTX *          ctx
+
+#else
+
 LHASH *
 SSL_CTX_sessions(ctx)
      SSL_CTX *          ctx
@@ -1252,6 +1267,8 @@ SSL_CTX_sessions(ctx)
      RETVAL = ctx -> sessions;
      OUTPUT:
      RETVAL
+
+#endif
 
 unsigned long
 SSL_CTX_sess_number(ctx)
@@ -2125,10 +2142,14 @@ int
 SSL_renegotiate(s)
      SSL *	s
 
+#if OPENSSL_VERSION_NUMBER < 0x10000000L
+
 int	
 SSL_SESSION_cmp(a,b)
      SSL_SESSION *	a
      SSL_SESSION *	b
+
+#endif
 
 void *
 SSL_SESSION_get_ex_data(ss,idx)

@@ -309,4 +309,8 @@ Revision history for Perl extension Net::SSLeay.
 	- Patches from "Martijn van Beers via RT" to add SSL_SENT_SHUTDOWN 
 	and SSL_RECEIVED_SHUTDOWN, remove broken URLs,
 	and to fix some documentation issues.
+	- Various changes to build with OpenSSL 1.0 beta1:
+	SSL_SESSION_cmp has been removed
+	return type of SSL_CTX_sessions changed in an ugly way
+	- 07_ssl_echo.t verify callbacks are called twice, with ok = 0 then ok = 1
 #EOF
