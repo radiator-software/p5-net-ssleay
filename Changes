@@ -313,4 +313,8 @@ Revision history for Perl extension Net::SSLeay.
 	SSL_SESSION_cmp has been removed
 	return type of SSL_CTX_sessions changed in an ugly way
 	- 07_ssl_echo.t verify callbacks are called twice, with ok = 0 then ok = 1
+	- Fixed a build problem reported by SISYPHUS:
+	On Windows Vista64, ActivePerl 5.10.0 (build 1004, x64), running 'nmake 
+	test', the process hangs forever when it comes to building the test 
+	executable (as the executable fails to build).
 #EOF
