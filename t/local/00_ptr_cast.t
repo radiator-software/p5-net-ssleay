@@ -22,7 +22,7 @@ if($^O eq 'MSWin32' && $Config{cc} eq 'cl') {
   push(@extraargs, '/nologo ' . $Config{libs});
   $cmd = "$Config{cc} /Fe$output $input " . join(' ', @extraargs);
 }
-+else {$cmd = "$Config{cc} -o $output $input " . join(' ', @extraargs)}
+else {$cmd = "$Config{cc} -o $output $input " . join(' ', @extraargs)}
 diag( "compiling test program with: $cmd" );
 my $pid = open3(undef, $out, $err, $cmd);
 waitpid $pid, 0;

@@ -317,4 +317,6 @@ Revision history for Perl extension Net::SSLeay.
 	On Windows Vista64, ActivePerl 5.10.0 (build 1004, x64), running 'nmake 
 	test', the process hangs forever when it comes to building the test 
 	executable (as the executable fails to build).
+	- Fixed a compile problem in t/local/ptr_cast_test.c for some gcc
+	versions. Reported by "Ryan McGuigan via RT".
 #EOF

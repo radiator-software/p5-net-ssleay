@@ -124,3 +124,31 @@ Unpack and install the Net-SSLeay package
  nmake install
 
 (Note that 'nmake test' does not seem to work with CamelPack 5.8.7)
+
+5. Windows Server 2003
+   ActivePerl 5.8.8.820
+   VC++ 6.0
+   Microsoft Platform SDK SVR2003R2
+   OpenSSL 0.9.8e source openssl-0.9.8e.tar.gz + tls extensions patch 
+    from Radiator/goodies/openssl-0.9.8e-session-ticket-osc.patch   
+   Dynamic linking to SSL DLLs
+
+Install all packages in the order listed above
+Unpack, patch and  and build OpenSSL, patch with 
+  cd openssl-0.9.8e+extensions
+  patch -p1 < Radiator/goodies/openssl-0.9.8e-session-ticket-osc.patch                 
+  perl Configure VC-WIN32 --prefix=c:/OpenSSL enable-tlsext
+  ms\do_ms
+  nmake -f ms\ntdll.mak
+  nmake -f ms\ntdll.mak install
+(if you have trouble getting to this stage, consult INSTALL.W32)
+  copy c:\OpenSSL\bin\*.dll c:\windows\system32
+
+Unpack and install the Net-SSLeay package
+ cd Net-SSLeay-xxxx
+ perl Makefile.PL
+ nmake
+ copy c:\OpenSSL\bin\*.dll blib\arch\auto\Net\SSLeay\
+ nmake test
+ nmake install
+

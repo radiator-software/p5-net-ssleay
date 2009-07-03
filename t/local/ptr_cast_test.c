@@ -24,7 +24,7 @@ int main(argc, argv)
   volatile TOTYPE i; /* prevent optimization */
 
   printf("# %s: '%s' len: %ul, '%s' len: %ul.\n", argv[0], FROMTYPESTR,
-	 sizeof(TOTYPE), TOTYPESTR, sizeof(char *));
+	 (int)sizeof(TOTYPE), TOTYPESTR, (int)sizeof(char *));
 
   i = (TOTYPE)bufptr;
   if( ((FROMTYPE)i) != bufptr ) {
