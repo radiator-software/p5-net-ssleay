@@ -319,4 +319,7 @@ Revision history for Perl extension Net::SSLeay.
 	executable (as the executable fails to build).
 	- Fixed a compile problem in t/local/ptr_cast_test.c for some gcc
 	versions. Reported by "Ryan McGuigan via RT".
+	- Applied patch from ecmenifee in
+	https://rt.cpan.org/Public/Bug/Display.html?id=48132 to improve
+	handling of errors in ssl_write_all
 #EOF
