@@ -1,3 +1,4 @@
+#line 1
 package Module::Install::PRIVATE::Net::SSLeay;
 
 use strict;
@@ -117,6 +118,23 @@ sub ssleay_is_rsaref {
     return $ENV{OPENSSL_RSAREF};
 }
 
+my $other_try = 0;
+my @nopath;
+sub check_no_path {            # On OS/2 it would be typically on default paths
+    my $p;
+    if (not($other_try++) and $] >= 5.008001) {
+       require ExtUtils::Liblist;              # Buggy before this
+       my ($list) = ExtUtils::Liblist->ext("-lssl");
+       return unless $list =~ /-lssl\b/;
+        for $p (split /\Q$Config{path_sep}/, $ENV{PATH}) {
+           @nopath = ("$p/openssl$Config{_exe}",       # exe name
+                      '.')             # dummy lib path
+               if -x "$p/openssl$Config{_exe}"
+       }
+    }
+    @nopath;
+}
+
 sub find_openssl_prefix {
     my ($self, $dir) = @_;
 
@@ -141,6 +159,8 @@ sub find_openssl_prefix {
             return $v;
         }
     }
+    (undef, $dir) = $self->check_no_path
+       and return $dir;
 
     return;
 }
@@ -155,6 +175,9 @@ sub find_openssl_exec {
             return $path;
         }
     }
+    ($prefix) = $self->check_no_path
+       and return $prefix;
+    return;
 }
 
 sub check_openssl_version {
