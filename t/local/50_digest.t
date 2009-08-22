@@ -5,6 +5,9 @@ use warnings;
 use Test::More;
 use Net::SSLeay;
 
+my $have_md2 = exists &Net::SSLeay::MD2;
+print "its $have_md2\n";
+
 my %fps = (
         '' => {
             md2 => '8350e5a3e24c153df2275c9f80692773',
@@ -48,10 +51,11 @@ my %fps = (
         },
 );
 
-plan tests => (keys %fps) * 3;
+plan tests => (keys %fps) * ($have_md2 ? 3 : 2);
 
 for my $data (sort keys %fps) {
-    is(unpack('H32', Net::SSLeay::MD2($data)), $fps{$data}->{md2}, "MD2 hash for '$data'");
+    is(unpack('H32', Net::SSLeay::MD2($data)), $fps{$data}->{md2}, "MD2 hash for '$data'")
+	if $have_md2;
     is(unpack('H32', Net::SSLeay::MD4($data)), $fps{$data}->{md4}, "MD4 hash for '$data'");
     is(unpack('H32', Net::SSLeay::MD5($data)), $fps{$data}->{md5}, "MD5 hash for '$data'");
 }

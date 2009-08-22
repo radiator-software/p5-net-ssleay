@@ -101,7 +101,9 @@ which conflicts with perls
 #include <openssl/buffer.h>
 #include <openssl/ssl.h>
 #include <openssl/comp.h>    /* openssl-0.9.6a forgets to include this */
+#ifndef OPENSSL_NO_MD2
 #include <openssl/md2.h>
+#endif
 #include <openssl/md4.h>
 #include <openssl/md5.h>     /* openssl-SNAP-20020227 does not automatically include this */
 #include <openssl/x509.h>
@@ -1743,6 +1745,9 @@ PEM_get_string_X509(x509)
          sv_setpvn( ST(0), buffer, i );
      BIO_free(bp);
 
+
+#ifndef OPENSSL_NO_MD2
+
 void
 MD2(data)
 	PREINIT:
@@ -1758,6 +1763,8 @@ MD2(data)
 	} else {
 		XSRETURN_UNDEF;
 	}
+
+#endif
 
 void
 MD4(data)

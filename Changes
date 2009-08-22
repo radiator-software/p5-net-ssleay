@@ -322,5 +322,8 @@ Revision history for Perl extension Net::SSLeay.
 	- Applied patch from ecmenifee in
 	https://rt.cpan.org/Public/Bug/Display.html?id=48132 to improve
 	handling of errors in ssl_write_all
-	- Patch to permit compile and testing on OS/2 submitted by Ilya Zakharevich.
+	- Patch to permit compile and testing on OS/2 submitted by Ilya
+	Zakharevich.
+	- Fixed compile problems with openssl-1.0.0-beta3 due to MD2 now being
+	optional. Reported by paul [...] city-fan.org.
 #EOF
