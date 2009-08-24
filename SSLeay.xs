@@ -2723,10 +2723,14 @@ SSL_set_session_secret_cb(s,func,data=NULL)
 
 int EVP_add_digest(const EVP_MD *digest)
 
+#if OPENSSL_VERSION_NUMBER >= 0x0090800fL
+
 #ifndef OPENSSL_NO_SHA256
+
 const EVP_MD *EVP_sha256()
 
 #endif
 
+#endif
 
 #define REM_EOF "/* EOF - SSLeay.xs */"
