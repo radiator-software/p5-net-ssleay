@@ -770,7 +770,7 @@ There is a related module called C<Net::SSLeay::Handle> included in this
 distribution that you might want to use instead. It has its own pod
 documentation.
 
-This module offers some high level convinience functions for accessing
+This module offers some high level convenience functions for accessing
 web pages on SSL servers (for symmetry, the same API is offered for
 accessing http servers, too), an C<sslcat()> function for writing your own
 clients, and finally access to the SSL api of the SSLeay/OpenSSL package
@@ -1731,7 +1731,7 @@ backdoors, and general suitability for your application.
 =head1 SEE ALSO
 
   Net::SSLeay::Handle                      - File handle interface
-  ./Net_SSLeay/examples                    - Example servers and a clients
+  ./examples                               - Example servers and a clients
   <http://www.openssl.org/>                - OpenSSL source, documentation, etc
   openssl-users-request@openssl.org        - General OpenSSL mailing list
   <http://www.ietf.org/rfc/rfc2246.txt>    - TLS 1.0 specification

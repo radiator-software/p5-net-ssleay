@@ -327,5 +327,6 @@ Revision history for Perl extension Net::SSLeay.
 	- Fixed compile problems with openssl-1.0.0-beta3 due to MD2 now being
 	optional. Reported by paul [...] city-fan.org.
 	- Fixed compile problems with openssl-0.9.7 and earlier with undefined
-	symbol EVP_sha256
+	symbol EVP_sha256. Reported by paul [...] city-fan.org.
+	- Fixed a typo reported by "Dan Dascalescu via RT"
 #EOF

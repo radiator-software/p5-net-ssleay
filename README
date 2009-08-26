@@ -54,12 +54,11 @@ Installing
 Unix:
 	# build OpenSSL as per instructions in that package
 
-	gunzip <Net_SSLeay.pm-1.06.tar.gz | tar xvf -
-	cd Net_SSLeay.pm-1.14
-	./Makefile.PL -t     # builds and tests it
+	gunzip <Net-SSLeay.pm-1.35.tar.gz | tar xvf -
+	cd Net-SSLeay.pm-1.35
+	perl Makefile.PL     # builds and tests it
+	make test            # Run the test suite
 	make install         # You probably have to su to root to do this
-	perldoc Net::SSLeay  # optional, but highly recommended
-	perldoc Net::SSLeay::Handle
 
 HPUX:
 	In principle the Unix build should work (Makefile.PL contains
@@ -269,10 +268,6 @@ My development environments used to be
 Unfortunately I do not have access to other systems so you are
 somewhat on your own. Everything compiles without a warning (except
 those mentioned above) on my systems.
-
-Check if there are any post release building hints in
-
-	http://www.symlabs.com/Net_SSLeay/index.html
 
 Check that perl is finding your OpenSSL.
 
