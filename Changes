@@ -329,4 +329,6 @@ Revision history for Perl extension Net::SSLeay.
 	- Fixed compile problems with openssl-0.9.7 and earlier with undefined
 	symbol EVP_sha256. Reported by paul [...] city-fan.org.
 	- Fixed a typo reported by "Dan Dascalescu via RT"
+	- Improved OpenSSL detection on Win32/strawberry perl. Patch provided
+	by kmx.
 #EOF

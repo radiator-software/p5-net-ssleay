@@ -152,6 +152,8 @@ sub find_openssl_prefix {
             '/apps/openssl/std/bin/openssl'  => '/apps/openssl/std',
 	    '/usr/sfw/bin/openssl'           => '/usr/sfw', # Open Solaris
             'C:\OpenSSL\bin\openssl.exe'     => 'C:\OpenSSL',
+            $Config{prefix} . '\bin\openssl.exe'      => $Config{prefix},           # strawberry perl
+            $Config{prefix} . '\..\c\bin\openssl.exe' => $Config{prefix} . '\..\c', # strawberry perl
     );
 
     while (my ($k, $v) = each %guesses) {
