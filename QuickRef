@@ -182,8 +182,11 @@ void Net::SSLeay::CTX_free ($ctx);
 
 
 #----------------------
-# MD5 - hashfunction
+# Hash functions
 #----------------------
+
+# Several cryptographic digests (hash functions) are supported, possibly
+# including MD2, MD4, MD5, and RIPEMD160.
 
 $hash = Net::SSLeay:MD5($data);
 	Computes md5 hash over $data. $hash is a binary string! Convert it to
