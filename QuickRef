@@ -189,6 +189,13 @@ $hash = Net::SSLeay:MD5($data);
 	Computes md5 hash over $data. $hash is a binary string! Convert it to
 	a printable with $string = unpack("H32",Net::SSLeay::MD5($data));
 
+$hash = Net::SSLeay:RIPEMD160($data);
+       Computes RIPEMD160 hash over $data. $hash is a binary string! Convert it to
+       a printable with $string = unpack("H40",Net::SSLeay::RIPEMD160($data));
+ 
+Note that some digests may not be available, depending on the version
+of OpenSSL used.
+ 
 
 #----------------------
 # TCP-Connection hints

@@ -106,6 +106,9 @@ which conflicts with perls
 #endif
 #include <openssl/md4.h>
 #include <openssl/md5.h>     /* openssl-SNAP-20020227 does not automatically include this */
+#if OPENSSL_VERSION_NUMBER >= 0x00905000L
+#include <openssl/ripemd.h>
+#endif
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 #include <openssl/engine.h>
@@ -1797,6 +1800,26 @@ MD5(data)
      } else {
 	  XSRETURN_UNDEF;
      }
+
+#if OPENSSL_VERSION_NUMBER >= 0x00905000L
+
+void 
+RIPEMD160(data)
+     PREINIT:
+     STRLEN len;
+     unsigned char md[RIPEMD160_DIGEST_LENGTH];
+     unsigned char * ret;
+     INPUT:
+     unsigned char *  data = (unsigned char *) SvPV( ST(0), len);
+     CODE:
+     ret = RIPEMD160(data,len,md);
+     if (ret!=NULL) {
+	  XSRETURN_PVN((char *) md, RIPEMD160_DIGEST_LENGTH);
+     } else {
+	  XSRETURN_UNDEF;
+     }
+
+#endif
 
 SSL_METHOD *
 SSLv2_method()

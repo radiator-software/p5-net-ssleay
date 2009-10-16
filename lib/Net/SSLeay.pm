@@ -1222,6 +1222,14 @@ Some RSA functions are available:
     Net::SSLeay::CTX_set_tmp_rsa($ctx, $rsakey);
     Net::SSLeay::RSA_free($rsakey);
 
+=head2 Digests
+
+Some Digest functions are available if supported by the underlying
+library.  These may include MD2, MD4, MD5, and RIPEMD160:
+
+    $hash = Net::SSLeay::MD5($foo);
+    print unpack('H*', $hash);
+
 =head2 BIO interface
 
 Some BIO functions are available:
