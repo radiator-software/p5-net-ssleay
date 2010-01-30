@@ -294,10 +294,17 @@ Revision history for Perl extension Net::SSLeay.
 	- Fix test plan for autoload.t if Test::Exception isn't available.
 	- Skip rsa_generate_key.t if Test::Exception isn't available.
 
-????
+1.36 30.01.2010
 	- Fix problems with building on GNU/kFreeBSD, to do with use of pack
-	instread of sockaddr_in. Patched by Debian Perl Group.
-	- SSL_set_session_secret_cb required for EAP-FAST is now enabled for both 
+	instread of sockaddr_in. Patched by Debian Perl Group. (Closes RT#40144)
+	- Fixed a compile problem in t/local/ptr_cast_test.c for some gcc
+	versions. Reported by "Ryan McGuigan via RT". (Closes RT#52525)
+	- Improved OpenSSL detection on Win32/strawberry perl. Patch provided
+	by kmx. (Closes RT#49287)
+	- Fix test failures on some 64-bit platforms. (Closes RT#53585)
+	- Make X509_NAME_get_text_by_NID return its result without a trailing NUL.
+	Patched by Steffen Ullrich. (Closes RT#35754)
+	- SSL_set_session_secret_cb required for EAP-FAST is now enabled for both
 	SSL_F_SSL_SET_HELLO_EXTENSION and
 	SSL_F_SSL_SET_SESSION_TICKET_EXT. The name of this #define
 	changed after 0.9.8i. SSL_set_hello_extension is not available after
@@ -306,30 +313,28 @@ Revision history for Perl extension Net::SSLeay.
 	sk_X509_NAME_value SSL_get_client_CA_list, from patch provided by
 	Joerg Schneider
 	- Added EVP_add_digest and EVP_sha256 (if available)
-	- Patches from "Martijn van Beers via RT" to add SSL_SENT_SHUTDOWN 
+	- Improve documentation on callback functions.
+	- Stop looping forever when writing to broken connections. Patched by
+	Martin Mares. (Closes RT#44170)
+	- Patches from "Martijn van Beers via RT" to add SSL_SENT_SHUTDOWN
 	and SSL_RECEIVED_SHUTDOWN, remove broken URLs,
 	and to fix some documentation issues.
 	- Various changes to build with OpenSSL 1.0 beta1:
 	SSL_SESSION_cmp has been removed
 	return type of SSL_CTX_sessions changed in an ugly way
-	- 07_ssl_echo.t verify callbacks are called twice, with ok = 0 then ok = 1
 	- Fixed a build problem reported by SISYPHUS:
-	On Windows Vista64, ActivePerl 5.10.0 (build 1004, x64), running 'nmake 
-	test', the process hangs forever when it comes to building the test 
+	On Windows Vista64, ActivePerl 5.10.0 (build 1004, x64), running 'nmake
+	test', the process hangs forever when it comes to building the test
 	executable (as the executable fails to build).
-	- Fixed a compile problem in t/local/ptr_cast_test.c for some gcc
-	versions. Reported by "Ryan McGuigan via RT".
-	- Applied patch from ecmenifee in
-	https://rt.cpan.org/Public/Bug/Display.html?id=48132 to improve
-	handling of errors in ssl_write_all
+	- Applied patch from ecmenifee in to improve handling of errors in
+	ssl_write_all. (Closes RT#48132)
 	- Patch to permit compile and testing on OS/2 submitted by Ilya
 	Zakharevich.
 	- Fixed compile problems with openssl-1.0.0-beta3 due to MD2 now being
 	optional. Reported by paul [...] city-fan.org.
 	- Fixed compile problems with openssl-0.9.7 and earlier with undefined
 	symbol EVP_sha256. Reported by paul [...] city-fan.org.
-	- Fixed a typo reported by "Dan Dascalescu via RT"
-	- Improved OpenSSL detection on Win32/strawberry perl. Patch provided
-	by kmx.
+	- Fixed a typo reported by Dan Dascalescu.
 	- added RIPEMD160 digest function.  Patch provided by dkg.
+
 #EOF
