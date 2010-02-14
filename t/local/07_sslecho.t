@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 70;
+use Test::More tests => 71;
 use Socket;
 use File::Spec;
 use Symbol qw(gensym);
@@ -248,10 +248,13 @@ my @results;
         my $subject = Net::SSLeay::X509_NAME_oneline( $subject_name );
 
         my $cn = Net::SSLeay::X509_NAME_get_text_by_NID($subject_name, &Net::SSLeay::NID_commonName);
-printf "GOT $cn\n";
+
+	my $fingerprint =  Net::SSLeay::X509_get_fingerprint($cert, 'md5');
+
         push @results, [ $issuer  eq $cert_name, 'cert issuer'  ];
         push @results, [ $subject eq $cert_name, 'cert subject' ];
         push @results, [ substr($cn, length($cn) - 1, 1) ne "\0", 'tailing 0 character is not returned from get_text_by_NID' ];
+        push @results, [ $fingerprint  eq 'AB:56:FB:BD:4E:02:B2:68:AD:F2:C9:6A:2A:7D:DC:BD', 'md5 fingerprint'  ];
 
         return 1;
     }

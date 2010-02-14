@@ -1547,6 +1547,46 @@ X509_STORE_CTX_get_ex_data(x509_store_ctx,idx)
      int idx
 
 void
+X509_get_fingerprint(cert,type)
+		X509 * 	cert
+		char *	type
+	PREINIT:
+		const EVP_MD *digest_tp = NULL;
+		unsigned char digest[EVP_MAX_MD_SIZE];
+		unsigned int dsz, k = 0;
+		char text[EVP_MAX_MD_SIZE * 3 + 1];
+	CODE:
+		if (!k && !strcmp(type,"md5")) {
+		 	k = 1; digest_tp = EVP_md5();
+		}
+		if (!k && !strcmp(type,"sha1")) {
+			k = 1; digest_tp = EVP_sha1();
+		}
+		if (!k && !strcmp(type,"sha256")) {
+			k = 1; digest_tp = EVP_sha256();
+		}
+		if (!k && !strcmp(type,"ripemd160")) {
+			k = 1; digest_tp = EVP_ripemd160();
+		}
+		if (!k)	/* Default digest */
+			digest_tp = EVP_sha1();
+		if ( digest_tp == NULL ) {
+			/* Out of memory */
+			XSRETURN_UNDEF;
+		}
+		if (!X509_digest(cert, digest_tp, digest, &dsz)) {
+			/* Out of memory */
+			XSRETURN_UNDEF;
+		}
+		text[0] = '\0';
+		for(k=0; k<dsz; k++) {
+			sprintf(&text[strlen(text)], "%02X:", digest[k]);
+		}
+		text[strlen(text)-1] = '\0';
+		ST(0) = sv_newmortal();   /* Undefined to start with */
+		sv_setpvn( ST(0), text, strlen(text));
+
+void
 X509_get_subjectAltNames(cert)
 	X509 *      cert
 	PPCODE:
