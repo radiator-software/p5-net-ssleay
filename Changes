@@ -340,5 +340,9 @@ Revision history for Perl extension Net::SSLeay.
 1.??	- Added X509_get_fingerprint, contributed by Thierry Walrant (with
 	minor changes die to the fact that stricmp is not avialable. Cert
 	types must be lowercase. Also added test to 07_sslecho.t
+	- Added suport for SSL_CTX_set1_param, SSL_set1_param,
+	selected X509_VERIFY_PARAM_* OBJ_* functions. Added new test
+	t/local/36_verify.t
+
 
 #EOF

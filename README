@@ -4,6 +4,7 @@ README - Net::SSLeay Perl module for using OpenSSL
 Version: 1.16
 $Id$
 
+1.36: tested against openssl-1.0.0
 1.23: tested against openssl-0.9.6j and openssl-0.9.7b
 ...
 1.16: tested against openssl-0.9.6d, added more callback stuff

@@ -2643,13 +2643,117 @@ constant(char* name)
 	    goto not_there;
 #endif
 
+
+	if (strEQ(name, "X509_PURPOSE_SSL_CLIENT"))
+#ifdef X509_PURPOSE_SSL_CLIENT
+	    return X509_PURPOSE_SSL_CLIENT;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_PURPOSE_SSL_SERVER"))
+#ifdef X509_PURPOSE_SSL_SERVER
+	    return X509_PURPOSE_SSL_SERVER;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_PURPOSE_NS_SSL_SERVER"))
+#ifdef X509_PURPOSE_NS_SSL_SERVER
+	    return X509_PURPOSE_NS_SSL_SERVER;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_PURPOSE_SMIME_SIGN"))
+#ifdef X509_PURPOSE_SMIME_SIGN
+	    return X509_PURPOSE_SMIME_SIGN;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_PURPOSE_SMIME_ENCRYPT"))
+#ifdef X509_PURPOSE_SMIME_ENCRYPT
+	    return X509_PURPOSE_SMIME_ENCRYPT;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_PURPOSE_CRL_SIGN"))
+#ifdef X509_PURPOSE_CRL_SIGN
+	    return X509_PURPOSE_CRL_SIGN;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_PURPOSE_ANY"))
+#ifdef X509_PURPOSE_ANY
+	    return X509_PURPOSE_ANY;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_PURPOSE_OCSP_HELPER"))
+#ifdef X509_PURPOSE_OCSP_HELPER
+	    return X509_PURPOSE_OCSP_HELPER;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_PURPOSE_TIMESTAMP_SIGN"))
+#ifdef X509_PURPOSE_TIMESTAMP_SIGN
+	    return X509_PURPOSE_TIMESTAMP_SIGN;
+#else
+	    goto not_there;
+#endif
+
+	if (strEQ(name, "X509_TRUST_COMPAT"))
+#ifdef X509_TRUST_COMPAT
+	    return X509_TRUST_COMPAT;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_TRUST_SSL_CLIENT"))
+#ifdef X509_TRUST_SSL_CLIENT
+	    return X509_TRUST_SSL_CLIENT;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_TRUST_SSL_SERVER"))
+#ifdef X509_TRUST_SSL_SERVER
+	    return X509_TRUST_SSL_SERVER;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_TRUST_EMAIL"))
+#ifdef X509_TRUST_EMAIL
+	    return X509_TRUST_EMAIL;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_TRUST_OBJECT_SIGN"))
+#ifdef X509_TRUST_OBJECT_SIGN
+	    return X509_TRUST_OBJECT_SIGN;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_TRUST_OCSP_SIGN"))
+#ifdef X509_TRUST_OCSP_SIGN
+	    return X509_TRUST_OCSP_SIGN;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_TRUST_OCSP_REQUEST"))
+#ifdef X509_TRUST_OCSP_REQUEST
+	    return X509_TRUST_OCSP_REQUEST;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_TRUST_TSA"))
+#ifdef X509_TRUST_TSA
+	    return X509_TRUST_TSA;
+#else
+	    goto not_there;
+#endif
+
 	if (strEQ(name, "X509_V_FLAG_CB_ISSUER_CHECK"))
 #ifdef X509_V_FLAG_CB_ISSUER_CHECK
 	    return X509_V_FLAG_CB_ISSUER_CHECK;
 #else
 	    goto not_there;
 #endif
-
 	if (strEQ(name, "X509_V_FLAG_USE_CHECK_TIME"))
 #ifdef X509_V_FLAG_USE_CHECK_TIME
 	    return X509_V_FLAG_USE_CHECK_TIME;
@@ -2674,6 +2778,50 @@ constant(char* name)
 #else
 	    goto not_there;
 #endif
+	if (strEQ(name, "X509_V_FLAG_X509_STRICT"))
+#ifdef X509_V_FLAG_X509_STRICT
+	    return X509_V_FLAG_X509_STRICT;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_V_FLAG_ALLOW_PROXY_CERTS"))
+#ifdef X509_V_FLAG_ALLOW_PROXY_CERTS
+	    return X509_V_FLAG_ALLOW_PROXY_CERTS;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_V_FLAG_POLICY_CHECK"))
+#ifdef X509_V_FLAG_POLICY_CHECK
+	    return X509_V_FLAG_POLICY_CHECK;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_V_FLAG_EXPLICIT_POLICY"))
+#ifdef X509_V_FLAG_EXPLICIT_POLICY
+	    return X509_V_FLAG_EXPLICIT_POLICY;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_V_FLAG_INHIBIT_ANY"))
+#ifdef X509_V_FLAG_INHIBIT_ANY
+	    return X509_V_FLAG_INHIBIT_ANY;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_V_FLAG_INHIBIT_MAP"))
+#ifdef X509_V_FLAG_INHIBIT_MAP
+	    return X509_V_FLAG_INHIBIT_MAP;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "X509_V_FLAG_NOTIFY_POLICY"))
+#ifdef X509_V_FLAG_NOTIFY_POLICY
+	    return X509_V_FLAG_NOTIFY_POLICY;
+#else
+	    goto not_there;
+#endif
+
+
 	break;
     case 'Y':
 	break;
