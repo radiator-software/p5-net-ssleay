@@ -2216,13 +2216,7 @@ sub dump_peer_certificate ($) {
 
 ### Arrange some randomness for eay PRNG
 
-sub fredxxx
-{
-    print "here in fredxxx\n";
-}
-
-sub randomize (;$$) {
-    print "HERE in randomize\n";
+sub randomize (;$$$) {
     my ($rn_seed_file, $seed, $egd_path) = @_;
     my $rnsf = defined($rn_seed_file) && -r $rn_seed_file;
 
