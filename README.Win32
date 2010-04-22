@@ -5,6 +5,8 @@ Building on Win 32 platforms
 16.8.2002, added comments by Marcel Bucher --Sampo
 10.7.2007. Complete rewrite to agree with latest version 1.31. References to
 ancient versions and untested procedures removed --mikem
+22.4.2010 Updated info for 64 bit versions --mikem
+
 $Id$
 
 1. Windows Server 2003
@@ -152,3 +154,28 @@ Unpack and install the Net-SSLeay package
  nmake test
  nmake install
 
+6. Windows Server 2003
+   ActivePerl 5.10.1
+   Microsoft Platform SDK 2003 SP1
+   OpenSSL 0.9.8i source including TLS extensions
+   Dynamic linking to SSL DLLs
+
+Build OpenSSL
+   S:
+   cd \openssl-0.9.8i+extensions
+   nmake -f ms\ntdll.mak clean
+   perl Configure VC-WIN64A --prefix=c:/OpenSSL enable-tlsext
+   ms\do_win64a
+   nmake -f ms\ntdll.mak
+   cd out32dll
+   ..\ms\test
+   nmake -f ms\ntdll.mak install
+Now build Net-SSLeay
+   nmake clean
+   R:
+   cd \net-ssleay\trunk
+   perl Makefile.PL
+   nmake
+   copy c:\OpenSSL\bin\*.dll blib\arch\auto\Net\SSLeay
+   nmake test
+   nmake install

@@ -2959,7 +2959,7 @@ OBJ_txt2obj(s, no_name)
     const char *s
     int no_name
 
-char *	
+void
 OBJ_obj2txt(a, no_name)
     ASN1_OBJECT *a
     int no_name
@@ -2987,6 +2987,5 @@ int
 OBJ_cmp(a, b)
     ASN1_OBJECT *a
     ASN1_OBJECT *b
-
 
 #define REM_EOF "/* EOF - SSLeay.xs */"

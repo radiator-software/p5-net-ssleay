@@ -343,6 +343,7 @@ Revision history for Perl extension Net::SSLeay.
 	- Added suport for SSL_CTX_set1_param, SSL_set1_param,
 	selected X509_VERIFY_PARAM_* OBJ_* functions. Added new test
 	t/local/36_verify.t
-
+	- Fixed the prototype for randomize(), it missed one arg, and errors
+	are reported with perl 5.10.1 on Windows
 
 #EOF

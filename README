@@ -83,43 +83,13 @@ HPUX:
 	He was using: gcc v2.95.2, OpenSSL v0.9.6c, Net::SSLeay-1.13
 
 Windows:
-	You need to get MS VC++ 6.0 Enterprise Edition. Nobody has
-	reported building using CygWin, although I suspect the
-	Unix instructions are pretty close.
-
-	Add:
-		d:\openssl
-		d:\openssl\bin
-		d:\openssl\lib
-		d:\openssl\include
-		d:\openssl\include\openssl
-
-	to system's environment PATH, assuming you installed your openssl
-	in d:\openssl. YMMV
-
-		OPENSSL_PREFIX=D:\OpenSSL perl Makefile.PL
-
-	On windows, Makefile.PL will automatically set up library and include
-	paths for windows compile and will automatcially find OpenSSL if it
-	exists in c:\OpenSSL. If your OPenSSL libraries and includes are
-	elsewhere, use the OPENSSL_PREFIX environment variable. 
-	If it does not work, please tweak
-	Makefile.PL and submit a patch.
-
-		nmake
-		nmake install
-
-	*** windows details are still being worked out. If you manage
-	to compile this with different development environments under
-	Win32, please post the diffs/success reports to http://alioth.debian.org/projects/net-ssleay
-	
-	The current incarnation of Windows tweaks was contributed by
-	Eric A Selber <eselber@briefcase.com>
+	Supported on 32 and 64 bit platforms
+	See README.Win32 for details
 
 You should also be able to use CPAN.pm to install this module if you like.
 
 Linking with RSAref is no longer supported (the patent issue is moot
-doe to patent expiring). If you want to try it, you are on your own,
+due to patent expiring). If you want to try it, you are on your own,
 but here's how it used to work...
 
   For linking against RSAref the the OPENSSL_RSAREF environment variable like this:

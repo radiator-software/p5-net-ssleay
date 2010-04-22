@@ -1772,7 +1772,7 @@ sub want_X509_lookup { want(shift) == 4 }
 sub open_tcp_connection {
     my ($dest_serv, $port) = @_;
     my ($errs);
-    
+
     $port = getservbyname($port, 'tcp') unless $port =~ /^\d+$/;
     my $dest_serv_ip = gethostbyname($dest_serv);
     unless (defined($dest_serv_ip)) {
@@ -2216,7 +2216,13 @@ sub dump_peer_certificate ($) {
 
 ### Arrange some randomness for eay PRNG
 
+sub fredxxx
+{
+    print "here in fredxxx\n";
+}
+
 sub randomize (;$$) {
+    print "HERE in randomize\n";
     my ($rn_seed_file, $seed, $egd_path) = @_;
     my $rnsf = defined($rn_seed_file) && -r $rn_seed_file;
 
