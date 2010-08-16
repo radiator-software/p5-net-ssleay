@@ -1532,10 +1532,12 @@ X509_NAME_get_text_by_NID(name,nid)
 	ST(0) = sv_newmortal();   /* Undefined to start with */
 	length = X509_NAME_get_text_by_NID(name, nid, NULL, 0);
 
-	New(0, buf, length+1, char);
-	if (X509_NAME_get_text_by_NID(name, nid, buf, length + 1))
-		sv_setpvn( ST(0), buf, length);
-	Safefree(buf);
+       if (length>=0) {				 
+               New(0, buf, length+1, char);
+               if (X509_NAME_get_text_by_NID(name, nid, buf, length + 1)>=0)
+                       sv_setpvn( ST(0), buf, length);
+               Safefree(buf);
+       }
 
 X509 *
 X509_STORE_CTX_get_current_cert(x509_store_ctx)
