@@ -2523,9 +2523,9 @@ sub set_server_cert_and_key ($$$) { &set_cert_and_key }
 sub set_proxy ($$;**) {
     ($proxyhost, $proxyport, $proxyuser, $proxypass) = @_;
     require MIME::Base64 if $proxyuser;
-    $proxyauth = $CRLF . 'Proxy-authorization: Basic '
-	. MIME::Base64::encode("$proxyuser:$proxypass", '')
-	    if $proxyuser;
+    $proxyauth = $proxyuser
+         ? $CRLF . 'Proxy-authorization: Basic '
+	 : '';
 }
 
 ###

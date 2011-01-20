@@ -345,5 +345,7 @@ Revision history for Perl extension Net::SSLeay.
 	t/local/36_verify.t
 	- Fixed the prototype for randomize(), it missed one arg, and errors
 	are reported with perl 5.10.1 on Windows
+	- Fixed an uninitialized value warning in $Net::SSLeay::proxyauth,
+	reported by Andrey Rikov.
 
 #EOF
