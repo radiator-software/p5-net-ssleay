@@ -1599,6 +1599,10 @@ in the standards. If a site refuses to respond or sends back some
 nonsensical error codes (at the SSL handshake level), try this option
 before mailing me.
 
+On some systems, OpenSSL may be compiled without support for SSLv2.
+If this is the case, Net::SSLeay will warn if ssl_version has been set
+to 2.
+
 The high level API returns the certificate of the peer, thus allowing
 one to check what certificate was supplied. However, you will only be
 able to check the certificate after the fact, i.e. you already sent
@@ -2238,7 +2242,13 @@ sub randomize (;$$$) {
 }
 
 sub new_x_ctx {
-    if    ($ssl_version == 2)  { $ctx = CTX_v2_new(); }
+    if ($ssl_version == 2)  {
+	unless (exists &Net::SSLeay::CTX_v2_new) {
+	    warn "ssl_version has been set to 2, but this version of OpenSSL has been compiled without SSLv2 support";
+	    return undef;
+	}
+	$ctx = CTX_v2_new();
+    }
     elsif ($ssl_version == 3)  { $ctx = CTX_v3_new(); }
     elsif ($ssl_version == 10) { $ctx = CTX_tlsv1_new(); }
     else                       { $ctx = CTX_new(); }

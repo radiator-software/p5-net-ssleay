@@ -347,5 +347,6 @@ Revision history for Perl extension Net::SSLeay.
 	are reported with perl 5.10.1 on Windows
 	- Fixed an uninitialized value warning in $Net::SSLeay::proxyauth,
 	reported by Andrey Rikov.
-
+	- Update so net-ssleay will compile if SSLV2 is not present. Patch
+	from Chris Butler.
 #EOF
