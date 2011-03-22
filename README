@@ -1,20 +1,5 @@
 README - Net::SSLeay Perl module for using OpenSSL
-
-13.6.2003, Sampo Kellomaki <sampo@symlabs.com>
-Version: 1.16
 $Id$
-
-1.36: tested against openssl-1.0.0
-1.23: tested against openssl-0.9.6j and openssl-0.9.7b
-...
-1.16: tested against openssl-0.9.6d, added more callback stuff
-1.14: added perr certificate return, HPUX aCC flags fix
-1.09: added many utlility functions of OpenSSL API, better old perl support
-1.08: 64 bit fixes, windows fixes, fixed extra newline with auth bug
-1.07: added rudimentary TLSv1 support by Stephen C. Koehler
-1.06: fixed ssl_read_all() bug where input '0' would cause loop to exit
-1.05: fixed certificate gen at make test
-1.04: overhaul for OpenSSL-0.9.3b (try http://www.openssl.org/)
 
 By popular demand...
 --------------------

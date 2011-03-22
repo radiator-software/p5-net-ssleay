@@ -106,7 +106,7 @@ $Net::SSLeay::slowly = 0;
 $Net::SSLeay::random_device = '/dev/urandom';
 $Net::SSLeay::how_random = 512;
 
-$VERSION = '1.36';
+$VERSION = '1.37';
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(
     AT_MD5_WITH_RSA_ENCRYPTION
@@ -1622,7 +1622,8 @@ internally. This really should not be a problem because there is no
 way to interleave the high level API functions, unless you use threads
 (but threads are not very well supported in perl anyway (as of version
 5.6.1). However, you may run into problems if you call undocumented
-internal functions in an interleaved fashion.
+internal functions in an interleaved fashion. The best solution is to "use Net::SSLeay" 
+in one thread after all the threads have been created.
 
 =head1 DIAGNOSTICS
 
