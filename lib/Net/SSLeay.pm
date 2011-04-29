@@ -2518,7 +2518,7 @@ sub set_cert_and_key ($$$) {
     my ($ctx, $cert_path, $key_path) = @_;    
     my $errs = '';
     # Following will ask password unless private key is not encrypted
-    CTX_use_RSAPrivateKey_file ($ctx, $key_path, &FILETYPE_PEM);
+    CTX_use_PrivateKey_file ($ctx, $key_path, &FILETYPE_PEM);
     $errs .= print_errs("private key `$key_path' ($!)");
     CTX_use_certificate_file ($ctx, $cert_path, &FILETYPE_PEM);
     $errs .= print_errs("certificate `$cert_path' ($!)");

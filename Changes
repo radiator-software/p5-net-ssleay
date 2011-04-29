@@ -349,4 +349,6 @@ Revision history for Perl extension Net::SSLeay.
 	reported by Andrey Rikov.
 	- Update so net-ssleay will compile if SSLV2 is not present. Patch
 	from Chris Butler.
+	- Fixed a problem where sslcat (and possibly other functions) expect RSA keys and will not
+	load DSA keys for client certificates. Reported and patched by "Jesse DeFer via RT"
 #EOF
