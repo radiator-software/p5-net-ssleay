@@ -725,6 +725,7 @@ SSL_CTX_new()
      RETVAL
 
 #ifndef OPENSSL_NO_SSL2
+#if OPENSSL_VERSION_NUMBER < 0x10000000L
 
 SSL_CTX *
 SSL_CTX_v2_new()
@@ -733,6 +734,7 @@ SSL_CTX_v2_new()
      OUTPUT:
      RETVAL
 
+#endif
 #endif
 
 SSL_CTX *
@@ -1867,11 +1869,13 @@ RIPEMD160(data)
 
 #endif
 
-#ifndef OPENSSL_NO_SSL2
+#ifndef OPENSSL_NO_SSL2 
+#if OPENSSL_VERSION_NUMBER < 0x10000000L
 
 SSL_METHOD *
 SSLv2_method()
 
+#endif
 #endif
 
 SSL_METHOD *
