@@ -353,4 +353,7 @@ Revision history for Perl extension Net::SSLeay.
 	load DSA keys for client certificates. Reported and patched by "Jesse
 	DeFer via RT"
         - Removed SSL_CTX_v2_new and SSLv2_method() for OpenSSL 1.0 and later.
+
+????
+	- Added CTX_use_PKCS12_file contributed by "Andrew A. Budkin".
 #EOF

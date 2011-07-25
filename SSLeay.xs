@@ -100,6 +100,7 @@ which conflicts with perls
 #include <openssl/rand.h>
 #include <openssl/buffer.h>
 #include <openssl/ssl.h>
+#include <openssl/pkcs12.h>
 #include <openssl/comp.h>    /* openssl-0.9.6a forgets to include this */
 #ifndef OPENSSL_NO_MD2
 #include <openssl/md2.h>
@@ -1796,6 +1797,45 @@ PEM_get_string_X509(x509)
          sv_setpvn( ST(0), buffer, i );
      BIO_free(bp);
 
+int
+CTX_use_PKCS12_file(ctx, file, password)
+    SSL_CTX *          ctx
+    char *             file
+    char *             password
+    PREINIT:
+    BIO *bio;
+    int i;
+    int count;
+    char buffer[16384];
+    PKCS12 *p12;
+    EVP_PKEY* private_key;
+    X509* certificate;
+    SSL_CTX *          ctx1;
+    CODE:
+    RETVAL = 1;
+
+    FILE *fp = fopen (file, "r");   
+    bio = BIO_new(BIO_s_mem());
+    while(count = fread(buffer, 1, sizeof(buffer), fp))
+	BIO_write(bio, buffer, count);
+    fclose(fp);
+
+    OPENSSL_add_all_algorithms_noconf();
+    p12 = d2i_PKCS12_bio(bio, NULL);
+    if (!p12)
+    	RETVAL = 0;
+    BIO_free(bio);
+    if (RETVAL && !PKCS12_parse(p12, password, &private_key, &certificate, NULL))
+    	RETVAL = 0;
+    PKCS12_free(p12);
+    if (RETVAL && !SSL_CTX_use_PrivateKey(ctx, private_key))
+    	RETVAL = 0;
+    if (RETVAL && !SSL_CTX_use_certificate(ctx, certificate))
+    	RETVAL = 0;
+    if (!RETVAL)
+        ERR_print_errors_fp(stderr);
+    OUTPUT:
+    RETVAL
 
 #ifndef OPENSSL_NO_MD2
 
