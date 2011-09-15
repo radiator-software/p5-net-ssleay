@@ -213,7 +213,7 @@ EOM
 EOM
     }
 
-    if ($major > 0.9 || ($major == 0.9 && $minor > 8)) {
+    if ($major > 1.0 || ($major == 1.0 && $minor > 0)) {
         print <<EOM;
 *** That's newer than what this module was tested with
     You should consider checking if there is a newer release of this module

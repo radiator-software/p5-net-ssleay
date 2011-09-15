@@ -337,7 +337,8 @@ Revision history for Perl extension Net::SSLeay.
 	- Fixed a typo reported by Dan Dascalescu.
 	- added RIPEMD160 digest function.  Patch provided by dkg.
 
-1.37	- Added X509_get_fingerprint, contributed by Thierry Walrant (with
+1.37	2011-09-16
+	- Added X509_get_fingerprint, contributed by Thierry Walrant (with
 	minor changes die to the fact that stricmp is not avialable. Cert
 	types must be lowercase. Also added test to 07_sslecho.t
 	- Added suport for SSL_CTX_set1_param, SSL_set1_param,
@@ -353,7 +354,5 @@ Revision history for Perl extension Net::SSLeay.
 	load DSA keys for client certificates. Reported and patched by "Jesse
 	DeFer via RT"
         - Removed SSL_CTX_v2_new and SSLv2_method() for OpenSSL 1.0 and later.
-
-????
 	- Added CTX_use_PKCS12_file contributed by "Andrew A. Budkin".
 #EOF
