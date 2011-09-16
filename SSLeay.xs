@@ -1571,9 +1571,13 @@ X509_get_fingerprint(cert,type)
 		if (!k && !strcmp(type,"sha1")) {
 			k = 1; digest_tp = EVP_sha1();
 		}
+#if OPENSSL_VERSION_NUMBER >= 0x0090800fL
+#ifndef OPENSSL_NO_SHA256
 		if (!k && !strcmp(type,"sha256")) {
 			k = 1; digest_tp = EVP_sha256();
 		}
+#endif
+#endif
 		if (!k && !strcmp(type,"ripemd160")) {
 			k = 1; digest_tp = EVP_ripemd160();
 		}
@@ -2864,6 +2868,8 @@ SSL_set1_param(ctx, vpm)
 
 #endif
 
+#if OPENSSL_VERSION_NUMBER >= 0x0090800fL
+
 X509_VERIFY_PARAM *
 X509_VERIFY_PARAM_new()
 
@@ -2987,6 +2993,7 @@ X509_POLICY_NODE *
 X509_policy_node_get0_parent(node)
     X509_POLICY_NODE *node
 
+#endif
 
 ASN1_OBJECT *	
 OBJ_dup(o)

@@ -355,4 +355,10 @@ Revision history for Perl extension Net::SSLeay.
 	DeFer via RT"
         - Removed SSL_CTX_v2_new and SSLv2_method() for OpenSSL 1.0 and later.
 	- Added CTX_use_PKCS12_file contributed by "Andrew A. Budkin".
+1.38	2011-09-16
+	- Fixed a problem with  various symbols that only became
+	available in OpenSSL 0.9.8 such as X509_VERIFY_PARAM and
+	X509_POLICY_NODE, causing build failures with older versions of
+	OpenSSL. Patched by paul.
+	
 #EOF
