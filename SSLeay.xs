@@ -1861,24 +1861,24 @@ RIPEMD160(data)
 #ifndef OPENSSL_NO_SSL2 
 #if OPENSSL_VERSION_NUMBER < 0x10000000L
 
-SSL_METHOD *
+const SSL_METHOD *
 SSLv2_method()
 
 #endif
 #endif
 
-SSL_METHOD *
+const SSL_METHOD *
 SSLv3_method()
 
-SSL_METHOD *
+const SSL_METHOD *
 TLSv1_method()
 
 int
 SSL_set_ssl_method(ssl, method)
-     SSL *          ssl
-     SSL_METHOD *   method
+     SSL *               ssl
+     const SSL_METHOD *  method
 
-SSL_METHOD *
+const SSL_METHOD *
 SSL_get_ssl_method(ssl)
      SSL *          ssl
 
@@ -1990,13 +1990,13 @@ SSL_check_private_key(ctx)
 
 char *
 SSL_CIPHER_description(cipher,buf,size)
-     SSL_CIPHER *  cipher
+     const SSL_CIPHER *  cipher
      char *	buf
      int 	size
 
 int	
 SSL_CIPHER_get_bits(c,alg_bits)
-     SSL_CIPHER *	c
+     const SSL_CIPHER *	c
      int *	alg_bits
 
 int 
@@ -2121,7 +2121,7 @@ SSL_CTX_set_quiet_shutdown(ctx,mode)
 int 
 SSL_CTX_set_ssl_version(ctx,meth)
      SSL_CTX *	ctx
-     SSL_METHOD *	meth
+     const SSL_METHOD *	meth
 
 long 
 SSL_CTX_set_timeout(ctx,t)
@@ -2166,7 +2166,7 @@ SSL *
 SSL_dup(ssl)
      SSL *	ssl
 
-SSL_CIPHER *
+const SSL_CIPHER *
 SSL_get_current_cipher(s)
      SSL *	s
 
@@ -2889,7 +2889,7 @@ int
 X509_VERIFY_PARAM_add0_table(param)
     X509_VERIFY_PARAM *param
 
-X509_VERIFY_PARAM *
+const X509_VERIFY_PARAM *
 X509_VERIFY_PARAM_lookup(name)
     const char *name
 
@@ -2926,17 +2926,17 @@ X509_policy_level_get0_node(level, i)
     X509_POLICY_LEVEL *level
     int i
 
-ASN1_OBJECT *
+const ASN1_OBJECT *
 X509_policy_node_get0_policy(node)
-    X509_POLICY_NODE *node
+    const X509_POLICY_NODE *node
 
 STACK_OF(POLICYQUALINFO) *
 X509_policy_node_get0_qualifiers(node)
     X509_POLICY_NODE *node
 
-X509_POLICY_NODE *
+const X509_POLICY_NODE *
 X509_policy_node_get0_parent(node)
-    X509_POLICY_NODE *node
+    const X509_POLICY_NODE *node
 
 #endif
 
