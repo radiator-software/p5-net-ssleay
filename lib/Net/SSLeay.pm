@@ -6,53 +6,7 @@
 #
 # $Id$
 #
-# Version 1.04, 31.3.1999
-# 30.7.1999, Tracking OpenSSL-0.9.3a changes, --Sampo
-# 31.7.1999, version 1.05 --Sampo
-# 7.4.2001,  fixed input error upon 0, OpenSSL-0.9.6a, version 1.06 --Sampo
-# 18.4.2001, added TLSv1 support by Stephen C. Koehler
-#            <koehler@securecomputing.com>, version 1.07, --Sampo
-# 25.4.2001, 64 bit fixes by Marko Asplund <aspa@kronodoc.fi> --Sampo
-# 17.4.2001, more error codes from aspa --Sampo
-# 25.9.2001, added heaps and piles of newer OpenSSL auxiliary functions --Sampo
-# 6.11.2001, got rid of $p_errs madness --Sampo
-# 9.11.2001, added EGD (entropy gathering daemon) reference info --Sampo
-# 7.12.2001, Added proxy support by Bruno De Wolf <bruno.dewolf@@pandora._be>
-# 6.1.2002,  cosmetic fix to socket options from Kwindla Hultman Kramer <kwindla@@allafrica_.com>
-# 25.3.2002, added post_https_cert and friends per patch from
-#            mock@@obscurity.ogr, --Sampo
-# 3.4.2002,  added `use bytes' from Marcus Taylor <marcus@@semantico_.com>
-#            This avoids unicode/utf8 (as may appear in some XML docs)
-#            from fooling the length comuptations. Dropped support for
-#            perl5.005_03 because I do not have opportunity to test it. --Sampo
-# 5.4.2002,  improved Unicode gotcha eliminator to support old perls --Sampo
-# 8.4.2002,  added a small line end fix from Petr Dousa (pdousa@@kerio_.com)
-# 17.5.2002, Added BIO_s_mem, BIO_new, BIO_free, BIO_write, BIO_read 
-#            BIO_eof, BIO_pending, BIO_wpending, RSA_generate_key, RSA_free
-#            --mikem@open._com.au
-# 10.8.2002, Added SSL_peek patch to ssl_read_until from 
-#            Peter Behroozi <peter@@fhpwireless_.com> --Sampo
-# 21.8.2002, Added SESSION_get_master_key, SSL_get_client_random, SSL_get_server_random
-#            --mikem@open.com_.au
-# 2.9.2002,  Added SSL_CTX_get_cert_store, X509_STORE_add_cert, X509_STORE_add_crl
-#            X509_STORE_set_flags, X509_load_cert_file, X509_load_crl_file
-#            X509_load_cert_crl_file, PEM_read_bio_X509_CRL,
-#            constants for X509_V_FLAG_* in order to support certificate revocation lists.
-#            --mikem@open.com_.au
-# 6.9.2002,  fixed X509_STORE_set_flags to X509_STORE_CTX_set_flags, --Sampo
-# 19.9.2002, applied patch from Tim Engler <tim@burntcouch_.com>
-# 18.2.2003, applied patch from Toni Andjelkovic <toni@soth._at>
-# 13.6.2003, partially applied leak patch by Marian Jancar <mjancar@suse._cz>
-# 25.6.2003, write_partial() return value patch from 
-#            Kim Minh Kaplan <kmkaplan@selfoffice._com>
-# 17.8.2003, added http support :-) --Sampo
-# 17.8.2003, started 1.25 dev --Sampo
-# 30.11.2005, Applied a patch by Peter Behroozi that adds get1_session() for session caching --Florian
-# 30.11.2005, Applied a patch by ex8k-hbn@asahi-net.or.jp that limits the chunk size for tcp_read_all --Florian
-# 30.11.2005, Applied a patch by ivan-cpan-rt@420.am that avoids adding a Host header if an own is specified in do_httpx3
-# 13.12.2005, Added comments re thread safety and resetting of default_passwd_callback after use 
-#             --mikem@open.com.au
-#
+# Change data removed from here. See Changes
 # The distribution and use of this module are subject to the conditions
 # listed in LICENSE file at the root of OpenSSL-0.9.7b
 # distribution (i.e. free, but mandatory attribution and NO WARRANTY).
@@ -64,6 +18,7 @@ use Carp;
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK $AUTOLOAD $CRLF);
 use Socket;
 use Errno;
+require 5.005_000;
 
 require Exporter;
 use AutoLoader;
@@ -106,7 +61,7 @@ $Net::SSLeay::slowly = 0;
 $Net::SSLeay::random_device = '/dev/urandom';
 $Net::SSLeay::how_random = 512;
 
-$VERSION = '1.38';
+$VERSION = '1.40';
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(
     AT_MD5_WITH_RSA_ENCRYPTION

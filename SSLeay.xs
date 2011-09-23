@@ -6,62 +6,7 @@
  * 
  * All Rights Reserved.
  *
- * 19.6.1998, Maintenance release to sync with SSLeay-0.9.0, --Sampo
- * 24.6.1998, added write_partial to support ssl_write_all in more
- *            memory efficient way. --Sampo
- * 8.7.1998,  Added SSL_(CTX)?_set_options and associated constants.
- * 31.3.1999, Tracking OpenSSL-0.9.2b changes, dropping support for
- *            earlier versions
- * 30.7.1999, Tracking OpenSSL-0.9.3a changes, --Sampo
- * 7.4.2001,  OpenSSL-0.9.6a update, --Sampo
- * 18.4.2001, added TLSv1 support by Stephen C. Koehler
- *            <koehler@securecomputing.com>, version 1.07, --Sampo
- * 25.4.2001, applied 64 bit fixes by Marko Asplund <aspa@kronodoc.fi> --Sampo
- * 16.7.2001, applied Win filehandle patch from aspa, added
- *            SSL_*_methods --Sampo
- * 25.9.2001, added a big pile of methods by automatically grepping and diffing
- *            openssl headers and my module --Sampo
- * 17.4.2002, applied patch to fix CTX_set_default_passwd_cb() contributed
- *            by Timo Kujala <timo.kujala@@intellitel_.com>, --Sampo
- * 17.5.2002, Added BIO_s_mem, BIO_new, BIO_free, BIO_write, BIO_read ,
- *            BIO_eof, BIO_pending, BIO_wpending, X509_NAME_get_text_by_NID,
- *            RSA_generate_key, BIO_new_file
- *            Fixed problem with return value from verify callback being
- *            ignored.
- *            Fixed a problem with CTX_set_tmp_rsa and CTX_set_tmp_dh
- *            args incorrect
- *            --mikem@open.com_.au
- * 10.8.2002, Added SSL_peek patch to ssl_read_until from 
- *            Peter Behroozi <peter@@fhpwireless_.com> --Sampo
- * 21.8.2002, Added SESSION_get_master_key, SSL_get_client_random, SSL_get_server_random
- *            --mikem@open.com_.au
- * 2.9.2002,  Added SSL_CTX_get_cert_store, X509_STORE_add_cert, X509_STORE_add_crl
- *            X509_STORE_set_flags, X509_load_cert_file, X509_load_crl_file
- *            X509_load_cert_crl_file, PEM_read_bio_X509_CRL
- *            constants for X509_V_FLAG_*
- *            --mikem@open.com_.au
- * 6.9.2002,  applied Mike's patch and fixed X509_STORE_* to X509_STORE_CTX_*
- *	      --Sampo
- * 18.2.2003, RAND patch from Toni Andjelkovic <toni@soth._at>
- * 13.6.2003, applied SSL_X509_LOOKUP patch by Marian Jancar <mjancar@suse._cz>
- * 18.8.2003, fixed some const char pointer warnings --Sampo
- * 01.12.2005 fixed a thread safety problem with SvSetSV that could cause crashes
- *            if SSL_CTX_set_default_passwd_cb and friends were called multiple
- *            times in different threads.
- *	      Reintroduced X509_STORE_set_flags, also added
- *	      X509_STORE_set_purpose and X509_STORE_set_trust
- *	      Added X509_get_subjectAltNames and a number of other openssl
- *            X509 functions: X509_get_ext_by_NID X509_get_ext
- *	      X509V3_EXT_d2i
- *	      X509_verify_cert_error_string
- *            --mikem@open.com_.au
- * 13.12.2005 Reinstated the thread safety fix from 01.12.2005 due memory leaks
- *	      It is better to reset the callback with undef after use to prevent
- *	      leaks and thread safety problems.
- * 28.7.2006  Use New and Safefree insted of malloc/free. Use OPENSSL_free 
- *            instead of free to release memory allocated by X509_NAME_oneline.
- *            These changes to deal with thread safety issues.
- * 01.08.2006 set_*fd nw woork with filehandles as well as filenos on Windows
+ * Change data removed. See Changes
  *
  * $Id$
  * 
@@ -182,7 +127,7 @@ ssleay_verify_callback_invoke (int ok, X509_STORE_CTX* x509_store) {
 	PUSHMARK(sp);
 	EXTEND( sp, 2 );
 	PUSHs( sv_2mortal(newSViv(ok)) );
-	PUSHs( sv_2mortal(newSViv((unsigned long int)x509_store)) );
+	PUSHs( sv_2mortal(newSViv(PTR2IV(x509_store))) );
 	PUTBACK;
 
 	PR("About to call verify callback.\n");
@@ -2863,7 +2808,7 @@ SSL_CTX_set1_param(ctx, vpm)
 
 int
 SSL_set1_param(ctx, vpm)
-     SSL_CTX *          ctx
+     SSL *          ctx
      X509_VERIFY_PARAM *vpm
 
 #endif
