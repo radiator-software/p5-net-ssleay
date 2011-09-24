@@ -1,4 +1,5 @@
 TYPEMAP
+SSL_METHOD *	T_PTR
 const SSL_METHOD *	T_PTR
 SSL_CTX *	T_PTR
 SSL_SESSION *	T_PTR
@@ -27,6 +28,7 @@ const unsigned char * T_PV
 CRYPTO_EX_new *  T_PTR
 CRYPTO_EX_dup *  T_PTR
 CRYPTO_EX_free * T_PTR
+SSL_CIPHER *     T_PTR
 const SSL_CIPHER *     T_PTR
 int *		 T_PTR
 COMP_METHOD *	 T_PTR

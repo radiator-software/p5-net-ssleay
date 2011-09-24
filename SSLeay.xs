@@ -1873,10 +1873,21 @@ SSLv3_method()
 const SSL_METHOD *
 TLSv1_method()
 
+#if OPENSSL_VERSION_NUMBER < 0x10000000L
+
+int
+SSL_set_ssl_method(ssl, method)
+     SSL *         ssl
+     SSL_METHOD *  method
+
+#else
+
 int
 SSL_set_ssl_method(ssl, method)
      SSL *               ssl
      const SSL_METHOD *  method
+
+#endif
 
 const SSL_METHOD *
 SSL_get_ssl_method(ssl)
@@ -1988,11 +1999,23 @@ int
 SSL_check_private_key(ctx)
      SSL *	ctx
 
+#if OPENSSL_VERSION_NUMBER < 0x009080bfL
+
+char *
+SSL_CIPHER_description(cipher,buf,size)
+     SSL_CIPHER *	cipher
+     char *	buf
+     int 	size
+
+#else
+
 char *
 SSL_CIPHER_description(cipher,buf,size)
      const SSL_CIPHER *  cipher
      char *	buf
      int 	size
+
+#endif
 
 int	
 SSL_CIPHER_get_bits(c,alg_bits)
@@ -2118,10 +2141,21 @@ SSL_CTX_set_quiet_shutdown(ctx,mode)
      SSL_CTX *	ctx
      int 	mode
 
+#if OPENSSL_VERSION_NUMBER < 0x10000000L
+
+int
+SSL_CTX_set_ssl_version(ctx,meth)
+     SSL_CTX *	ctx
+     SSL_METHOD *	meth
+
+#else
+
 int 
 SSL_CTX_set_ssl_version(ctx,meth)
      SSL_CTX *	ctx
      const SSL_METHOD *	meth
+
+#endif
 
 long 
 SSL_CTX_set_timeout(ctx,t)
