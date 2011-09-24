@@ -919,7 +919,7 @@ previously signed, but which it now revokes. CRLs are in PEM format.
 
 You can enable C<Net::SSLeay CRL> checking like this:
 
-	    &Net::SSLeay::X509_STORE_CTX_set_flags
+	    &Net::SSLeay::X509_STORE_set_flags
 		(&Net::SSLeay::CTX_get_cert_store($ssl), 
 		 &Net::SSLeay::X509_V_FLAG_CRL_CHECK); 
 

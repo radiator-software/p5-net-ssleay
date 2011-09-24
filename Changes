@@ -371,5 +371,10 @@ Revision history for Perl extension Net::SSLeay.
 1.41	2011-09-25
 	Fixed incorrect const signatures for 1.0 that were causing warnings. 
 	Patches provided by "Douglas
-	Christopher Wilson via RT". Now have clean compile with 0.9.8a through 1.0.0.
+	Christopher Wilson via RT". Now have clean compile with 0.9.8a through
+	1.0.0.
+????
+	Fixed incorrect documentation of how to enable CRL checking. Patched
+	by Steffen_Ullrich.
+
 #EOF
