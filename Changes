@@ -1,10 +1,13 @@
 Revision history for Perl extension Net::SSLeay.
 
-????
+1.42	 2011-10-03
     Fixed incorrect documentation of how to enable CRL checking. Patched
     by Steffen_Ullrich.
     Fixed incorrect letter in Sebastien in Credits. Patch by Neil Bowers.
-    Reversed order of the Changes file to be reverse chronological. Patch by Neil Bowers.
+    Reversed order of the Changes file to be reverse chronological. Patch by
+    Neil Bowers.
+    Fixed a a compile error when building on Windows with MSVC6. reported and
+    patched by "Andrew J. Savige via RT".
 
 1.41    2011-09-25
     Fixed incorrect const signatures for 1.0 that were causing warnings. 

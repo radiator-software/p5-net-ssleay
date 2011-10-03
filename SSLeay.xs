@@ -1760,10 +1760,11 @@ CTX_use_PKCS12_file(ctx, file, password)
     EVP_PKEY* private_key;
     X509* certificate;
     SSL_CTX *          ctx1;
+    FILE *fp;
     CODE:
     RETVAL = 1;
 
-    FILE *fp = fopen (file, "r");   
+    fp = fopen (file, "r");   
     bio = BIO_new(BIO_s_mem());
     while(count = fread(buffer, 1, sizeof(buffer), fp))
 	BIO_write(bio, buffer, count);
