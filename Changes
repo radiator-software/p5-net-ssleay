@@ -1,5 +1,8 @@
 Revision history for Perl extension Net::SSLeay.
 
+?????
+    Fixed some typos. Patched by Neil Bowers.
+
 1.42	 2011-10-03
     Fixed incorrect documentation of how to enable CRL checking. Patched
     by Steffen_Ullrich.

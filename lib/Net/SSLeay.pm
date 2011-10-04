@@ -909,7 +909,7 @@ This example demonstrates the case where we authenticate to the proxy as
 C<"joe"> and to the final web server as C<"susie">. Proxy authentication
 requires the C<MIME::Base64> module to work.
 
-=head2 Certificate verification and Certificate Revoocation Lists (CRLs)
+=head2 Certificate verification and Certificate Revocation Lists (CRLs)
 
 OpenSSL supports the ability to verify peer certificates. It can also
 optionally check the peer certificate against a Certificate Revocation
@@ -929,7 +929,7 @@ for a specially named file in the search directory specified by
 CTX_load_verify_locations.  CRL files are named with the hash of the
 issuer's subject name, followed by C<.r0>, C<.r1> etc.  For example
 C<ab1331b2.r0>, C<ab1331b2.r1>. It will read all the .r files for the
-issuer, and then check for a revocation of the peer cerificate in all
+issuer, and then check for a revocation of the peer certificate in all
 of them.  (You can also force it to look in a specific named CRL
 file., see below).  You can find out the hash of the issuer subject
 name in a CRL with
@@ -973,7 +973,7 @@ call C<randomize()> so it is not needed with them. See also caveats.
 
 C<set_cert_and_key()> takes two file names as arguments and sets
 the certificate and private key to those. This can be used to
-set either cerver certificates or client certificates.
+set either server certificates or client certificates.
 
 C<dump_peer_certificate()> allows you to get a plaintext description of the
 certificate the peer (usually the server) presented to us.
@@ -1009,8 +1009,8 @@ parts, feel free to submit patches).
 
 See the C<ssl.h> header from OpenSSL C distribution for a list of low level
 SSLeay functions to call (check SSLeay.xs to see if some function has been
-implemented). The module strips the initial C<"SSL_"> off of the SSLeay names. Generally you should use C<Net::SSLeay::> in its
-place. For example:
+implemented). The module strips the initial C<"SSL_"> off of the SSLeay names.
+Generally you should use C<Net::SSLeay::> in its place. For example:
 
 In C:
 
@@ -1132,7 +1132,7 @@ It is required to reset these callbacks to undef immediately after use to preven
 memory leaks, thread safety problems and crashes on exit that 
 can occur if different threads set different callbacks. 
 
-If you want to use callback stuff, see examples/callback.pl! Its the
+If you want to use callback stuff, see examples/callback.pl! It's the
 only one I am able to make work reliably.
 
 =head2 X509 and RAND stuff
@@ -1470,7 +1470,7 @@ Callback and certificate verification stuff is generally too little tested.
 
 Random numbers are not initialized randomly enough, especially if you
 do not have C</dev/random> and/or C</dev/urandom> (such as in Solaris
-platforms - but I've been suggested that cryptorand daemon from the SUNski
+platforms - but it's been suggested that cryptorand daemon from the SUNski
 package solves this). In this case you should investigate third party
 software that can emulate these devices, e.g. by way of a named pipe
 to some program.
@@ -1597,7 +1597,7 @@ Name lookup for host named C<server> failed.
 
 =item open_tcp_connection: failed `server', 123 ($!)
 
-The name was resolved, but establising the TCP connection failed.
+The name was resolved, but establishing the TCP connection failed.
 
 =item msg 123: 1 - error:140770F8:SSL routines:SSL23_GET_SERVER_HELLO:unknown proto
 
