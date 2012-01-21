@@ -719,6 +719,8 @@ Net::SSLeay - Perl extension for using OpenSSL
 
   $Net::SSLeay::trace = 2;  # 0=no debugging, 1=ciphers, 2=trace, 3=dump data
 
+  Net::SSLeay::initialize(); # Initialize ssl library once
+
 =head1 DESCRIPTION
 
 There is a related module called C<Net::SSLeay::Handle> included in this
@@ -950,6 +952,23 @@ named files.
         error reading CRL....
     }
 
+=head2 Threading with get_https and friends
+
+The convenience functions get_https, post_https etc all initialize the SSL library by calling
+Net::SSLeay::initialize which does the conventional library initialization:
+
+    Net::SSLeay::load_error_strings();
+    Net::SSLeay::SSLeay_add_ssl_algorithms();
+    Net::SSLeay::randomize();
+
+Net::SSLeay::initialize initializes the SSL library at most once. 
+You can override the Net::SSLeay::initialize function if you desire
+some other type of initialization behaviour by get_https and friends. 
+You can call Net::SSLeay::initialize from your own code if you desire this conventional library initialization.
+
+IMPORTANT: If you intend to use get_https and friends in multiple independent threads it is essential that you call 
+Net::SSLeay::initialize once in the main code before threading starts. This ensures that the non-reentrant 
+SSL initialisation routines are only called once, even if multiple concurrent get_https functions are in operation.
 
 =head2 Convenience routines
 
@@ -2212,6 +2231,23 @@ sub new_x_ctx {
 }
 
 ###
+### Standard initialisation. Initialise the ssl library in the usual way
+###  at most once. Override this if you need differnet initialisation
+###
+
+my $library_initialised;
+sub initialize
+{
+    if (!$library_initialised)
+    {
+	load_error_strings();         # Some bloat, but I'm after ease of use
+	SSLeay_add_ssl_algorithms();  # and debuggability.
+	randomize();
+	$library_initialised++;
+    }
+}
+
+###
 ### Basic request - response primitive (don't use for https)
 ###
 
@@ -2225,9 +2261,7 @@ sub sslcat { # address, port, message, $crt, $key --> reply / (reply,errs,cert)
     ### Do SSL negotiation stuff
 	    
     warn "Creating SSL $ssl_version context...\n" if $trace>2;
-    load_error_strings();         # Some bloat, but I'm after ease of use
-    SSLeay_add_ssl_algorithms();  # and debuggability.
-    randomize();
+    initialize(); # Will init at most once
     
     $ctx = new_x_ctx();
     goto cleanup2 if $errs = print_errs('CTX_new') or !$ctx;
@@ -2355,9 +2389,7 @@ sub https_cat { # address, port, message --> returns reply / (reply,errs,cert)
     ### Do SSL negotiation stuff
 	    
     warn "Creating SSL $ssl_version context...\n" if $trace>2;
-    load_error_strings();         # Some bloat, but I'm after ease of use
-    SSLeay_add_ssl_algorithms();  # and debuggability.
-    randomize();
+    initialize();
 
     $ctx = new_x_ctx();
     goto cleanup2 if $errs = print_errs('CTX_new') or !$ctx;
