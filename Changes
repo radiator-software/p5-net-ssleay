@@ -7,6 +7,8 @@ Revision history for Perl extension Net::SSLeay.
     multi-threaded apps that use get_https and similar SSLeay convenience functions to
     call Net::SSLeay::initialize before threading starts. This is due to the
     fact that the SSL initilization functions are non-reentrant.
+    Patch from kmx to protect SSLeay_add_ssl_algorithms from multiple loads
+    and reentrancy in multi-threaded perls.
     
 
 1.42	 2011-10-03

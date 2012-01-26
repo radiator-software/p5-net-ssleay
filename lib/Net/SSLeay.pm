@@ -1242,7 +1242,7 @@ support was evolved.
                       get_httpx post_httpx tcpxcat
                       make_headers make_form);
 
-  ($page, $result, %headers) =
+  ($page, $result, %headers)
          = get_http('www.bacus.pt', 443, '/protected.html',
 	      make_headers(Authorization =>
 			   'Basic ' . MIME::Base64::encode("$user:$pass",''))
@@ -1256,7 +1256,7 @@ support was evolved.
 
   ($reply, $err) = tcpcat($host, $port, $request);
 
-  ($page, $result, %headers) =
+  ($page, $result, %headers)
          = get_httpx($usessl, 'www.bacus.pt', 443, '/protected.html',
 	      make_headers(Authorization =>
 			   'Basic ' . MIME::Base64::encode("$user:$pass",''))
@@ -2233,6 +2233,8 @@ sub new_x_ctx {
 ###
 ### Standard initialisation. Initialise the ssl library in the usual way
 ###  at most once. Override this if you need differnet initialisation
+###  SSLeay_add_ssl_algorithms is also protected against multiple runs in SSLeay.xs
+###  and is also mutex protected in threading perls
 ###
 
 my $library_initialised;

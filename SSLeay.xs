@@ -74,6 +74,13 @@ which conflicts with perls
 
 #include "constants.c"
 
+/* ============= thread-safety related stuff ============== */
+
+#ifdef USE_ITHREADS
+static perl_mutex LIB_init_mutex;
+#endif
+static int LIB_initialized;
+
 /* ============= typedefs to agument TYPEMAP ============== */
 
 typedef void callback_no_ret(void);
@@ -648,6 +655,19 @@ ssleay_RSA_generate_key_cb_invoke(int i, int n, void* data) {
 MODULE = Net::SSLeay		PACKAGE = Net::SSLeay          PREFIX = SSL_
 
 PROTOTYPES: ENABLE
+
+BOOT:
+    LIB_initialized = 0;
+#ifdef USE_ITHREADS
+    MUTEX_INIT(&LIB_init_mutex);
+#endif
+
+void
+END(...)
+CODE:
+#ifdef USE_ITHREADS
+    MUTEX_DESTROY(&LIB_init_mutex);
+#endif
 
 double
 constant(name)
@@ -1336,6 +1356,17 @@ SSL_library_init()
 		SSLeay_add_ssl_algorithms  = 1
 		OpenSSL_add_ssl_algorithms = 2
 		add_ssl_algorithms         = 3
+	CODE:
+#ifdef USE_ITHREADS
+		MUTEX_LOCK(&LIB_init_mutex);
+#endif
+		if (!LIB_initialized) {
+			SSL_library_init();           
+			LIB_initialized = 1;
+		}
+#ifdef USE_ITHREADS
+		MUTEX_UNLOCK(&LIB_init_mutex);
+#endif
 
 void
 ENGINE_load_builtin_engines()
