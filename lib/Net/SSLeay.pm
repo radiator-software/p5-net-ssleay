@@ -966,10 +966,6 @@ You can override the Net::SSLeay::initialize function if you desire
 some other type of initialization behaviour by get_https and friends. 
 You can call Net::SSLeay::initialize from your own code if you desire this conventional library initialization.
 
-IMPORTANT: If you intend to use get_https and friends in multiple independent threads it is essential that you call 
-Net::SSLeay::initialize once in the main code before threading starts. This ensures that the non-reentrant 
-SSL initialisation routines are only called once, even if multiple concurrent get_https functions are in operation.
-
 =head2 Convenience routines
 
 To be used with Low level API
