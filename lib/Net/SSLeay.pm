@@ -952,6 +952,94 @@ named files.
         error reading CRL....
     }
 
+=head2 Using Net::SSLeay in multi-threaded applications
+
+If you are about to use Net::SSLeay (or any other module based on Net::SSLeay) in multi-threaded
+perl application it is recommended to follow this best-practice:
+
+=head3 Load and initialize Net::SSLeay module in the main thread
+
+    use threads;
+    use Net::SSLeay;
+    
+    Net::SSLeay::load_error_strings();
+    Net::SSLeay::SSLeay_add_ssl_algorithms();
+    Net::SSLeay::randomize();
+    
+    sub do_master_job {
+      #... call whatever from Net::SSLeay
+    }
+    
+    sub do_worker_job {
+      #... call whatever from Net::SSLeay
+    }
+    
+    #start threads
+    my $master  = threads->new(\&do_master_job, 'param1', 'param2');
+    my @workers = threads->new(\&do_worker_job, 'arg1', 'arg2') for (1..10);
+    
+    #waiting for all threads to finish
+    $_->join() for (threads->list);
+
+Or use:
+
+    use threads;
+    use Net::SSLeay;    
+    
+    Net::SSLeay::initialize();
+    #...
+
+NOTE: Openssl's C<int SSL_library_init(void)> function (which is also aliased as 
+C<SSLeay_add_ssl_algorithms>, C<OpenSSL_add_ssl_algorithms> and C<add_ssl_algorithms>)
+is not re-entrant and multiple calls can cause a crash in threaded application. 
+Net::SSLeay implements flags preventing repeated calls to this function,
+therefore even multiple initialization via Net::SSLeay::SSLeay_add_ssl_algorithms()
+should work without trouble.
+    
+=head3 Using callbacks
+
+B<BEWARE: Callbacks are not yet fully thread-safe>
+
+If it is an option try to avoid using Net::SSLeay's callbacks in multi-threaded applications.
+
+It is not recommended to use callbacks across threads, allways do the context initialization
+and callback setup within the same thread.
+
+=head3 Using other perl modules based on Net::SSLeay
+
+It should be fine to use any other module based on L<Net::SSLeay> (like L<IO::Socket::SSL>).
+It is generally recommended to do any global initialization of such a module in the main thread
+before calling C<< threads->new(..) >> or C<< threads->create(..) >>.
+
+To be play safe you can load and init Net::SSLeay explicitely in the main thread:
+
+    use Net::SSLeay;        
+    use Other::SSLeay::Based::Module;
+    
+    Net::SSLeay::initialize();
+
+Or even safer:    
+
+    use Net::SSLeay;        
+    use Other::SSLeay::Based::Module;
+    
+    BEGIN {
+      Net::SSLeay::initialize();
+    }
+
+=head3 Combining Net::SSLeay with other modules linked with openssl
+
+B<BEWARE: This might be a big trouble! This is not guaranteed to work!>
+
+There are many other (XS) modules linked directly to openssl library (like L<Crypt::SSLeay>).
+
+As it is expected that also "another" module will call C<SSLeay_add_ssl_algorithms> at some point
+we have again a trouble with multiple openssl initialization by Net::SSLeay and "another" module.
+
+As you can expect Net::SSLeay is not able to avoid multiple initialization of openssl library
+called by "another" module, thus you have to handle this on your own (in some cases it might
+not be possible at all to avoid this).
+
 =head2 Threading with get_https and friends
 
 The convenience functions get_https, post_https etc all initialize the SSL library by calling
