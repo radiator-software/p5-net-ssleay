@@ -9,6 +9,9 @@ Revision history for Perl extension Net::SSLeay.
     fact that the SSL initilization functions are non-reentrant.
     Patch from kmx to protect SSLeay_add_ssl_algorithms from multiple loads
     and reentrancy in multi-threaded perls.
+    Patch from kmx to add reentrancy protection for callbacks in
+    multithreading.
+    Updated ppport.h, fixed some complaints from ppport.h
     
 
 1.42	 2011-10-03
