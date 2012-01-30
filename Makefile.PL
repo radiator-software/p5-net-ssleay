@@ -25,5 +25,5 @@ clean_files(map { fixpath($_) } qw(
 ));
 
 no_index( directory => qw( inc ext ) );
-
+resources( repository => 'svn://svn.debian.org/net-ssleay/trunk' );
 WriteAll();

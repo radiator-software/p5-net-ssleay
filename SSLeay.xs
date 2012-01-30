@@ -117,14 +117,14 @@ ssleay_verify_callback_invoke (int ok, X509_STORE_CTX* x509_store) {
         dMY_CXT;
 
 	ssl = X509_STORE_CTX_get_ex_data( x509_store, SSL_get_ex_data_X509_STORE_CTX_idx() );
-	key = sv_2mortal(newSViv( (IV)ssl ));
+	key = sv_2mortal(newSViv( PTR2IV(ssl) ));
 	key_str = SvPV(key, key_len);
 
 	callback = hv_fetch( MY_CXT.ssleay_ctx_verify_callbacks, key_str, key_len, 0 );
 
 	if (callback == NULL) {
 		SSL_CTX* ssl_ctx = SSL_get_SSL_CTX(ssl);
-		key = sv_2mortal(newSViv( (IV)ssl_ctx ));
+		key = sv_2mortal(newSViv( PTR2IV(ssl_ctx) ));
 		key_str = SvPV(key, key_len);
 
 		callback = hv_fetch( MY_CXT.ssleay_ctx_verify_callbacks, key_str, key_len, 0 );
@@ -192,9 +192,9 @@ ssleay_ctx_passwd_cb_new(SSL_CTX* ctx) {
 	if (ctx == NULL)
 		croak( "Net::SSLeay: ctx == NULL in ssleay_ctx_passwd_cb_new" );
 
-	hash_value = sv_2mortal(newSViv( (IV)cb ));
+	hash_value = sv_2mortal(newSViv( PTR2IV(cb) ));
 
-	key = sv_2mortal(newSViv( (IV)ctx ));
+	key = sv_2mortal(newSViv( PTR2IV(ctx) ));
 	key_str = SvPV(key, key_len);
 
 	if (MY_CXT.ssleay_ctx_passwd_cbs == (HV*)NULL)
@@ -215,7 +215,7 @@ ssleay_ctx_passwd_cb_get(SSL_CTX* ctx) {
 	ssleay_ctx_passwd_cb_t* cb;
         dMY_CXT;
 
-	key = sv_2mortal(newSViv( (IV)ctx ));
+	key = sv_2mortal(newSViv( PTR2IV(ctx) ));
 	key_str = SvPV(key, key_len);
 
 	hash_value = hv_fetch( MY_CXT.ssleay_ctx_passwd_cbs, key_str, key_len, 0 );
@@ -223,7 +223,7 @@ ssleay_ctx_passwd_cb_get(SSL_CTX* ctx) {
 	if (hash_value == NULL || *hash_value == NULL) {
 		cb = ssleay_ctx_passwd_cb_new(ctx);
 	} else {
-		cb = (ssleay_ctx_passwd_cb_t*)SvIV( *hash_value );
+		cb = INT2PTR(ssleay_ctx_passwd_cb_t*, SvIV( *hash_value ));
 	}
 
 	return cb;
@@ -346,9 +346,9 @@ ssleay_ctx_cert_verify_cb_new(SSL_CTX* ctx, SV* func, SV* data) {
 		croak( "Net::SSLeay: ctx == NULL in ssleay_ctx_cert_verify_cb_new" );
 	}
 
-	hash_value = sv_2mortal(newSViv( (IV)cb ));
+	hash_value = sv_2mortal(newSViv( PTR2IV(cb) ));
 
-	key = sv_2mortal(newSViv( (IV)ctx ));
+	key = sv_2mortal(newSViv( PTR2IV(ctx) ));
 	key_str = SvPV(key, key_len);
 
 	if (MY_CXT.ssleay_ctx_cert_verify_cbs == (HV*)NULL)
@@ -369,7 +369,7 @@ ssleay_ctx_cert_verify_cb_get(SSL_CTX* ctx) {
 	ssleay_ctx_cert_verify_cb_t* cb;
         dMY_CXT;
 
-	key = sv_2mortal(newSViv( (IV)ctx ));
+	key = sv_2mortal(newSViv( PTR2IV(ctx) ));
 	key_str = SvPV(key, key_len);
 
 	hash_value = hv_fetch( MY_CXT.ssleay_ctx_cert_verify_cbs, key_str, key_len, 0 );
@@ -377,7 +377,7 @@ ssleay_ctx_cert_verify_cb_get(SSL_CTX* ctx) {
 	if (hash_value == NULL || *hash_value == NULL) {
 		cb = NULL;
 	} else {
-		cb = (ssleay_ctx_cert_verify_cb_t*)SvIV( *hash_value );
+		cb = INT2PTR(ssleay_ctx_cert_verify_cb_t*, SvIV( *hash_value ));
 	}
 
 	return cb;
@@ -416,7 +416,7 @@ ssleay_ctx_cert_verify_cb_invoke(X509_STORE_CTX* x509_store_ctx, void* data) {
 	SAVETMPS;
 
 	PUSHMARK(SP);
-	XPUSHs(sv_2mortal(newSViv( (IV)x509_store_ctx )));
+	XPUSHs(sv_2mortal(newSViv( PTR2IV(x509_store_ctx) )));
 	if (cb->data) {
 		XPUSHs( cb->data );
 	}
@@ -467,9 +467,9 @@ ssleay_session_secret_cb_new(SSL* s, SV* func, SV* data) {
 		croak( "Net::SSLeay: s == NULL in ssleay_session_secret_cb_new" );
 	}
 
-	hash_value = sv_2mortal(newSViv( (IV)cb ));
+	hash_value = sv_2mortal(newSViv( PTR2IV(cb) ));
 
-	key = sv_2mortal(newSViv( (IV)s ));
+	key = sv_2mortal(newSViv( PTR2IV(s) ));
 	key_str = SvPV(key, key_len);
 
 	if (MY_CXT.ssleay_session_secret_cbs == (HV*)NULL)
@@ -490,7 +490,7 @@ ssleay_session_secret_cb_get(SSL* s) {
 	ssleay_session_secret_cb_t* cb;
         dMY_CXT;
 
-	key = sv_2mortal(newSViv( (IV)s ));
+	key = sv_2mortal(newSViv( PTR2IV(s) ));
 	key_str = SvPV(key, key_len);
 
 	hash_value = hv_fetch( MY_CXT.ssleay_session_secret_cbs, key_str, key_len, 0 );
@@ -498,7 +498,7 @@ ssleay_session_secret_cb_get(SSL* s) {
 	if (hash_value == NULL || *hash_value == NULL) {
 		cb = NULL;
 	} else {
-		cb = (ssleay_session_secret_cb_t*)SvIV( *hash_value );
+		cb = INT2PTR(ssleay_session_secret_cb_t*, SvIV( *hash_value ));
 	}
 
 	return cb;
@@ -816,7 +816,7 @@ SSL_CTX_set_verify(ctx,mode,callback=NULL)
 	if (MY_CXT.ssleay_ctx_verify_callbacks == (HV*)NULL)
 		MY_CXT.ssleay_ctx_verify_callbacks = newHV();
 
-	key = sv_2mortal(newSViv( (IV)ctx ));
+	key = sv_2mortal(newSViv( PTR2IV(ctx) ));
 	key_str = SvPV(key, key_len);
 
 	/* Former versions of SSLeay checked if the callback was a true boolean value
@@ -1157,7 +1157,7 @@ SSL_set_verify(s,mode,callback)
 	if (MY_CXT.ssleay_ctx_verify_callbacks == (HV*)NULL)
 		MY_CXT.ssleay_ctx_verify_callbacks = newHV();
 
-	key = sv_2mortal(newSViv( (IV)s ));
+	key = sv_2mortal(newSViv( PTR2IV(s) ));
 	key_str = SvPV(key, key_len);
 
 	if (callback == NULL) {
@@ -1829,7 +1829,7 @@ CTX_use_PKCS12_file(ctx, file, password)
     CODE:
     RETVAL = 1;
 
-    fp = fopen (file, "r");   
+    fp = fopen (file, "rb");   
     bio = BIO_new(BIO_s_mem());
     while(count = fread(buffer, 1, sizeof(buffer), fp))
 	BIO_write(bio, buffer, count);
