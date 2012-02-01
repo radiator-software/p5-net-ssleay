@@ -1396,13 +1396,16 @@ SSL_library_init()
 #ifdef USE_ITHREADS
 		MUTEX_LOCK(&LIB_init_mutex);
 #endif
+		RETVAL = 0;
 		if (!LIB_initialized) {
-			SSL_library_init();           
+			RETVAL = SSL_library_init();           
 			LIB_initialized = 1;
 		}
 #ifdef USE_ITHREADS
 		MUTEX_UNLOCK(&LIB_init_mutex);
 #endif
+	OUTPUT:
+	RETVAL
 
 void
 ENGINE_load_builtin_engines()
