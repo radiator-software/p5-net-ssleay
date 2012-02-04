@@ -954,10 +954,18 @@ named files.
 
 =head2 Using Net::SSLeay in multi-threaded applications
 
+B<IMPORTANT: versions 1.42 or earlier are not thread-safe!>
+
+Net::SSLeay module implements all necessary stuff to be ready for multi-threaded
+environment. The implementation fully follows thread safety related requirements
+of openssl library(see L<http://www.openssl.org/docs/crypto/threads.html|http://www.openssl.org/docs/crypto/threads.html>).
+
 If you are about to use Net::SSLeay (or any other module based on Net::SSLeay) in multi-threaded
 perl application it is recommended to follow this best-practice:
 
-=head3 Load and initialize Net::SSLeay module in the main thread
+=head3 Initialization
+
+Load and initialize Net::SSLeay module in the main thread:
 
     use threads;
     use Net::SSLeay;
@@ -981,14 +989,6 @@ perl application it is recommended to follow this best-practice:
     #waiting for all threads to finish
     $_->join() for (threads->list);
 
-Or use:
-
-    use threads;
-    use Net::SSLeay;    
-    
-    Net::SSLeay::initialize();
-    #...
-
 NOTE: Openssl's C<int SSL_library_init(void)> function (which is also aliased as 
 C<SSLeay_add_ssl_algorithms>, C<OpenSSL_add_ssl_algorithms> and C<add_ssl_algorithms>)
 is not re-entrant and multiple calls can cause a crash in threaded application. 
@@ -998,24 +998,65 @@ should work without trouble.
     
 =head3 Using callbacks
 
-B<BEWARE: Callbacks are not yet fully thread-safe>
+Do not use callbacks across threads (the module blocks cross-thread callback operations
+and throws a warning). Allways do the callback setup, callback use and callback destruction
+within the same thread.
 
-If it is an option try to avoid using Net::SSLeay's callbacks in multi-threaded applications.
+=head3 Using openssl elements
 
-It is not recommended to use callbacks across threads, allways do the context initialization
-and callback setup within the same thread.
+All openssl elements (X509, SSL_CTX, ...) can be directly passed between threads.
+
+    use threads;
+    use Net::SSLeay;
+    
+    Net::SSLeay::load_error_strings();
+    Net::SSLeay::SSLeay_add_ssl_algorithms();
+    Net::SSLeay::randomize();
+    
+    sub do_job {
+      my $context = shift;
+      Net::SSLeay::CTX_set_default_passwd_cb($context, sub { "secret" });
+      #...
+    }
+    
+    my $c = Net::SSLeay::CTX_new();
+    threads->create(\&do_job, $c);
+
+Or:
+
+    use threads;
+    use Net::SSLeay;
+    
+    my $context; #does not need to be 'shared'
+    
+    Net::SSLeay::load_error_strings();
+    Net::SSLeay::SSLeay_add_ssl_algorithms();
+    Net::SSLeay::randomize();
+    
+    sub do_job {
+      Net::SSLeay::CTX_set_default_passwd_cb($context, sub { "secret" });
+      #...
+    }
+    
+    $context = Net::SSLeay::CTX_new();
+    threads->create(\&do_job);
+
 
 =head3 Using other perl modules based on Net::SSLeay
 
-It should be fine to use any other module based on L<Net::SSLeay> (like L<IO::Socket::SSL>).
-It is generally recommended to do any global initialization of such a module in the main thread
-before calling C<< threads->new(..) >> or C<< threads->create(..) >>.
+It should be fine to use any other module based on L<Net::SSLeay> (like L<IO::Socket::SSL>)
+in multi-threaded applications. It is generally recommended to do any global initialization
+of such a module in the main thread before calling C<< threads->new(..) >> or 
+C<< threads->create(..) >> but it might differ module by module.
 
 To be play safe you can load and init Net::SSLeay explicitely in the main thread:
 
     use Net::SSLeay;        
     use Other::SSLeay::Based::Module;
     
+    Net::SSLeay::load_error_strings();
+    Net::SSLeay::SSLeay_add_ssl_algorithms();
+    Net::SSLeay::randomize();Net::SSLeay::initialize();
     Net::SSLeay::initialize();
 
 Or even safer:    
@@ -1024,7 +1065,9 @@ Or even safer:
     use Other::SSLeay::Based::Module;
     
     BEGIN {
-      Net::SSLeay::initialize();
+      Net::SSLeay::load_error_strings();
+      Net::SSLeay::SSLeay_add_ssl_algorithms();
+      Net::SSLeay::randomize();Net::SSLeay::initialize();
     }
 
 =head3 Combining Net::SSLeay with other modules linked with openssl

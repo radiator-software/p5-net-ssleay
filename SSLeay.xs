@@ -84,13 +84,180 @@ typedef struct {
     HV* ssleay_ctx_passwd_cbs;
     HV* ssleay_ctx_cert_verify_cbs;
     HV* ssleay_session_secret_cbs;
+    UV tid;
 } my_cxt_t;
 START_MY_CXT; 
 
 #ifdef USE_ITHREADS
 static perl_mutex LIB_init_mutex;
+static perl_mutex *GLOBAL_openssl_mutex = NULL;
 #endif
 static int LIB_initialized;
+
+#ifdef WIN32
+/* see comment in openssl_threads_cleanup() */
+DWORD GLOBAL_openssl_mutex_creator;
+#endif
+
+UV get_my_thread_id(void) /* returns threads->tid() value */
+{
+    dSP;
+    UV tid;
+    int count;
+
+    ENTER;
+    SAVETMPS;
+    PUSHMARK(SP);
+    XPUSHs(sv_2mortal(newSVpv("threads", 0)));
+    PUTBACK;
+    count = call_method("tid", G_SCALAR|G_EVAL);
+    SPAGAIN;
+    if (SvTRUE(ERRSV) || count != 1)
+       /* if threads not loaded or an error occurs return 0 */
+       tid = 0;
+    else
+       tid = (UV)POPi;
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+    
+    return tid;
+}
+
+/* IMPORTANT NOTE:
+ * openssl locking was implemented according to http://www.openssl.org/docs/crypto/threads.html
+ * we implement both static and dynamic locking as described on URL above
+ * we do not support locking on pre-0.9.4 as CRYPTO_num_locks() was added in OpenSSL 0.9.4 
+ * we not support dynamic locking on pre-0.9.6 as necessary functions were added in OpenSSL 0.9.5b-dev
+ */
+#if defined(USE_ITHREADS) && defined(OPENSSL_THREADS) && OPENSSL_VERSION_NUMBER >= 0x00904000L
+
+static void openssl_locking_function(int mode, int type, const char *file, int line)
+{
+    if (!GLOBAL_openssl_mutex) return;
+    if (mode & CRYPTO_LOCK)
+      MUTEX_LOCK(&GLOBAL_openssl_mutex[type]);
+    else
+      MUTEX_UNLOCK(&GLOBAL_openssl_mutex[type]);
+}
+ 
+#if OPENSSL_VERSION_NUMBER < 0x10000000L
+static unsigned long openssl_threadid_func(void)
+{
+    dMY_CXT;        
+    return (unsigned long)(MY_CXT.tid);
+}
+#else
+void openssl_threadid_func(CRYPTO_THREADID *id)
+{
+    dMY_CXT;
+    CRYPTO_THREADID_set_numeric(id, (unsigned long)(MY_CXT.tid));
+}
+#endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x00906000L
+/* dynamic locking related functions required by openssl library (0.9.6+) */
+
+struct CRYPTO_dynlock_value
+{
+    perl_mutex mutex;
+};
+
+struct CRYPTO_dynlock_value * openssl_dynlocking_create_function (const char *file, int line)
+{
+    struct CRYPTO_dynlock_value *retval;
+    New(0, retval, 1, struct CRYPTO_dynlock_value);
+    if (!retval) return NULL;
+    MUTEX_INIT(&retval->mutex);
+    return retval;
+}
+
+void openssl_dynlocking_lock_function (int mode, struct CRYPTO_dynlock_value *l, const char *file, int line)
+{
+    if (!l) return;
+    if (mode & CRYPTO_LOCK)
+      MUTEX_LOCK(&l->mutex);
+    else
+      MUTEX_UNLOCK(&l->mutex);
+}
+
+void openssl_dynlocking_destroy_function (struct CRYPTO_dynlock_value *l, const char *file, int line)
+{
+    if (!l) return;
+    MUTEX_DESTROY(&l->mutex);
+    Safefree(l);
+}
+
+#endif
+
+void openssl_threads_init(void)
+{
+    int i;
+ 
+    /* initialize static locking */
+    New(0, GLOBAL_openssl_mutex, CRYPTO_num_locks(), perl_mutex);	
+    if (!GLOBAL_openssl_mutex) return;    
+    for (i=0; i<CRYPTO_num_locks(); i++) MUTEX_INIT(&GLOBAL_openssl_mutex[i]);
+    CRYPTO_set_locking_callback((void (*)(int,int,const char *,int))openssl_locking_function);
+#ifdef WIN32    
+    GLOBAL_openssl_mutex_creator = GetCurrentThreadId();     
+#endif
+
+#ifndef WIN32
+    /* no need for threadid_func() on Win32 */
+#if OPENSSL_VERSION_NUMBER < 0x10000000L
+    CRYPTO_set_id_callback(openssl_threadid_func);
+#else    
+    CRYPTO_THREADID_set_callback(openssl_threadid_func);
+#endif
+#endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x00906000L
+    /* initialize dynamic locking (0.9.6+) */
+    CRYPTO_set_dynlock_create_callback(openssl_dynlocking_create_function);
+    CRYPTO_set_dynlock_lock_callback(openssl_dynlocking_lock_function);
+    CRYPTO_set_dynlock_destroy_callback(openssl_dynlocking_destroy_function);
+#endif   
+}
+
+void openssl_threads_cleanup(void)
+{
+    int i;
+    
+    if (!GLOBAL_openssl_mutex) return;
+
+#if OPENSSL_VERSION_NUMBER >= 0x00906000L
+    /* shutdown dynamic locking (0.9.6+) */
+    CRYPTO_set_dynlock_create_callback(NULL);
+    CRYPTO_set_dynlock_lock_callback(NULL);
+    CRYPTO_set_dynlock_destroy_callback(NULL);
+#endif
+
+    /* shutdown static locking */
+#ifdef WIN32
+    /* BEWARE: Win32 workaround!
+     * in fork() emulation on Win32 which is implemented via threads the 
+     * function END() is called multiple times, thus we have to avoid
+     * multiple destruction by allowing the destruction only by thread
+     * that has allocated GLOBAL_openssl_mutex
+     */
+    if (GLOBAL_openssl_mutex_creator != GetCurrentThreadId()) return;
+#endif
+
+    CRYPTO_set_locking_callback(NULL);
+#ifndef WIN32
+    /* only relevat to non-Windows platforms */
+#if OPENSSL_VERSION_NUMBER < 0x10000000L
+    CRYPTO_set_id_callback(NULL);
+#else    
+    CRYPTO_THREADID_set_callback(NULL);
+#endif
+#endif    
+    for (i=0; i<CRYPTO_num_locks(); i++) MUTEX_DESTROY(&GLOBAL_openssl_mutex[i]);
+    Safefree(GLOBAL_openssl_mutex);
+}
+
+#endif
 
 /* ============= typedefs to agument TYPEMAP ============== */
 
@@ -170,6 +337,7 @@ ssleay_verify_callback_invoke (int ok, X509_STORE_CTX* x509_store) {
 struct _ssleay_cb_t {
 	SV* func;
 	SV* data;
+	UV tid;
 };
 typedef struct _ssleay_cb_t ssleay_ctx_passwd_cb_t;
 typedef struct _ssleay_cb_t ssleay_ctx_cert_verify_cb_t;
@@ -188,6 +356,7 @@ ssleay_ctx_passwd_cb_new(SSL_CTX* ctx) {
 	New(0, cb, 1, ssleay_ctx_passwd_cb_t);
 	cb->func = NULL;
 	cb->data = NULL;
+	cb->tid = MY_CXT.tid;
 
 	if (ctx == NULL)
 		croak( "Net::SSLeay: ctx == NULL in ssleay_ctx_passwd_cb_new" );
@@ -284,10 +453,17 @@ ssleay_ctx_passwd_cb_free_userdata(SSL_CTX* ctx) {
 static int
 ssleay_ctx_passwd_cb_invoke(char *buf, int size, int rwflag, void *userdata) {
 	dSP;
+	dMY_CXT;
 
 	int count;
 	char *res;
 	ssleay_ctx_passwd_cb_t* cb = (ssleay_ctx_passwd_cb_t*)userdata;
+
+	if (cb->tid != MY_CXT.tid) {
+		warn ("Net::SSLeay: cross-thread callbacks not allowed!");
+		buf[0] = '\0';
+		return 0;
+	}
 
 	ENTER;
 	SAVETMPS;
@@ -341,6 +517,7 @@ ssleay_ctx_cert_verify_cb_new(SSL_CTX* ctx, SV* func, SV* data) {
 	SvREFCNT_inc(data);
 	cb->func = func;
 	cb->data = data;
+	cb->tid = MY_CXT.tid;
 
 	if (ctx == NULL) {
 		croak( "Net::SSLeay: ctx == NULL in ssleay_ctx_cert_verify_cb_new" );
@@ -407,10 +584,16 @@ ssleay_ctx_cert_verify_cb_free(SSL_CTX* ctx) {
 int
 ssleay_ctx_cert_verify_cb_invoke(X509_STORE_CTX* x509_store_ctx, void* data) {
 	dSP;
+	dMY_CXT;
 
 	int count;
 	int res;
 	ssleay_ctx_cert_verify_cb_t* cb = (ssleay_ctx_cert_verify_cb_t*)data;
+
+	if (cb->tid != MY_CXT.tid) {
+		warn ("Net::SSLeay: cross-thread callbacks not allowed!");
+		return -1;
+	}
 
 	ENTER;
 	SAVETMPS;
@@ -462,6 +645,7 @@ ssleay_session_secret_cb_new(SSL* s, SV* func, SV* data) {
 	SvREFCNT_inc(data);
 	cb->func = func;
 	cb->data = data;
+	cb->tid = MY_CXT.tid;
 
 	if (s == NULL) {
 		croak( "Net::SSLeay: s == NULL in ssleay_session_secret_cb_new" );
@@ -531,6 +715,7 @@ ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
 			   SSL_CIPHER **cipher, void *arg) 
 {
 	dSP;
+	dMY_CXT;
 
 	int count;
 	int res;
@@ -538,6 +723,11 @@ ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
 	AV *ciphers = newAV();
 	SV *pref_cipher = sv_newmortal();
 	ssleay_session_secret_cb_t* cb = (ssleay_session_secret_cb_t*)arg;
+
+	if (cb->tid != MY_CXT.tid) {
+		warn ("Net::SSLeay: cross-thread callbacks not allowed!");
+		return -1;
+	}
 
 	ENTER;
 	SAVETMPS;
@@ -594,10 +784,12 @@ ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
 ssleay_RSA_generate_key_cb_t*
 ssleay_RSA_generate_key_cb_new(SV* func, SV* data) {
 	ssleay_RSA_generate_key_cb_t* cb;
+	dMY_CXT;
 
 	New(0, cb, 1, ssleay_RSA_generate_key_cb_t);
 	cb->func = NULL;
 	cb->data = NULL;
+	cb->tid = MY_CXT.tid;
 
 	if (func) {
 		SvREFCNT_inc(func);
@@ -632,8 +824,14 @@ ssleay_RSA_generate_key_cb_free(ssleay_RSA_generate_key_cb_t* cb) {
 void
 ssleay_RSA_generate_key_cb_invoke(int i, int n, void* data) {
 	dSP;
+	dMY_CXT;
 
 	ssleay_RSA_generate_key_cb_t* cb = (ssleay_RSA_generate_key_cb_t*)data;
+
+	if (cb->tid != MY_CXT.tid) {
+		warn ("Net::SSLeay: cross-thread callbacks not allowed!");
+		return;
+	}
 
 	if (cb->func) {
 		int count;
@@ -675,11 +873,15 @@ BOOT:
     LIB_initialized = 0;
 #ifdef USE_ITHREADS
     MUTEX_INIT(&LIB_init_mutex);
+#if defined(OPENSSL_THREADS) && OPENSSL_VERSION_NUMBER >= 0x00904000L
+    openssl_threads_init();    
+#endif
 #endif
     MY_CXT.ssleay_ctx_verify_callbacks = (HV*)NULL;
     MY_CXT.ssleay_ctx_passwd_cbs = (HV*)NULL;
     MY_CXT.ssleay_ctx_cert_verify_cbs = (HV*)NULL;
     MY_CXT.ssleay_session_secret_cbs = (HV*)NULL;
+    MY_CXT.tid = get_my_thread_id();
     }
 }
 
@@ -687,20 +889,23 @@ void
 CLONE(...)
 CODE:
     MY_CXT_CLONE;
-    /* XXX-FIXME note by KMX
-       I am not sure what is the correct thing to do in CLONE()
-       maybe it would be better to make a smart-copy of referenced HV       
+    /* we are cleaning all callback related HV's as we want
+     * to prevent cross-thread callbacks
      */
     MY_CXT.ssleay_ctx_verify_callbacks = (HV*)NULL;
     MY_CXT.ssleay_ctx_passwd_cbs = (HV*)NULL;
     MY_CXT.ssleay_ctx_cert_verify_cbs = (HV*)NULL;
     MY_CXT.ssleay_session_secret_cbs = (HV*)NULL;
+    MY_CXT.tid = get_my_thread_id();
 
 void
 END(...)
 CODE:
 #ifdef USE_ITHREADS
     MUTEX_DESTROY(&LIB_init_mutex);
+#if defined(OPENSSL_THREADS) && OPENSSL_VERSION_NUMBER >= 0x00904000L
+    openssl_threads_cleanup();
+#endif
 #endif
 
 double

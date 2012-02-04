@@ -3,10 +3,7 @@ Revision history for Perl extension Net::SSLeay.
 ??????
     Fixed some typos. Patched by Neil Bowers.
     SSLeay.pm convenience functions now call Net::SSLeay::initialize that
-    initializes the SSL library at most once. Added requirement for
-    multi-threaded apps that use get_https and similar SSLeay convenience functions to
-    call Net::SSLeay::initialize before threading starts. This is due to the
-    fact that the SSL initilization functions are non-reentrant.
+    initializes the SSL library at most once. 
     Patch from kmx to protect SSLeay_add_ssl_algorithms from multiple loads
     and reentrancy in multi-threaded perls.
     Patch from kmx to add reentrancy protection for callbacks in
@@ -16,7 +13,10 @@ Revision history for Perl extension Net::SSLeay.
     not opened in binary mode. Reported by kmx.
     Added resources line for SVN repository to Makefile. Suggested by kmx.
     Fixed complaints unders some windows compilers about cast from pointer to integer of
-    different size. Suggested by xmx.
+    different size. Suggested by kmx.
+    Added thread safety and dynamic locking. This should complete thread
+    safety work, making Net::SSLay completely thread-safe. Patches by kind
+    assistance of kmx.
 
 1.42	 2011-10-03
     Fixed incorrect documentation of how to enable CRL checking. Patched
