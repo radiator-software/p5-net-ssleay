@@ -8,26 +8,40 @@ use warnings;
 use Test::More tests => 25;
 use Net::SSLeay;
 
-my $pm = Net::SSLeay::X509_VERIFY_PARAM_new();
-ok($pm, 'X509_VERIFY_PARAM_new');
-my $pm2 = Net::SSLeay::X509_VERIFY_PARAM_new();
-ok($pm2, 'X509_VERIFY_PARAM_new 2');
-ok(Net::SSLeay::X509_VERIFY_PARAM_inherit($pm2, $pm), 'X509_VERIFY_PARAM_inherit');
-ok(Net::SSLeay::X509_VERIFY_PARAM_set1($pm2, $pm), 'X509_VERIFY_PARAM_inherit');
-ok(Net::SSLeay::X509_VERIFY_PARAM_set1_name($pm, 'fred'), 'X509_VERIFY_PARAM_set1_name');
-ok(Net::SSLeay::X509_V_FLAG_ALLOW_PROXY_CERTS() == 0x40, 'X509_V_FLAG_ALLOW_PROXY_CERTS');
+my $pm;
+my $pm2;
 
-ok(Net::SSLeay::X509_VERIFY_PARAM_set_flags($pm, Net::SSLeay::X509_V_FLAG_ALLOW_PROXY_CERTS()), 'X509_VERIFY_PARAM_set_flags');
-ok(Net::SSLeay::X509_VERIFY_PARAM_get_flags($pm) == Net::SSLeay::X509_V_FLAG_ALLOW_PROXY_CERTS(), 'X509_VERIFY_PARAM_get_flags');
-ok(Net::SSLeay::X509_VERIFY_PARAM_clear_flags($pm, Net::SSLeay::X509_V_FLAG_ALLOW_PROXY_CERTS()), 'X509_VERIFY_PARAM_clear_flags');
-ok(Net::SSLeay::X509_VERIFY_PARAM_get_flags($pm) == 0,
-'X509_VERIFY_PARAM_get_flags');
-ok(Net::SSLeay::X509_PURPOSE_SSL_CLIENT() == 1, 'X509_PURPOSE_SSL_CLIENT');
-ok(Net::SSLeay::X509_VERIFY_PARAM_set_purpose($pm, Net::SSLeay::X509_PURPOSE_SSL_CLIENT()), 'X509_VERIFY_PARAM_set_purpose');
-ok(Net::SSLeay::X509_TRUST_EMAIL() == 4, 'X509_TRUST_EMAIL');
-ok(Net::SSLeay::X509_VERIFY_PARAM_set_trust($pm, Net::SSLeay::X509_TRUST_EMAIL()), 'X509_VERIFY_PARAM_set_trust');
-Net::SSLeay::X509_VERIFY_PARAM_set_depth($pm, 5);
-Net::SSLeay::X509_VERIFY_PARAM_set_time($pm, time);
+SKIP: {
+  skip 'openssl-0.9.8 required', 7 unless Net::SSLeay::SSLeay >= 0x0090800f;
+  $pm = Net::SSLeay::X509_VERIFY_PARAM_new();
+  ok($pm, 'X509_VERIFY_PARAM_new');
+  $pm2 = Net::SSLeay::X509_VERIFY_PARAM_new();
+  ok($pm2, 'X509_VERIFY_PARAM_new 2');
+  ok(Net::SSLeay::X509_VERIFY_PARAM_inherit($pm2, $pm), 'X509_VERIFY_PARAM_inherit');
+  ok(Net::SSLeay::X509_VERIFY_PARAM_set1($pm2, $pm), 'X509_VERIFY_PARAM_inherit');
+  ok(Net::SSLeay::X509_VERIFY_PARAM_set1_name($pm, 'fred'), 'X509_VERIFY_PARAM_set1_name');
+  ok(Net::SSLeay::X509_V_FLAG_ALLOW_PROXY_CERTS() == 0x40, 'X509_V_FLAG_ALLOW_PROXY_CERTS');
+  ok(Net::SSLeay::X509_VERIFY_PARAM_set_flags($pm, Net::SSLeay::X509_V_FLAG_ALLOW_PROXY_CERTS()), 'X509_VERIFY_PARAM_set_flags');
+}
+
+SKIP: {
+  skip 'openssl-0.9.8a required', 3 unless Net::SSLeay::SSLeay >= 0x0090801f;
+  ok(Net::SSLeay::X509_VERIFY_PARAM_get_flags($pm) == Net::SSLeay::X509_V_FLAG_ALLOW_PROXY_CERTS(), 'X509_VERIFY_PARAM_get_flags');
+  ok(Net::SSLeay::X509_VERIFY_PARAM_clear_flags($pm, Net::SSLeay::X509_V_FLAG_ALLOW_PROXY_CERTS()), 'X509_VERIFY_PARAM_clear_flags');
+  ok(Net::SSLeay::X509_VERIFY_PARAM_get_flags($pm) == 0, 'X509_VERIFY_PARAM_get_flags');
+};
+
+SKIP: {
+  skip 'openssl-0.9.8 required', 4 unless Net::SSLeay::SSLeay >= 0x0090800f;
+  ok(Net::SSLeay::X509_PURPOSE_SSL_CLIENT() == 1, 'X509_PURPOSE_SSL_CLIENT');
+  ok(Net::SSLeay::X509_VERIFY_PARAM_set_purpose($pm, Net::SSLeay::X509_PURPOSE_SSL_CLIENT()), 'X509_VERIFY_PARAM_set_purpose');
+  ok(Net::SSLeay::X509_TRUST_EMAIL() == 4, 'X509_TRUST_EMAIL');
+  ok(Net::SSLeay::X509_VERIFY_PARAM_set_trust($pm, Net::SSLeay::X509_TRUST_EMAIL()), 'X509_VERIFY_PARAM_set_trust');
+  Net::SSLeay::X509_VERIFY_PARAM_set_depth($pm, 5);
+  Net::SSLeay::X509_VERIFY_PARAM_set_time($pm, time);
+  Net::SSLeay::X509_VERIFY_PARAM_free($pm);
+  Net::SSLeay::X509_VERIFY_PARAM_free($pm2);
+}
 
 # Test ASN1 objects
 my $asn_object = Net::SSLeay::OBJ_txt2obj('1.2.3.4', 0);
@@ -48,6 +62,4 @@ ok(Net::SSLeay::OBJ_cmp($asn_object2, $asn_object) == 0, 'OBJ_cmp');
 $asn_object2 = Net::SSLeay::OBJ_txt2obj('1.2.3.5', 0);
 ok(Net::SSLeay::OBJ_cmp($asn_object2, $asn_object) == 1, 'OBJ_cmp');
 
-Net::SSLeay::X509_VERIFY_PARAM_free($pm);
-Net::SSLeay::X509_VERIFY_PARAM_free($pm2);
 ok(1, 'Finishing up');

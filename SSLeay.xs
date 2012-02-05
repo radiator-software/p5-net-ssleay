@@ -58,7 +58,10 @@ which conflicts with perls
 #endif
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
+#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
+/* requires 0.9.7+ */
 #include <openssl/engine.h>
+#endif
 #undef BLOCK
 
 /* Debugging output */
@@ -920,6 +923,15 @@ hello()
         OUTPUT:
         RETVAL
 
+#define REM0 "============= version related functions =============="
+
+unsigned long
+SSLeay()
+
+const char *
+SSLeay_version(type=0)
+        int type
+
 #define REM1 "============= SSL CONTEXT functions =============="
 
 SSL_CTX *
@@ -1410,12 +1422,24 @@ SSL_set_session(to,ses)
      SSL *              to
      SSL_SESSION *      ses
 
+#if OPENSSL_VERSION_NUMBER < 0x0090707fL
+#define REM3 "NOTE: before 0.9.7g"
+
+SSL_SESSION *
+d2i_SSL_SESSION(a,pp,length)
+     SSL_SESSION *      &a
+     unsigned char *    &pp
+     long               length
+
+#else
+
 SSL_SESSION *
 d2i_SSL_SESSION(a,pp,length)
      SSL_SESSION *      &a
      const unsigned char *    &pp
      long               length
 
+#endif
 #define REM30 "SSLeay-0.9.0 defines these as macros. I expand them here for safety's sake"
 
 SSL_SESSION *
@@ -1612,6 +1636,9 @@ SSL_library_init()
 	OUTPUT:
 	RETVAL
 
+#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
+#define REM5 "NOTE: requires 0.9.7+"
+
 void
 ENGINE_load_builtin_engines()
 
@@ -1626,6 +1653,8 @@ int
 ENGINE_set_default(e, flags)
         ENGINE * e
         int flags
+
+#endif
 
 void
 ERR_load_SSL_strings()
@@ -2043,7 +2072,13 @@ CTX_use_PKCS12_file(ctx, file, password)
 	BIO_write(bio, buffer, count);
     fclose(fp);
 
+    {
+#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
     OPENSSL_add_all_algorithms_noconf();
+    /* note by kmx: not sure what happens on pre-0.9.7 */
+#endif
+    }
+
     p12 = d2i_PKCS12_bio(bio, NULL);
     if (!p12)
     	RETVAL = 0;
@@ -2273,7 +2308,8 @@ int
 SSL_check_private_key(ctx)
      SSL *	ctx
 
-#if OPENSSL_VERSION_NUMBER < 0x009080bfL
+#if OPENSSL_VERSION_NUMBER < 0x009080dfL
+#define REM8 "NOTE: before 0.9.8m"
 
 char *
 SSL_CIPHER_description(cipher,buf,size)
@@ -2291,10 +2327,22 @@ SSL_CIPHER_description(cipher,buf,size)
 
 #endif
 
+#if OPENSSL_VERSION_NUMBER < 0x0090707fL
+#define REM9 "NOTE: before 0.9.7g"
+
+int	
+SSL_CIPHER_get_bits(c,alg_bits)
+     SSL_CIPHER *	c
+     int *	alg_bits
+
+#else
+
 int	
 SSL_CIPHER_get_bits(c,alg_bits)
      const SSL_CIPHER *	c
      int *	alg_bits
+
+#endif
 
 int 
 SSL_COMP_add_compression_method(id,cm)
@@ -2359,7 +2407,11 @@ SSL_CTX_set_cert_verify_callback(ctx,func,data=NULL)
 		SSL_CTX_set_cert_verify_callback(ctx, NULL, NULL);
 	} else {
 		cb = ssleay_ctx_cert_verify_cb_new(ctx, func, data);
+#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
 		SSL_CTX_set_cert_verify_callback(ctx, ssleay_ctx_cert_verify_cb_invoke, cb);
+#else
+		SSL_CTX_set_cert_verify_callback(ctx, ssleay_ctx_cert_verify_cb_invoke, (char*)cb);
+#endif
 	}
 
 X509_NAME_STACK *
@@ -3095,7 +3147,16 @@ SSL_set_session_secret_cb(s,func,data=NULL)
 
 #endif
 
+#if OPENSSL_VERSION_NUMBER < 0x0090700fL
+#define REM11 "NOTE: before 0.9.7"
+
+int EVP_add_digest(EVP_MD *digest)
+
+#else
+
 int EVP_add_digest(const EVP_MD *digest)
+
+#endif
 
 #if OPENSSL_VERSION_NUMBER >= 0x0090800fL
 
@@ -3150,6 +3211,9 @@ X509_VERIFY_PARAM_set_flags(param, flags)
     X509_VERIFY_PARAM *param
     unsigned long flags
 
+#if OPENSSL_VERSION_NUMBER >= 0x0090801fL
+#define REM13 "NOTE: requires 0.9.8a+"
+
 int 
 X509_VERIFY_PARAM_clear_flags(param, flags)
     X509_VERIFY_PARAM *param
@@ -3158,6 +3222,8 @@ X509_VERIFY_PARAM_clear_flags(param, flags)
 unsigned long 
 X509_VERIFY_PARAM_get_flags(param)
      X509_VERIFY_PARAM *param
+
+#endif
 
 int 
 X509_VERIFY_PARAM_set_purpose(param, purpose)
@@ -3285,9 +3351,20 @@ OBJ_obj2txt(a, no_name)
     ST(0) = sv_newmortal();
     sv_setpvn(ST(0), buf, len);
 
+#if OPENSSL_VERSION_NUMBER < 0x0090700fL
+#define REM14 "NOTE: before 0.9.7"
+
+int		
+OBJ_txt2nid(s)
+    char *s
+
+#else
+
 int		
 OBJ_txt2nid(s)
     const char *s
+
+#endif
 
 int		
 OBJ_ln2nid(s)

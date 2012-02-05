@@ -1281,7 +1281,206 @@ can occur if different threads set different callbacks.
 If you want to use callback stuff, see examples/callback.pl! It's the
 only one I am able to make work reliably.
 
-=head2 X509 and RAND stuff
+=head2 Low level API - version related functions
+
+=over
+
+=item * SSLeay
+
+Gives version number (numeric) of underlaying openssl library.
+
+ my $ver_number = Net::SSLeay::SSLeay();
+ # returns: the number identifying the openssl release
+ #
+ # 0x00903100 => openssl-0.9.3 
+ # 0x00904100 => openssl-0.9.4 
+ # 0x00905100 => openssl-0.9.5 
+ # 0x0090600f => openssl-0.9.6 
+ # 0x0090601f => openssl-0.9.6a
+ # 0x0090602f => openssl-0.9.6b
+ # ...
+ # 0x009060df => openssl-0.9.6m
+ # 0x0090700f => openssl-0.9.7 
+ # 0x0090701f => openssl-0.9.7a
+ # 0x0090702f => openssl-0.9.7b
+ # ...
+ # 0x009070df => openssl-0.9.7m
+ # 0x0090800f => openssl-0.9.8 
+ # 0x0090801f => openssl-0.9.8a
+ # 0x0090802f => openssl-0.9.8b
+ # ...
+ # 0x0090814f => openssl-0.9.8t
+ # 0x1000000f => openssl-1.0.0 
+ # 0x1000004f => openssl-1.0.0d
+ # 0x1000007f => openssl-1.0.0g
+
+You can use it like this:
+
+  if (Net::SSLeay::SSLeay() < 0x0090800f) {
+    die "you need openssl-0.9.8 or higher";
+  }
+ 
+=item * SSLeay_version
+
+Gives version number (string) of underlaying openssl library.
+
+ my $ver_string = Net::SSLeay::SSLeay_version($type);
+ # $type
+ #   0 (=SSLEAY_VERSION) - e.g. 'OpenSSL 1.0.0d 8 Feb 2011'
+ #   2 (=SSLEAY_CFLAGS)  - e.g. 'compiler: gcc -D_WINDLL -DOPENSSL_USE_APPLINK .....'
+ #   3 (=SSLEAY_BUILT_ON)- e.g. 'built on: Fri May  6 00:00:46 GMT 2011'
+ #   4 (=SSLEAY_PLATFORM)- e.g. 'platform: mingw'
+ #
+ # returns: string
+ 
+ Net::SSLeay::SSLeay_version();
+ #is equivalent to
+ Net::SSLeay::SSLeay_version(0);
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/SSLeay_version.html|http://www.openssl.org/docs/crypto/SSLeay_version.html>
+
+=back
+
+=head2 Low level API - RAND_* related functions
+
+Check openssl doc related to RAND stuff L<http://www.openssl.org/docs/crypto/rand.html|http://www.openssl.org/docs/crypto/rand.html>
+
+=over
+
+=item * RAND_add
+
+Mixes the $num bytes at $buf into the PRNG state.
+
+ Net::SSLeay::RAND_add($buf, $num, $entropy);
+ # $buf - buffer with data to be mixed into the PRNG state
+ # $num - number of bytes in $buf
+ # $entropy - estimate of how much randomness is contained in $buf (in bytes)
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_add.html|http://www.openssl.org/docs/crypto/RAND_add.html>
+ 
+=item * RAND_seed
+
+Equivalent to L<RAND_add> when $num == $entropy.
+
+ Net::SSLeay::RAND_seed($buf);   # Perlishly figures out buf size
+ # $buf - buffer with data to be mixed into the PRNG state
+ # $num - number of bytes in $buf
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_add.html|http://www.openssl.org/docs/crypto/RAND_add.html>
+
+=item * RAND_status
+
+Gives PRNG status (seeded enough or not).
+
+ my $rv = Net::SSLeay::RAND_status();
+ #returns: 1 if the PRNG has been seeded with enough data, 0 otherwise
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_add.html|http://www.openssl.org/docs/crypto/RAND_add.html>
+
+=item * RAND_bytes
+
+Puts $num cryptographically strong pseudo-random bytes into $buf.
+
+ my $rv = Net::SSLeay::RAND_bytes($buf, $num);
+ # $buf - buffer where the random data will be stored
+ # $num - the size (in bytes) of requested random data
+ #
+ # returns: 1 on success, 0 otherwise
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_bytes.html|http://www.openssl.org/docs/crypto/RAND_bytes.html>
+
+=item * RAND_pseudo_bytes
+
+Puts $num pseudo-random (not necessarily unpredictable) bytes into $buf.
+
+ my $rv = Net::SSLeay::RAND_pseudo_bytes($buf, $num);
+ # $buf - buffer where the random data will be stored
+ # $num - the size (in bytes) of requested random data
+ #
+ # returns: 1 if the bytes generated are cryptographically strong, 0 otherwise
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_bytes.html|http://www.openssl.org/docs/crypto/RAND_bytes.html>
+
+=item * RAND_cleanup
+
+Erase the PRNG state.
+
+ Net::SSLeay::RAND_cleanup();
+ # no args, no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_cleanup.html|http://www.openssl.org/docs/crypto/RAND_cleanup.html>
+
+=item * RAND_egd
+
+Queries the entropy gathering daemon EGD on socket $path for 255 bytes.
+
+ my $rv = Net::SSLeay::RAND_egd($path);
+ # $path - path to a socket of entropy gathering daemon EGD
+ #
+ # returns: the number of bytes read from the daemon on success, and -1 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_egd.html|http://www.openssl.org/docs/crypto/RAND_egd.html>
+
+=item * RAND_egd_bytes
+
+Queries the entropy gathering daemon EGD on socket $path for $bytes bytes.
+
+ my $rv = Net::SSLeay::RAND_egd_bytes($path, $bytes);
+ # $path - path to a socket of entropy gathering daemon EGD
+ # $bytes - number of bytes we want from EGD
+ #
+ # returns: the number of bytes read from the daemon on success, and -1 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_egd.html|http://www.openssl.org/docs/crypto/RAND_egd.html>
+
+=item * RAND_file_name
+
+Generates a default path for the random seed file.
+
+ my $file = Net::SSLeay::RAND_file_name($num);
+ # $num - maximum size of returned file name
+ #
+ # returns: string with file name on success, '' (empty string) on failure
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_load_file.html|http://www.openssl.org/docs/crypto/RAND_load_file.html>
+
+=item * RAND_load_file
+
+Reads $max_bytes of bytes from $file_name and adds them to the PRNG.
+
+ my $rv = Net::SSLeay::RAND_load_file($file_name, $max_bytes);
+ # $file_name - the name of file
+ # $max_bytes - bytes to read from $file_name; -1 => the complete file is read
+ #
+ # returns: the number of bytes read
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_load_file.html|http://www.openssl.org/docs/crypto/RAND_load_file.html>
+
+=item * RAND_write_file
+
+Writes 1024 random bytes to $file_name which can be used to initialize the PRNG by calling L<RAND_load_file> in a later session.
+
+ my $rv = Net::SSLeay::RAND_write_file($file_name);
+ # $file_name - the name of file
+ #
+ # returns: the number of bytes written, and -1 if the bytes written were generated without appropriate seed
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_load_file.html|http://www.openssl.org/docs/crypto/RAND_load_file.html>
+
+=item * RAND_poll
+
+Collects some entropy from operating system and adds it to the PRNG.
+
+ my $rv = Net::SSLeay::RAND_poll();
+ # returns: 1 on success, 0 on failure (unable to gather reasonable entropy)
+
+=back
+
+=head2 Low level API - X509_* related functions
 
 This module largely lacks interface to the X509 and RAND routines, but
 as I was lazy and needed them, the following kludges are implemented:
@@ -1297,25 +1496,12 @@ as I was lazy and needed them, the following kludges are implemented:
     subjectAltName types as per x509v3.h GEN_*, for example
     GEN_DNS or GEN_IPADD which can be imported.
 
-    Net::SSLeay::RAND_seed($buf);   # Perlishly figures out buf size
-    Net::SSLeay::RAND_bytes($buf, $num);
-    Net::SSLeay::RAND_pseudo_bytes($buf, $num);
-    Net::SSLeay::RAND_add($buf, $num, $entropy);
-    Net::SSLeay::RAND_poll();
-    Net::SSLeay::RAND_status();
-    Net::SSLeay::RAND_cleanup();
-    Net::SSLeay::RAND_file_name($num);
-    Net::SSLeay::RAND_load_file($file_name, $how_many_bytes);
-    Net::SSLeay::RAND_write_file($file_name);
-    Net::SSLeay::RAND_egd($path);
-    Net::SSLeay::RAND_egd_bytes($path, $bytes);
-
 Actually you should consider using the following helper functions:
 
     print Net::SSLeay::dump_peer_certificate($ssl);
     Net::SSLeay::randomize();
 
-=head2 RSA interface
+=head2 Low level API - RSA_* related functions
 
 Some RSA functions are available:
 
@@ -1323,7 +1509,7 @@ Some RSA functions are available:
     Net::SSLeay::CTX_set_tmp_rsa($ctx, $rsakey);
     Net::SSLeay::RSA_free($rsakey);
 
-=head2 Digests
+=head2 Low level API - Digests related functions
 
 Some Digest functions are available if supported by the underlying
 library.  These may include MD2, MD4, MD5, and RIPEMD160:
@@ -1331,7 +1517,7 @@ library.  These may include MD2, MD4, MD5, and RIPEMD160:
     $hash = Net::SSLeay::MD5($foo);
     print unpack('H*', $hash);
 
-=head2 BIO interface
+=head2 Low level API - BIO_* related functions
 
 Some BIO functions are available:
 
@@ -1346,7 +1532,7 @@ Some BIO functions are available:
     $count = Net::SSLeay::BIO_pending($bio);
     $count = Net::SSLeay::BIO_wpending ($bio);
 
-=head2 Low level API
+=head2 Low level API - other functions
 
 Some very low level API functions are available:
 
