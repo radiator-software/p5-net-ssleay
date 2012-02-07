@@ -1551,7 +1551,7 @@ C<"2012-03-22T23:55"> or C<"2012-03-22"> are not supported.
  
 =item * P_ASN1_TIME_put2string
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before, has bugs with openssl-0.9.8i
 
 B<NOTE:> Does not exactly correspond to any low level API function
 

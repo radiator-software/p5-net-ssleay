@@ -15,6 +15,11 @@ SKIP: {
     #version numbers: 0x00903100 ~ 0.9.3, 0x0090600f ~ 0.6.9
     ok( Net::SSLeay::SSLeay() >= 0x00903100, 'SSLeay (version min 0.9.3)' );
     isnt( Net::SSLeay::SSLeay_version(), '', 'SSLeay (version string)' );
+
+    diag( "Version info:" );
+    diag( "Testing Net::SSLeay $Net::SSLeay::VERSION, Perl $], $^X" );
+    diag( "OpenSSL version:  '".Net::SSLeay::SSLeay_version(0)."'" );
+    diag( "OpenSSL platform: '".Net::SSLeay::SSLeay_version(4)."'" );
 }
 
 is(Net::SSLeay::hello(), 1, 'hello world');
