@@ -1281,11 +1281,13 @@ can occur if different threads set different callbacks.
 If you want to use callback stuff, see examples/callback.pl! It's the
 only one I am able to make work reliably.
 
-=head2 Low level API - version related functions
+=head2 Low level API: version related functions
 
 =over
 
 =item * SSLeay
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
 
 Gives version number (numeric) of underlaying openssl library.
 
@@ -1322,6 +1324,8 @@ You can use it like this:
  
 =item * SSLeay_version
 
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
 Gives version number (string) of underlaying openssl library.
 
  my $ver_string = Net::SSLeay::SSLeay_version($type);
@@ -1341,7 +1345,7 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/SSLeay_version.html|http:
 
 =back
 
-=head2 Low level API - RAND_* related functions
+=head2 Low level API: RAND_* related functions
 
 Check openssl doc related to RAND stuff L<http://www.openssl.org/docs/crypto/rand.html|http://www.openssl.org/docs/crypto/rand.html>
 
@@ -1362,7 +1366,7 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_add.html|http://www.
  
 =item * RAND_seed
 
-Equivalent to L<RAND_add> when $num == $entropy.
+Equivalent to L</RAND_add> when $num == $entropy.
 
  Net::SSLeay::RAND_seed($buf);   # Perlishly figures out buf size
  # $buf - buffer with data to be mixed into the PRNG state
@@ -1462,7 +1466,7 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_load_file.html|http:
 
 =item * RAND_write_file
 
-Writes 1024 random bytes to $file_name which can be used to initialize the PRNG by calling L<RAND_load_file> in a later session.
+Writes 1024 random bytes to $file_name which can be used to initialize the PRNG by calling L</RAND_load_file> in a later session.
 
  my $rv = Net::SSLeay::RAND_write_file($file_name);
  # $file_name - the name of file
@@ -1480,7 +1484,92 @@ Collects some entropy from operating system and adds it to the PRNG.
 
 =back
 
-=head2 Low level API - X509_* related functions
+=head2 Low level API: ASN1_TIME_* related functions
+
+=over
+
+=item * ASN1_TIME_new
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+ my $time = ASN1_TIME_new();
+ # returns: value of type coresponding to openssl's ASN1_TIME structure
+
+=item * ASN1_TIME_free
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+ ASN1_TIME_free($time);
+ # $time - value of type coresponding to openssl's ASN1_TIME structure
+
+=item * ASN1_TIME_set
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+ ASN1_TIME_set($time, $t);
+ # $time - value of type coresponding to openssl's ASN1_TIME structure
+ # $t - time value in seconds since 1.1.1970
+
+B<BEWARE:> It is platform dependent how this function will handle dates after 2038.
+Although perl's integer is large enough the internal implementation of this function 
+is dependant on the size of time_t structure (32bit time_t has problem with 2038).
+
+If you want to safely set date and time after 2038 use function L</P_ASN1_TIME_set_isotime>.
+
+=item * P_ASN1_TIME_get_isotime
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7e
+
+B<NOTE:> Does not exactly correspond to any low level API function
+
+Gives ISO-8601 string representation of ASN1_TIME structure.
+
+ my $datetime_string = P_ASN1_TIME_get_isotime($time);
+ # $time - value of type coresponding to openssl's ASN1_TIME structure
+ #
+ # returns: datetime string like '2033-05-16T20:39:37Z' or '' on failure
+
+The output format is compatible with module L<DateTime::Format::RFC3339>
+
+=item * P_ASN1_TIME_set_isotime
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7e
+
+B<NOTE:> Does not exactly correspond to any low level API function
+
+Sets time and date value of ANS1_time structure.
+
+ my $rv = P_ASN1_TIME_set_isotime($time, $string);
+ # $time - value of type coresponding to openssl's ASN1_TIME structure
+ # $string - ISO-8601 timedate string like '2033-05-16T20:39:37Z'
+ #
+ # returns: 1 on success, 0 on failure
+
+The C<$string> parameter has to be in full form like C<"2012-03-22T23:55:33"> or
+C<"2012-03-22T23:55:33Z"> or C<"2012-03-22T23:55:33CET">. Short forms like
+C<"2012-03-22T23:55"> or C<"2012-03-22"> are not supported.
+ 
+=item * P_ASN1_TIME_put2string
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+B<NOTE:> Does not exactly correspond to any low level API function
+
+Gives string representation of ASN1_TIME structure.
+
+ my $str = P_ASN1_TIME_put2string($time);
+ # $time - value of type coresponding to openssl's ASN1_TIME structure
+ #
+ # returns: datetime string like 'May 16 20:39:37 2033 GMT'
+
+=item * P_ASN1_UTCTIME_put2string
+
+B<NOTE:> deprecated function, only for backward compatibility, just an alias
+for L</P_ASN1_TIME_put2string>
+
+=back
+
+=head2 Low level API: X509_* related functions
 
 This module largely lacks interface to the X509 and RAND routines, but
 as I was lazy and needed them, the following kludges are implemented:
@@ -1501,7 +1590,7 @@ Actually you should consider using the following helper functions:
     print Net::SSLeay::dump_peer_certificate($ssl);
     Net::SSLeay::randomize();
 
-=head2 Low level API - RSA_* related functions
+=head2 Low level API: RSA_* related functions
 
 Some RSA functions are available:
 
@@ -1509,7 +1598,7 @@ Some RSA functions are available:
     Net::SSLeay::CTX_set_tmp_rsa($ctx, $rsakey);
     Net::SSLeay::RSA_free($rsakey);
 
-=head2 Low level API - Digests related functions
+=head2 Low level API: Digests related functions
 
 Some Digest functions are available if supported by the underlying
 library.  These may include MD2, MD4, MD5, and RIPEMD160:
@@ -1517,7 +1606,7 @@ library.  These may include MD2, MD4, MD5, and RIPEMD160:
     $hash = Net::SSLeay::MD5($foo);
     print unpack('H*', $hash);
 
-=head2 Low level API - BIO_* related functions
+=head2 Low level API: BIO_* related functions
 
 Some BIO functions are available:
 
@@ -1532,7 +1621,7 @@ Some BIO functions are available:
     $count = Net::SSLeay::BIO_pending($bio);
     $count = Net::SSLeay::BIO_wpending ($bio);
 
-=head2 Low level API - other functions
+=head2 Low level API: other functions
 
 Some very low level API functions are available:
 
@@ -2838,6 +2927,7 @@ sub set_proxy ($$;**) {
     require MIME::Base64 if $proxyuser;
     $proxyauth = $proxyuser
          ? $CRLF . 'Proxy-authorization: Basic '
+	 . MIME::Base64::encode("$proxyuser:$proxypass", '')
 	 : '';
 }
 

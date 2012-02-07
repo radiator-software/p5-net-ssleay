@@ -2003,30 +2003,134 @@ X509_verify_cert_error_string(n)
     long n   
 
 
-ASN1_UTCTIME *
+ASN1_TIME *
 X509_get_notBefore(cert)
      X509 *	cert
 
-ASN1_UTCTIME *
+ASN1_TIME *
 X509_get_notAfter(cert)
      X509 *	cert
 
+ASN1_TIME *
+X509_gmtime_adj(s, adj)
+     ASN1_TIME * s
+     long adj
+
+ASN1_TIME *
+ASN1_TIME_set(s,t)
+     ASN1_TIME *s
+     time_t t
+
+void
+ASN1_TIME_free(s)
+     ASN1_TIME *s
+
+ASN1_TIME *
+ASN1_TIME_new()
+
 void 
-P_ASN1_UTCTIME_put2string(tm)
-     ASN1_UTCTIME *	tm
+P_ASN1_TIME_put2string(tm)
+     ASN1_TIME * tm
      PREINIT:
-     BIO *bp;
-     int i;
+     BIO *bp=NULL;
+     int i=0;
      char buffer[256];
+     ALIAS:     
+     P_ASN1_UTCTIME_put2string = 1
      CODE:
-     bp = BIO_new(BIO_s_mem());
-     ASN1_UTCTIME_print(bp,tm);
-     i = BIO_read(bp,buffer,255);
-     buffer[i] = '\0';
-     ST(0) = sv_newmortal();   /* Undefined to start with */
-     if ( i > 0 )
-         sv_setpvn( ST(0), buffer, i );
-     BIO_free(bp);
+     ST(0) = sv_newmortal(); /* undef retval to start with */
+     if (tm) {
+         bp = BIO_new(BIO_s_mem());
+         if (bp) {
+             ASN1_TIME_print(bp,tm);
+             i = BIO_read(bp,buffer,255);
+             buffer[i] = '\0';        
+             if (i>0)
+                 sv_setpvn(ST(0), buffer, i);
+             BIO_free(bp);
+         }
+     }
+
+#if OPENSSL_VERSION_NUMBER >= 0x0090705f
+#define REM15 "NOTE: requires 0.9.7e+"
+
+void
+P_ASN1_TIME_get_isotime(tm)
+     ASN1_TIME *tm
+     PREINIT:
+     ASN1_GENERALIZEDTIME *tmp = NULL;
+     char buf[256];
+     CODE:
+     buf[0] = '\0';
+     /* ASN1_TIME_to_generalizedtime is buggy on pre-0.9.7e */
+     ASN1_TIME_to_generalizedtime(tm,&tmp);
+     if (tmp) {
+       if (1 ||ASN1_GENERALIZEDTIME_check(tmp)) {
+         if (strlen(tmp->data)>=14 && strlen(tmp->data)<200) {
+           strcpy (buf,"yyyy-mm-ddThh:mm:ss");
+           strncpy(buf,   tmp->data,   4);
+           strncpy(buf+5, tmp->data+4, 2);
+           strncpy(buf+8, tmp->data+6, 2);
+           strncpy(buf+11,tmp->data+8, 2);
+           strncpy(buf+14,tmp->data+10,2);
+           strncpy(buf+17,tmp->data+12,2);
+           if (strlen(tmp->data)>14) strcat(buf+19,tmp->data+14);
+         }
+       }
+       ASN1_GENERALIZEDTIME_free(tmp);
+     }
+     ST(0) = sv_newmortal();
+     sv_setpv(ST(0), buf);
+
+void
+P_ASN1_TIME_set_isotime(tm,str)
+     ASN1_TIME *tm
+     const char *str
+     PREINIT:
+     ASN1_TIME t;
+     char buf[256];
+     int y=0,M=0,d=0,h=0,m=0,s=0;
+     int i,rv;
+     CODE:
+     if (!tm) XSRETURN_UNDEF;
+     /* we support only "2012-03-22T23:55:33" or "2012-03-22T23:55:33Z" or "2012-03-22T23:55:33<timezone>" */
+     if (strlen(str) < 19) XSRETURN_UNDEF;
+     for (i=0;  i<4;  i++) if ((str[i] > '9') || (str[i] < '0')) XSRETURN_UNDEF;
+     for (i=5;  i<7;  i++) if ((str[i] > '9') || (str[i] < '0')) XSRETURN_UNDEF;
+     for (i=8;  i<10; i++) if ((str[i] > '9') || (str[i] < '0')) XSRETURN_UNDEF;
+     for (i=11; i<13; i++) if ((str[i] > '9') || (str[i] < '0')) XSRETURN_UNDEF;
+     for (i=14; i<16; i++) if ((str[i] > '9') || (str[i] < '0')) XSRETURN_UNDEF;     
+     for (i=17; i<19; i++) if ((str[i] > '9') || (str[i] < '0')) XSRETURN_UNDEF;
+     strncpy(buf,    str,    4);
+     strncpy(buf+4,  str+5,  2);
+     strncpy(buf+6,  str+8,  2);
+     strncpy(buf+8,  str+11, 2);
+     strncpy(buf+10, str+14, 2);
+     strncpy(buf+12, str+17, 2);
+     buf[14] = '\0';
+     if (strlen(str)>19 && strlen(str)<200) strcat(buf,str+19);     
+     
+     /* WORKAROUND: ASN1_TIME_set_string() not available in 0.9.8 !!!*/
+     /* in 1.0.0 we would simply: rv = ASN1_TIME_set_string(tm,buf); */
+     t.length = strlen(buf);
+     t.data = (unsigned char *)buf;
+     t.flags = 0;
+     t.type = V_ASN1_UTCTIME;
+     if (!ASN1_TIME_check(&t)) {
+        t.type = V_ASN1_GENERALIZEDTIME;
+        if (!ASN1_TIME_check(&t)) XSRETURN_UNDEF;
+     }
+     tm->type = t.type;
+     tm->flags = t.flags;
+     if (!ASN1_STRING_set(tm,t.data,t.length)) XSRETURN_UNDEF;
+     rv = 1;
+     
+     /* end of ASN1_TIME_set_string() reimplementation */
+
+     ST(0) = sv_newmortal();
+     sv_setiv(ST(0), rv); /* 1 = success, undef = failure */
+
+#endif
 
 int
 EVP_PKEY_copy_parameters(to,from)

@@ -20,6 +20,19 @@ Revision history for Perl extension Net::SSLeay.
     Improvements to openssl backwards compatibility. Now build with versions
     back to 0.9.6. With extreme thanks to kmx.
     Improvements to documentation, thanks to kmx.
+    SUMMARY OF NEWLY INTRODUCED FUNCTIONS:
+    - Net::SSLeay::initialize
+    - Net::SSLeay::SSLeay
+    - Net::SSLeay::SSLeay_version
+    - Net::SSLeay::SSLeay_version
+    - Net::SSLeay::ASN1_TIME_new
+    - Net::SSLeay::ASN1_TIME_free
+    - Net::SSLeay::ASN1_TIME_set
+    - Net::SSLeay::P_ASN1_TIME_get_isotime
+    - Net::SSLeay::P_ASN1_TIME_set_isotime
+    - Net::SSLeay::P_ASN1_TIME_put2string
+    Fixed a problem with set_proxy where the password was not properly
+    set. The code to do this went missing at some stage. Reported by Ulrich Weber via RT.
 
 1.42	 2011-10-03
     Fixed incorrect documentation of how to enable CRL checking. Patched
