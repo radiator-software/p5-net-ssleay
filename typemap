@@ -16,6 +16,8 @@ BIO_METHOD *    T_PTR
 EVP_PKEY *      T_PTR
 const EVP_MD *  T_PTR
 EVP_MD *        T_PTR
+EVP_MD_CTX *    T_PTR
+const EVP_MD_CTX *      T_PTR
 CERT *          T_PTR
 LHASH *         T_PTR
 struct lhash_st_SSL_SESSION *	T_PTR

@@ -31,11 +31,31 @@ Revision history for Perl extension Net::SSLeay.
     - Net::SSLeay::P_ASN1_TIME_get_isotime
     - Net::SSLeay::P_ASN1_TIME_set_isotime
     - Net::SSLeay::P_ASN1_TIME_put2string
+    - Net::SSLeay::OpenSSL_add_all_digests
+    - Net::SSLeay::P_EVP_MD_list_all
+    - Net::SSLeay::EVP_get_digestbyname
+    - Net::SSLeay::EVP_MD_type
+    - Net::SSLeay::EVP_MD_size
+    - Net::SSLeay::EVP_MD_CTX_md
+    - Net::SSLeay::EVP_MD_CTX_create
+    - Net::SSLeay::EVP_MD_CTX_destroy
+    - Net::SSLeay::EVP_DigestInit
+    - Net::SSLeay::EVP_DigestInit_ex
+    - Net::SSLeay::EVP_DigestUpdate
+    - Net::SSLeay::EVP_DigestFinal
+    - Net::SSLeay::EVP_DigestFinal_ex
+    - Net::SSLeay::EVP_Digest
+    - Net::SSLeay::SHA1
+    - Net::SSLeay::SHA256
+    - Net::SSLeay::SHA512
+    - Net::SSLeay::EVP_sha1
+    - Net::SSLeay::EVP_sha512
     Fixed a problem with set_proxy where the password was not properly
     set. The code to do this went missing at some stage. Reported by Ulrich
     Weber via RT.
     Further improvements to testing time functions. 
     Added t/local/37_asn1_time.t
+    Added various digest functions, documentation and tests
 
 1.42	 2011-10-03
     Fixed incorrect documentation of how to enable CRL checking. Patched

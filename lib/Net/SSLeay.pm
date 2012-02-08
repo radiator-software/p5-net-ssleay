@@ -1590,6 +1590,292 @@ Actually you should consider using the following helper functions:
     print Net::SSLeay::dump_peer_certificate($ssl);
     Net::SSLeay::randomize();
 
+=head2 Low level API: Digest related functions
+
+=over
+
+=item * OpenSSL_add_all_digests
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+ Net::SSLeay::OpenSSL_add_all_digests();
+ # no args, no return value
+
+http://www.openssl.org/docs/crypto/OpenSSL_add_all_algorithms.html
+
+=item * P_EVP_MD_list_all
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-1.0.0
+
+B<NOTE:> Does not exactly correspond to any low level API function
+
+ my $rv = Net::SSLeay::P_EVP_MD_list_all();
+ #
+ # returns: arrayref - list of available digest names
+
+The returned digest names correspond to values expected by L</EVP_get_digestbyname>.
+
+Note that some of the digets are available by default and some only after calling L</OpenSSL_add_all_digests>.
+
+=item * EVP_get_digestbyname
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+ my $rv = Net::SSLeay::EVP_get_digestbyname($name);
+ # $name - string with digest name
+ #
+ # returns: value of type coresponding to openssl's EVP_MD structure
+
+The $name param can be: 
+ 
+ md2
+ md4
+ md5
+ mdc2
+ ripemd160
+ sha
+ sha1
+ sha224
+ sha256
+ sha512
+ whirlpool
+
+Or better check the supported digests by calling L</P_EVP_MD_list_all>.
+
+=item * EVP_MD_type
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+ my $rv = Net::SSLeay::EVP_MD_type($md);
+ # $md - value of type coresponding to openssl's EVP_MD structure
+ #
+ # returns: the NID (integer) of the OBJECT IDENTIFIER representing the given message digest
+
+=item * EVP_MD_size
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+ my $rv = Net::SSLeay::EVP_MD_size($md);
+ # $md - value of type coresponding to openssl's EVP_MD structure
+ #
+ # returns: the size of the message digest in bytes (e.g. 20 for SHA1)
+
+=item * EVP_MD_CTX_md
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+
+ Net::SSLeay::EVP_MD_CTX_md($ctx);
+ # $ctx - value of type coresponding to openssl's EVP_MD_CTX structure
+ #
+ # returns: value of type coresponding to openssl's EVP_MD structure
+
+=item * EVP_MD_CTX_create
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+
+Allocates, initializes and returns a digest context.
+
+ my $rv = Net::SSLeay::EVP_MD_CTX_create();
+ #
+ # returns: value of type coresponding to openssl's EVP_MD_CTX structure
+
+The complete idea behind EVP_MD_CTX looks like this example:
+
+  Net::SSLeay::OpenSSL_add_all_digests();
+  
+  my $md = Net::SSLeay::EVP_get_digestbyname("sha1");
+  my $ctx = Net::SSLeay::EVP_MD_CTX_create();
+  Net::SSLeay::EVP_DigestInit($ctx, $md);
+  
+  while(my $chunk = get_piece_of_data()) {
+    Net::SSLeay::EVP_DigestUpdate($ctx,$chunk);
+  }
+  
+  my $result = Net::SSLeay::EVP_DigestFinal($ctx);
+  Net::SSLeay::EVP_MD_CTX_destroy($ctx); 
+  
+  print "digest=", unpack('H*', $result), "\n"; #print hex value
+
+=item * EVP_DigestInit_ex
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+
+Sets up digest context $ctx to use a digest $type from ENGINE $impl, $ctx must be
+initialized before calling this function, type will typically be supplied by a function
+such as L</EVP_get_digestbyname>. If $impl is 0 then the default implementation of digest $type is used. 
+
+ my $rv = Net::SSLeay::EVP_DigestInit_ex($ctx, $type, $impl);
+ # $ctx  - value of type coresponding to openssl's EVP_MD_CTX structure
+ # $type - value of type coresponding to openssl's EVP_MD structure
+ # $impl - value of type coresponding to openssl's ENGINE structure
+ #
+ # returns: 1 for success and 0 for failure
+
+=item * EVP_DigestInit
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+
+Behaves in the same way as L</EVP_DigestInit_ex> except the passed context $ctx does not have
+to be initialized, and it always uses the default digest implementation. 
+
+ my $rv = Net::SSLeay::EVP_DigestInit($ctx, $type);
+ # $ctx - value of type coresponding to openssl's EVP_MD_CTX structure
+ # $type - value of type coresponding to openssl's EVP_MD structure
+ #
+ # returns: 1 for success and 0 for failure
+
+=item * EVP_MD_CTX_destroy
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+
+Cleans up digest context $ctx and frees up the space allocated to it, it should be
+called only on a context created using L</EVP_MD_CTX_create>.
+
+ Net::SSLeay::EVP_MD_CTX_destroy($ctx);
+ # $ctx - value of type coresponding to openssl's EVP_MD_CTX structure
+ #
+ # returns: no return value
+
+=item * EVP_DigestUpdate
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+
+ my $rv = Net::SSLeay::EVP_DigestUpdate($ctx, $data);
+ # $ctx  - value of type coresponding to openssl's EVP_MD_CTX structure
+ # $data - data to be hashed
+ #
+ # returns: 1 for success and 0 for failure
+
+=item * EVP_DigestFinal_ex
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+
+Retrieves the digest value from $ctx. After calling L</EVP_DigestFinal_ex> no
+additional calls to L</EVP_DigestUpdate> can be made, but 
+L</EVP_DigestInit_ex> can be called to initialize a new digest operation. 
+
+ my $digest_value = Net::SSLeay::EVP_DigestFinal_ex($ctx);
+ # $ctx - value of type coresponding to openssl's EVP_MD_CTX structure
+ #
+ # returns: hash value (binary)
+ 
+ #to get printable (hex) value of digest use:
+ print unpack('H*', $digest_value);
+
+=item * EVP_DigestFinal
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+
+Similar to L</EVP_DigestFinal_ex> except the digest context ctx is automatically cleaned up.
+
+ my $rv = Net::SSLeay::EVP_DigestFinal($ctx);
+ # $ctx - value of type coresponding to openssl's EVP_MD_CTX structure
+ #
+ # returns: hash value (binary)
+
+ #to get printable (hex) value of digest use:
+ print unpack('H*', $digest_value);
+
+=item * MD2
+
+B<COMPATIBILITY:> no supported by default in openssl-1.0.0
+
+Computes MD2 from given $data (all data needs to be loaded into memory)
+
+ my $digest = Net::SSLeay::MD2($data);
+ print "digest(hexadecimal)=", unpack('H*', $digest);
+
+=item * MD4
+
+Computes MD4 from given $data (all data needs to be loaded into memory)
+
+ my $digest = Net::SSLeay::MD4($data);
+ print "digest(hexadecimal)=", unpack('H*', $digest);
+
+=item * MD5
+
+Computes MD5 from given $data (all data needs to be loaded into memory)
+
+ my $digest = Net::SSLeay::MD5($data);
+ print "digest(hexadecimal)=", unpack('H*', $digest);
+
+=item * RIPEMD160
+
+Computes RIPEMD160 from given $data (all data needs to be loaded into memory)
+
+ my $digest = Net::SSLeay::RIPEMD160($data);
+ print "digest(hexadecimal)=", unpack('H*', $digest);
+
+=item * SHA1
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+Computes SHA1 from given $data (all data needs to be loaded into memory)
+
+ my $digest = Net::SSLeay::SHA1($data);
+ print "digest(hexadecimal)=", unpack('H*', $digest);
+
+=item * SHA256
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.8
+
+Computes SHA256 from given $data (all data needs to be loaded into memory)
+
+ my $digest = Net::SSLeay::SHA256($data);
+ print "digest(hexadecimal)=", unpack('H*', $digest);
+
+=item * SHA512
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.8
+
+Computes SHA512 from given $data (all data needs to be loaded into memory)
+
+ my $digest = Net::SSLeay::SHA512($data);
+ print "digest(hexadecimal)=", unpack('H*', $digest);
+
+=item * EVP_Digest
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+
+Computes "any" digest from given $data (all data needs to be loaded into memory)
+
+ my $md = Net::SSLeay::EVP_get_digestbyname("sha1"); #or any other algorithm
+ my $digest = Net::SSLeay::EVP_Digest($data, $md);
+ print "digest(hexadecimal)=", unpack('H*', $digest);
+
+=item * EVP_sha1
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+ my $md = Net::SSLeay::EVP_sha1();
+ #
+ # returns: value of type coresponding to openssl's EVP_MD structure
+
+=item * EVP_sha256
+
+B<COMPATIBILITY:> requires at least openssl-0.9.8
+
+ my $md = Net::SSLeay::EVP_sha256();
+ #
+ # returns: value of type coresponding to openssl's EVP_MD structure
+
+=item * EVP_sha512
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.8
+
+ my $md = Net::SSLeay::EVP_sha512();
+ #
+ # returns: value of type coresponding to openssl's EVP_MD structure
+
+=item * EVP_add_digest
+
+ my $rv = Net::SSLeay::EVP_add_digest($digest);
+ # $digest - value of type coresponding to openssl's EVP_MD structure
+ #
+ # returns: 1 on success, 0 otherwise
+
+=back
+
 =head2 Low level API: RSA_* related functions
 
 Some RSA functions are available:

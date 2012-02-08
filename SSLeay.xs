@@ -273,6 +273,22 @@ typedef STACK_OF(X509_NAME) X509_NAME_STACK;
 
 typedef int perl_filehandle_t;
 
+/* ======= special handler used by EVP_MD_do_all_sorted ======= */
+
+#if OPENSSL_VERSION_NUMBER >= 0x1000000fL
+static void handler_list_md_fn(const EVP_MD *m, const char *from, const char *to, void *arg)
+{  
+  /* taken from apps/dgst.c */
+  const char *mname;  
+  if (!m) return;                                           /* Skip aliases */
+  mname = OBJ_nid2ln(EVP_MD_type(m));
+  if (strcmp(from, mname)) return;                          /* Skip shortnames */       
+  if (EVP_MD_flags(m) & EVP_MD_FLAG_PKEY_DIGEST) return;    /* Skip clones */
+  if (strchr(mname, ' ')) mname= EVP_MD_name(m);
+  av_push(arg, newSVpv(mname,0));
+}
+#endif
+
 /* ============= callback stuff ============== */
 
 static int
@@ -2224,12 +2240,10 @@ MD4(data)
 	PREINIT:
 	STRLEN len;
 	unsigned char md[MD4_DIGEST_LENGTH];
-	unsigned char * ret;
 	INPUT:
 	unsigned char* data = (unsigned char *) SvPV( ST(0), len );
 	CODE:
-	ret = MD4(data,len,md);
-	if (ret!=NULL) {
+	if (MD4(data,len,md)) {
 		XSRETURN_PVN((char *) md, MD4_DIGEST_LENGTH);
 	} else {
 		XSRETURN_UNDEF;
@@ -2240,12 +2254,10 @@ MD5(data)
      PREINIT:
      STRLEN len;
      unsigned char md[MD5_DIGEST_LENGTH];
-     unsigned char * ret;
      INPUT:
      unsigned char *  data = (unsigned char *) SvPV( ST(0), len);
      CODE:
-     ret = MD5(data,len,md);
-     if (ret!=NULL) {
+     if (MD5(data,len,md)) {
 	  XSRETURN_PVN((char *) md, MD5_DIGEST_LENGTH);
      } else {
 	  XSRETURN_UNDEF;
@@ -2258,13 +2270,63 @@ RIPEMD160(data)
      PREINIT:
      STRLEN len;
      unsigned char md[RIPEMD160_DIGEST_LENGTH];
-     unsigned char * ret;
      INPUT:
      unsigned char *  data = (unsigned char *) SvPV( ST(0), len);
      CODE:
-     ret = RIPEMD160(data,len,md);
-     if (ret!=NULL) {
+     if (RIPEMD160(data,len,md)) {
 	  XSRETURN_PVN((char *) md, RIPEMD160_DIGEST_LENGTH);
+     } else {
+	  XSRETURN_UNDEF;
+     }
+
+#endif
+
+#if !defined(OPENSSL_NO_SHA)
+
+void 
+SHA1(data)
+     PREINIT:
+     STRLEN len;
+     unsigned char md[SHA_DIGEST_LENGTH];
+     INPUT:
+     unsigned char *  data = (unsigned char *) SvPV( ST(0), len);
+     CODE:
+     if (SHA1(data,len,md)) {
+	  XSRETURN_PVN((char *) md, SHA_DIGEST_LENGTH);
+     } else {
+	  XSRETURN_UNDEF;
+     }
+
+#endif
+#if !defined(OPENSSL_NO_SHA256) && OPENSSL_VERSION_NUMBER >= 0x0090800fL
+
+void 
+SHA256(data)
+     PREINIT:
+     STRLEN len;
+     unsigned char md[SHA256_DIGEST_LENGTH];
+     INPUT:
+     unsigned char *  data = (unsigned char *) SvPV( ST(0), len);
+     CODE:
+     if (SHA256(data,len,md)) {
+	  XSRETURN_PVN((char *) md, SHA256_DIGEST_LENGTH);
+     } else {
+	  XSRETURN_UNDEF;
+     }
+
+#endif
+#if !defined(OPENSSL_NO_SHA512) && OPENSSL_VERSION_NUMBER >= 0x0090800fL
+
+void 
+SHA512(data)
+     PREINIT:
+     STRLEN len;
+     unsigned char md[SHA512_DIGEST_LENGTH];
+     INPUT:
+     unsigned char *  data = (unsigned char *) SvPV( ST(0), len);
+     CODE:
+     if (SHA512(data,len,md)) {
+	  XSRETURN_PVN((char *) md, SHA512_DIGEST_LENGTH);
      } else {
 	  XSRETURN_UNDEF;
      }
@@ -3262,13 +3324,106 @@ int EVP_add_digest(const EVP_MD *digest)
 
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x0090800fL
+#ifndef OPENSSL_NO_SHA
 
-#ifndef OPENSSL_NO_SHA256
+const EVP_MD *EVP_sha1()
+
+#endif
+#if !defined(OPENSSL_NO_SHA256) && OPENSSL_VERSION_NUMBER >= 0x0090800fL
 
 const EVP_MD *EVP_sha256()
 
 #endif
+#if !defined(OPENSSL_NO_SHA512) && OPENSSL_VERSION_NUMBER >= 0x0090800fL
+
+const EVP_MD *EVP_sha512()
+
+#endif
+void OpenSSL_add_all_digests()
+
+const EVP_MD * EVP_get_digestbyname(const char *name)
+
+int EVP_MD_type(const EVP_MD *md)
+
+int EVP_MD_size(const EVP_MD *md)
+
+#if OPENSSL_VERSION_NUMBER >= 0x1000000fL
+
+SV*
+P_EVP_MD_list_all()
+    INIT:        
+        AV * results;
+    CODE:
+        results = (AV *)sv_2mortal((SV *)newAV());
+        EVP_MD_do_all_sorted(handler_list_md_fn, results);
+        RETVAL = newRV((SV *)results);
+    OUTPUT:
+        RETVAL
+
+#endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
+#define REM16 "NOTE: requires 0.9.7+"
+
+const EVP_MD *EVP_MD_CTX_md(const EVP_MD_CTX *ctx)
+
+EVP_MD_CTX *EVP_MD_CTX_create()
+
+int EVP_DigestInit(EVP_MD_CTX *ctx, const EVP_MD *type)
+
+int EVP_DigestInit_ex(EVP_MD_CTX *ctx, const EVP_MD *type, ENGINE *impl)
+
+void EVP_MD_CTX_destroy(EVP_MD_CTX *ctx)
+
+void
+EVP_DigestUpdate(ctx,data)
+     PREINIT:
+     STRLEN len;
+     INPUT:
+     EVP_MD_CTX *ctx = INT2PTR(EVP_MD_CTX *, SvIV(ST(0)));
+     unsigned char *data = (unsigned char *) SvPV(ST(1), len);
+     CODE:
+     XSRETURN_IV(EVP_DigestUpdate(ctx,data,len));
+     
+void
+EVP_DigestFinal(ctx)
+     EVP_MD_CTX *ctx
+     INIT:
+     unsigned char md[EVP_MAX_MD_SIZE];
+     unsigned int md_size;
+     CODE:
+     if (EVP_DigestFinal(ctx,md,&md_size))
+         XSRETURN_PVN((char *)md, md_size);
+     else
+         XSRETURN_UNDEF;
+
+void
+EVP_DigestFinal_ex(ctx)
+     EVP_MD_CTX *ctx
+     INIT:
+     unsigned char md[EVP_MAX_MD_SIZE];
+     unsigned int md_size;
+     CODE:
+     if (EVP_DigestFinal_ex(ctx,md,&md_size))
+         XSRETURN_PVN((char *)md, md_size);
+     else
+         XSRETURN_UNDEF;
+
+void
+EVP_Digest(...)
+     PREINIT:
+     STRLEN len;
+     unsigned char md[EVP_MAX_MD_SIZE];
+     unsigned int md_size;
+     INPUT:
+     unsigned char *data = (unsigned char *) SvPV(ST(0), len);
+     EVP_MD *type = INT2PTR(EVP_MD *, SvIV(ST(1)));
+     ENGINE *impl = (items>2 && SvOK(ST(2))) ? INT2PTR(ENGINE *, SvIV(ST(2))) : NULL;
+     CODE:
+     if (EVP_Digest(data,len,md,&md_size,type,impl))
+         XSRETURN_PVN((char *)md, md_size);
+     else
+         XSRETURN_UNDEF;
 
 #endif
 
