@@ -59,7 +59,9 @@ Revision history for Perl extension Net::SSLeay.
     Removed debug from P_ASN1_TIME_get_isotime. Courtesy kmx.
     Remove unnecessary warnings about Random number generator not
     seeded. Courtesy kmx.
-    Fixed an error in 04_basic.t triggered if Test::Exception not presnt.
+    Fixed an error in 04_basic.t triggered if Test::Exception not present.
+    Added documentation for many CTX_ functions. Courtesy kmx.
+    Fixed mionor typos in SSLeay.xs. Courtesy kmx.
 
 1.42	 2011-10-03
     Fixed incorrect documentation of how to enable CRL checking. Patched

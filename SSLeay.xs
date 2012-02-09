@@ -993,8 +993,9 @@ SSL_CTX_tlsv1_new()
 
 SSL_CTX *
 SSL_CTX_new_with_method(meth)
+     SSL_METHOD * meth
      CODE:
-     RETVAL = SSL_CTX_new (SSLv23_method());
+     RETVAL = SSL_CTX_new (meth);
      OUTPUT:
      RETVAL
 
@@ -1580,7 +1581,7 @@ int
 SSL_CTX_sess_get_cache_size(ctx)
      SSL_CTX *          ctx
 
-void
+long
 SSL_CTX_sess_set_cache_size(ctx,size)
      SSL_CTX *          ctx
      int                size      
