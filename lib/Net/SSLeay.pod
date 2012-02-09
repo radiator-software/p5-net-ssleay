@@ -1,0 +1,2894 @@
+
+=head1 NAME
+
+Net::SSLeay - Perl extension for using OpenSSL
+
+=head1 SYNOPSIS
+
+  use Net::SSLeay qw(get_https post_https sslcat make_headers make_form);
+
+  ($page) = get_https('www.bacus.pt', 443, '/');                 # Case 1
+
+  ($page, $response, %reply_headers)
+	 = get_https('www.bacus.pt', 443, '/',                   # Case 2
+	 	make_headers(User-Agent => 'Cryptozilla/5.0b1',
+			     Referer    => 'https://www.bacus.pt'
+		));
+
+  ($page, $result, %headers) =                                   # Case 2b
+         = get_https('www.bacus.pt', 443, '/protected.html',
+	      make_headers(Authorization =>
+			   'Basic ' . MIME::Base64::encode("$user:$pass",''))
+	      );
+
+  ($page, $response, %reply_headers)
+	 = post_https('www.bacus.pt', 443, '/foo.cgi', '',       # Case 3
+		make_form(OK   => '1',
+			  name => 'Sampo'
+		));
+
+  $reply = sslcat($host, $port, $request);                       # Case 4
+
+  ($reply, $err, $server_cert) = sslcat($host, $port, $request); # Case 5
+
+  $Net::SSLeay::trace = 2;  # 0=no debugging, 1=ciphers, 2=trace, 3=dump data
+
+  Net::SSLeay::initialize(); # Initialize ssl library once
+
+=head1 DESCRIPTION
+
+L<Net::SSLeay> module contains perl bindings to openssl (L<http://www.openssl.org|http://www.openssl.org>) library. 
+
+B<COMPATIBILITY NOTE:> L<Net::SSLeay> cannot be built with pre-0.9.3 openssl. It is strongly recommended
+to use at least 0.9.7 (as older versions are not tested during development). Some low level API functions
+may be available with certain openssl versions.
+
+L<Net::SSLeay> module basically comprise of:
+
+=over
+
+=item * High level functions for accessing web servers (by using HTTP/HTTPS)
+
+=item * Low level API (mostly mapped 1:1 to openssl's C functions)
+
+=item * Convenience functions (related to low level API but with more perl friendly interface)
+
+=back
+
+There is also a related module called L<Net::SSLeay::Handle> included in this
+distribution that you might want to use instead. It has its own pod
+documentation.
+
+=head2 High level functions for accessing web servers
+
+This module offers some high level convenience functions for accessing
+web pages on SSL servers (for symmetry, the same API is offered for
+accessing http servers, too), an C<sslcat()> function for writing your own
+clients, and finally access to the SSL api of the SSLeay/OpenSSL package
+so you can write servers or clients for more complicated applications.
+
+For high level functions it is most convenient to import them into your
+main namespace as indicated in the synopsis.
+
+=head3 Basic set of functions
+
+=over
+
+=item * get_https
+
+=item * post_https
+
+=item * put_https
+
+=item * head_https
+
+=item * do_https
+
+=item * sslcat
+
+=item * https_cat
+
+=item * make_form
+
+=item * make_headers
+
+=back
+
+B<Case 1 (in SYNOPSIS)> demonstrates the typical invocation of get_https() to fetch an HTML
+page from secure server. The first argument provides the hostname or IP
+in dotted decimal notation of the remote server to contact. The second
+argument is the TCP port at the remote end (your own port is picked
+arbitrarily from high numbered ports as usual for TCP). The third
+argument is the URL of the page without the host name part. If in
+doubt consult the HTTP specifications at L<http://www.w3c.org>.
+
+B<Case 2 (in SYNOPSIS)> demonstrates full fledged use of C<get_https()>. As can be seen,
+C<get_https()> parses the response and response headers and returns them as
+a list, which can be captured in a hash for later reference. Also a
+fourth argument to C<get_https()> is used to insert some additional headers
+in the request. C<make_headers()> is a function that will convert a list or
+hash to such headers. By default C<get_https()> supplies C<Host> (to make
+virtual hosting easy) and C<Accept> (reportedly needed by IIS) headers.
+
+B<Case 2b (in SYNOPSIS)> demonstrates how to get a password protected page. Refer to
+the HTTP protocol specifications for further details (e.g. RFC-2617).
+
+B<Case 3 (in SYNOPSIS)> invokes C<post_https()> to submit a HTML/CGI form to a secure
+server. The first four arguments are equal to C<get_https()> (note that 
+the empty string (C<''>) is passed as header argument).
+The fifth argument is the
+contents of the form formatted according to CGI specification. In this
+case the helper function C<make_https()> is used to do the formatting,
+but you could pass any string. C<post_https()> automatically adds
+C<Content-Type> and C<Content-Length> headers to the request.
+
+B<Case 4 (in SYNOPSIS)> shows the fundamental C<sslcat()> function (inspired in spirit by
+the C<netcat> utility :-). It's your swiss army knife that allows you to
+easily contact servers, send some data, and then get the response. You
+are responsible for formatting the data and parsing the response -
+C<sslcat()> is just a transport.
+
+B<Case 5 (in SYNOPSIS)> is a full invocation of C<sslcat()> which allows the return of errors
+as well as the server (peer) certificate.
+
+The C<$trace> global variable can be used to control the verbosity of the 
+high level functions. Level 0 guarantees silence, level 1 (the default)
+only emits error messages.
+
+=head3 Alternate versions of high-level API
+
+=over
+
+=item * get_https3
+
+=item * post_https3
+
+=item * put_https3
+
+=item * get_https4
+
+=item * post_https4
+
+=item * put_https4
+
+=back
+
+The above mentioned functions actually return the response headers as
+a list, which only gets converted to hash upon assignment (this
+assignment looses information if the same header occurs twice, as may
+be the case with cookies). There are also other variants of the
+functions that return unprocessed headers and that return a reference
+to a hash.
+
+  ($page, $response, @headers) = get_https('www.bacus.pt', 443, '/');
+  for ($i = 0; $i < $#headers; $i+=2) {
+      print "$headers[$i] = " . $headers[$i+1] . "\n";
+  }
+
+  ($page, $response, $headers, $server_cert)
+    = get_https3('www.bacus.pt', 443, '/');
+  print "$headers\n";
+
+  ($page, $response, %headers_ref, $server_cert)
+    = get_https4('www.bacus.pt', 443, '/');
+  for $k (sort keys %{headers_ref}) {
+      for $v (@{$headers_ref{$k}}) {
+	  print "$k = $v\n";
+      }
+  }
+
+All of the above code fragments accomplish the same thing: display all
+values of all headers. The API functions ending in "3" return the
+headers simply as a scalar string and it is up to the application to
+split them up. The functions ending in "4" return a reference to
+a hash of arrays (see L<perlref> and L<perllol> if you are
+not familiar with complex perl data structures). To access a single value
+of such a header hash you would do something like
+
+  print $headers_ref{COOKIE}[0];
+
+Variants 3 and 4 also allow you to discover the server certificate
+in case you would like to store or display it, e.g.
+
+  ($p, $resp, $hdrs, $server_cert) = get_https3('www.bacus.pt', 443, '/');
+  if (!defined($server_cert) || ($server_cert == 0)) {
+      warn "Subject Name: undefined, Issuer  Name: undefined";
+  } else {
+      warn 'Subject Name: '
+	  . Net::SSLeay::X509_NAME_oneline(
+		 Net::SSLeay::X509_get_subject_name($server_cert))
+	      . 'Issuer  Name: '
+		  . Net::SSLeay::X509_NAME_oneline(
+                         Net::SSLeay::X509_get_issuer_name($server_cert));
+  }
+
+Beware that this method only allows after the fact verification of
+the certificate: by the time C<get_https3()> has returned the https
+request has already been sent to the server, whether you decide to
+trust it or not. To do the verification correctly you must either
+employ the OpenSSL certificate verification framework or use
+the lower level API to first connect and verify the certificate
+and only then send the http data. See the implementation of C<ds_https3()>
+for guidance on how to do this.
+
+=head3 Using client certificates
+
+Secure web communications are encrypted using symmetric crypto keys
+exchanged using encryption based on the certificate of the
+server. Therefore in all SSL connections the server must have a
+certificate. This serves both to authenticate the server to the
+clients and to perform the key exchange.
+
+Sometimes it is necessary to authenticate the client as well. Two
+options are available: HTTP basic authentication and a client side
+certificate. The basic authentication over HTTPS is actually quite
+safe because HTTPS guarantees that the password will not travel in
+the clear. Never-the-less, problems like easily guessable passwords
+remain. The client certificate method involves authentication of the
+client at the SSL level using a certificate. For this to work, both the
+client and the server have certificates (which typically are
+different) and private keys.
+
+The API functions outlined above accept additional arguments that
+allow one to supply the client side certificate and key files. The
+format of these files is the same as used for server certificates and
+the caveat about encrypting private keys applies.
+
+  ($page, $result, %headers) =                                   # 2c
+         = get_https('www.bacus.pt', 443, '/protected.html',
+	      make_headers(Authorization =>
+			   'Basic ' . MIME::Base64::encode("$user:$pass",'')),
+	      '', $mime_type6, $path_to_crt7, $path_to_key8);
+
+  ($page, $response, %reply_headers)
+	 = post_https('www.bacus.pt', 443, '/foo.cgi',           # 3b
+	      make_headers('Authorization' =>
+			   'Basic ' . MIME::Base64::encode("$user:$pass",'')),
+	      make_form(OK   => '1', name => 'Sampo'),
+	      $mime_type6, $path_to_crt7, $path_to_key8);
+
+B<Case 2c (in SYNOPSIS)> demonstrates getting a password protected page that also requires
+a client certificate, i.e. it is possible to use both authentication
+methods simultaneously.
+
+B<Case 3b (in SYNOPSIS)> is a full blown POST to a secure server that requires both password
+authentication and a client certificate, just like in case 2c.
+
+Note: The client will not send a certificate unless the server requests one.
+This is typically achieved by setting the verify mode to C<VERIFY_PEER> on the
+server:
+
+  Net::SSLeay::set_verify(ssl, Net::SSLeay::VERIFY_PEER, 0);
+
+See C<perldoc ~openssl/doc/ssl/SSL_CTX_set_verify.pod> for a full description.
+
+=head3 Working through a web proxy
+
+=over
+
+=item * set_proxy
+
+=back
+
+C<Net::SSLeay> can use a web proxy to make its connections. You need to
+first set the proxy host and port using C<set_proxy()> and then just
+use the normal API functions, e.g:
+
+  Net::SSLeay::set_proxy('gateway.myorg.com', 8080);
+  ($page) = get_https('www.bacus.pt', 443, '/');
+
+If your proxy requires authentication, you can supply a username and
+password as well
+
+  Net::SSLeay::set_proxy('gateway.myorg.com', 8080, 'joe', 'salainen');
+  ($page, $result, %headers) =
+         = get_https('www.bacus.pt', 443, '/protected.html',
+	      make_headers(Authorization =>
+			   'Basic ' . MIME::Base64::encode("susie:pass",''))
+	      );
+
+This example demonstrates the case where we authenticate to the proxy as
+C<"joe"> and to the final web server as C<"susie">. Proxy authentication
+requires the C<MIME::Base64> module to work.
+
+=head3 HTTP (without S) API
+
+=over
+
+=item * get_http
+
+=item * post_http
+
+=item * tcpcat
+
+=item * get_httpx
+
+=item * post_httpx 
+
+=item * tcpxcat
+
+=back
+
+Over the years it has become clear that it would be convenient to use
+the light-weight flavour API of C<Net::SSLeay> for normal HTTP as well (see
+C<LWP> for the heavy-weight object-oriented approach). In fact it would be
+nice to be able to flip https on and off on the fly. Thus regular HTTP
+support was evolved.
+
+  use Net::SSLeay qw(get_http post_http tcpcat
+                      get_httpx post_httpx tcpxcat
+                      make_headers make_form);
+
+  ($page, $result, %headers)
+         = get_http('www.bacus.pt', 443, '/protected.html',
+	      make_headers(Authorization =>
+			   'Basic ' . MIME::Base64::encode("$user:$pass",''))
+	      );
+
+  ($page, $response, %reply_headers)
+	 = post_http('www.bacus.pt', 443, '/foo.cgi', '',
+		make_form(OK   => '1',
+			  name => 'Sampo'
+		));
+
+  ($reply, $err) = tcpcat($host, $port, $request);
+
+  ($page, $result, %headers)
+         = get_httpx($usessl, 'www.bacus.pt', 443, '/protected.html',
+	      make_headers(Authorization =>
+			   'Basic ' . MIME::Base64::encode("$user:$pass",''))
+	      );
+
+  ($page, $response, %reply_headers)
+	 = post_httpx($usessl, 'www.bacus.pt', 443, '/foo.cgi', '',
+		make_form(OK   => '1',  name => 'Sampo'	));
+
+  ($reply, $err, $server_cert) = tcpxcat($usessl, $host, $port, $request);
+
+As can be seen, the C<"x"> family of APIs takes as the first argument a flag
+which indicates whether SSL is used or not.
+
+=head2 Certificate verification and Certificate Revocation Lists (CRLs)
+
+OpenSSL supports the ability to verify peer certificates. It can also
+optionally check the peer certificate against a Certificate Revocation
+List (CRL) from the certificates issuer. A CRL is a file, created by
+the certificate issuer that lists all the certificates that it
+previously signed, but which it now revokes. CRLs are in PEM format.
+
+You can enable C<Net::SSLeay CRL> checking like this:
+
+	    &Net::SSLeay::X509_STORE_set_flags
+		(&Net::SSLeay::CTX_get_cert_store($ssl), 
+		 &Net::SSLeay::X509_V_FLAG_CRL_CHECK); 
+
+After setting this flag, if OpenSSL checks a peer's certificate, then
+it will attempt to find a CRL for the issuer. It does this by looking
+for a specially named file in the search directory specified by
+CTX_load_verify_locations.  CRL files are named with the hash of the
+issuer's subject name, followed by C<.r0>, C<.r1> etc.  For example
+C<ab1331b2.r0>, C<ab1331b2.r1>. It will read all the .r files for the
+issuer, and then check for a revocation of the peer certificate in all
+of them.  (You can also force it to look in a specific named CRL
+file., see below).  You can find out the hash of the issuer subject
+name in a CRL with
+
+	openssl crl -in crl.pem -hash -noout
+
+If the peer certificate does not pass the revocation list, or if no
+CRL is found, then the handshaking fails with an error.
+
+You can also force OpenSSL to look for CRLs in one or more arbitrarily
+named files.
+
+    my $bio = Net::SSLeay::BIO_new_file($crlfilename, 'r');
+    my $crl = Net::SSLeay::PEM_read_bio_X509_CRL($bio);
+    if ($crl) {
+        Net::SSLeay::X509_STORE_add_crl(Net::SSLeay::CTX_get_cert_store($ssl, $crl);
+    } else {
+        error reading CRL....
+    }
+
+=head2 Using Net::SSLeay in multi-threaded applications
+
+B<IMPORTANT: versions 1.42 or earlier are not thread-safe!>
+
+Net::SSLeay module implements all necessary stuff to be ready for multi-threaded
+environment. The implementation fully follows thread safety related requirements
+of openssl library(see L<http://www.openssl.org/docs/crypto/threads.html|http://www.openssl.org/docs/crypto/threads.html>).
+
+If you are about to use Net::SSLeay (or any other module based on Net::SSLeay) in multi-threaded
+perl application it is recommended to follow this best-practice:
+
+=head3 Initialization
+
+Load and initialize Net::SSLeay module in the main thread:
+
+    use threads;
+    use Net::SSLeay;
+    
+    Net::SSLeay::load_error_strings();
+    Net::SSLeay::SSLeay_add_ssl_algorithms();
+    Net::SSLeay::randomize();
+    
+    sub do_master_job {
+      #... call whatever from Net::SSLeay
+    }
+    
+    sub do_worker_job {
+      #... call whatever from Net::SSLeay
+    }
+    
+    #start threads
+    my $master  = threads->new(\&do_master_job, 'param1', 'param2');
+    my @workers = threads->new(\&do_worker_job, 'arg1', 'arg2') for (1..10);
+    
+    #waiting for all threads to finish
+    $_->join() for (threads->list);
+
+NOTE: Openssl's C<int SSL_library_init(void)> function (which is also aliased as 
+C<SSLeay_add_ssl_algorithms>, C<OpenSSL_add_ssl_algorithms> and C<add_ssl_algorithms>)
+is not re-entrant and multiple calls can cause a crash in threaded application. 
+Net::SSLeay implements flags preventing repeated calls to this function,
+therefore even multiple initialization via Net::SSLeay::SSLeay_add_ssl_algorithms()
+should work without trouble.
+    
+=head3 Using callbacks
+
+Do not use callbacks across threads (the module blocks cross-thread callback operations
+and throws a warning). Allways do the callback setup, callback use and callback destruction
+within the same thread.
+
+=head3 Using openssl elements
+
+All openssl elements (X509, SSL_CTX, ...) can be directly passed between threads.
+
+    use threads;
+    use Net::SSLeay;
+    
+    Net::SSLeay::load_error_strings();
+    Net::SSLeay::SSLeay_add_ssl_algorithms();
+    Net::SSLeay::randomize();
+    
+    sub do_job {
+      my $context = shift;
+      Net::SSLeay::CTX_set_default_passwd_cb($context, sub { "secret" });
+      #...
+    }
+    
+    my $c = Net::SSLeay::CTX_new();
+    threads->create(\&do_job, $c);
+
+Or:
+
+    use threads;
+    use Net::SSLeay;
+    
+    my $context; #does not need to be 'shared'
+    
+    Net::SSLeay::load_error_strings();
+    Net::SSLeay::SSLeay_add_ssl_algorithms();
+    Net::SSLeay::randomize();
+    
+    sub do_job {
+      Net::SSLeay::CTX_set_default_passwd_cb($context, sub { "secret" });
+      #...
+    }
+    
+    $context = Net::SSLeay::CTX_new();
+    threads->create(\&do_job);
+
+
+=head3 Using other perl modules based on Net::SSLeay
+
+It should be fine to use any other module based on L<Net::SSLeay> (like L<IO::Socket::SSL>)
+in multi-threaded applications. It is generally recommended to do any global initialization
+of such a module in the main thread before calling C<< threads->new(..) >> or 
+C<< threads->create(..) >> but it might differ module by module.
+
+To be play safe you can load and init Net::SSLeay explicitely in the main thread:
+
+    use Net::SSLeay;        
+    use Other::SSLeay::Based::Module;
+    
+    Net::SSLeay::load_error_strings();
+    Net::SSLeay::SSLeay_add_ssl_algorithms();
+    Net::SSLeay::randomize();Net::SSLeay::initialize();
+    Net::SSLeay::initialize();
+
+Or even safer:    
+
+    use Net::SSLeay;        
+    use Other::SSLeay::Based::Module;
+    
+    BEGIN {
+      Net::SSLeay::load_error_strings();
+      Net::SSLeay::SSLeay_add_ssl_algorithms();
+      Net::SSLeay::randomize();Net::SSLeay::initialize();
+    }
+
+=head3 Combining Net::SSLeay with other modules linked with openssl
+
+B<BEWARE: This might be a big trouble! This is not guaranteed be thread-safe!>
+
+There are many other (XS) modules linked directly to openssl library (like L<Crypt::SSLeay>).
+
+As it is expected that also "another" module will call C<SSLeay_add_ssl_algorithms> at some point
+we have again a trouble with multiple openssl initialization by Net::SSLeay and "another" module.
+
+As you can expect Net::SSLeay is not able to avoid multiple initialization of openssl library
+called by "another" module, thus you have to handle this on your own (in some cases it might
+not be possible at all to avoid this).
+
+=head3 Threading with get_https and friends
+
+The convenience functions get_https, post_https etc all initialize the SSL library by calling
+Net::SSLeay::initialize which does the conventional library initialization:
+
+    Net::SSLeay::load_error_strings();
+    Net::SSLeay::SSLeay_add_ssl_algorithms();
+    Net::SSLeay::randomize();
+
+Net::SSLeay::initialize initializes the SSL library at most once. 
+You can override the Net::SSLeay::initialize function if you desire
+some other type of initialization behaviour by get_https and friends. 
+You can call Net::SSLeay::initialize from your own code if you desire this conventional library initialization.
+
+=head2 Convenience routines
+
+To be used with Low level API
+
+    Net::SSLeay::randomize($rn_seed_file,$additional_seed);
+    Net::SSLeay::set_cert_and_key($ctx, $cert_path, $key_path);
+    $cert = Net::SSLeay::dump_peer_certificate($ssl);
+    Net::SSLeay::ssl_write_all($ssl, $message) or die "ssl write failure";
+    $got = Net::SSLeay::ssl_read_all($ssl) or die "ssl read failure";
+
+    $got = Net::SSLeay::ssl_read_CRLF($ssl [, $max_length]);
+    $got = Net::SSLeay::ssl_read_until($ssl [, $delimit [, $max_length]]);
+    Net::SSLeay::ssl_write_CRLF($ssl, $message);
+
+=over
+
+=item * randomize
+
+seeds the openssl PRNG with C</dev/urandom> (see the top of C<SSLeay.pm>
+for how to change or configure this) and optionally with user provided
+data. It is very important to properly seed your random numbers, so
+do not forget to call this. The high level API functions automatically
+call C<randomize()> so it is not needed with them. See also caveats.
+
+=item * set_cert_and_key
+
+takes two file names as arguments and sets
+the certificate and private key to those. This can be used to
+set either server certificates or client certificates.
+
+=item * dump_peer_certificate
+
+allows you to get a plaintext description of the
+certificate the peer (usually the server) presented to us.
+
+=item * ssl_read_all
+
+see ssl_write_all (below)
+
+=item * ssl_write_all
+
+C<ssl_read_all()> and C<ssl_write_all()> provide true blocking semantics for
+these operations (see limitation, below, for explanation). These are
+much preferred to the low level API equivalents (which implement BSD
+blocking semantics). The message argument to C<ssl_write_all()> can be
+a reference. This is helpful to avoid unnecessary copying when writing
+something big, e.g:
+
+    $data = 'A' x 1000000000;
+    Net::SSLeay::ssl_write_all($ssl, \$data) or die "ssl write failed";
+
+=item * ssl_read_CRLF
+
+uses C<ssl_read_all()> to read in a line terminated with a
+carriage return followed by a linefeed (CRLF).  The CRLF is included in
+the returned scalar.
+
+=item * ssl_read_until
+
+uses C<ssl_read_all()> to read from the SSL input
+stream until it encounters a programmer specified delimiter.
+If the delimiter is undefined, C<$/> is used.  If C<$/> is undefined,
+C<\n> is used.  One can optionally set a maximum length of bytes to read
+from the SSL input stream.
+
+=item * ssl_write_CRLF
+
+writes C<$message> and appends CRLF to the SSL output stream.
+
+=back
+
+=head2 Initialization
+
+In order to use the low level API you should start your programs with
+the following incantation:
+
+	use Net::SSLeay qw(die_now die_if_ssl_error);
+	Net::SSLeay::load_error_strings();
+	Net::SSLeay::SSLeay_add_ssl_algorithms();    # Important!
+        Net::SSLeay::ENGINE_load_builtin_engines();  # If you want built-in engines
+        Net::SSLeay::ENGINE_register_all_complete(); # If you want built-in engines
+        Net::SSLeay::randomize();
+
+=head2 Error handling functions
+
+I can not emphasize the need to check for error enough. Use these
+functions even in the most simple programs, they will reduce debugging
+time greatly. Do not ask questions on the mailing list without having
+first sprinkled these in your code.
+
+=over
+
+=item * die_now
+
+=item * die_if_ssl_error
+
+C<die_now()> and C<die_if_ssl_error()> are used to conveniently print the SSLeay error
+stack when something goes wrong:
+
+	Net::SSLeay::connect($ssl) or die_now("Failed SSL connect ($!)");
+
+
+	Net::SSLeay::write($ssl, "foo") or die_if_ssl_error("SSL write ($!)");
+
+=item * print_errs
+
+You can also use C<Net::SSLeay::print_errs()> to dump the error stack without
+exiting the program. As can be seen, your code becomes much more readable
+if you import the error reporting functions into your main name space.
+
+=back
+
+=head2 Sockets
+
+Perl uses file handles for all I/O. While SSLeay has a quite flexible BIO
+mechanism and perl has an evolved PerlIO mechanism, this module still
+sticks to using file descriptors. Thus to attach SSLeay to a socket you
+should use C<fileno()> to extract the underlying file descriptor:
+
+    Net::SSLeay::set_fd($ssl, fileno(S));   # Must use fileno
+
+You should also set C<$|> to 1 to eliminate STDIO buffering so you do not
+get confused if you use perl I/O functions to manipulate your socket
+handle.
+
+If you need to C<select(2)> on the socket, go right ahead, but be warned
+that OpenSSL does some internal buffering so SSL_read does not always
+return data even if the socket selected for reading (just keep on
+selecting and trying to read). C<Net::SSLeay> is no different from the
+C language OpenSSL in this respect.
+
+=head2 Callbacks
+
+You can establish a per-context verify callback function something like this:
+
+	sub verify {
+	    my ($ok, $x509_store_ctx) = @_;
+	    print "Verifying certificate...\n";
+		...
+	    return $ok;
+	}
+
+It is used like this:
+
+	Net::SSLeay::set_verify ($ssl, Net::SSLeay::VERIFY_PEER, \&verify);
+
+Per-context callbacks for decrypting private keys are implemented.
+
+        Net::SSLeay::CTX_set_default_passwd_cb($ctx, sub { "top-secret" });
+        Net::SSLeay::CTX_use_PrivateKey_file($ctx, "key.pem",
+					     Net::SSLeay::FILETYPE_PEM)
+            or die "Error reading private key";
+        Net::SSLeay::CTX_set_default_passwd_cb($ctx, undef);
+
+If Hello Extensions are supported by your OpenSSL, 
+a session secret callback can be set up to be called when a session secret is set
+by openssl.
+
+Establish it like this:
+    Net::SSLeay::set_session_secret_cb($ssl, \&session_secret_cb, $somedata);
+
+It will be called like this:
+
+    sub session_secret_cb
+    {
+        my ($secret, \@cipherlist, \$preferredcipher, $somedata) = @_;
+    }
+
+
+No other callbacks are implemented. You do not need to use any
+callback for simple (i.e. normal) cases where the SSLeay built-in
+verify mechanism satisfies your needs.
+
+It is required to reset these callbacks to undef immediately after use to prevent 
+memory leaks, thread safety problems and crashes on exit that 
+can occur if different threads set different callbacks. 
+
+If you want to use callback stuff, see examples/callback.pl! It's the
+only one I am able to make work reliably.
+
+=head2 Low level API
+
+In addition to the high level functions outlined above, this module
+contains straight-forward access to CRYPTO and SSL parts of OpenSSL C API.
+
+See the C<*.h> headers from OpenSSL C distribution for a list of low level
+SSLeay functions to call (check SSLeay.xs to see if some function has been
+implemented). The module strips the initial C<"SSL_"> off of the SSLeay names.
+Generally you should use C<Net::SSLeay::> in its place. 
+
+Note that some functions are prefixed with C<"P_"> - these are very close to
+the original API however contain some kind of a wrapper making its interface
+more perl friendly.
+
+For example:
+
+In C:
+
+	#include <ssl.h>
+
+	err = SSL_set_verify (ssl, SSL_VERIFY_CLIENT_ONCE,
+				   &your_call_back_here);
+
+In Perl:
+
+	use Net::SSLeay;
+
+	$err = Net::SSLeay::set_verify ($ssl,
+					Net::SSLeay::VERIFY_CLIENT_ONCE,
+					\&your_call_back_here);
+
+If the function does not start with C<SSL_> you should use the full
+function name, e.g.:
+
+	$err = Net::SSLeay::ERR_get_error;
+
+The following new functions behave in perlish way:
+
+	$got = Net::SSLeay::read($ssl);
+                                    # Performs SSL_read, but returns $got
+                                    # resized according to data received.
+                                    # Returns undef on failure.
+
+	Net::SSLeay::write($ssl, $foo) || die;
+                                    # Performs SSL_write, but automatically
+                                    # figures out the size of $foo
+
+=head3 Low level API: Version related functions
+
+=over
+
+=item * SSLeay
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+Gives version number (numeric) of underlaying openssl library.
+
+ my $ver_number = Net::SSLeay::SSLeay();
+ # returns: the number identifying the openssl release
+ #
+ # 0x00903100 => openssl-0.9.3 
+ # 0x00904100 => openssl-0.9.4 
+ # 0x00905100 => openssl-0.9.5 
+ # 0x0090600f => openssl-0.9.6 
+ # 0x0090601f => openssl-0.9.6a
+ # 0x0090602f => openssl-0.9.6b
+ # ...
+ # 0x009060df => openssl-0.9.6m
+ # 0x0090700f => openssl-0.9.7 
+ # 0x0090701f => openssl-0.9.7a
+ # 0x0090702f => openssl-0.9.7b
+ # ...
+ # 0x009070df => openssl-0.9.7m
+ # 0x0090800f => openssl-0.9.8 
+ # 0x0090801f => openssl-0.9.8a
+ # 0x0090802f => openssl-0.9.8b
+ # ...
+ # 0x0090814f => openssl-0.9.8t
+ # 0x1000000f => openssl-1.0.0 
+ # 0x1000004f => openssl-1.0.0d
+ # 0x1000007f => openssl-1.0.0g
+
+You can use it like this:
+
+  if (Net::SSLeay::SSLeay() < 0x0090800f) {
+    die "you need openssl-0.9.8 or higher";
+  }
+ 
+=item * SSLeay_version
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+Gives version number (string) of underlaying openssl library.
+
+ my $ver_string = Net::SSLeay::SSLeay_version($type);
+ # $type
+ #   0 (=SSLEAY_VERSION) - e.g. 'OpenSSL 1.0.0d 8 Feb 2011'
+ #   2 (=SSLEAY_CFLAGS)  - e.g. 'compiler: gcc -D_WINDLL -DOPENSSL_USE_APPLINK .....'
+ #   3 (=SSLEAY_BUILT_ON)- e.g. 'built on: Fri May  6 00:00:46 GMT 2011'
+ #   4 (=SSLEAY_PLATFORM)- e.g. 'platform: mingw'
+ #
+ # returns: string
+ 
+ Net::SSLeay::SSLeay_version();
+ #is equivalent to
+ Net::SSLeay::SSLeay_version(0);
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/SSLeay_version.html|http://www.openssl.org/docs/crypto/SSLeay_version.html>
+
+=back
+
+=head3 Low level API: CTX_* related functions
+
+=over
+
+=item * CTX_add_client_CA
+
+Adds the CA name extracted from $cacert to the list of CAs sent to the client when requesting a client certificate for $ctx.
+
+ my $rv = Net::SSLeay::CTX_add_client_CA($ctx, $cacert);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $cacert - value coresponding to openssl's X509 structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_client_CA_list.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_client_CA_list.html>
+
+=item * CTX_add_extra_chain_cert
+
+Adds the certificate $x509 to the certificate chain presented together with the certificate. Several certificates can be added one after the other.
+
+ my $rv = Net::SSLeay::CTX_add_extra_chain_cert($ctx, $x509);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $x509 - value coresponding to openssl's X509 structure
+ #
+ # returns: 1 on success, check out the error stack to find out the reason for failure otherwise
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_add_extra_chain_cert.html|http://www.openssl.org/docs/ssl/SSL_CTX_add_extra_chain_cert.html>
+
+=item * CTX_add_session
+
+Adds the session $ses to the context $ctx.
+
+ my $rv = Net::SSLeay::CTX_add_session($ctx, $ses);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $ses - value coresponding to openssl's SSL_SESSION structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_add_session.html|http://www.openssl.org/docs/ssl/SSL_CTX_add_session.html>
+
+=item * CTX_callback_ctrl
+
+??? (more info needed)
+
+ my $rv = Net::SSLeay::CTX_callback_ctrl($ctx, $cmd, $fp);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $cmd - (integer) command id
+ # $fp - (function pointer) ???
+ #
+ # returns: ???
+
+=item * CTX_check_private_key
+
+Checks the consistency of a private key with the corresponding certificate loaded into $ctx.
+
+ my $rv = Net::SSLeay::CTX_check_private_key($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: 1 on success, otherwise check out the error stack to find out the reason
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
+
+=item * CTX_ctrl
+
+Internal handling function for SSL_CTX objects.
+
+B<BEWARE:> openssl doc says: This function should never be called directly!
+
+ my $rv = Net::SSLeay::CTX_ctrl($ctx, $cmd, $larg, $parg);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $cmd - (integer) command id
+ # $larg - (integer) long ???
+ # $parg - (string/pointer) ???
+ #
+ # returns: (long) result of given command ???
+ 
+ #valid $cmd values
+  1 - SSL_CTRL_NEED_TMP_RSA
+  2 - SSL_CTRL_SET_TMP_RSA
+  3 - SSL_CTRL_SET_TMP_DH
+  4 - SSL_CTRL_SET_TMP_ECDH
+  5 - SSL_CTRL_SET_TMP_RSA_CB
+  6 - SSL_CTRL_SET_TMP_DH_CB
+  7 - SSL_CTRL_SET_TMP_ECDH_CB
+  8 - SSL_CTRL_GET_SESSION_REUSED
+  9 - SSL_CTRL_GET_CLIENT_CERT_REQUEST
+ 10 - SSL_CTRL_GET_NUM_RENEGOTIATIONS
+ 11 - SSL_CTRL_CLEAR_NUM_RENEGOTIATIONS
+ 12 - SSL_CTRL_GET_TOTAL_RENEGOTIATIONS
+ 13 - SSL_CTRL_GET_FLAGS
+ 14 - SSL_CTRL_EXTRA_CHAIN_CERT
+ 15 - SSL_CTRL_SET_MSG_CALLBACK
+ 16 - SSL_CTRL_SET_MSG_CALLBACK_ARG
+ 17 - SSL_CTRL_SET_MTU
+ 20 - SSL_CTRL_SESS_NUMBER
+ 21 - SSL_CTRL_SESS_CONNECT
+ 22 - SSL_CTRL_SESS_CONNECT_GOOD
+ 23 - SSL_CTRL_SESS_CONNECT_RENEGOTIATE
+ 24 - SSL_CTRL_SESS_ACCEPT
+ 25 - SSL_CTRL_SESS_ACCEPT_GOOD
+ 26 - SSL_CTRL_SESS_ACCEPT_RENEGOTIATE
+ 27 - SSL_CTRL_SESS_HIT
+ 28 - SSL_CTRL_SESS_CB_HIT
+ 29 - SSL_CTRL_SESS_MISSES
+ 30 - SSL_CTRL_SESS_TIMEOUTS
+ 31 - SSL_CTRL_SESS_CACHE_FULL
+ 32 - SSL_CTRL_OPTIONS
+ 33 - SSL_CTRL_MODE
+ 40 - SSL_CTRL_GET_READ_AHEAD
+ 41 - SSL_CTRL_SET_READ_AHEAD
+ 42 - SSL_CTRL_SET_SESS_CACHE_SIZE
+ 43 - SSL_CTRL_GET_SESS_CACHE_SIZE
+ 44 - SSL_CTRL_SET_SESS_CACHE_MODE
+ 45 - SSL_CTRL_GET_SESS_CACHE_MODE
+ 50 - SSL_CTRL_GET_MAX_CERT_LIST
+ 51 - SSL_CTRL_SET_MAX_CERT_LIST
+ 52 - SSL_CTRL_SET_MAX_SEND_FRAGMENT
+ 53 - SSL_CTRL_SET_TLSEXT_SERVERNAME_CB
+ 54 - SSL_CTRL_SET_TLSEXT_SERVERNAME_ARG
+ 55 - SSL_CTRL_SET_TLSEXT_HOSTNAME
+ 56 - SSL_CTRL_SET_TLSEXT_DEBUG_CB
+ 57 - SSL_CTRL_SET_TLSEXT_DEBUG_ARG
+ 58 - SSL_CTRL_GET_TLSEXT_TICKET_KEYS
+ 59 - SSL_CTRL_SET_TLSEXT_TICKET_KEYS
+ 60 - SSL_CTRL_SET_TLSEXT_OPAQUE_PRF_INPUT
+ 61 - SSL_CTRL_SET_TLSEXT_OPAQUE_PRF_INPUT_CB
+ 62 - SSL_CTRL_SET_TLSEXT_OPAQUE_PRF_INPUT_CB_ARG
+ 63 - SSL_CTRL_SET_TLSEXT_STATUS_REQ_CB
+ 64 - SSL_CTRL_SET_TLSEXT_STATUS_REQ_CB_ARG
+ 65 - SSL_CTRL_SET_TLSEXT_STATUS_REQ_TYPE
+ 66 - SSL_CTRL_GET_TLSEXT_STATUS_REQ_EXTS
+ 67 - SSL_CTRL_SET_TLSEXT_STATUS_REQ_EXTS
+ 68 - SSL_CTRL_GET_TLSEXT_STATUS_REQ_IDS
+ 69 - SSL_CTRL_SET_TLSEXT_STATUS_REQ_IDS
+ 70 - SSL_CTRL_GET_TLSEXT_STATUS_REQ_OCSP_RESP
+ 71 - SSL_CTRL_SET_TLSEXT_STATUS_REQ_OCSP_RESP
+ 72 - SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB
+ 73 - DTLS_CTRL_GET_TIMEOUT
+ 74 - DTLS_CTRL_HANDLE_TIMEOUT
+ 75 - DTLS_CTRL_LISTEN
+ 76 - SSL_CTRL_GET_RI_SUPPORT
+ 77 - SSL_CTRL_CLEAR_OPTIONS
+ 78 - SSL_CTRL_CLEAR_MODE 
+ 
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_ctrl.html|http://www.openssl.org/docs/ssl/SSL_CTX_ctrl.html>
+
+=item * CTX_flush_sessions
+
+Causes a run through the session cache of $ctx to remove sessions expired at time $tm.
+
+ Net::SSLeay::CTX_flush_sessions($ctx, $tm);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $tm - specifies the time which should be used for the expiration test (seconds since 1.1.1970)
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_flush_sessions.html|http://www.openssl.org/docs/ssl/SSL_CTX_flush_sessions.html>
+
+=item * CTX_free
+
+Free an allocated SSL_CTX object.
+
+ Net::SSLeay::CTX_free($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_free.html|http://www.openssl.org/docs/ssl/SSL_CTX_free.html>
+
+=item * CTX_get_app_data
+
+Can be used to get application defined value/data.
+
+ my $rv = Net::SSLeay::CTX_get_app_data($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: string/buffer/pointer ???
+
+=item * CTX_set_app_data
+
+Can be used to set some application defined value/data.
+
+ my $rv = Net::SSLeay::CTX_set_app_data($ctx, $arg);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $arg - (string/buffer/pointer ???) data
+ #
+ # returns: ???
+
+=item * CTX_get_cert_store
+
+Returns the current certificate verification storage.
+
+ my $rv = Net::SSLeay::CTX_get_cert_store($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: value coresponding to openssl's X509_STORE structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_cert_store.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_cert_store.html>
+
+=item * CTX_get_client_CA_list
+
+Returns the list of client CAs explicitly set for $ctx using L</CTX_set_client_CA_list>.
+
+ my $rv = Net::SSLeay::CTX_get_client_CA_list($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: value coresponding to openssl's X509_NAME_STACK structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_client_CA_list.html|http://www.openssl.org/docs/ssl/SSL_get_client_CA_list.html>
+
+=item * CTX_get_ex_data
+
+Is used to retrieve the information for index $idx from $ctx.
+
+ my $rv = Net::SSLeay::CTX_get_ex_data($ssl, $idx);
+ # $ssl - value coresponding to openssl's SSL_CTX structure
+ # $idx - (integer) index for application specific data
+ #
+ # returns: pointer to ???
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_get_ex_new_index.html|http://www.openssl.org/docs/ssl/SSL_CTX_get_ex_new_index.html>
+
+=item * CTX_get_ex_new_index
+
+Is used to register a new index for application specific data.
+
+ my $rv = Net::SSLeay::CTX_get_ex_new_index($argl, $argp, $new_func, $dup_func, $free_func);
+ # $argl - (long) ???
+ # $argp - (pointer) ???
+ # $new_func - function pointer ??? (CRYPTO_EX_new *)
+ # $dup_func - function pointer ??? (CRYPTO_EX_dup *)
+ # $free_func - function pointer ??? (CRYPTO_EX_free *)
+ #
+ # returns: (integer) ???
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_get_ex_new_index.html|http://www.openssl.org/docs/ssl/SSL_CTX_get_ex_new_index.html>
+
+=item * CTX_get_mode
+
+Returns the mode set for ctx.
+
+ my $rv = Net::SSLeay::CTX_get_mode($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: mode (bitmask)
+ 
+ #to decode the return value (bitmask) use:
+ 0x00000001 corresponds to SSL_MODE_ENABLE_PARTIAL_WRITE
+ 0x00000002 corresponds to SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER
+ 0x00000004 corresponds to SSL_MODE_AUTO_RETRY
+ 0x00000008 corresponds to SSL_MODE_NO_AUTO_CHAIN
+ 0x00000010 corresponds to SSL_MODE_RELEASE_BUFFERS
+ (note: some of the bits might not be supported by older openssl versions)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_mode.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_mode.html>
+
+=item * CTX_set_mode
+
+Adds the mode set via bitmask in $mode to $ctx. Options already set before are not cleared.
+
+ my $rv = Net::SSLeay::CTX_set_mode($ctx, $mode);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $mode - mode bitmask
+ #
+ # returns: the new mode bitmask after adding $mode
+
+For bitmask details see L</CTX_get_mode> (above).
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_mode.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_mode.html>
+
+=item * CTX_get_options
+
+Returns the options (bitmask) set for $ctx.
+
+ my $rv = Net::SSLeay::CTX_get_options($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: options (bitmask)
+ 
+ #to decode the return value (bitmask) use:
+ 0x00000001 corresponds to SSL_OP_MICROSOFT_SESS_ID_BUG
+ 0x00000002 corresponds to SSL_OP_NETSCAPE_CHALLENGE_BUG
+ 0x00000004 corresponds to SSL_OP_LEGACY_SERVER_CONNECT
+ 0x00000008 corresponds to SSL_OP_NETSCAPE_REUSE_CIPHER_CHANGE_BUG
+ 0x00000010 corresponds to SSL_OP_SSLREF2_REUSE_CERT_TYPE_BUG
+ 0x00000020 corresponds to SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER
+ 0x00000040 corresponds to SSL_OP_MSIE_SSLV2_RSA_PADDING
+ 0x00000080 corresponds to SSL_OP_SSLEAY_080_CLIENT_DH_BUG
+ 0x00000100 corresponds to SSL_OP_TLS_D5_BUG
+ 0x00000200 corresponds to SSL_OP_TLS_BLOCK_PADDING_BUG
+ 0x00000800 corresponds to SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS
+ 0x80000FFF corresponds to SSL_OP_ALL
+ 0x00001000 corresponds to SSL_OP_NO_QUERY_MTU
+ 0x00002000 corresponds to SSL_OP_COOKIE_EXCHANGE
+ 0x00004000 corresponds to SSL_OP_NO_TICKET
+ 0x00008000 corresponds to SSL_OP_CISCO_ANYCONNECT
+ 0x00010000 corresponds to SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION
+ 0x00020000 corresponds to SSL_OP_NO_COMPRESSION
+ 0x00040000 corresponds to SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION
+ 0x00080000 corresponds to SSL_OP_SINGLE_ECDH_USE
+ 0x00100000 corresponds to SSL_OP_SINGLE_DH_USE
+ 0x00200000 corresponds to SSL_OP_EPHEMERAL_RSA
+ 0x00400000 corresponds to SSL_OP_CIPHER_SERVER_PREFERENCE
+ 0x00800000 corresponds to SSL_OP_TLS_ROLLBACK_BUG
+ 0x01000000 corresponds to SSL_OP_NO_SSLv2
+ 0x02000000 corresponds to SSL_OP_NO_SSLv3
+ 0x04000000 corresponds to SSL_OP_NO_TLSv1
+ 0x08000000 corresponds to SSL_OP_PKCS1_CHECK_1
+ 0x10000000 corresponds to SSL_OP_PKCS1_CHECK_2
+ 0x20000000 corresponds to SSL_OP_NETSCAPE_CA_DN_BUG
+ 0x40000000 corresponds to SSL_OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG
+ 0x80000000 corresponds to SSL_OP_CRYPTOPRO_TLSEXT_BUG
+ (note: some of the bits might not be supported by older openssl versions)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_options.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_options.html>
+
+=item * CTX_set_options
+
+Adds the options set via bitmask in $options to ctx. Options already set before are not cleared.
+
+ Net::SSLeay::CTX_set_options($ctx, $options);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $options - options bitmask
+ #
+ # returns: the new options bitmask after adding $options
+
+For bitmask details see L</CTX_get_options> (above).
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_options.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_options.html>
+
+=item * CTX_get_quiet_shutdown
+
+Returns the 'quiet shutdown' setting of $ctx.
+
+ my $rv = Net::SSLeay::CTX_get_quiet_shutdown($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: (integer) the current setting
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_quiet_shutdown.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_quiet_shutdown.html>
+
+=item * CTX_get_read_ahead
+
+ my $rv = Net::SSLeay::CTX_get_read_ahead($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: (integer) read_ahead value
+
+=item * CTX_get_session_cache_mode
+
+Returns the currently used cache mode (bitmask).
+
+ my $rv = Net::SSLeay::CTX_get_session_cache_mode($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: mode (bitmask)
+ 
+ #to decode the return value (bitmask) use:
+ 0x0000 corresponds to SSL_SESS_CACHE_OFF
+ 0x0001 corresponds to SSL_SESS_CACHE_CLIENT
+ 0x0002 corresponds to SSL_SESS_CACHE_SERVER
+ 0x0080 corresponds to SSL_SESS_CACHE_NO_AUTO_CLEAR
+ 0x0100 corresponds to SSL_SESS_CACHE_NO_INTERNAL_LOOKUP
+ 0x0200 corresponds to SSL_SESS_CACHE_NO_INTERNAL_STORE
+ (note: some of the bits might not be supported by older openssl versions)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_session_cache_mode.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_session_cache_mode.html>
+
+=item * CTX_set_session_cache_mode
+
+Enables/disables session caching by setting the operational mode for $ctx to $mode.
+
+ my $rv = Net::SSLeay::CTX_set_session_cache_mode($ctx, $mode);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $mode - mode (bitmask)
+ #
+ # returns: previously set cache mode
+
+For bitmask details see L</CTX_get_session_cache_mode> (above).
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_session_cache_mode.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_session_cache_mode.html>
+
+=item * CTX_get_timeout
+
+Returns the currently set timeout value for $ctx.
+
+ my $rv = Net::SSLeay::CTX_get_timeout($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: timeout in seconds
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_timeout.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_timeout.html>
+
+=item * CTX_get_verify_depth
+
+Returns the verification depth limit currently set in $ctx. If no limit has been explicitly set, -1 is returned and the default value will be used.",
+
+ my $rv = Net::SSLeay::CTX_get_verify_depth($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: depth limit currently set in $ctx, -1 if no limit has been explicitly set
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_get_verify_mode.html|http://www.openssl.org/docs/ssl/SSL_CTX_get_verify_mode.html>
+
+=item * CTX_get_verify_mode
+
+Returns the verification mode (bitmask) currently set in $ctx.
+
+ my $rv = Net::SSLeay::CTX_get_verify_mode($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: mode (bitmask)
+ 
+ #to decode the return value (bitmask) use:
+ 0x00 corresponds to SSL_VERIFY_NONE
+ 0x01 corresponds to SSL_VERIFY_PEER
+ 0x02 corresponds to SSL_VERIFY_FAIL_IF_NO_PEER_CERT
+ 0x04 corresponds to SSL_VERIFY_CLIENT_ONCE
+ (note: some of the bits might not be supported by older openssl versions)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_get_verify_mode.html|http://www.openssl.org/docs/ssl/SSL_CTX_get_verify_mode.html>
+
+=item * CTX_set_verify
+
+Sets the verification flags for $ctx to be $mode and specifies the verify_callback function to be used.
+
+ Net::SSLeay::CTX_set_verify($ctx, $mode, $callback);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $mode - mode (bitmask)
+ # $callback - [optional] reference to perl callback function
+ #
+ # returns: no return value
+ 
+For bitmap details see L</CTX_get_verify_mode> (above).
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_verify.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_verify.html>
+
+=item * CTX_load_verify_locations
+
+Specifies the locations for $ctx, at which CA certificates for verification purposes are located. The certificates available via $CAfile and $CApath are trusted.
+
+ my $rv = Net::SSLeay::CTX_load_verify_locations($ctx, $CAfile, $CApath);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $CAfile - (string) file of CA certificates in PEM format, the file can contain several CA certificates (or '')
+ # $CApath - (string) directory containing CA certificates in PEM format (or '')
+ #
+ # returns: 1 on success, 0 on failure (check the error stack to find out the reason)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_load_verify_locations.html|http://www.openssl.org/docs/ssl/SSL_CTX_load_verify_locations.html>
+
+=item * CTX_need_tmp_RSA
+
+Return the result of C<SSL_CTX_ctrl(ctx,SSL_CTRL_NEED_TMP_RSA,0,NULL)>
+
+ my $rv = Net::SSLeay::CTX_need_tmp_RSA($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: result of SSL_CTRL_NEED_TMP_RSA command
+
+=item * CTX_new
+
+The same as L</CTX_v23_new>
+
+ my $rv = Net::SSLeay::CTX_new();
+ #
+ # returns: value coresponding to openssl's SSL_CTX structure (0 on failure)
+ 
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_new.html|http://www.openssl.org/docs/ssl/SSL_CTX_new.html>
+
+=item * CTX_v2_new
+
+Creates a new SSL_CTX object - based on SSLv2_method() - as framework to establish TLS/SSL enabled connections.
+
+ my $rv = Net::SSLeay::CTX_v2_new();
+ #
+ # returns: value coresponding to openssl's SSL_CTX structure (0 on failure)
+
+=item * CTX_v23_new
+
+Creates a new SSL_CTX object - based on SSLv23_method() - as framework to establish TLS/SSL enabled connections.
+
+ my $rv = Net::SSLeay::CTX_v23_new();
+ #
+ # returns: value coresponding to openssl's SSL_CTX structure (0 on failure)
+
+=item * CTX_v3_new
+
+Creates a new SSL_CTX object - based on SSLv3_method() - as framework to establish TLS/SSL enabled connections.
+
+ my $rv = Net::SSLeay::CTX_v3_new();
+ #
+ # returns: value coresponding to openssl's SSL_CTX structure (0 on failure)
+
+=item * CTX_tlsv1_new
+
+Creates a new SSL_CTX object - based on TLSv1_method() - as framework to establish TLS/SSL enabled connections.
+
+ my $rv = Net::SSLeay::CTX_tlsv1_new();
+ #
+ # returns: value coresponding to openssl's SSL_CTX structure (0 on failure)
+
+=item * CTX_new_with_method
+
+Creates a new SSL_CTX object based on $meth method
+
+ my $rv = Net::SSLeay::CTX_new_with_method($meth);
+ # $meth - value coresponding to openssl's SSL_METHOD structure
+ #
+ # returns: value coresponding to openssl's SSL_CTX structure (0 on failure)
+ 
+ #example
+ my $ctx = Net::SSLeay::CTX_new_with_method(&Net::SSLeay::TLSv1_method);
+
+=item * CTX_remove_session
+
+Removes the session $ses from the context $ctx.
+
+ my $rv = Net::SSLeay::CTX_remove_session($ctx, $ses);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $ses - value coresponding to openssl's SSL_SESSION structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_add_session.html|http://www.openssl.org/docs/ssl/SSL_CTX_add_session.html>
+
+=item * CTX_sess_accept
+
+ my $rv = Net::SSLeay::CTX_sess_accept($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: number of started SSL/TLS handshakes in server mode
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html|http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html>
+
+=item * CTX_sess_accept_good
+
+ my $rv = Net::SSLeay::CTX_sess_accept_good($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: number of successfully established SSL/TLS sessions in server mode
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html|http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html>
+
+=item * CTX_sess_accept_renegotiate
+
+ my $rv = Net::SSLeay::CTX_sess_accept_renegotiate($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: number of start renegotiations in server mode
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html|http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html>
+
+=item * CTX_sess_cache_full
+
+ my $rv = Net::SSLeay::CTX_sess_cache_full($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: number of sessions that were removed because the maximum session cache size was exceeded
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html|http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html>
+
+=item * CTX_sess_cb_hits
+
+ my $rv = Net::SSLeay::CTX_sess_cb_hits($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: number of successfully retrieved sessions from the external session cache in server mode
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html|http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html>
+
+=item * CTX_sess_connect
+
+ my $rv = Net::SSLeay::CTX_sess_connect($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: number of started SSL/TLS handshakes in client mode
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html|http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html>
+
+=item * CTX_sess_connect_good
+
+ my $rv = Net::SSLeay::CTX_sess_connect_good($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: number of successfully established SSL/TLS sessions in client mode
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html|http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html>
+
+=item * CTX_sess_connect_renegotiate
+
+ my $rv = Net::SSLeay::CTX_sess_connect_renegotiate($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: number of start renegotiations in client mode
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html|http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html>
+
+=item * CTX_sess_get_cache_size
+
+Returns the currently valid session cache size.
+
+ my $rv = Net::SSLeay::CTX_sess_get_cache_size($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: current size
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_sess_set_cache_size.html|http://www.openssl.org/docs/ssl/SSL_CTX_sess_set_cache_size.html>
+
+=item * CTX_sess_hits
+
+ my $rv = Net::SSLeay::CTX_sess_hits($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: number of successfully reused sessions
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html|http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html>
+
+=item * CTX_sess_misses
+
+ my $rv = Net::SSLeay::CTX_sess_misses($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: number of sessions proposed by clients that were not found in the internal session cache in server mode
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html|http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html>
+
+=item * CTX_sess_number
+
+ my $rv = Net::SSLeay::CTX_sess_number($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: current number of sessions in the internal session cache
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html|http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html>
+
+=item * CTX_sess_set_cache_size
+
+Sets the size of the internal session cache of context $ctx to $size.
+
+ Net::SSLeay::CTX_sess_set_cache_size($ctx, $size);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $size - cache size (0 = unlimited)
+ #
+ # returns: previously valid size
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_sess_set_cache_size.html|http://www.openssl.org/docs/ssl/SSL_CTX_sess_set_cache_size.html>
+
+=item * CTX_sess_timeouts
+
+Returns the number of sessions proposed by clients and either found in the internal or external session cache in
+server mode, but that were invalid due to timeout. These sessions are not included in the SSL_CTX_sess_hits count.
+
+ my $rv = Net::SSLeay::CTX_sess_timeouts($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: number of sessions
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html|http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html>
+
+=item * CTX_sessions
+
+Returns a pointer to the lhash databases containing the internal session cache for ctx.
+
+ my $rv = Net::SSLeay::CTX_sessions($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: value coresponding to openssl's LHASH structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_sessions.html|http://www.openssl.org/docs/ssl/SSL_CTX_sessions.html>
+
+=item * CTX_set1_param
+
+Applies X509 verification parameters $vpm on $ctx
+
+ my $rv = Net::SSLeay::CTX_set1_param($ctx, $vpm);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $vpm - value coresponding to openssl's X509_VERIFY_PARAM structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * CTX_set_cert_store
+
+Sets/replaces the certificate verification storage of $ctx to/with $store.
+
+ Net::SSLeay::CTX_set_cert_store($ctx, $store);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $store - value coresponding to openssl's X509_STORE structure
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_cert_store.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_cert_store.html>
+
+=item * CTX_set_cert_verify_callback
+
+Sets the verification callback function for $ctx. SSL objects that are created from $ctx 
+inherit the setting valid at the time when C<Net::SSLeay::new($ctx)> is called.
+
+ Net::SSLeay::CTX_set_cert_verify_callback($ctx, $func, $data);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $func - perl reference to callback function
+ # $data - [optional] data that will be passed to callback function when invoked
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_cert_verify_callback.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_cert_verify_callback.html>
+
+=item * CTX_set_cipher_list
+
+Sets the list of available ciphers for $ctx using the control string $str.
+The list of ciphers is inherited by all ssl objects created from $ctx.
+
+ my $rv = Net::SSLeay::CTX_set_cipher_list($s, $str);
+ # $s - value coresponding to openssl's SSL_CTX structure
+ # $str - (string) cipher list e.g. '3DES:+RSA'
+ #
+ # returns: 1 if any cipher could be selected and 0 on complete failure
+
+The format of $str is described in L<www.openssl.org/docs/apps/ciphers.html|www.openssl.org/docs/apps/ciphers.html>
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_cipher_list.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_cipher_list.html>
+
+=item * CTX_set_client_CA_list
+
+Sets the list of CAs sent to the client when requesting a client certificate for $ctx.
+
+ Net::SSLeay::CTX_set_client_CA_list($ctx, $list);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $list - value coresponding to openssl's X509_NAME_STACK structure
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_client_CA_list.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_client_CA_list.html>
+
+=item * CTX_set_default_passwd_cb
+
+Sets the default password callback called when loading/storing a PEM certificate with encryption.
+
+ Net::SSLeay::CTX_set_default_passwd_cb($ctx, $func);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $func - perl reference to callback function
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_default_passwd_cb.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_default_passwd_cb.html>
+
+=item * CTX_set_default_passwd_cb_userdata
+
+Sets a pointer to userdata which will be provided to the password callback on invocation.
+
+ Net::SSLeay::CTX_set_default_passwd_cb_userdata($ctx, $userdata);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $userdata - data that will be passed to callback function when invoked
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_default_passwd_cb.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_default_passwd_cb.html>
+
+=item * CTX_set_default_verify_paths
+
+??? (more info needed)
+
+ my $rv = Net::SSLeay::CTX_set_default_verify_paths($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * CTX_set_ex_data
+
+Is used to store application data at $data for $idx into the $ctx object.
+
+ my $rv = Net::SSLeay::CTX_set_ex_data($ssl, $idx, $data);
+ # $ssl - value coresponding to openssl's SSL_CTX structure
+ # $idx - (integer) ???
+ # $data - (pointer) ???
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_get_ex_new_index.html|http://www.openssl.org/docs/ssl/SSL_CTX_get_ex_new_index.html>
+
+=item * CTX_set_purpose
+
+ my $rv = Net::SSLeay::CTX_set_purpose($s, $purpose);
+ # $s - value coresponding to openssl's SSL_CTX structure
+ # $purpose - (integer) purpose identifier
+ #
+ # returns: 1 on success, 0 on failure
+ 
+ #avainable purpose identifier
+ 2 - X509_PURPOSE_SSL_SERVER
+ 3 - X509_PURPOSE_NS_SSL_SERVER
+ 4 - X509_PURPOSE_SMIME_SIGN
+ 5 - X509_PURPOSE_SMIME_ENCRYPT
+ 6 - X509_PURPOSE_CRL_SIGN
+ 7 - X509_PURPOSE_ANY
+ 8 - X509_PURPOSE_OCSP_HELPER
+ 9 - X509_PURPOSE_TIMESTAMP_SIGN
+
+=item * CTX_set_quiet_shutdown
+
+Sets the 'quiet shutdown' flag for $ctx to be mode. SSL objects created from $ctx inherit the mode valid at the time C<Net::SSLeay::new($ctx)> is called. 
+
+ Net::SSLeay::CTX_set_quiet_shutdown($ctx, $mode);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $mode - 0 or 1
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_quiet_shutdown.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_quiet_shutdown.html>
+
+=item * CTX_set_read_ahead
+
+ my $rv = Net::SSLeay::CTX_set_read_ahead($ctx, $val);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $val - read_ahead value to be set
+ #
+ # returns: the original read_ahead value
+
+=item * CTX_set_session_id_context
+
+Sets the context $sid_ctx of length $sid_ctx_len within which a session can be reused for the $ctx object.
+
+ my $rv = Net::SSLeay::CTX_set_session_id_context($ctx, $sid_ctx, $sid_ctx_len);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $sid_ctx - data buffer
+ # $sid_ctx_len - lenght of data in $sid_ctx
+ #
+ # returns: 1 on success, 0 on failure (the error is logged to the error stack)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_session_id_context.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_session_id_context.html>
+
+=item * CTX_set_ssl_version
+
+Sets a new default TLS/SSL method for SSL objects newly created from this $ctx. 
+SSL objects already created with C<Net::SSLeay::new($ctx)> are not
+affected, except when C<Net::SSLeay:clear($ssl)> is being called.
+
+ my $rv = Net::SSLeay::CTX_set_ssl_version($ctx, $meth);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $meth - value coresponding to openssl's SSL_METHOD structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_ssl_version.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_ssl_version.html>
+
+=item * CTX_set_timeout
+
+Sets the timeout for newly created sessions for $ctx to $t. The timeout value $t must be given in seconds.
+
+ my $rv = Net::SSLeay::CTX_set_timeout($ctx, $t);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $t - timeout in seconds
+ #
+ # returns: previously set timeout value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_timeout.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_timeout.html>
+
+=item * CTX_set_tmp_dh
+
+Sets DH parameters to be used to be $dh. The key is inherited by all ssl objects created from $ctx.
+
+ my $rv = Net::SSLeay::CTX_set_tmp_dh($ctx, $dh);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $dh - value coresponding to openssl's DH structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_dh_callback.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_dh_callback.html>
+
+=item * CTX_set_tmp_dh_callback
+
+Sets the callback function for $ctx to be used when a DH parameters are required to $tmp_dh_callback.
+
+ Net::SSLeay::CTX_set_tmp_dh_callback($ctx, $tmp_dh_callback);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # tmp_dh_callback - (function pointer) ???
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_dh_callback.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_dh_callback.html>
+
+=item * CTX_set_tmp_rsa
+
+Sets the temporary/ephemeral RSA key to be used to be $rsa.
+
+ my $rv = Net::SSLeay::CTX_set_tmp_rsa($ctx, $rsa);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $rsa - value coresponding to openssl's RSA structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_rsa_callback.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_rsa_callback.html>
+
+=item * CTX_set_tmp_rsa_callback
+
+Sets the callback function for ctx to be used when a temporary/ephemeral RSA key is required to $tmp_rsa_callback.
+
+ Net::SSLeay::CTX_set_tmp_rsa_callback($ctx, $tmp_rsa_callback);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $tmp_rsa_callback - (function pointer) ???
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_rsa_callback.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_rsa_callback.html>
+
+=item * CTX_set_trust
+
+ my $rv = Net::SSLeay::CTX_set_trust($s, $trust);
+ # $s - value coresponding to openssl's SSL_CTX structure
+ # $trust - (integer) trust identifier
+ #
+ # returns: the original value
+ 
+ #available trust identifiers
+ 1 - X509_TRUST_COMPAT
+ 2 - X509_TRUST_SSL_CLIENT
+ 3 - X509_TRUST_SSL_SERVER
+ 4 - X509_TRUST_EMAIL
+ 5 - X509_TRUST_OBJECT_SIGN
+ 6 - X509_TRUST_OCSP_SIGN
+ 7 - X509_TRUST_OCSP_REQUEST
+ 8 - X509_TRUST_TSA
+
+=item * CTX_set_verify_depth
+
+Sets the maximum depth for the certificate chain verification that shall be allowed for ctx.
+
+ Net::SSLeay::CTX_set_verify_depth($ctx, $depth);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $depth - max. depth
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_verify.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_verify.html>
+
+=item * CTX_use_PKCS12_file
+
+Adds the certificate and private key from PKCS12 file $p12filename to $ctx.
+
+ my $rv = Net::SSLeay::CTX_use_PKCS12_file($ctx, $p12filename, $password);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $p12filename - (string) filename
+ # $password - (string) password to decrypt private key
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * CTX_use_PrivateKey
+
+Adds the private key $pkey to $ctx.
+
+ my $rv = Net::SSLeay::CTX_use_PrivateKey($ctx, $pkey);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $pkey - value coresponding to openssl's EVP_PKEY structure
+ #
+ # returns: 1 on success, otherwise check out the error stack to find out the reason
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
+
+=item * CTX_use_PrivateKey_file
+
+Adds the first private key found in $file to $ctx.
+
+ my $rv = Net::SSLeay::CTX_use_PrivateKey_file($ctx, $file, $type);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $file - (string) file name
+ # $type - (integer) type - use constants Net::SSLeay::SSL_FILETYPE_PEM() or Net::SSLeay::SSL_FILETYPE_PEM()
+ #
+ # returns: 1 on success, otherwise check out the error stack to find out the reason
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
+
+=item * CTX_use_RSAPrivateKey
+
+Adds the RSA private key $rsa to $ctx.
+
+ my $rv = Net::SSLeay::CTX_use_RSAPrivateKey($ctx, $rsa);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $rsa - value coresponding to openssl's RSA structure
+ #
+ # returns: 1 on success, otherwise check out the error stack to find out the reason
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
+
+=item * CTX_use_RSAPrivateKey_file
+
+Adds the first RSA private key found in $file to $ctx.
+
+ my $rv = Net::SSLeay::CTX_use_RSAPrivateKey_file($ctx, $file, $type);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $file - (string) file name
+ # $type - (integer) type - use constants Net::SSLeay::SSL_FILETYPE_PEM() or Net::SSLeay::SSL_FILETYPE_PEM()
+ #
+ # returns: 1 on success, otherwise check out the error stack to find out the reason
+
+=item * CTX_use_certificate
+
+Loads the certificate $x into $ctx
+
+ my $rv = Net::SSLeay::CTX_use_certificate($ctx, $x);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $x - value coresponding to openssl's X509 structure
+ #
+ # returns: 1 on success, otherwise check out the error stack to find out the reason
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
+
+=item * CTX_use_certificate_chain_file
+
+Loads a certificate chain from $file into $ctx. The certificates must be in PEM format and must be sorted
+starting with the subject's certificate (actual client or server certificate), followed by intermediate
+CA certificates if applicable, and ending at the highest level (root) CA.
+
+ my $rv = Net::SSLeay::CTX_use_certificate_chain_file($ctx, $file);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $file - (string) file name
+ #
+ # returns: 1 on success, otherwise check out the error stack to find out the reason
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
+
+=item * CTX_use_certificate_file
+
+Loads the first certificate stored in $file into $ctx.
+
+ my $rv = Net::SSLeay::CTX_use_certificate_file($ctx, $file, $type);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $file - (string) file name
+ # $type - (integer) type - use constants Net::SSLeay::SSL_FILETYPE_PEM() or Net::SSLeay::SSL_FILETYPE_PEM()
+ #
+ # returns: 1 on success, otherwise check out the error stack to find out the reason
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
+
+=back
+
+=head3 Low level API: RAND_* related functions
+
+Check openssl doc related to RAND stuff L<http://www.openssl.org/docs/crypto/rand.html|http://www.openssl.org/docs/crypto/rand.html>
+
+=over
+
+=item * RAND_add
+
+Mixes the $num bytes at $buf into the PRNG state.
+
+ Net::SSLeay::RAND_add($buf, $num, $entropy);
+ # $buf - buffer with data to be mixed into the PRNG state
+ # $num - number of bytes in $buf
+ # $entropy - estimate of how much randomness is contained in $buf (in bytes)
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_add.html|http://www.openssl.org/docs/crypto/RAND_add.html>
+ 
+=item * RAND_seed
+
+Equivalent to L</RAND_add> when $num == $entropy.
+
+ Net::SSLeay::RAND_seed($buf);   # Perlishly figures out buf size
+ # $buf - buffer with data to be mixed into the PRNG state
+ # $num - number of bytes in $buf
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_add.html|http://www.openssl.org/docs/crypto/RAND_add.html>
+
+=item * RAND_status
+
+Gives PRNG status (seeded enough or not).
+
+ my $rv = Net::SSLeay::RAND_status();
+ #returns: 1 if the PRNG has been seeded with enough data, 0 otherwise
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_add.html|http://www.openssl.org/docs/crypto/RAND_add.html>
+
+=item * RAND_bytes
+
+Puts $num cryptographically strong pseudo-random bytes into $buf.
+
+ my $rv = Net::SSLeay::RAND_bytes($buf, $num);
+ # $buf - buffer where the random data will be stored
+ # $num - the size (in bytes) of requested random data
+ #
+ # returns: 1 on success, 0 otherwise
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_bytes.html|http://www.openssl.org/docs/crypto/RAND_bytes.html>
+
+=item * RAND_pseudo_bytes
+
+Puts $num pseudo-random (not necessarily unpredictable) bytes into $buf.
+
+ my $rv = Net::SSLeay::RAND_pseudo_bytes($buf, $num);
+ # $buf - buffer where the random data will be stored
+ # $num - the size (in bytes) of requested random data
+ #
+ # returns: 1 if the bytes generated are cryptographically strong, 0 otherwise
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_bytes.html|http://www.openssl.org/docs/crypto/RAND_bytes.html>
+
+=item * RAND_cleanup
+
+Erase the PRNG state.
+
+ Net::SSLeay::RAND_cleanup();
+ # no args, no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_cleanup.html|http://www.openssl.org/docs/crypto/RAND_cleanup.html>
+
+=item * RAND_egd
+
+Queries the entropy gathering daemon EGD on socket $path for 255 bytes.
+
+ my $rv = Net::SSLeay::RAND_egd($path);
+ # $path - path to a socket of entropy gathering daemon EGD
+ #
+ # returns: the number of bytes read from the daemon on success, and -1 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_egd.html|http://www.openssl.org/docs/crypto/RAND_egd.html>
+
+=item * RAND_egd_bytes
+
+Queries the entropy gathering daemon EGD on socket $path for $bytes bytes.
+
+ my $rv = Net::SSLeay::RAND_egd_bytes($path, $bytes);
+ # $path - path to a socket of entropy gathering daemon EGD
+ # $bytes - number of bytes we want from EGD
+ #
+ # returns: the number of bytes read from the daemon on success, and -1 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_egd.html|http://www.openssl.org/docs/crypto/RAND_egd.html>
+
+=item * RAND_file_name
+
+Generates a default path for the random seed file.
+
+ my $file = Net::SSLeay::RAND_file_name($num);
+ # $num - maximum size of returned file name
+ #
+ # returns: string with file name on success, '' (empty string) on failure
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_load_file.html|http://www.openssl.org/docs/crypto/RAND_load_file.html>
+
+=item * RAND_load_file
+
+Reads $max_bytes of bytes from $file_name and adds them to the PRNG.
+
+ my $rv = Net::SSLeay::RAND_load_file($file_name, $max_bytes);
+ # $file_name - the name of file
+ # $max_bytes - bytes to read from $file_name; -1 => the complete file is read
+ #
+ # returns: the number of bytes read
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_load_file.html|http://www.openssl.org/docs/crypto/RAND_load_file.html>
+
+=item * RAND_write_file
+
+Writes 1024 random bytes to $file_name which can be used to initialize the PRNG by calling L</RAND_load_file> in a later session.
+
+ my $rv = Net::SSLeay::RAND_write_file($file_name);
+ # $file_name - the name of file
+ #
+ # returns: the number of bytes written, and -1 if the bytes written were generated without appropriate seed
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_load_file.html|http://www.openssl.org/docs/crypto/RAND_load_file.html>
+
+=item * RAND_poll
+
+Collects some entropy from operating system and adds it to the PRNG.
+
+ my $rv = Net::SSLeay::RAND_poll();
+ # returns: 1 on success, 0 on failure (unable to gather reasonable entropy)
+
+=back
+
+=head3 Low level API: ASN1_TIME_* related functions
+
+=over
+
+=item * ASN1_TIME_new
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+ my $time = ASN1_TIME_new();
+ # returns: value coresponding to openssl's ASN1_TIME structure
+
+=item * ASN1_TIME_free
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+ ASN1_TIME_free($time);
+ # $time - value coresponding to openssl's ASN1_TIME structure
+
+=item * ASN1_TIME_set
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+ ASN1_TIME_set($time, $t);
+ # $time - value coresponding to openssl's ASN1_TIME structure
+ # $t - time value in seconds since 1.1.1970
+
+B<BEWARE:> It is platform dependent how this function will handle dates after 2038.
+Although perl's integer is large enough the internal implementation of this function 
+is dependant on the size of time_t structure (32bit time_t has problem with 2038).
+
+If you want to safely set date and time after 2038 use function L</P_ASN1_TIME_set_isotime>.
+
+=item * P_ASN1_TIME_get_isotime
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7e
+
+B<NOTE:> Does not exactly correspond to any low level API function
+
+Gives ISO-8601 string representation of ASN1_TIME structure.
+
+ my $datetime_string = P_ASN1_TIME_get_isotime($time);
+ # $time - value coresponding to openssl's ASN1_TIME structure
+ #
+ # returns: datetime string like '2033-05-16T20:39:37Z' or '' on failure
+
+The output format is compatible with module L<DateTime::Format::RFC3339>
+
+=item * P_ASN1_TIME_set_isotime
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7e
+
+B<NOTE:> Does not exactly correspond to any low level API function
+
+Sets time and date value of ANS1_time structure.
+
+ my $rv = P_ASN1_TIME_set_isotime($time, $string);
+ # $time - value coresponding to openssl's ASN1_TIME structure
+ # $string - ISO-8601 timedate string like '2033-05-16T20:39:37Z'
+ #
+ # returns: 1 on success, 0 on failure
+
+The C<$string> parameter has to be in full form like C<"2012-03-22T23:55:33"> or
+C<"2012-03-22T23:55:33Z"> or C<"2012-03-22T23:55:33CET">. Short forms like
+C<"2012-03-22T23:55"> or C<"2012-03-22"> are not supported.
+ 
+=item * P_ASN1_TIME_put2string
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before, has bugs with openssl-0.9.8i
+
+B<NOTE:> Does not exactly correspond to any low level API function
+
+Gives string representation of ASN1_TIME structure.
+
+ my $str = P_ASN1_TIME_put2string($time);
+ # $time - value coresponding to openssl's ASN1_TIME structure
+ #
+ # returns: datetime string like 'May 16 20:39:37 2033 GMT'
+
+=item * P_ASN1_UTCTIME_put2string
+
+B<NOTE:> deprecated function, only for backward compatibility, just an alias
+for L</P_ASN1_TIME_put2string>
+
+=back
+
+=head3 Low level API: X509_* related functions
+
+This module largely lacks interface to the X509 and RAND routines, but
+as I was lazy and needed them, the following kludges are implemented:
+
+    $x509_name = Net::SSLeay::X509_get_subject_name($x509_cert);
+    $x509_name = Net::SSLeay::X509_get_issuer_name($x509_cert);
+    print Net::SSLeay::X509_NAME_oneline($x509_name);
+    $text = Net::SSLeay::X509_NAME_get_text_by_NID($name, $nid);
+
+    ($type1, $subject1, $type2, $subject2, ...) =
+       Net::SSLeay::X509_get_subjectAltNames($x509_cert)
+
+    subjectAltName types as per x509v3.h GEN_*, for example
+    GEN_DNS or GEN_IPADD which can be imported.
+
+Actually you should consider using the following helper functions:
+
+    print Net::SSLeay::dump_peer_certificate($ssl);
+    Net::SSLeay::randomize();
+
+=head3 Low level API: Digest related functions
+
+=over
+
+=item * OpenSSL_add_all_digests
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+ Net::SSLeay::OpenSSL_add_all_digests();
+ # no args, no return value
+
+http://www.openssl.org/docs/crypto/OpenSSL_add_all_algorithms.html
+
+=item * P_EVP_MD_list_all
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-1.0.0
+
+B<NOTE:> Does not exactly correspond to any low level API function
+
+ my $rv = Net::SSLeay::P_EVP_MD_list_all();
+ #
+ # returns: arrayref - list of available digest names
+
+The returned digest names correspond to values expected by L</EVP_get_digestbyname>.
+
+Note that some of the digets are available by default and some only after calling L</OpenSSL_add_all_digests>.
+
+=item * EVP_get_digestbyname
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+ my $rv = Net::SSLeay::EVP_get_digestbyname($name);
+ # $name - string with digest name
+ #
+ # returns: value coresponding to openssl's EVP_MD structure
+
+The $name param can be: 
+ 
+ md2
+ md4
+ md5
+ mdc2
+ ripemd160
+ sha
+ sha1
+ sha224
+ sha256
+ sha512
+ whirlpool
+
+Or better check the supported digests by calling L</P_EVP_MD_list_all>.
+
+=item * EVP_MD_type
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+ my $rv = Net::SSLeay::EVP_MD_type($md);
+ # $md - value coresponding to openssl's EVP_MD structure
+ #
+ # returns: the NID (integer) of the OBJECT IDENTIFIER representing the given message digest
+
+=item * EVP_MD_size
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+ my $rv = Net::SSLeay::EVP_MD_size($md);
+ # $md - value coresponding to openssl's EVP_MD structure
+ #
+ # returns: the size of the message digest in bytes (e.g. 20 for SHA1)
+
+=item * EVP_MD_CTX_md
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+
+ Net::SSLeay::EVP_MD_CTX_md($ctx);
+ # $ctx - value coresponding to openssl's EVP_MD_CTX structure
+ #
+ # returns: value coresponding to openssl's EVP_MD structure
+
+=item * EVP_MD_CTX_create
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+
+Allocates, initializes and returns a digest context.
+
+ my $rv = Net::SSLeay::EVP_MD_CTX_create();
+ #
+ # returns: value coresponding to openssl's EVP_MD_CTX structure
+
+The complete idea behind EVP_MD_CTX looks like this example:
+
+  Net::SSLeay::OpenSSL_add_all_digests();
+  
+  my $md = Net::SSLeay::EVP_get_digestbyname("sha1");
+  my $ctx = Net::SSLeay::EVP_MD_CTX_create();
+  Net::SSLeay::EVP_DigestInit($ctx, $md);
+  
+  while(my $chunk = get_piece_of_data()) {
+    Net::SSLeay::EVP_DigestUpdate($ctx,$chunk);
+  }
+  
+  my $result = Net::SSLeay::EVP_DigestFinal($ctx);
+  Net::SSLeay::EVP_MD_CTX_destroy($ctx); 
+  
+  print "digest=", unpack('H*', $result), "\n"; #print hex value
+
+=item * EVP_DigestInit_ex
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+
+Sets up digest context $ctx to use a digest $type from ENGINE $impl, $ctx must be
+initialized before calling this function, type will typically be supplied by a function
+such as L</EVP_get_digestbyname>. If $impl is 0 then the default implementation of digest $type is used. 
+
+ my $rv = Net::SSLeay::EVP_DigestInit_ex($ctx, $type, $impl);
+ # $ctx  - value coresponding to openssl's EVP_MD_CTX structure
+ # $type - value coresponding to openssl's EVP_MD structure
+ # $impl - value coresponding to openssl's ENGINE structure
+ #
+ # returns: 1 for success and 0 for failure
+
+=item * EVP_DigestInit
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+
+Behaves in the same way as L</EVP_DigestInit_ex> except the passed context $ctx does not have
+to be initialized, and it always uses the default digest implementation. 
+
+ my $rv = Net::SSLeay::EVP_DigestInit($ctx, $type);
+ # $ctx - value coresponding to openssl's EVP_MD_CTX structure
+ # $type - value coresponding to openssl's EVP_MD structure
+ #
+ # returns: 1 for success and 0 for failure
+
+=item * EVP_MD_CTX_destroy
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+
+Cleans up digest context $ctx and frees up the space allocated to it, it should be
+called only on a context created using L</EVP_MD_CTX_create>.
+
+ Net::SSLeay::EVP_MD_CTX_destroy($ctx);
+ # $ctx - value coresponding to openssl's EVP_MD_CTX structure
+ #
+ # returns: no return value
+
+=item * EVP_DigestUpdate
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+
+ my $rv = Net::SSLeay::EVP_DigestUpdate($ctx, $data);
+ # $ctx  - value coresponding to openssl's EVP_MD_CTX structure
+ # $data - data to be hashed
+ #
+ # returns: 1 for success and 0 for failure
+
+=item * EVP_DigestFinal_ex
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+
+Retrieves the digest value from $ctx. After calling L</EVP_DigestFinal_ex> no
+additional calls to L</EVP_DigestUpdate> can be made, but 
+L</EVP_DigestInit_ex> can be called to initialize a new digest operation. 
+
+ my $digest_value = Net::SSLeay::EVP_DigestFinal_ex($ctx);
+ # $ctx - value coresponding to openssl's EVP_MD_CTX structure
+ #
+ # returns: hash value (binary)
+ 
+ #to get printable (hex) value of digest use:
+ print unpack('H*', $digest_value);
+
+=item * EVP_DigestFinal
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+
+Similar to L</EVP_DigestFinal_ex> except the digest context ctx is automatically cleaned up.
+
+ my $rv = Net::SSLeay::EVP_DigestFinal($ctx);
+ # $ctx - value coresponding to openssl's EVP_MD_CTX structure
+ #
+ # returns: hash value (binary)
+
+ #to get printable (hex) value of digest use:
+ print unpack('H*', $digest_value);
+
+=item * MD2
+
+B<COMPATIBILITY:> no supported by default in openssl-1.0.0
+
+Computes MD2 from given $data (all data needs to be loaded into memory)
+
+ my $digest = Net::SSLeay::MD2($data);
+ print "digest(hexadecimal)=", unpack('H*', $digest);
+
+=item * MD4
+
+Computes MD4 from given $data (all data needs to be loaded into memory)
+
+ my $digest = Net::SSLeay::MD4($data);
+ print "digest(hexadecimal)=", unpack('H*', $digest);
+
+=item * MD5
+
+Computes MD5 from given $data (all data needs to be loaded into memory)
+
+ my $digest = Net::SSLeay::MD5($data);
+ print "digest(hexadecimal)=", unpack('H*', $digest);
+
+=item * RIPEMD160
+
+Computes RIPEMD160 from given $data (all data needs to be loaded into memory)
+
+ my $digest = Net::SSLeay::RIPEMD160($data);
+ print "digest(hexadecimal)=", unpack('H*', $digest);
+
+=item * SHA1
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+Computes SHA1 from given $data (all data needs to be loaded into memory)
+
+ my $digest = Net::SSLeay::SHA1($data);
+ print "digest(hexadecimal)=", unpack('H*', $digest);
+
+=item * SHA256
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.8
+
+Computes SHA256 from given $data (all data needs to be loaded into memory)
+
+ my $digest = Net::SSLeay::SHA256($data);
+ print "digest(hexadecimal)=", unpack('H*', $digest);
+
+=item * SHA512
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.8
+
+Computes SHA512 from given $data (all data needs to be loaded into memory)
+
+ my $digest = Net::SSLeay::SHA512($data);
+ print "digest(hexadecimal)=", unpack('H*', $digest);
+
+=item * EVP_Digest
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+
+Computes "any" digest from given $data (all data needs to be loaded into memory)
+
+ my $md = Net::SSLeay::EVP_get_digestbyname("sha1"); #or any other algorithm
+ my $digest = Net::SSLeay::EVP_Digest($data, $md);
+ print "digest(hexadecimal)=", unpack('H*', $digest);
+
+=item * EVP_sha1
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+
+ my $md = Net::SSLeay::EVP_sha1();
+ #
+ # returns: value coresponding to openssl's EVP_MD structure
+
+=item * EVP_sha256
+
+B<COMPATIBILITY:> requires at least openssl-0.9.8
+
+ my $md = Net::SSLeay::EVP_sha256();
+ #
+ # returns: value coresponding to openssl's EVP_MD structure
+
+=item * EVP_sha512
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.8
+
+ my $md = Net::SSLeay::EVP_sha512();
+ #
+ # returns: value coresponding to openssl's EVP_MD structure
+
+=item * EVP_add_digest
+
+ my $rv = Net::SSLeay::EVP_add_digest($digest);
+ # $digest - value coresponding to openssl's EVP_MD structure
+ #
+ # returns: 1 on success, 0 otherwise
+
+=back
+
+=head3 Low level API: RSA_* related functions
+
+Some RSA functions are available:
+
+    $rsakey = Net::SSLeay::RSA_generate_key();
+    Net::SSLeay::CTX_set_tmp_rsa($ctx, $rsakey);
+    Net::SSLeay::RSA_free($rsakey);
+
+=head3 Low level API: Digests related functions
+
+Some Digest functions are available if supported by the underlying
+library.  These may include MD2, MD4, MD5, and RIPEMD160:
+
+    $hash = Net::SSLeay::MD5($foo);
+    print unpack('H*', $hash);
+
+=head3 Low level API: BIO_* related functions
+
+Some BIO functions are available:
+
+    Net::SSLeay::BIO_s_mem();
+    $bio = Net::SSLeay::BIO_new(BIO_s_mem())
+    $bio = Net::SSLeay::BIO_new_file($filename, $mode);
+    Net::SSLeay::BIO_free($bio)
+    $count = Net::SSLeay::BIO_write($data);
+    $data = Net::SSLeay::BIO_read($bio);
+    $data = Net::SSLeay::BIO_read($bio, $maxbytes);
+    $is_eof = Net::SSLeay::BIO_eof($bio);
+    $count = Net::SSLeay::BIO_pending($bio);
+    $count = Net::SSLeay::BIO_wpending ($bio);
+
+=head3 Low level API: Other functions
+
+Some very low level API functions are available:
+
+    $client_random = Net::SSLeay::get_client_random($ssl);
+    $server_random = Net::SSLeay::get_server_random($ssl);
+    $session = Net::SSLeay::get_session($ssl);
+    $master_key = Net::SSLeay::SESSION_get_master_key($session);
+    Net::SSLeay::SESSION_set_master_key($session, $master_secret);
+    $keyblocksize = Net::SSLeay::get_keyblock_size($session);
+
+=head1 EXAMPLES
+
+One very good example to look at is the implementation of C<sslcat()> in the
+C<SSLeay.pm> file.
+
+The following is a simple SSLeay client (with too little error checking :-(
+
+    #!/usr/local/bin/perl
+    use Socket;
+    use Net::SSLeay qw(die_now die_if_ssl_error) ;
+    Net::SSLeay::load_error_strings();
+    Net::SSLeay::SSLeay_add_ssl_algorithms();
+    Net::SSLeay::randomize();
+
+    ($dest_serv, $port, $msg) = @ARGV;      # Read command line
+    $port = getservbyname ($port, 'tcp') unless $port =~ /^\d+$/;
+    $dest_ip = gethostbyname ($dest_serv);
+    $dest_serv_params  = sockaddr_in($port, $dest_ip);
+
+    socket  (S, &AF_INET, &SOCK_STREAM, 0)  or die "socket: $!";
+    connect (S, $dest_serv_params)          or die "connect: $!";
+    select  (S); $| = 1; select (STDOUT);   # Eliminate STDIO buffering
+
+    # The network connection is now open, lets fire up SSL    
+
+    $ctx = Net::SSLeay::CTX_new() or die_now("Failed to create SSL_CTX $!");
+    Net::SSLeay::CTX_set_options($ctx, &Net::SSLeay::OP_ALL)
+         and die_if_ssl_error("ssl ctx set options");
+    $ssl = Net::SSLeay::new($ctx) or die_now("Failed to create SSL $!");
+    Net::SSLeay::set_fd($ssl, fileno(S));   # Must use fileno
+    $res = Net::SSLeay::connect($ssl) and die_if_ssl_error("ssl connect");
+    print "Cipher `" . Net::SSLeay::get_cipher($ssl) . "'\n";
+
+    # Exchange data
+
+    $res = Net::SSLeay::write($ssl, $msg);  # Perl knows how long $msg is
+    die_if_ssl_error("ssl write");
+    CORE::shutdown S, 1;  # Half close --> No more output, sends EOF to server
+    $got = Net::SSLeay::read($ssl);         # Perl returns undef on failure
+    die_if_ssl_error("ssl read");
+    print $got;
+
+    Net::SSLeay::free ($ssl);               # Tear down connection
+    Net::SSLeay::CTX_free ($ctx);
+    close S;
+
+The following is a simple SSLeay echo server (non forking):
+
+    #!/usr/local/bin/perl -w
+    use Socket;
+    use Net::SSLeay qw(die_now die_if_ssl_error);
+    Net::SSLeay::load_error_strings();
+    Net::SSLeay::SSLeay_add_ssl_algorithms();
+    Net::SSLeay::randomize();
+
+    $our_ip = "\0\0\0\0"; # Bind to all interfaces
+    $port = 1235;							 
+    $sockaddr_template = 'S n a4 x8';
+    $our_serv_params = pack ($sockaddr_template, &AF_INET, $port, $our_ip);
+
+    socket (S, &AF_INET, &SOCK_STREAM, 0)  or die "socket: $!";
+    bind (S, $our_serv_params)             or die "bind:   $!";
+    listen (S, 5)                          or die "listen: $!";
+    $ctx = Net::SSLeay::CTX_new ()         or die_now("CTX_new ($ctx): $!");
+    Net::SSLeay::CTX_set_options($ctx, &Net::SSLeay::OP_ALL)
+         and die_if_ssl_error("ssl ctx set options");
+
+    # Following will ask password unless private key is not encrypted
+    Net::SSLeay::CTX_use_RSAPrivateKey_file ($ctx, 'plain-rsa.pem',
+                                             &Net::SSLeay::FILETYPE_PEM);
+    die_if_ssl_error("private key");
+    Net::SSLeay::CTX_use_certificate_file ($ctx, 'plain-cert.pem',
+ 				           &Net::SSLeay::FILETYPE_PEM);
+    die_if_ssl_error("certificate");
+
+    while (1) {    
+        print "Accepting connections...\n";
+        ($addr = accept (NS, S))           or die "accept: $!";
+        select (NS); $| = 1; select (STDOUT);  # Piping hot!
+
+        ($af,$client_port,$client_ip) = unpack($sockaddr_template,$addr);
+        @inetaddr = unpack('C4',$client_ip);
+        print "$af connection from " .
+        join ('.', @inetaddr) . ":$client_port\n";
+
+        # We now have a network connection, lets fire up SSLeay...
+
+        $ssl = Net::SSLeay::new($ctx)      or die_now("SSL_new ($ssl): $!");
+        Net::SSLeay::set_fd($ssl, fileno(NS));
+
+        $err = Net::SSLeay::accept($ssl) and die_if_ssl_error('ssl accept');
+        print "Cipher `" . Net::SSLeay::get_cipher($ssl) . "'\n";
+
+        # Connected. Exchange some data.
+
+        $got = Net::SSLeay::read($ssl);     # Returns undef on fail
+        die_if_ssl_error("ssl read");
+        print "Got `$got' (" . length ($got) . " chars)\n";
+
+        Net::SSLeay::write ($ssl, uc ($got)) or die "write: $!";
+        die_if_ssl_error("ssl write");
+
+        Net::SSLeay::free ($ssl);           # Tear down connection
+        close NS;
+    }
+
+Yet another echo server. This one runs from C</etc/inetd.conf> so it avoids
+all the socket code overhead. Only caveat is opening an rsa key file -
+it had better be without any encryption or else it will not know where
+to ask for the password. Note how C<STDIN> and C<STDOUT> are wired to SSL.
+
+    #!/usr/local/bin/perl
+    # /etc/inetd.conf
+    #    ssltst stream tcp nowait root /path/to/server.pl server.pl
+    # /etc/services
+    #    ssltst		1234/tcp
+
+    use Net::SSLeay qw(die_now die_if_ssl_error);
+    Net::SSLeay::load_error_strings();
+    Net::SSLeay::SSLeay_add_ssl_algorithms();
+    Net::SSLeay::randomize();
+
+    chdir '/key/dir' or die "chdir: $!";
+    $| = 1;  # Piping hot!
+    open LOG, ">>/dev/console" or die "Can't open log file $!";
+    select LOG; print "server.pl started\n";
+
+    $ctx = Net::SSLeay::CTX_new()     or die_now "CTX_new ($ctx) ($!)";
+    $ssl = Net::SSLeay::new($ctx)     or die_now "new ($ssl) ($!)";
+    Net::SSLeay::set_options($ssl, &Net::SSLeay::OP_ALL)
+         and die_if_ssl_error("ssl set options");
+
+    # We get already open network connection from inetd, now we just
+    # need to attach SSLeay to STDIN and STDOUT
+    Net::SSLeay::set_rfd($ssl, fileno(STDIN));
+    Net::SSLeay::set_wfd($ssl, fileno(STDOUT));
+
+    Net::SSLeay::use_RSAPrivateKey_file ($ssl, 'plain-rsa.pem',
+                                         Net::SSLeay::FILETYPE_PEM);
+    die_if_ssl_error("private key");
+    Net::SSLeay::use_certificate_file ($ssl, 'plain-cert.pem',
+                                       Net::SSLeay::FILETYPE_PEM);
+    die_if_ssl_error("certificate");
+
+    Net::SSLeay::accept($ssl) and die_if_ssl_err("ssl accept: $!");
+    print "Cipher `" . Net::SSLeay::get_cipher($ssl) . "'\n";
+
+    $got = Net::SSLeay::read($ssl);
+    die_if_ssl_error("ssl read");
+    print "Got `$got' (" . length ($got) . " chars)\n";
+
+    Net::SSLeay::write ($ssl, uc($got)) or die "write: $!";
+    die_if_ssl_error("ssl write");
+
+    Net::SSLeay::free ($ssl);         # Tear down the connection
+    Net::SSLeay::CTX_free ($ctx);
+    close LOG;
+
+There are also a number of example/test programs in the examples directory:
+
+    sslecho.pl   -  A simple server, not unlike the one above
+    minicli.pl   -  Implements a client using low level SSLeay routines
+    sslcat.pl    -  Demonstrates using high level sslcat utility function
+    get_page.pl  -  Is a utility for getting html pages from secure servers
+    callback.pl  -  Demonstrates certificate verification and callback usage
+    stdio_bulk.pl       - Does SSL over Unix pipes
+    ssl-inetd-serv.pl   - SSL server that can be invoked from inetd.conf
+    httpd-proxy-snif.pl - Utility that allows you to see how a browser
+                          sends https request to given server and what reply
+                          it gets back (very educative :-)
+    makecert.pl  -  Creates a self signed cert (does not use this module)
+
+=head1 LIMITATIONS
+
+C<Net::SSLeay::read()> uses an internal buffer of 32KB, thus no single read
+will return more. In practice one read returns much less, usually
+as much as fits in one network packet. To work around this,
+you should use a loop like this:
+
+    $reply = '';
+    while ($got = Net::SSLeay::read($ssl)) {
+        last if print_errs('SSL_read');
+        $reply .= $got;
+    }
+
+Although there is no built-in limit in C<Net::SSLeay::write()>, the network
+packet size limitation applies here as well, thus use:
+
+    $written = 0;
+
+    while ($written < length($message)) {
+        $written += Net::SSLeay::write($ssl, substr($message, $written));
+        last if print_errs('SSL_write');
+    }
+
+Or alternatively you can just use the following convenience functions:
+
+    Net::SSLeay::ssl_write_all($ssl, $message) or die "ssl write failure";
+    $got = Net::SSLeay::ssl_read_all($ssl) or die "ssl read failure";
+
+=head1 KNOWN BUGS AND CAVEATS
+
+Autoloader emits a
+
+    Argument "xxx" isn't numeric in entersub at blib/lib/Net/SSLeay.pm'
+
+warning if die_if_ssl_error is made autoloadable. If you figure out why,
+drop me a line.
+
+Callback set using C<SSL_set_verify()> does not appear to work. This may
+well be an openssl problem (e.g. see C<ssl/ssl_lib.c> line 1029). Try using
+C<SSL_CTX_set_verify()> instead and do not be surprised if even this stops
+working in future versions.
+
+Callback and certificate verification stuff is generally too little tested.
+
+Random numbers are not initialized randomly enough, especially if you
+do not have C</dev/random> and/or C</dev/urandom> (such as in Solaris
+platforms - but it's been suggested that cryptorand daemon from the SUNski
+package solves this). In this case you should investigate third party
+software that can emulate these devices, e.g. by way of a named pipe
+to some program.
+
+Another gotcha with random number initialization is randomness
+depletion. This phenomenon, which has been extensively discussed in
+OpenSSL, Apache-SSL, and Apache-mod_ssl forums, can cause your
+script to block if you use C</dev/random> or to operate insecurely
+if you use C</dev/urandom>. What happens is that when too much
+randomness is drawn from the operating system's randomness pool
+then randomness can temporarily be unavailable. C</dev/random> solves
+this problem by waiting until enough randomness can be gathered - and
+this can take a long time since blocking reduces activity in the
+machine and less activity provides less random events: a vicious circle.
+C</dev/urandom> solves this dilemma more pragmatically by simply returning
+predictable "random" numbers. SomeC< /dev/urandom> emulation software
+however actually seems to implement C</dev/random> semantics. Caveat emptor.
+
+I've been pointed to two such daemons by Mik Firestone <mik@@speed.stdio._com>
+who has used them on Solaris 8: 
+
+=over
+
+=item 1
+
+Entropy Gathering Daemon (EGD) at L<http://www.lothar.com/tech/crypto/>
+
+=item 2
+
+Pseudo-random number generating daemon (PRNGD) at
+L<http://www.aet.tu-cottbus.de/personen/jaenicke/postfix_tls/prngd.html>
+
+=back
+
+If you are using the low level API functions to communicate with other
+SSL implementations, you would do well to call
+
+    Net::SSLeay::CTX_set_options($ctx, &Net::SSLeay::OP_ALL)
+         and die_if_ssl_error("ssl ctx set options");
+
+to cope with some well know bugs in some other SSL
+implementations. The high level API functions always set all known
+compatibility options.
+
+Sometimes C<sslcat()> (and the high level HTTPS functions that build on it)
+is too fast in signaling the EOF to legacy HTTPS servers. This causes
+the server to return empty page. To work around this problem you can
+set the global variable
+
+    $Net::SSLeay::slowly = 1;   # Add sleep so broken servers can keep up
+
+HTTP/1.1 is not supported. Specifically this module does not know to
+issue or serve multiple http requests per connection. This is a serious
+shortcoming, but using the SSL session cache on your server helps to
+alleviate the CPU load somewhat.
+
+As of version 1.09 many newer OpenSSL auxiliary functions were
+added (from C<REM_AUTOMATICALLY_GENERATED_1_09> onwards in C<SSLeay.xs>).
+Unfortunately I have not had any opportunity to test these. Some of
+them are trivial enough that I believe they "just work", but others
+have rather complex interfaces with function pointers and all. In these
+cases you should proceed wit great caution.
+
+This module defaults to using OpenSSL automatic protocol negotiation
+code for automatically detecting the version of the SSL protocol
+that the other end talks. With most web servers this works just
+fine, but once in a while I get complaints from people that the module
+does not work with some web servers. Usually this can be solved
+by explicitly setting the protocol version, e.g.
+
+   $Net::SSLeay::ssl_version = 2;  # Insist on SSLv2
+   $Net::SSLeay::ssl_version = 3;  # Insist on SSLv3
+   $Net::SSLeay::ssl_version = 10; # Insist on TLSv1
+
+Although the autonegotiation is nice to have, the SSL standards
+do not formally specify any such mechanism. Most of the world has
+accepted the SSLeay/OpenSSL way of doing it as the de facto standard. But
+for the few that think differently, you have to explicitly speak
+the correct version. This is not really a bug, but rather a deficiency
+in the standards. If a site refuses to respond or sends back some
+nonsensical error codes (at the SSL handshake level), try this option
+before mailing me.
+
+On some systems, OpenSSL may be compiled without support for SSLv2.
+If this is the case, Net::SSLeay will warn if ssl_version has been set
+to 2.
+
+The high level API returns the certificate of the peer, thus allowing
+one to check what certificate was supplied. However, you will only be
+able to check the certificate after the fact, i.e. you already sent
+your form data by the time you find out that you did not trust them,
+oops.
+
+So, while being able to know the certificate after the fact is surely
+useful, the security minded would still choose to do the connection
+and certificate verification first and only then exchange data
+with the site. Currently none of the high level API functions do
+this, thus you would have to program it using the low level API. A
+good place to start is to see how the C<Net::SSLeay::http_cat()> function
+is implemented.
+
+The high level API functions use a global file handle C<SSLCAT_S>
+internally. This really should not be a problem because there is no
+way to interleave the high level API functions, unless you use threads
+(but threads are not very well supported in perl anyway (as of version
+5.6.1). However, you may run into problems if you call undocumented
+internal functions in an interleaved fashion. The best solution is to "require Net::SSLeay" 
+in one thread after all the threads have been created.
+
+=head1 DIAGNOSTICS
+
+=over
+
+=item Random number generator not seeded!!!
+
+B<(W)> This warning indicates that C<randomize()> was not able to read
+C</dev/random> or C</dev/urandom>, possibly because your system does not
+have them or they are differently named. You can still use SSL, but
+the encryption will not be as strong.
+
+=item open_tcp_connection: destination host not found:`server' (port 123) ($!)
+
+Name lookup for host named C<server> failed.
+
+=item open_tcp_connection: failed `server', 123 ($!)
+
+The name was resolved, but establishing the TCP connection failed.
+
+=item msg 123: 1 - error:140770F8:SSL routines:SSL23_GET_SERVER_HELLO:unknown proto
+
+SSLeay error string. The first number (123) is the PID, the second number
+(1) indicates the position of the error message in SSLeay error stack.
+You often see a pile of these messages as errors cascade.
+
+=item msg 123: 1 - error:02001002::lib(2) :func(1) :reason(2)
+
+The same as above, but you didn't call load_error_strings() so SSLeay
+couldn't verbosely explain the error. You can still find out what it
+means with this command:
+
+    /usr/local/ssl/bin/ssleay errstr 02001002
+
+=item Password is being asked for private key
+
+This is normal behaviour if your private key is encrypted. Either
+you have to supply the password or you have to use an unencrypted
+private key. Scan OpenSSL.org for the FAQ that explains how to
+do this (or just study examples/makecert.pl which is used
+during C<make test> to do just that).
+
+=back
+
+=head1 BUGS AND SUPPORT
+
+Please report any bugs or feature requests to
+C<bug-Net-SSLeay at rt.cpan.org>, or through the web interface at
+L<http://rt.cpan.org/Public/Dist/Display.html?Name=Net-SSLeay>.
+I will be notified, and then you'll automatically be notified of progress on
+your bug as I make changes.
+
+Subversion access to the latest source code etc can be obtained at
+L<http://alioth.debian.org/projects/net-ssleay>
+
+The developer mailing list (for people interested in contributing
+to the source code) can be found at
+L<http://lists.alioth.debian.org/mailman/listinfo/net-ssleay-devel>
+
+You can find documentation for this module with the C<perldoc> command.
+
+    perldoc Net::SSLeay
+
+You can also look for information at:
+
+=over 4
+
+=item * AnnoCPAN: Annotated CPAN documentation
+
+L<http://annocpan.org/dist/Net-SSLeay>
+
+=item * CPAN Ratings
+
+L<http://cpanratings.perl.org/d/Net-SSLeay>
+
+=item * Search CPAN
+
+L<http://search.cpan.org/dist/Net-SSLeay>
+
+=back
+
+Commercial support for Net::SSLeay may be obtained from
+
+   Symlabs (netssleay@symlabs.com)
+   Tel: +351-214.222.630
+   Fax: +351-214.222.637
+
+=head1 AUTHOR
+
+Maintained by Mike McCauley and Florian Ragwitz since November 2005
+
+Originally written by Sampo Kellomäki <sampo@symlabs.com>
+
+=head1 COPYRIGHT
+
+Copyright (c) 1996-2003 Sampo Kellomäki <sampo@symlabs.com>
+
+Copyright (C) 2005-2006 Florian Ragwitz <rafl@debian.org>
+
+Copyright (C) 2005 Mike McCauley <mikem@open.com.au>
+
+All Rights Reserved.
+
+Distribution and use of this module is under the same terms as the
+OpenSSL package itself (i.e. free, but mandatory attribution; NO
+WARRANTY). Please consult LICENSE file in the root of the OpenSSL
+distribution.
+
+While the source distribution of this perl module does not contain
+Eric's or OpenSSL's code, if you use this module you will use OpenSSL
+library. Please give Eric and OpenSSL team credit (as required by
+their licenses).
+
+And remember, you, and nobody else but you, are responsible for
+auditing this module and OpenSSL library for security problems,
+backdoors, and general suitability for your application.
+
+=head1 SEE ALSO
+
+  Net::SSLeay::Handle                      - File handle interface
+  ./examples                               - Example servers and a clients
+  <http://www.openssl.org/>                - OpenSSL source, documentation, etc
+  openssl-users-request@openssl.org        - General OpenSSL mailing list
+  <http://www.ietf.org/rfc/rfc2246.txt>    - TLS 1.0 specification
+  <http://www.w3c.org>                     - HTTP specifications
+  <http://www.ietf.org/rfc/rfc2617.txt>    - How to send password
+  <http://www.lothar.com/tech/crypto/>     - Entropy Gathering Daemon (EGD)
+  <http://www.aet.tu-cottbus.de/personen/jaenicke/postfix_tls/prngd.html>
+                           - pseudo-random number generating daemon (PRNGD)
+  perl(1)
+  perlref(1)
+  perllol(1)
+  perldoc ~openssl/doc/ssl/SSL_CTX_set_verify.pod

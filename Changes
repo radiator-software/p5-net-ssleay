@@ -62,6 +62,7 @@ Revision history for Perl extension Net::SSLeay.
     Fixed an error in 04_basic.t triggered if Test::Exception not present.
     Added documentation for many CTX_ functions. Courtesy kmx.
     Fixed mionor typos in SSLeay.xs. Courtesy kmx.
+    Moved documentation to new lib/Net/SSLeay.pod. Courtesy kmx.
 
 1.42	 2011-10-03
     Fixed incorrect documentation of how to enable CRL checking. Patched
