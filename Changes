@@ -56,6 +56,10 @@ Revision history for Perl extension Net::SSLeay.
     Further improvements to testing time functions. 
     Added t/local/37_asn1_time.t
     Added various digest functions, documentation and tests
+    Removed debug from P_ASN1_TIME_get_isotime. Courtesy kmx.
+    Remove unnecessary warnings about Random number generator not
+    seeded. Courtesy kmx.
+    Fixed an error in 04_basic.t triggered if Test::Exception not presnt.
 
 1.42	 2011-10-03
     Fixed incorrect documentation of how to enable CRL checking. Patched

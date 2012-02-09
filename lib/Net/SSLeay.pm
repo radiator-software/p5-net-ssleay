@@ -2893,7 +2893,8 @@ sub randomize (;$$$) {
     RAND_seed(rand() + $$);  # Stir it with time and pid
     
     unless ($rnsf || -r $Net::SSLeay::random_device || $seed || -S $egd_path) {
-	warn "Random number generator not seeded!!!" if $trace;
+	my $poll_retval = Net::SSLeay::RAND_poll();
+	warn "Random number generator not seeded!!!" if $trace && !$poll_retval;
     }
     
     RAND_load_file($rn_seed_file, -s _) if $rnsf;

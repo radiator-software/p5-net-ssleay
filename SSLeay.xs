@@ -2081,7 +2081,7 @@ P_ASN1_TIME_get_isotime(tm)
      /* ASN1_TIME_to_generalizedtime is buggy on pre-0.9.7e */
      ASN1_TIME_to_generalizedtime(tm,&tmp);
      if (tmp) {
-       if (1 ||ASN1_GENERALIZEDTIME_check(tmp)) {
+       if (ASN1_GENERALIZEDTIME_check(tmp)) {
          if (strlen(tmp->data)>=14 && strlen(tmp->data)<200) {
            strcpy (buf,"yyyy-mm-ddThh:mm:ss");
            strncpy(buf,   tmp->data,   4);
