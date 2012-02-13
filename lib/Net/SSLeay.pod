@@ -825,6 +825,585 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/SSLeay_version.html|http:
 
 =back
 
+=head3 Low level API: Initialization related functions
+
+=over
+
+=item * library_init
+
+Initialize SSL library by registering algorithms.
+
+ my $rv = Net::SSLeay::library_init();
+ #
+ # returns: always 1
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_library_init.html|http://www.openssl.org/docs/ssl/SSL_library_init.html>
+
+=item * add_ssl_algorithms
+
+The alias for L</library_init>
+
+ Net::SSLeay::add_ssl_algorithms();
+
+=item * OpenSSL_add_ssl_algorithms
+
+The alias for L</library_init>
+
+ Net::SSLeay::OpenSSL_add_ssl_algorithms();
+
+=item * SSLeay_add_ssl_algorithms
+
+The alias for L</library_init>
+
+ Net::SSLeay::SSLeay_add_ssl_algorithms();
+
+=item * load_error_strings
+
+Registers the error strings for all libcrypto + libssl related functions.
+
+ Net::SSLeay::load_error_strings();
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/ERR_load_crypto_strings.html|http://www.openssl.org/docs/crypto/ERR_load_crypto_strings.html>
+
+=item * ERR_load_crypto_strings
+
+Registers the error strings for all libcrypto functions. No need to call this function if you have already called L</load_error_strings>.
+
+ Net::SSLeay::ERR_load_crypto_strings();
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/ERR_load_crypto_strings.html|http://www.openssl.org/docs/crypto/ERR_load_crypto_strings.html>
+
+=item * ERR_load_RAND_strings
+
+Registers the error strings for RAND related functions. No need to call this function if you have already called L</load_error_strings>.
+
+ Net::SSLeay::ERR_load_RAND_strings();
+ #
+ # returns: no return value
+
+=item * ERR_load_SSL_strings
+
+Registers the error strings for SSL related functions. No need to call this function if you have already called L</load_error_strings>.
+
+ Net::SSLeay::ERR_load_SSL_strings();
+ #
+ # returns: no return value
+
+=back
+
+=head3 Low level API: ERR_* and SSL_alert_* related functions
+
+B<NOTE:> Please note that SSL_alert_* function have "SSL_" part stripped from their names.
+
+=over
+
+=item * ERR_clear_error
+
+Clear the error queue.
+
+ Net::SSLeay::ERR_clear_error();
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/ERR_clear_error.html|http://www.openssl.org/docs/crypto/ERR_clear_error.html>
+
+=item * ERR_error_string
+
+Generates a human-readable string representing the error code $error.
+
+ my $rv = Net::SSLeay::ERR_error_string($error);
+ # $error - (unsigned integer) error code
+ #
+ # returns: string
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/ERR_error_string.html|http://www.openssl.org/docs/crypto/ERR_error_string.html>
+
+=item * ERR_get_error
+
+Returns the earliest error code from the thread's error queue and removes the entry.
+This function can be called repeatedly until there are no more error codes to return.
+
+ my $rv = Net::SSLeay::ERR_get_error();
+ #
+ # returns: (unsigned integer) error code
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/ERR_get_error.html|http://www.openssl.org/docs/crypto/ERR_get_error.html>
+
+=item * ERR_peek_error
+
+Returns the earliest error code from the thread's error queue without modifying it.
+
+ my $rv = Net::SSLeay::ERR_peek_error();
+ #
+ # returns: (unsigned integer) error code
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/ERR_get_error.html|http://www.openssl.org/docs/crypto/ERR_get_error.html>
+
+=item * ERR_put_error
+
+Adds an error code to the thread's error queue. It signals that the error of $reason
+code reason occurred in function $func of library $lib, in line number $line of $file.
+
+ Net::SSLeay::ERR_put_error($lib, $func, $reason, $file, $line);
+ # $lib - (integer) library id (check openssl/err.h for constants e.g. ERR_LIB_SSL)
+ # $func - (integer) function id (check openssl/ssl.h for constants e.g. SSL_F_SSL23_READ)
+ # $reason - (integer) reason id (check openssl/ssl.h for constants e.g. SSL_R_SSL_HANDSHAKE_FAILURE)
+ # $file - (string) file name
+ # $line - (integer) line number in $file
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/ERR_put_error.html|http://www.openssl.org/docs/crypto/ERR_put_error.html>
+and L<http://www.openssl.org/docs/crypto/err.html|http://www.openssl.org/docs/crypto/err.html>
+
+=item * alert_desc_string
+
+Returns a two letter string as a short form describing the reason of the alert specified by value.
+
+ my $rv = Net::SSLeay::alert_desc_string($value);
+ # $value - (integer) allert id (check openssl/ssl.h for SSL3_AD_* and TLS1_AD_* constants)
+ #
+ # returns: description string (2 letters)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_alert_type_string.html|http://www.openssl.org/docs/ssl/SSL_alert_type_string.html>
+
+=item * alert_desc_string_long
+
+Returns a string describing the reason of the alert specified by value.
+
+ my $rv = Net::SSLeay::alert_desc_string_long($value);
+ # $value - (integer) allert id (check openssl/ssl.h for SSL3_AD_* and TLS1_AD_* constants)
+ #
+ # returns: description string
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_alert_type_string.html|http://www.openssl.org/docs/ssl/SSL_alert_type_string.html>
+
+=item * alert_type_string
+
+Returns a one letter string indicating the type of the alert specified by value.
+
+ my $rv = Net::SSLeay::alert_type_string($value);
+ # $value - (integer) allert id (check openssl/ssl.h for SSL3_AD_* and TLS1_AD_* constants)
+ #
+ # returns: string (1 letter)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_alert_type_string.html|http://www.openssl.org/docs/ssl/SSL_alert_type_string.html>
+
+=item * alert_type_string_long
+
+Returns a string indicating the type of the alert specified by value.
+
+ my $rv = Net::SSLeay::alert_type_string_long($value);
+ # $value - (integer) allert id (check openssl/ssl.h for SSL3_AD_* and TLS1_AD_* constants)
+ #
+ # returns: string
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_alert_type_string.html|http://www.openssl.org/docs/ssl/SSL_alert_type_string.html>
+
+=back
+
+=head3 Low level API: SSL_METHOD_* related functions
+
+=over
+
+=item * SSLv2_method
+
+Returns SSL_METHOD structure corresponding to SSLv2 method, the return value can be later used as a param of L</CTX_new_with_method>.
+
+ my $rv = Net::SSLeay::SSLv2_method();
+ #
+ # returns: value coresponding to openssl's SSL_METHOD structure (0 on failure)
+
+=item * SSLv3_method
+
+Returns SSL_METHOD structure corresponding to SSLv3 method, the return value can be later used as a param of L</CTX_new_with_method>.
+
+ my $rv = Net::SSLeay::SSLv3_method();
+ #
+ # returns: value coresponding to openssl's SSL_METHOD structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_new.html|http://www.openssl.org/docs/ssl/SSL_CTX_new.html>
+
+=item * TLSv1_method
+
+Returns SSL_METHOD structure corresponding to TLSv1 method, the return value can be later used as a param of L</CTX_new_with_method>.
+
+ my $rv = Net::SSLeay::TLSv1_method();
+ #
+ # returns: value coresponding to openssl's SSL_METHOD structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_new.html|http://www.openssl.org/docs/ssl/SSL_CTX_new.html>
+
+=back
+
+=head3 Low level API: ENGINE_* related functions
+
+=over
+
+=item * ENGINE_load_builtin_engines
+
+Load all bundled ENGINEs into memory and make them visible.
+
+ Net::SSLeay::ENGINE_load_builtin_engines();
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/engine.html|http://www.openssl.org/docs/crypto/engine.html>
+
+=item * ENGINE_register_all_complete
+
+Register all loaded ENGINEs for every algorithm they collectively implement.
+
+ Net::SSLeay::ENGINE_register_all_complete();
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/engine.html|http://www.openssl.org/docs/crypto/engine.html>
+
+=item * ENGINE_set_default
+
+Set default engine to $e + set its flags to $flags.
+
+ my $rv = Net::SSLeay::ENGINE_set_default($e, $flags);
+ # $e - value coresponding to openssl's ENGINE structure
+ # $flags - (integer) engine flags
+ #          flags value can be made by bitwise "OR"ing:
+ #          0x0001 - ENGINE_METHOD_RSA
+ #          0x0002 - ENGINE_METHOD_DSA
+ #          0x0004 - ENGINE_METHOD_DH
+ #          0x0008 - ENGINE_METHOD_RAND
+ #          0x0010 - ENGINE_METHOD_ECDH
+ #          0x0020 - ENGINE_METHOD_ECDSA
+ #          0x0040 - ENGINE_METHOD_CIPHERS
+ #          0x0080 - ENGINE_METHOD_DIGESTS
+ #          0x0100 - ENGINE_METHOD_STORE
+ #          0x0200 - ENGINE_METHOD_PKEY_METHS
+ #          0x0400 - ENGINE_METHOD_PKEY_ASN1_METHS
+ #          Obvious all-or-nothing cases:
+ #          0xFFFF - ENGINE_METHOD_ALL
+ #          0x0000 - ENGINE_METHOD_NONE
+ #
+ # returns: 1 on success, 0 on failure
+ 
+Check openssl doc L<http://www.openssl.org/docs/crypto/engine.html|http://www.openssl.org/docs/crypto/engine.html>
+ 
+=item * ENGINE_by_id
+
+Get ENGINE by its identification $id.
+
+ my $rv = Net::SSLeay::ENGINE_by_id($id);
+ # $id - (string) engine identification e.g. "dynamic"
+ #
+ # returns: value coresponding to openssl's ENGINE structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/engine.html|http://www.openssl.org/docs/crypto/engine.html>
+
+=back
+
+=head3 Low level API: EVP_PKEY_* related functions
+
+=over
+
+=item * EVP_PKEY_copy_parameters
+
+Copies the parameters from key $from to key $to. 
+
+ my $rv = Net::SSLeay::EVP_PKEY_copy_parameters($to, $from);
+ # $to - value coresponding to openssl's EVP_PKEY structure
+ # $from - value coresponding to openssl's EVP_PKEY structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/EVP_PKEY_cmp.html|http://www.openssl.org/docs/crypto/EVP_PKEY_cmp.html>
+
+=back
+
+=head3 Low level API: PEM_* related functions
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/pem.html|http://www.openssl.org/docs/crypto/pem.html>
+
+=over
+
+=item * PEM_read_bio_DHparams
+
+Reads DH structure from BIO.
+
+ my $rv = Net::SSLeay::PEM_read_bio_DHparams($bio);
+ # $bio - value coresponding to openssl's BIO structure
+ #
+ # returns: value coresponding to openssl's DH structure (0 on failure)
+
+=item * PEM_read_bio_X509_CRL
+
+Reads X509_CRL structure from BIO.
+
+ my $rv = Net::SSLeay::PEM_read_bio_X509_CRL($bio);
+ # $bio - value coresponding to openssl's BIO structure
+ #
+ # returns: value coresponding to openssl's X509_CRL structure (0 on failure)
+
+=item * PEM_get_string_X509
+
+B<NOTE:> Does not exactly correspond to any low level API function
+
+Converts/exports X509 certificate to string (PEM format). 
+
+ Net::SSLeay::PEM_get_string_X509($x509);
+ # $x509 - value coresponding to openssl's X509 structure
+ #
+ # returns: string with $x509 in PEM format
+
+=back
+
+=head3 Low level API: SESSION_* related functions
+
+=over
+
+=item * d2i_SSL_SESSION
+
+Transforms the external ASN1 representation of an SSL/TLS session, stored as binary data 
+at location pp with length length, into an SSL_SESSION object.
+
+??? (does this function really work?)
+
+ my $rv = Net::SSLeay::d2i_SSL_SESSION($a, $pp, $length);
+ # $a - value coresponding to openssl's SSL_SESSION structure
+ # $pp - pointer/buffer ???
+ # $length - ???
+ #
+ # returns: ???
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/d2i_SSL_SESSION.html|http://www.openssl.org/docs/ssl/d2i_SSL_SESSION.html>
+
+=item * i2d_SSL_SESSION
+
+Transforms the SSL_SESSION object in into the ASN1 representation and stores it
+into the memory location pointed to by pp. The length of the resulting ASN1
+representation is returned.
+
+??? (does this function really work?)
+
+ my $rv = Net::SSLeay::i2d_SSL_SESSION($in, $pp);
+ # $in - value coresponding to openssl's SSL_SESSION structure
+ # $pp - pointer/data ???
+ #
+ # returns: 1 on success, 0 on failure XXX int XXX
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/d2i_SSL_SESSION.html|http://www.openssl.org/docs/ssl/d2i_SSL_SESSION.html>
+
+=item * SESSION_new
+
+Creates a new SSL_SESSION structure.
+
+ my $rv = Net::SSLeay::SESSION_new();
+ #
+ # returns: value coresponding to openssl's SSL_SESSION structure (0 on failure)
+
+=item * SESSION_free
+
+Free an allocated SSL_SESSION structure.
+
+ Net::SSLeay::SESSION_free($ses);
+ # $ses - value coresponding to openssl's SSL_SESSION structure
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_SESSION_free.html|http://www.openssl.org/docs/ssl/SSL_SESSION_free.html>
+
+=item * SESSION_get_app_data
+
+Can be used to get application defined value/data.
+
+ my $rv = Net::SSLeay::SESSION_get_app_data($ses);
+ # $ses - value coresponding to openssl's SSL_SESSION structure
+ #
+ # returns: string/buffer/pointer ???
+
+=item * SESSION_set_app_data
+
+Can be used to set some application defined value/data.
+
+ my $rv = Net::SSLeay::SESSION_set_app_data($s, $a);
+ # $s - value coresponding to openssl's SSL_SESSION structure
+ # $a - (string/buffer/pointer ???) data
+ #
+ # returns: ???
+
+=item * SESSION_get_ex_data
+
+Is used to retrieve the information for $idx from session $ses.
+
+ my $rv = Net::SSLeay::SESSION_get_ex_data($ses, $idx);
+ # $ses - value coresponding to openssl's SSL_SESSION structure
+ # $idx - (integer) index for application specific data
+ #
+ # returns: pointer to ???
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_SESSION_get_ex_new_index.html|http://www.openssl.org/docs/ssl/SSL_SESSION_get_ex_new_index.html>
+
+=item * SESSION_set_ex_data
+
+Is used to store application data at arg for idx into the session object.
+
+ my $rv = Net::SSLeay::SESSION_set_ex_data($ss, $idx, $data);
+ # $ss - value coresponding to openssl's SSL_SESSION structure
+ # $idx - (integer) ???
+ # $data - (pointer) ???
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_SESSION_get_ex_new_index.html|http://www.openssl.org/docs/ssl/SSL_SESSION_get_ex_new_index.html>
+
+=item * SESSION_get_ex_new_index
+
+Is used to register a new index for application specific data.
+
+ my $rv = Net::SSLeay::SESSION_get_ex_new_index($argl, $argp, $new_func, $dup_func, $free_func);
+ # $argl - (long) ???
+ # $argp - (pointer) ???
+ # $new_func - function pointer ??? (CRYPTO_EX_new *)
+ # $dup_func - function pointer ??? (CRYPTO_EX_dup *)
+ # $free_func - function pointer ??? (CRYPTO_EX_free *)
+ #
+ # returns: (integer) ???
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_SESSION_get_ex_new_index.html|http://www.openssl.org/docs/ssl/SSL_SESSION_get_ex_new_index.html>
+
+=item * SESSION_get_master_key
+
+B<NOTE:> Does not exactly correspond to any low level API function
+
+Returns 'master_key' value from SSL_SESSION structure $s
+
+ Net::SSLeay::SESSION_get_master_key($s);
+ # $s - value coresponding to openssl's SSL_SESSION structure
+ #
+ # returns: master key (binary data)
+
+=item * SESSION_set_master_key
+
+Sets 'master_key' value for SSL_SESSION structure $s
+
+ Net::SSLeay::SESSION_set_master_key($s, $key);
+ # $s - value coresponding to openssl's SSL_SESSION structure
+ # $key - master key (binary data)
+ #
+ # returns: no return value
+
+=item * SESSION_get_time
+
+Returns the time at which the session s was established. 
+The time is given in seconds since 1.1.1970.
+
+ my $rv = Net::SSLeay::SESSION_get_time($s);
+ # $s - value coresponding to openssl's SSL_SESSION structure
+ #
+ # returns: timestamp (seconds since 1.1.1970)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_SESSION_get_time.html|http://www.openssl.org/docs/ssl/SSL_SESSION_get_time.html>
+
+=item * get_time
+
+Technically the same functionality as L</SESSION_get_time>.
+
+ my $rv = Net::SSLeay::get_time($s);
+
+=item * SESSION_get_timeout
+
+Returns the timeout value set for session $s in seconds.
+
+ my $rv = Net::SSLeay::SESSION_get_timeout($s);
+ # $s - value coresponding to openssl's SSL_SESSION structure
+ #
+ # returns: timeout (in seconds)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_SESSION_get_time.html|http://www.openssl.org/docs/ssl/SSL_SESSION_get_time.html>
+
+=item * get_timeout
+
+Technically the same functionality as L</SESSION_get_timeout>.
+
+ my $rv = Net::SSLeay::get_timeout($s);
+
+=item * SESSION_print
+
+B<NOTE:> Does not exactly correspond to any low level API function
+
+Prints session details (e.g. protocol version, ciprher, session-id ...) to BIO.
+
+ my $rv = Net::SSLeay::SESSION_print($fp, $ses);
+ # $fp - value coresponding to openssl's BIO structure
+ # $ses - value coresponding to openssl's SSL_SESSION structure
+ #
+ # returns: 1 on success, 0 on failure
+
+You have to use necessary BIO functions like this:
+
+ # let us have $ssl corresponding to openssl's SSL structure
+ my $ses = Net::SSLeay::get_session($ssl);
+ my $bio = Net::SSLeay::BIO_new(&Net::SSLeay::BIO_s_mem);
+ Net::SSLeay::SESSION_print($bio, $ses);
+ print Net::SSLeay::BIO_read($bio);
+
+=item * SESSION_print_fp
+
+Prints session details (e.g. protocol version, ciprher, session-id ...) to file handle.
+
+ my $rv = Net::SSLeay::SESSION_print_fp($fp, $ses);
+ # $fp - perl file handle
+ # $ses - value coresponding to openssl's SSL_SESSION structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Example:
+
+ # let us have $ssl corresponding to openssl's SSL structure
+ my $ses = Net::SSLeay::get_session($ssl);
+ open my $fh, ">", "output.txt";
+ Net::SSLeay::SESSION_print_fp($fh,$ses);
+
+=item * SESSION_set_time
+
+Replaces the creation time of the session s with the chosen value $t (seconds since 1.1.1970).
+
+ my $rv = Net::SSLeay::SESSION_set_time($ses, $t);
+ # $ses - value coresponding to openssl's SSL_SESSION structure
+ # $t - time value
+ #
+ # returns: 1 on success
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_SESSION_get_time.html|http://www.openssl.org/docs/ssl/SSL_SESSION_get_time.html>
+
+=item * set_time
+
+Technically the same functionality as L</SESSION_set_time>.
+
+ my $rv = Net::SSLeay::set_time($ses, $t);
+
+=item * SESSION_set_timeout
+
+Sets the timeout value for session s in seconds to $t.
+
+ my $rv = Net::SSLeay::SESSION_set_timeout($s, $t);
+ # $s - value coresponding to openssl's SSL_SESSION structure
+ # $t - timeout (in seconds)
+ #
+ # returns: 1 on success
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_SESSION_get_time.html|http://www.openssl.org/docs/ssl/SSL_SESSION_get_time.html>
+
+=item * set_timeout
+
+Technically the same functionality as L</SESSION_set_timeout>.
+
+ my $rv = Net::SSLeay::set_timeout($ses, $t);
+
+=back
+
 =head3 Low level API: CTX_* related functions
 
 =over
@@ -1337,6 +1916,8 @@ Creates a new SSL_CTX object based on $meth method
  
  #example
  my $ctx = Net::SSLeay::CTX_new_with_method(&Net::SSLeay::TLSv1_method);
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_new.html|http://www.openssl.org/docs/ssl/SSL_CTX_new.html>
 
 =item * CTX_remove_session
 
@@ -2392,34 +2973,215 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least
 
 =head3 Low level API: RSA_* related functions
 
-Some RSA functions are available:
+=over
 
-    $rsakey = Net::SSLeay::RSA_generate_key();
-    Net::SSLeay::CTX_set_tmp_rsa($ctx, $rsakey);
-    Net::SSLeay::RSA_free($rsakey);
+=item * RSA_generate_key
 
-=head3 Low level API: Digests related functions
+Generates a key pair and returns it in a newly allocated RSA structure. 
+The pseudo-random number generator must be seeded prior to calling RSA_generate_key.
 
-Some Digest functions are available if supported by the underlying
-library.  These may include MD2, MD4, MD5, and RIPEMD160:
+ my $rv = Net::SSLeay::RSA_generate_key($bits, $e, $perl_cb, $perl_cb_arg);
+ # $bits - (integer) modulus size in bits e.g. 512, 1024, 2048
+ # $e - (integer) public exponent, an odd number, typically 3, 17 or 65537
+ # $perl_cb - [optional] reference to perl callback function
+ # $perl_cb_arg - [optional] data that will be passed to callback function when invoked
+ #
+ # returns: value coresponding to openssl's RSA structure (0 on failure)
 
-    $hash = Net::SSLeay::MD5($foo);
-    print unpack('H*', $hash);
+Check openssl doc L<http://www.openssl.org/docs/crypto/RSA_generate_key.html|http://www.openssl.org/docs/crypto/RSA_generate_key.html>
+
+=item * RSA_free
+
+Frees the RSA structure and its components. The key is erased before the memory is returned to the system.
+
+ Net::SSLeay::RSA_free($r);
+ # $r - value coresponding to openssl's RSA structure
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/RSA_new.html|http://www.openssl.org/docs/crypto/RSA_new.html>
+
+=back
 
 =head3 Low level API: BIO_* related functions
 
-Some BIO functions are available:
+=over
 
-    Net::SSLeay::BIO_s_mem();
-    $bio = Net::SSLeay::BIO_new(BIO_s_mem())
-    $bio = Net::SSLeay::BIO_new_file($filename, $mode);
-    Net::SSLeay::BIO_free($bio)
-    $count = Net::SSLeay::BIO_write($data);
-    $data = Net::SSLeay::BIO_read($bio);
-    $data = Net::SSLeay::BIO_read($bio, $maxbytes);
-    $is_eof = Net::SSLeay::BIO_eof($bio);
-    $count = Net::SSLeay::BIO_pending($bio);
-    $count = Net::SSLeay::BIO_wpending ($bio);
+=item * BIO_eof
+
+Returns 1 if the BIO has read EOF, the precise meaning of 'EOF' varies according to the BIO type.
+
+ my $rv = Net::SSLeay::BIO_eof($s);
+ # $s - value coresponding to openssl's BIO structure
+ #
+ # returns: 1 if EOF has been reached 0 otherwise
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/BIO_ctrl.html|http://www.openssl.org/docs/crypto/BIO_ctrl.html>
+
+=item * BIO_f_ssl
+
+Returns the SSL BIO method. This is a filter BIO which is a wrapper
+round the OpenSSL SSL routines adding a BIO 'flavour' to SSL I/O.
+
+ my $rv = Net::SSLeay::BIO_f_ssl();
+ #
+ # returns: value coresponding to openssl's BIO_METHOD structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/BIO_f_ssl.html|http://www.openssl.org/docs/crypto/BIO_f_ssl.html>
+
+=item * BIO_free
+
+Frees up a single BIO.
+
+ my $rv = Net::SSLeay::BIO_free($bio;);
+ # $bio; - value coresponding to openssl's BIO structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/BIO_new.html|http://www.openssl.org/docs/crypto/BIO_new.html>
+
+=item * BIO_new
+
+Returns a new BIO using method $type
+
+ my $rv = Net::SSLeay::BIO_new($type);
+ # $type - value coresponding to openssl's BIO_METHOD structure
+ #
+ # returns: value coresponding to openssl's BIO structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/BIO_new.html|http://www.openssl.org/docs/crypto/BIO_new.html>
+
+=item * BIO_new_buffer_ssl_connect
+
+Creates a new BIO chain consisting of a buffering BIO, an SSL BIO (using ctx) and a connect BIO.
+
+ my $rv = Net::SSLeay::BIO_new_buffer_ssl_connect($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: value coresponding to openssl's BIO structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/BIO_f_ssl.html|http://www.openssl.org/docs/crypto/BIO_f_ssl.html>
+
+=item * BIO_new_file
+
+Creates a new file BIO with mode mode the meaning of mode is the same
+as the stdio function fopen(). The BIO_CLOSE flag is set on the returned BIO.
+
+ my $rv = Net::SSLeay::BIO_new_file($filename, $mode);
+ # $filename - (string) filename
+ # $mode - (string) opening mode (as mode by stdio function fopen)
+ #
+ # returns: value coresponding to openssl's BIO structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/BIO_s_file.html|http://www.openssl.org/docs/crypto/BIO_s_file.html>
+
+=item * BIO_new_ssl
+
+Allocates an SSL BIO using SSL_CTX ctx and using client mode if client is non zero.
+
+ my $rv = Net::SSLeay::BIO_new_ssl($ctx, $client);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ # $client - (integer) 0 or 1 - indicates ssl client mode
+ #
+ # returns: value coresponding to openssl's BIO structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/BIO_f_ssl.html|http://www.openssl.org/docs/crypto/BIO_f_ssl.html>
+
+=item * BIO_new_ssl_connect
+
+Creates a new BIO chain consisting of an SSL BIO (using ctx) followed by a connect BIO.
+
+ my $rv = Net::SSLeay::BIO_new_ssl_connect($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: value coresponding to openssl's BIO structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/BIO_f_ssl.html|http://www.openssl.org/docs/crypto/BIO_f_ssl.html>
+
+=item * BIO_pending
+
+Return the number of pending characters in the BIOs read buffers.
+
+ my $rv = Net::SSLeay::BIO_pending($s);
+ # $s - value coresponding to openssl's BIO structure
+ #
+ # returns: the amount of pending data
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/BIO_ctrl.html|http://www.openssl.org/docs/crypto/BIO_ctrl.html>
+
+=item * BIO_wpending
+
+Return the number of pending characters in the BIOs write buffers.
+
+ my $rv = Net::SSLeay::BIO_wpending($s);
+ # $s - value coresponding to openssl's BIO structure
+ #
+ # returns: the amount of pending data
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/BIO_ctrl.html|http://www.openssl.org/docs/crypto/BIO_ctrl.html>
+
+=item * BIO_read
+
+Read the underlying descriptor.
+
+ Net::SSLeay::BIO_read($s, $max);
+ # $s - value coresponding to openssl's BIO structure
+ # $max - [optional] max. bytes to read (if not specified, the value 32768 is used)
+ #
+ # returns: data
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/BIO_read.html|http://www.openssl.org/docs/crypto/BIO_read.html>
+
+=item * BIO_write
+
+Attempts to write data from $buffer to BIO $b.
+
+ my $rv = Net::SSLeay::BIO_write($b, $buffer);
+ # $b - value coresponding to openssl's BIO structure
+ # $buffer - data
+ #
+ # returns: amount of data successfully written 
+ #          or that no data was successfully read or written if the result is 0 or -1
+ #          or -2 when the operation is not implemented in the specific BIO type
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/BIO_read.html|http://www.openssl.org/docs/crypto/BIO_read.html>
+
+=item * BIO_s_mem
+
+Return the memory BIO method function.
+
+ my $rv = Net::SSLeay::BIO_s_mem();
+ #
+ # returns: value coresponding to openssl's BIO_METHOD structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/BIO_s_mem.html|http://www.openssl.org/docs/crypto/BIO_s_mem.html>
+
+=item * BIO_ssl_copy_session_id
+
+Copies an SSL session id between BIO chains from and to. It does this by locating 
+the SSL BIOs in each chain and calling SSL_copy_session_id() on the internal SSL pointer.
+
+ my $rv = Net::SSLeay::BIO_ssl_copy_session_id($to, $from);
+ # $to - value coresponding to openssl's BIO structure
+ # $from - value coresponding to openssl's BIO structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/BIO_f_ssl.html|http://www.openssl.org/docs/crypto/BIO_f_ssl.html>
+
+=item * BIO_ssl_shutdown
+
+Closes down an SSL connection on BIO chain bio. It does this by locating the 
+SSL BIO in the chain and calling SSL_shutdown() on its internal SSL pointer.
+
+ Net::SSLeay::BIO_ssl_shutdown($ssl_bio);
+ # $ssl_bio - value coresponding to openssl's BIO structure
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/BIO_f_ssl.html|http://www.openssl.org/docs/crypto/BIO_f_ssl.html>
+
+=back
 
 =head3 Low level API: Other functions
 
