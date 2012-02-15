@@ -1191,7 +1191,7 @@ representation is returned.
  # $in - value coresponding to openssl's SSL_SESSION structure
  # $pp - pointer/data ???
  #
- # returns: 1 on success, 0 on failure XXX int XXX
+ # returns: 1 on success, 0
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/d2i_SSL_SESSION.html|http://www.openssl.org/docs/ssl/d2i_SSL_SESSION.html>
 
@@ -1404,7 +1404,9 @@ Technically the same functionality as L</SESSION_set_timeout>.
 
 =back
 
-=head3 Low level API: CTX_* related functions
+=head3 Low level API: SSL_CTX_* related functions
+
+B<NOTE:> Please note that the function described in this chapter have "SSL_" part stripped from their original openssl names.
 
 =over
 
@@ -1454,6 +1456,8 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_add_session.html|htt
  # $fp - (function pointer) ???
  #
  # returns: ???
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_ctrl.html|http://www.openssl.org/docs/ssl/SSL_CTX_ctrl.html>
 
 =item * CTX_check_private_key
 
@@ -1837,7 +1841,7 @@ Sets the verification flags for $ctx to be $mode and specifies the verify_callba
  #
  # returns: no return value
  
-For bitmap details see L</CTX_get_verify_mode> (above).
+For bitmask details see L</CTX_get_verify_mode> (above).
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_verify.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_verify.html>
 
@@ -2194,6 +2198,7 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_get_ex_new_index.htm
  # returns: 1 on success, 0 on failure
  
  #avainable purpose identifier
+ 1 - X509_PURPOSE_SSL_CLIENT
  2 - X509_PURPOSE_SSL_SERVER
  3 - X509_PURPOSE_NS_SSL_SERVER
  4 - X509_PURPOSE_SMIME_SIGN
@@ -2202,6 +2207,11 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_get_ex_new_index.htm
  7 - X509_PURPOSE_ANY
  8 - X509_PURPOSE_OCSP_HELPER
  9 - X509_PURPOSE_TIMESTAMP_SIGN
+ 
+ #or use corresponding constants
+ $purpose = &Net::SSLeay::X509_PURPOSE_SSL_CLIENT;
+ ...
+ $purpose = &Net::SSLeay::X509_PURPOSE_TIMESTAMP_SIGN;
 
 =item * CTX_set_quiet_shutdown
 
@@ -2302,6 +2312,8 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_rsa_callback
 
 Sets the callback function for ctx to be used when a temporary/ephemeral RSA key is required to $tmp_rsa_callback.
 
+??? (does this function really work?)
+
  Net::SSLeay::CTX_set_tmp_rsa_callback($ctx, $tmp_rsa_callback);
  # $ctx - value coresponding to openssl's SSL_CTX structure
  # $tmp_rsa_callback - (function pointer) ???
@@ -2327,6 +2339,11 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_rsa_callback
  6 - X509_TRUST_OCSP_SIGN
  7 - X509_TRUST_OCSP_REQUEST
  8 - X509_TRUST_TSA
+ 
+ #or use corresponding constants
+ $trust = &Net::SSLeay::X509_TRUST_COMPAT;
+ ...
+ $trust = &Net::SSLeay::X509_TRUST_TSA;
 
 =item * CTX_set_verify_depth
 
@@ -2370,7 +2387,7 @@ Adds the first private key found in $file to $ctx.
  my $rv = Net::SSLeay::CTX_use_PrivateKey_file($ctx, $file, $type);
  # $ctx - value coresponding to openssl's SSL_CTX structure
  # $file - (string) file name
- # $type - (integer) type - use constants Net::SSLeay::SSL_FILETYPE_PEM() or Net::SSLeay::SSL_FILETYPE_PEM()
+ # $type - (integer) type - use constants &Net::SSLeay::FILETYPE_PEM or &Net::SSLeay::FILETYPE_ASN1
  #
  # returns: 1 on success, otherwise check out the error stack to find out the reason
 
@@ -2395,7 +2412,7 @@ Adds the first RSA private key found in $file to $ctx.
  my $rv = Net::SSLeay::CTX_use_RSAPrivateKey_file($ctx, $file, $type);
  # $ctx - value coresponding to openssl's SSL_CTX structure
  # $file - (string) file name
- # $type - (integer) type - use constants Net::SSLeay::SSL_FILETYPE_PEM() or Net::SSLeay::SSL_FILETYPE_PEM()
+ # $type - (integer) type - use constants &Net::SSLeay::FILETYPE_PEM or &Net::SSLeay::FILETYPE_ASN1
  #
  # returns: 1 on success, otherwise check out the error stack to find out the reason
 
@@ -2432,11 +2449,1339 @@ Loads the first certificate stored in $file into $ctx.
  my $rv = Net::SSLeay::CTX_use_certificate_file($ctx, $file, $type);
  # $ctx - value coresponding to openssl's SSL_CTX structure
  # $file - (string) file name
- # $type - (integer) type - use constants Net::SSLeay::SSL_FILETYPE_PEM() or Net::SSLeay::SSL_FILETYPE_PEM()
+ # $type - (integer) type - use constants &Net::SSLeay::FILETYPE_PEM or &Net::SSLeay::FILETYPE_ASN1
  #
  # returns: 1 on success, otherwise check out the error stack to find out the reason
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
+
+=back
+
+=head3 Low level API: SSL_* related functions
+
+B<NOTE:> Please note that the function described in this chapter have "SSL_" part stripped from their original openssl names.
+
+=over
+
+=item * new
+
+Creates a new SSL structure which is needed to hold the data for a TLS/SSL connection. 
+The new structure inherits the settings of the underlying context $ctx: connection 
+method (SSLv2/v3/TLSv1), options, verification settings, timeout settings. 
+
+ my $rv = Net::SSLeay::new($ctx);
+ # $ctx - value coresponding to openssl's SSL_CTX structure
+ #
+ # returns: value coresponding to openssl's SSL structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_new.html|http://www.openssl.org/docs/ssl/SSL_new.html>
+
+=item * accept
+
+Waits for a TLS/SSL client to initiate the TLS/SSL handshake. The communication
+channel must already have been set and assigned to the ssl by setting an underlying BIO.
+
+ my $rv = Net::SSLeay::accept($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: 1 = success, 0 = handshake not successfull, <0 = fatal error during handshake 
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_accept.html|http://www.openssl.org/docs/ssl/SSL_accept.html>
+
+=item * add_client_CA
+
+Adds the CA name extracted from cacert to the list of CAs sent to the client
+when requesting a client certificate for the chosen ssl, overriding the setting
+valid for ssl's SSL_CTX object.
+
+ my $rv = Net::SSLeay::add_client_CA($ssl, $x);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $x - value coresponding to openssl's X509 structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_client_CA_list.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_client_CA_list.html>
+
+=item * callback_ctrl
+
+??? (more info needed)
+
+ my $rv = Net::SSLeay::callback_ctrl($ssl, $cmd, $fp);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $cmd - (integer) command id
+ # $fp - (function pointer) ???
+ #
+ # returns: ???
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_ctrl.html|http://www.openssl.org/docs/ssl/SSL_CTX_ctrl.html>
+
+=item * check_private_key
+
+Checks the consistency of a private key with the corresponding certificate loaded into $ssl
+
+ my $rv = Net::SSLeay::check_private_key($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: 1 on success, otherwise check out the error stack to find out the reason
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
+
+=item * clear
+
+Reset SSL object to allow another connection.
+
+ Net::SSLeay::clear($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_clear.html|http://www.openssl.org/docs/ssl/SSL_clear.html>
+
+=item * connect
+
+Initiate the TLS/SSL handshake with an TLS/SSL server.
+
+ my $rv = Net::SSLeay::connect($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: 1 = success, 0 = handshake not successfull, <0 = fatal error during handshake 
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_connect.html|http://www.openssl.org/docs/ssl/SSL_connect.html>
+
+=item * copy_session_id
+
+Copies the session structure fro $from to $to (+ also the private key and certificate associated with $from).
+
+ Net::SSLeay::copy_session_id($to, $from);
+ # $to - value coresponding to openssl's SSL structure
+ # $from - value coresponding to openssl's SSL structure
+ #
+ # returns: no return value
+
+=item * ctrl
+
+Internal handling function for SSL objects.
+
+B<BEWARE:> openssl doc says: This function should never be called directly!
+
+ my $rv = Net::SSLeay::ctrl($ssl, $cmd, $larg, $parg);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $cmd - (integer) command id
+ # $larg - (integer) long ???
+ # $parg - (string/pointer) ???
+ #
+ # returns: (long) result of given command ???
+
+For more details about valid $cmd values check L</CTX_ctrl>.
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_ctrl.html|http://www.openssl.org/docs/ssl/SSL_CTX_ctrl.html>
+
+=item * do_handshake
+
+Will wait for a SSL/TLS handshake to take place. If the connection is in client
+mode, the handshake will be started. The handshake routines may have to be
+explicitly set in advance using either SSL_set_connect_state or SSL_set_accept_state(3).
+
+ my $rv = Net::SSLeay::do_handshake($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: 1 = success, 0 = handshake not successfull, <0 = fatal error during handshake
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_do_handshake.html|http://www.openssl.org/docs/ssl/SSL_do_handshake.html>
+
+=item * dup
+
+Returns a duplicate of $ssl.
+
+ my $rv = Net::SSLeay::dup($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: value coresponding to openssl's SSL structure (0 on failure)
+
+=item * free
+
+Free an allocated SSL structure.
+
+ Net::SSLeay::free($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_free.html|http://www.openssl.org/docs/ssl/SSL_free.html>
+
+=item * get_SSL_CTX
+
+Returns a pointer to the SSL_CTX object, from which $ssl was created with Net::SSLeay::new.
+
+ my $rv = Net::SSLeay::get_SSL_CTX($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: value coresponding to openssl's SSL_CTX structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_SSL_CTX.html|http://www.openssl.org/docs/ssl/SSL_get_SSL_CTX.html>
+
+=item * get_app_data
+
+Can be used to get application defined value/data.
+
+ my $rv = Net::SSLeay::get_app_data($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: string/buffer/pointer ???
+
+=item * set_app_data
+
+Can be used to set some application defined value/data.
+
+ my $rv = Net::SSLeay::set_app_data($ssl, $arg);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $arg - (string/buffer/pointer ???) data
+ #
+ # returns: ???
+
+=item * get_certificate
+
+Gets X509 certificate from an established SSL connection.
+
+ my $rv = Net::SSLeay::get_certificate($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: value coresponding to openssl's X509 structure (0 on failure)
+
+=item * get_cipher
+
+Obtains the name of the currently used cipher.
+
+ my $rv = Net::SSLeay::get_cipher($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: (string) cipher name e.g. 'DHE-RSA-AES256-SHA' or '', when no session has been established. 
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_current_cipher.html|http://www.openssl.org/docs/ssl/SSL_get_current_cipher.html>
+
+=item * get_cipher_bits
+
+Obtain the number of secret/algorithm bits used.
+
+ my $rv = Net::SSLeay::get_cipher_bits($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: number of secret bits used by current cipher
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_current_cipher.html|http://www.openssl.org/docs/ssl/SSL_get_current_cipher.html>
+and L<www.openssl.org/docs/ssl/SSL_CIPHER_get_name.html|www.openssl.org/docs/ssl/SSL_CIPHER_get_name.html>
+
+=item * get_cipher_list
+
+Returns the name (string) of the SSL_CIPHER listed for $ssl with priority $n. 
+
+ my $rv = Net::SSLeay::get_cipher_list($ssl, $n);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $n - (integer) priority
+ #
+ # returns: (string) cipher name e.g. 'EDH-DSS-DES-CBC3-SHA' or '' in case of error
+
+Call Net::SSLeay::get_cipher_list with priority starting from 0 to obtain
+the sorted list of available ciphers, until '' is returned:
+
+ my $priority = 0;
+ while (my $c = Net::SSLeay::get_cipher_list($ssl, $priority)) {
+   print "cipher[$priority] = $c\n";
+   $priority++;
+ }
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_ciphers.html|http://www.openssl.org/docs/ssl/SSL_get_ciphers.html>
+
+=item * get_client_CA_list
+
+Returns the list of client CAs explicitly set for $ssl using C<Net::SSleay::set_client_CA_list>
+or $ssl's SSL_CTX object with C<Net::SSLeay::CTX_set_client_CA_list>, when in server mode. 
+ 
+In client mode, returns the list of client CAs sent from the server, if any.
+
+ my $rv = Net::SSLeay::get_client_CA_list($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: value coresponding to openssl's STACK_OF(X509_NAME) structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_client_CA_list.html|http://www.openssl.org/docs/ssl/SSL_get_client_CA_list.html>
+
+=item * get_current_cipher
+
+Returns the cipher actually used.
+
+ my $rv = Net::SSLeay::get_current_cipher($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: value coresponding to openssl's SSL_CIPHER structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_current_cipher.html|http://www.openssl.org/docs/ssl/SSL_get_current_cipher.html>
+
+=item * get_default_timeout
+
+Returns the default timeout value assigned to SSL_SESSION objects negotiated for the protocol valid for $ssl.
+
+ my $rv = Net::SSLeay::get_default_timeout($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: (long) timeout in seconds
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_default_timeout.html|http://www.openssl.org/docs/ssl/SSL_get_default_timeout.html>
+
+=item * get_error
+
+Returns a result code for a preceding call to C<connect>, C<accept>, C<do_handshake>, C<read>, C<peek> or C<write> on $ssl. 
+
+ my $rv = Net::SSLeay::get_error($ssl, $ret);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $ret - return value of preceeding TLS/SSL I/O operation
+ #
+ # returns: result code, which is one of the following values:
+ #  0 - SSL_ERROR_NONE
+ #  1 - SSL_ERROR_SSL
+ #  2 - SSL_ERROR_WANT_READ
+ #  3 - SSL_ERROR_WANT_WRITE
+ #  4 - SSL_ERROR_WANT_X509_LOOKUP
+ #  5 - SSL_ERROR_SYSCALL
+ #  6 - SSL_ERROR_ZERO_RETURN
+ #  7 - SSL_ERROR_WANT_CONNECT
+ #  8 - SSL_ERROR_WANT_ACCEPT
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_error.html|http://www.openssl.org/docs/ssl/SSL_get_error.html>
+
+=item * get_ex_data
+
+Is used to retrieve the information for $idx from $ssl.
+
+ my $rv = Net::SSLeay::get_ex_data($ssl, $idx);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $idx - (integer) index for application specific data
+ #
+ # returns: pointer to ???
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_ex_new_index.html|http://www.openssl.org/docs/ssl/SSL_get_ex_new_index.html>
+
+=item * set_ex_data
+
+Is used to store application data at $data for $idx into the $ssl object.
+
+ my $rv = Net::SSLeay::set_ex_data($ssl, $idx, $data);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $idx - (integer) ???
+ # $data - (pointer) ???
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_ex_new_index.html|http://www.openssl.org/docs/ssl/SSL_get_ex_new_index.html>
+
+=item * get_ex_new_index
+
+Is used to register a new index for application specific data.
+
+ my $rv = Net::SSLeay::get_ex_new_index($argl, $argp, $new_func, $dup_func, $free_func);
+ # $argl - (long) ???
+ # $argp - (pointer) ???
+ # $new_func - function pointer ??? (CRYPTO_EX_new *)
+ # $dup_func - function pointer ??? (CRYPTO_EX_dup *)
+ # $free_func - function pointer ??? (CRYPTO_EX_free *)
+ #
+ # returns: (integer) ???
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_ex_new_index.html|http://www.openssl.org/docs/ssl/SSL_get_ex_new_index.html>
+
+=item * get_fd
+
+Returns the file descriptor which is linked to $ssl.
+
+ my $rv = Net::SSLeay::get_fd($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: file descriptor (>=0) or -1 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_fd.html|http://www.openssl.org/docs/ssl/SSL_get_fd.html>
+
+=item * get_finished
+
+Obtains the latest 'Finished' message sent to the peer.
+
+??? (does this function really work?)
+
+ my $rv = Net::SSLeay::get_finished($ssl, $buf, $count);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $buf - buffer where the returned data will be stored (pointer ???, pre-allocated ???)
+ # $count - max. size of return data
+ #
+ # returns: actual size of the returned data in $buf
+
+=item * get_peer_finished
+
+Obtains the latest 'Finished' message expected from the peer.
+
+??? (does this function really work?)
+
+ my $rv = Net::SSLeay::get_peer_finished($ssl, $buf, $count);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $buf - buffer where the returned data will be stored (pointer ???, pre-allocated ???)
+ # $count - max. size of the return data
+ #
+ # returns: actual size of the returned data in $buf
+
+=item * get_keyblock_size
+
+B<NOTE:> Does not exactly correspond to any low level API function.
+
+??? (more info needed)
+
+ my $rv = Net::SSLeay::get_keyblock_size($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: keyblock size, -1 on error
+
+=item * get_mode
+
+Returns the mode (bitmask) set for $ssl.
+
+ my $rv = Net::SSLeay::get_mode($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: mode (bitmask)
+
+To decode the return value (bitmask) see documentation for L</CTX_get_mode>.
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_mode.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_mode.html>
+
+=item * set_mode
+
+Adds the mode set via bitmask in $mode to $ssl. Options already set before are not cleared.
+
+ my $rv = Net::SSLeay::set_mode($ssl, $mode);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $mode - mode (bitmask)
+ #
+ # returns: the new mode bitmask after adding $mode
+ 
+For $mode bitmask details see L</CTX_get_mode>.
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_mode.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_mode.html>
+
+=item * get_options
+
+Returns the options (bitmask) set for $ssl.
+
+ my $rv = Net::SSLeay::get_options($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: options (bitmask)
+
+To decode the return value (bitmask) see documentation for L</CTX_get_options>.
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_options.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_options.html>
+
+=item * set_options
+
+Adds the options set via bitmask in $options to $ssl. Options already set before are not cleared!
+
+ Net::SSLeay::set_options($ssl, $options);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $options - options (bitmask)
+ #
+ # returns: the new options bitmask after adding $options
+
+For $options bitmask details see L</CTX_get_options>.
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_options.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_options.html>
+
+=item * get_peer_certificate
+
+Get the X509 certificate of the peer.
+
+ my $rv = Net::SSLeay::get_peer_certificate($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: value coresponding to openssl's X509 structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_peer_certificate.html|http://www.openssl.org/docs/ssl/SSL_get_peer_certificate.html>
+
+=item * get_quiet_shutdown
+
+Returns the 'quiet shutdown' setting of ssl.
+
+ my $rv = Net::SSLeay::get_quiet_shutdown($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: (integer) current 'quiet shutdown' value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_quiet_shutdown.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_quiet_shutdown.html>
+
+=item * get_rbio
+
+Get 'read' BIO linked to an SSL object $ssl.
+
+ my $rv = Net::SSLeay::get_rbio($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: value coresponding to openssl's BIO structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_rbio.html|http://www.openssl.org/docs/ssl/SSL_get_rbio.html>
+
+=item * get_read_ahead
+
+ my $rv = Net::SSLeay::get_read_ahead($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: (integer) read_ahead value
+
+=item * set_read_ahead
+
+ Net::SSLeay::set_read_ahead($ssl, $val);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $val - read_ahead value to be set
+ #
+ # returns: the original read_ahead value
+
+=item * get_server_random
+
+Returns internal SSLv3 server_random value.
+
+ Net::SSLeay::get_server_random($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: server_random value (binary data)
+
+=item * get_client_random
+
+B<NOTE:> Does not exactly correspond to any low level API function
+
+Returns internal SSLv3 client_random value.
+
+ Net::SSLeay::get_client_random($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: client_random value (binary data)
+
+=item * get_session
+
+Retrieve TLS/SSL session data used in $ssl. The reference count of the SSL_SESSION is NOT incremented.
+
+ my $rv = Net::SSLeay::get_session($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: value coresponding to openssl's SSL_SESSION structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_session.html|http://www.openssl.org/docs/ssl/SSL_get_session.html>
+
+=item * SSL_get0_session
+
+The alias for L</get_session> (note that the name is C<SSL_get0_session> NOT C<get0_session>).
+
+ my $rv = Net::SSLeay::SSL_get0_session();
+
+=item * get1_session
+
+Returns a pointer to the SSL_SESSION actually used in $ssl. The reference count of the SSL_SESSION is incremented by 1.
+
+ my $rv = Net::SSLeay::get1_session($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: value coresponding to openssl's SSL_SESSION structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_session.html|http://www.openssl.org/docs/ssl/SSL_get_session.html>
+
+=item * get_shared_ciphers
+
+??? (does this function really work?)
+
+ my $rv = Net::SSLeay::get_shared_ciphers($ssl, $buf, $len);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $buf - (string/buffer/pointer) ???
+ # $len - (integer) buffer length ???
+ #
+ # returns: ???
+
+=item * get_shutdown
+
+Returns the shutdown mode of $ssl.
+
+ my $rv = Net::SSLeay::get_shutdown($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: shutdown mode (bitmask) of ssl
+ 
+ #to decode the return value (bitmask) use:
+ 0 - No shutdown setting, yet
+ 1 - SSL_SENT_SHUTDOWN
+ 2 - SSL_RECEIVED_SHUTDOWN
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_set_shutdown.html|http://www.openssl.org/docs/ssl/SSL_set_shutdown.html>
+
+=item * get_ssl_method
+
+Returns a function pointer to the TLS/SSL method set in $ssl.
+
+ my $rv = Net::SSLeay::get_ssl_method($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: value coresponding to openssl's SSL_METHOD structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_ssl_version.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_ssl_version.html>
+
+=item * get_state
+
+Returns the SSL connection state.
+
+ my $rv = Net::SSLeay::get_state($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: (integer) state value
+ #          to decode the returned state check: 
+ #          SSL_ST_* constants in openssl/ssl.h
+ #          SSL2_ST_* constants in openssl/ssl2.h
+ #          SSL23_ST_* constants in openssl/ssl23.h
+ #          SSL3_ST_* + DTLS1_ST_* constants in openssl/ssl3.h
+
+=item * state
+
+Exactly the same as L</get_state>.
+
+ my $rv = Net::SSLeay::state($ssl);
+
+=item * get_verify_depth
+
+Returns the verification depth limit currently set in $ssl.
+
+ my $rv = Net::SSLeay::get_verify_depth($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: current depth or -1 if no limit has been explicitly set
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_get_verify_mode.html|http://www.openssl.org/docs/ssl/SSL_CTX_get_verify_mode.html>
+
+=item * set_verify_depth
+
+Sets the maximum depth for the certificate chain verification that shall be allowed for $ssl.
+
+ Net::SSLeay::set_verify_depth($ssl, $depth);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $depth - (integer) depth
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_verify.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_verify.html>
+
+=item * get_verify_mode
+
+Returns the verification mode (bitmask) currently set in $ssl.
+
+ my $rv = Net::SSLeay::get_verify_mode($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: mode (bitmask)
+
+To decode the return value (bitmask) see documentation for L</CTX_get_verify_mode>.
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_get_verify_mode.html|http://www.openssl.org/docs/ssl/SSL_CTX_get_verify_mode.html>
+
+=item * set_verify
+
+Sets the verification flags for $ssl to be $mode and specifies the $verify_callback function to be used.
+
+ Net::SSLeay::set_verify($ssl, $mode, $callback);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $mode - mode (bitmask)
+ # $callback - [optional] reference to perl callback function
+ #
+ # returns: no return value
+
+For $mode bitmask details see L</CTX_get_verify_mode>.
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_verify.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_verify.html>
+
+=item * get_verify_result
+
+Returns the result of the verification of the X509 certificate presented by the peer, if any.
+
+ my $rv = Net::SSLeay::get_verify_result($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: (integer)
+ #      0 - X509_V_OK: ok
+ #      2 - X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT: unable to get issuer certificate
+ #      3 - X509_V_ERR_UNABLE_TO_GET_CRL: unable to get certificate CRL
+ #      4 - X509_V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE: unable to decrypt certificate's signature
+ #      5 - X509_V_ERR_UNABLE_TO_DECRYPT_CRL_SIGNATURE: unable to decrypt CRL's signature
+ #      6 - X509_V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY: unable to decode issuer public key
+ #      7 - X509_V_ERR_CERT_SIGNATURE_FAILURE: certificate signature failure
+ #      8 - X509_V_ERR_CRL_SIGNATURE_FAILURE: CRL signature failure
+ #      9 - X509_V_ERR_CERT_NOT_YET_VALID: certificate is not yet valid
+ #     10 - X509_V_ERR_CERT_HAS_EXPIRED: certificate has expired
+ #     11 - X509_V_ERR_CRL_NOT_YET_VALID: CRL is not yet valid
+ #     12 - X509_V_ERR_CRL_HAS_EXPIRED: CRL has expired
+ #     13 - X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD: format error in certificate's notBefore field
+ #     14 - X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD: format error in certificate's notAfter field
+ #     15 - X509_V_ERR_ERROR_IN_CRL_LAST_UPDATE_FIELD: format error in CRL's lastUpdate field
+ #     16 - X509_V_ERR_ERROR_IN_CRL_NEXT_UPDATE_FIELD: format error in CRL's nextUpdate field
+ #     17 - X509_V_ERR_OUT_OF_MEM: out of memory
+ #     18 - X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT: self signed certificate
+ #     19 - X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN: self signed certificate in certificate chain
+ #     20 - X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY: unable to get local issuer certificate
+ #     21 - X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE: unable to verify the first certificate
+ #     22 - X509_V_ERR_CERT_CHAIN_TOO_LONG: certificate chain too long
+ #     23 - X509_V_ERR_CERT_REVOKED: certificate revoked
+ #     24 - X509_V_ERR_INVALID_CA: invalid CA certificate
+ #     25 - X509_V_ERR_PATH_LENGTH_EXCEEDED: path length constraint exceeded
+ #     26 - X509_V_ERR_INVALID_PURPOSE: unsupported certificate purpose
+ #     27 - X509_V_ERR_CERT_UNTRUSTED: certificate not trusted
+ #     28 - X509_V_ERR_CERT_REJECTED: certificate rejected
+ #     29 - X509_V_ERR_SUBJECT_ISSUER_MISMATCH: subject issuer mismatch
+ #     30 - X509_V_ERR_AKID_SKID_MISMATCH: authority and subject key identifier mismatch
+ #     31 - X509_V_ERR_AKID_ISSUER_SERIAL_MISMATCH: authority and issuer serial number mismatch
+ #     32 - X509_V_ERR_KEYUSAGE_NO_CERTSIGN:key usage does not include certificate signing
+ #     50 - X509_V_ERR_APPLICATION_VERIFICATION: application verification failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_verify_result.html|http://www.openssl.org/docs/ssl/SSL_get_verify_result.html>
+
+=item * set_verify_result
+
+Override result of peer certificate verification.
+
+ Net::SSLeay::set_verify_result($ssl, $v);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $v - (integer) result value
+ #
+ # returns: no return value
+ 
+For more info about valid return values see L</get_verify_result>
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_set_verify_result.html|http://www.openssl.org/docs/ssl/SSL_set_verify_result.html>
+
+=item * get_wbio
+
+Get 'write' BIO linked to an SSL object $ssl.
+
+ my $rv = Net::SSLeay::get_wbio($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: value coresponding to openssl's BIO structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_rbio.html|http://www.openssl.org/docs/ssl/SSL_get_rbio.html>
+
+=item * load_client_CA_file
+
+Load X509 certificates from file (PEM formated).
+
+ my $rv = Net::SSLeay::load_client_CA_file($file);
+ # $file - (string) file name
+ #
+ # returns: value coresponding to openssl's STACK_OF(X509_NAME) structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_load_client_CA_file.html|http://www.openssl.org/docs/ssl/SSL_load_client_CA_file.html>
+
+=item * clear_num_renegotiations
+
+Executes SSL_CTRL_CLEAR_NUM_RENEGOTIATIONS command on $ssl.
+
+ my $rv = Net::SSLeay::clear_num_renegotiations($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: command result
+
+=item * need_tmp_RSA
+
+Executes SSL_CTRL_NEED_TMP_RSA command on $ssl.
+
+ my $rv = Net::SSLeay::need_tmp_RSA($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: command result
+
+=item * num_renegotiations
+
+Executes SSL_CTRL_GET_NUM_RENEGOTIATIONS command on $ssl.
+
+ my $rv = Net::SSLeay::num_renegotiations($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: command result
+
+=item * total_renegotiations
+
+Executes SSL_CTRL_GET_TOTAL_RENEGOTIATIONS command on $ssl.
+
+ my $rv = Net::SSLeay::total_renegotiations($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: command result
+
+=item * peek
+
+Copies $max bytes from the specified $ssl into the returned value.
+In constrast to the C<Net::SSLeay::read()> function, the data in the SSL
+buffer is unmodified after the SSL_peek() operation.
+
+ Net::SSLeay::peek($ssl, $max);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $max - [optional] max bytes to peek (integer) - default is 32768
+ #
+ # returns: read data, undef on error
+
+=item * pending
+
+Obtain number of readable bytes buffered in $ssl object.
+
+ my $rv = Net::SSLeay::pending($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: the number of bytes pending
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_pending.html|http://www.openssl.org/docs/ssl/SSL_pending.html>
+
+=item * read
+
+Tries to read $max bytes from the specified $ssl.
+
+ my $rv = Net::SSLeay::read($ssl, $max);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $max - [optional] max bytes to read (integer) - default is 32768
+ #
+ # returns: data read from a TLS/SSL connection, undef on error
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_read.html|http://www.openssl.org/docs/ssl/SSL_read.html>
+
+=item * renegotiate
+
+Turn on flags for renegotiation so that renegotiation will happen  
+
+ my $rv = Net::SSLeay::renegotiate($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * rstate_string
+
+Returns a 2 letter string indicating the current read state of the SSL object $ssl.
+
+ my $rv = Net::SSLeay::rstate_string($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: 2-letter string
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_rstate_string.html|http://www.openssl.org/docs/ssl/SSL_rstate_string.html>
+
+=item * rstate_string_long
+
+Returns a string indicating the current read state of the SSL object ssl.
+
+ my $rv = Net::SSLeay::rstate_string_long($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: string with current state
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_rstate_string.html|http://www.openssl.org/docs/ssl/SSL_rstate_string.html>
+
+=item * session_reused
+
+Query whether a reused session was negotiated during handshake.
+
+ my $rv = Net::SSLeay::session_reused($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: 0 - new session was negotiated; 1 - session was reused.
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_session_reused.html|http://www.openssl.org/docs/ssl/SSL_session_reused.html>
+
+=item * set1_param
+
+Applies X509 verification parameters $vpm on $ssl
+
+ my $rv = Net::SSLeay::set1_param($ssl, $vpm);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $vpm - value coresponding to openssl's X509_VERIFY_PARAM structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * set_accept_state
+
+Sets $ssl to work in server mode.
+
+ Net::SSLeay::set_accept_state($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_set_connect_state.html|http://www.openssl.org/docs/ssl/SSL_set_connect_state.html>
+
+=item * set_bio
+
+Connects the BIOs $rbio and $wbio for the read and write operations of the TLS/SSL (encrypted) side of $ssl.
+
+ Net::SSLeay::set_bio($ssl, $rbio, $wbio);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $rbio - value coresponding to openssl's BIO structure
+ # $wbio - value coresponding to openssl's BIO structure
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_set_bio.html|http://www.openssl.org/docs/ssl/SSL_set_bio.html>
+
+=item * set_cipher_list
+
+Sets the list of ciphers only for ssl.
+
+ my $rv = Net::SSLeay::set_cipher_list($ssl, $str);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $str - (string) cipher list e.g. '3DES:+RSA'
+ #
+ # returns: 1 if any cipher could be selected and 0 on complete failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_cipher_list.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_cipher_list.html>
+
+=item * set_client_CA_list
+
+Sets the list of CAs sent to the client when requesting a client certificate
+for the chosen $ssl, overriding the setting valid for $ssl's SSL_CTX object.
+
+ my $rv = Net::SSLeay::set_client_CA_list($ssl, $list);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $list - value coresponding to openssl's STACK_OF(X509_NAME) structure
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_client_CA_list.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_client_CA_list.html>
+
+=item * set_connect_state
+
+Sets $ssl to work in client mode.
+
+ Net::SSLeay::set_connect_state($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_set_connect_state.html|http://www.openssl.org/docs/ssl/SSL_set_connect_state.html>
+
+=item * set_fd
+
+Sets the file descriptor $fd as the input/output facility for the TLS/SSL (encrypted) 
+side of $ssl, $fd will typically be the socket file descriptor of a network connection.
+
+ my $rv = Net::SSLeay::set_fd($ssl, $fd);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $fd - (integer) file handle (got via perl's fileno)
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_set_fd.html|http://www.openssl.org/docs/ssl/SSL_set_fd.html>
+
+=item * set_rfd
+
+Sets the file descriptor $fd as the input (read) facility for the TLS/SSL (encrypted) side of $ssl.
+
+ my $rv = Net::SSLeay::set_rfd($ssl, $fd);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $fd - (integer) file handle (got via perl's fileno)
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_set_fd.html|http://www.openssl.org/docs/ssl/SSL_set_fd.html>
+
+=item * set_wfd
+
+ my $rv = Net::SSLeay::set_wfd($ssl, $fd);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $fd - (integer) file handle (got via perl's fileno)
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_set_fd.html|http://www.openssl.org/docs/ssl/SSL_set_fd.html>
+
+=item * set_info_callback
+
+Sets the callback function, that can be used to obtain state information for $ssl during connection setup and use.
+When callback is 0 (NULL), the callback setting currently valid for ctx is used.
+
+??? (does this function really work?)
+
+ Net::SSLeay::set_info_callback($ssl, $cb);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $cb - pointer to function ???
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_info_callback.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_info_callback.html>
+
+=item * set_pref_cipher
+
+Sets the list of available ciphers for $ssl using the control string $str.
+
+ my $rv = Net::SSLeay::set_pref_cipher($ssl, $str);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $str - (string) cipher list e.g. '3DES:+RSA'
+ #
+ # returns: 1 if any cipher could be selected and 0 on complete failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_cipher_list.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_cipher_list.html>
+
+=item * set_purpose
+
+ my $rv = Net::SSLeay::set_purpose($ssl, $purpose);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $purpose - (integer) purpose identifier
+ #
+ # returns: 1 on success, 0 on failure
+
+For more info about available $purpose identifiers see L</CTX_set_purpose>.
+
+=item * set_quiet_shutdown
+
+Sets the 'quiet shutdown' flag for $ssl to be $mode.
+
+ Net::SSLeay::set_quiet_shutdown($ssl, $mode);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $mode - 0 or 1
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_quiet_shutdown.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_quiet_shutdown.html>
+
+=item * set_session
+
+Set a TLS/SSL session to be used during TLS/SSL connect.
+
+ my $rv = Net::SSLeay::set_session($to, $ses);
+ # $to - value coresponding to openssl's SSL structure
+ # $ses - value coresponding to openssl's SSL_SESSION structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_set_session.html|http://www.openssl.org/docs/ssl/SSL_set_session.html>
+
+=item * set_session_id_context
+
+Sets the context $sid_ctx of length $sid_ctx_len within which a session can be reused for the $ssl object.
+
+ my $rv = Net::SSLeay::set_session_id_context($ssl, $sid_ctx, $sid_ctx_len);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $sid_ctx - data buffer
+ # $sid_ctx_len - lenght of data in $sid_ctx
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_session_id_context.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_session_id_context.html>
+
+=item * set_session_secret_cb
+
+Setup pre-shared secret session resumption function.
+
+ Net::SSLeay::set_session_secret_cb($ssl, $func, $data);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $func - perl reference to callback function
+ # $data - [optional] data that will be passed to callback function when invoked
+ #
+ # returns: no return value
+
+=item * set_shutdown
+
+Sets the shutdown state of $ssl to $mode.
+
+ Net::SSLeay::set_shutdown($ssl, $mode);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $mode - (integer) shutdown mode:
+ #         0 - No shutdown
+ #         1 - SSL_SENT_SHUTDOWN
+ #         2 - SSL_RECEIVED_SHUTDOWN
+ #         3 - SSL_RECEIVED_SHUTDOWN+SSL_SENT_SHUTDOWN
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_set_shutdown.html|http://www.openssl.org/docs/ssl/SSL_set_shutdown.html>
+
+=item * set_ssl_method
+
+Sets a new TLS/SSL method for a particular $ssl object.
+
+ my $rv = Net::SSLeay::set_ssl_method($ssl, $method);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $method - value coresponding to openssl's SSL_METHOD structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_ssl_version.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_ssl_version.html>
+
+=item * set_tmp_dh
+
+Sets DH parameters to be used to be $dh.
+
+ my $rv = Net::SSLeay::set_tmp_dh($ssl, $dh);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $dh - value coresponding to openssl's DH structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_dh_callback.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_dh_callback.html>
+
+=item * set_tmp_dh_callback
+
+Sets the callback function for $ssl to be used when a DH parameters are required to $dh_cb.
+
+??? (does this function really work?)
+
+ Net::SSLeay::set_tmp_dh_callback($ssl, $dh);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $dh_cb - pointer to function ???
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_dh_callback.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_dh_callback.html>
+
+=item * set_tmp_rsa
+
+Sets the temporary/ephemeral RSA key to be used in $ssl to be $rsa.
+
+ my $rv = Net::SSLeay::set_tmp_rsa($ssl, $rsa);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $rsa - value coresponding to openssl's RSA structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Example:
+
+ $rsakey = Net::SSLeay::RSA_generate_key();
+ Net::SSLeay::set_tmp_rsa($ssl, $rsakey);
+ Net::SSLeay::RSA_free($rsakey);
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_rsa_callback.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_rsa_callback.html>
+
+=item * set_tmp_rsa_callback
+
+Sets the callback function for $ssl to be used when a temporary/ephemeral RSA key is required to $tmp_rsa_callback.
+
+??? (does this function really work?)
+
+ Net::SSLeay::set_tmp_rsa_callback($ssl, $tmp_rsa_callback);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $tmp_rsa_callback - (function pointer) ???
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_rsa_callback.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_rsa_callback.html>
+
+=item * set_trust
+
+ my $rv = Net::SSLeay::set_trust($ssl, $trust);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $trust - (integer) trust identifier
+ #
+ # returns: the original value
+
+For more details about $trust values see L</CTX_set_trust>.
+
+=item * shutdown
+
+Shuts down an active TLS/SSL connection. It sends the 'close notify' shutdown alert to the peer.
+
+ my $rv = Net::SSLeay::shutdown($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: 1 - shutdown was successfully completed
+ #          0 - shutdown is not yet finished, 
+ #         -1 - shutdown was not successful
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_shutdown.html|http://www.openssl.org/docs/ssl/SSL_shutdown.html>
+
+=item * state_string
+
+Returns a 6 letter string indicating the current state of the SSL object $ssl.
+
+ my $rv = Net::SSLeay::state_string($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: 6-letter string
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_state_string.html|http://www.openssl.org/docs/ssl/SSL_state_string.html>
+
+=item * state_string_long
+
+Returns a string indicating the current state of the SSL object $ssl.
+
+ my $rv = Net::SSLeay::state_string_long($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: state strings
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_state_string.html|http://www.openssl.org/docs/ssl/SSL_state_string.html>
+
+=item * use_PrivateKey
+
+Adds $pkey as private key to $ssl.
+
+ my $rv = Net::SSLeay::use_PrivateKey($ssl, $pkey);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $pkey - value coresponding to openssl's EVP_PKEY structure
+ #
+ # returns: 1 on success, otherwise check out the error stack to find out the reason
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
+
+=item * use_PrivateKey_ASN1
+
+Adds the private key of type $pk stored in $data to $ssl.
+
+ my $rv = Net::SSLeay::use_PrivateKey_ASN1($pk, $ssl, $d, $len);
+ # $pk - (integer) key type, NID of corresponding algorithm
+ # $ssl - value coresponding to openssl's SSL structure
+ # $data - key data (binary)
+ # $len - length of $data
+ #
+ # returns: 1 on success, otherwise check out the error stack to find out the reason
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
+
+=item * use_PrivateKey_file
+
+Adds the first private key found in $file to $ssl.
+
+ my $rv = Net::SSLeay::use_PrivateKey_file($ssl, $file, $type);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $file - (string) file name
+ # $type - (integer) type - use constants &Net::SSLeay::FILETYPE_PEM or &Net::SSLeay::FILETYPE_ASN1
+ #
+ # returns: 1 on success, otherwise check out the error stack to find out the reason
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
+
+=item * use_RSAPrivateKey
+
+Adds $rsa as RSA private key to $ssl.
+
+ my $rv = Net::SSLeay::use_RSAPrivateKey($ssl, $rsa);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $rsa - value coresponding to openssl's RSA structure
+ #
+ # returns: 1 on success, otherwise check out the error stack to find out the reason
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
+
+=item * use_RSAPrivateKey_ASN1
+
+Adds RSA private key stored in $data to $ssl.
+
+ my $rv = Net::SSLeay::use_RSAPrivateKey_ASN1($ssl, $data, $len);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $data - key data (binary)
+ # $len - length of $data
+ #
+ # returns: 1 on success, otherwise check out the error stack to find out the reason
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
+
+=item * use_RSAPrivateKey_file
+
+Adds the first RSA private key found in $file to $ssl.
+
+ my $rv = Net::SSLeay::use_RSAPrivateKey_file($ssl, $file, $type);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $file - (string) file name
+ # $type - (integer) type - use constants &Net::SSLeay::FILETYPE_PEM or &Net::SSLeay::FILETYPE_ASN1
+ #
+ # returns: 1 on success, otherwise check out the error stack to find out the reason
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
+
+=item * use_certificate
+
+Loads the certificate $x into $ssl.
+
+ my $rv = Net::SSLeay::use_certificate($ssl, $x);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $x - value coresponding to openssl's X509 structure
+ #
+ # returns: 1 on success, otherwise check out the error stack to find out the reason
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
+
+=item * use_certificate_ASN1
+
+Loads the ASN1 encoded certificate from $data to $ssl.
+
+ my $rv = Net::SSLeay::use_certificate_ASN1($ssl, $data, $len);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $data - certificate data (binary)
+ # $len - length of $data
+ #
+ # returns: 1 on success, otherwise check out the error stack to find out the reason
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
+
+=item * use_certificate_file
+
+Loads the first certificate stored in $file into $ssl.
+
+ my $rv = Net::SSLeay::use_certificate_file($ssl, $file, $type);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $file - (string) file name
+ # $type - (integer) type - use constants &Net::SSLeay::FILETYPE_PEM or &Net::SSLeay::FILETYPE_ASN1
+ #
+ # returns: 1 on success, otherwise check out the error stack to find out the reason
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
+
+=item * version
+
+Returns SSL/TLS protocol version
+
+ my $rv = Net::SSLeay::version($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: (integer) protocol version
+ #          0x0002 - SSL2_VERSION  (SSLv2)
+ #          0x0300 - SSL3_VERSION  (SSLv3)
+ #          0x0301 - TLS1_VERSION  (TLSv1)
+ #          0xFEFF - DTLS1_VERSION (DTLSv1)
+ 
+=item * want
+
+Returns state information for the SSL object $ssl.
+
+ my $rv = Net::SSLeay::want($ssl);
+ # $ssl - value coresponding to openssl's SSL structure
+ #
+ # returns: state
+ #          1 - SSL_NOTHING
+ #          2 - SSL_WRITING
+ #          3 - SSL_READING
+ #          4 - SSL_X509_LOOKUP
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_want.html|http://www.openssl.org/docs/ssl/SSL_want.html>
+
+=item * write
+
+Writes data from the buffer $data into the specified $ssl connection.
+
+ my $rv = Net::SSLeay::write($ssl, $data);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $data - data to be written
+ #
+ # returns: >0 - (success) number of bytes actually written to the TLS/SSL connection
+ #           0 - write not successful, probably the underlying connection was closed
+ #          <0 - error
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_write.html|http://www.openssl.org/docs/ssl/SSL_write.html>
+
+=item * write_partial
+
+B<NOTE:> Does not exactly correspond to any low level API function
+
+Writes a fragment of data data from the buffer $data into the specified $ssl connection.
+
+ my $rv = Net::SSLeay::write_partial($ssl, $from, $count, $data);
+ # $ssl - value coresponding to openssl's SSL structure
+ # $from - (integer) offset from the beginning of $data
+ # $count - (integer) length of data to be written 
+ # $data - data buffer
+ #
+ # returns: >0 - (success) number of bytes actually written to the TLS/SSL connection
+ #           0 - write not successful, probably the underlying connection was closed
+ #          <0 - error
 
 =back
 
@@ -2666,24 +4011,717 @@ for L</P_ASN1_TIME_put2string>
 
 =head3 Low level API: X509_* related functions
 
-This module largely lacks interface to the X509 and RAND routines, but
-as I was lazy and needed them, the following kludges are implemented:
+=over
 
-    $x509_name = Net::SSLeay::X509_get_subject_name($x509_cert);
-    $x509_name = Net::SSLeay::X509_get_issuer_name($x509_cert);
-    print Net::SSLeay::X509_NAME_oneline($x509_name);
-    $text = Net::SSLeay::X509_NAME_get_text_by_NID($name, $nid);
+=item * X509V3_EXT_d2i
 
-    ($type1, $subject1, $type2, $subject2, ...) =
-       Net::SSLeay::X509_get_subjectAltNames($x509_cert)
+Parses an extension and returns its internal structure.
 
-    subjectAltName types as per x509v3.h GEN_*, for example
-    GEN_DNS or GEN_IPADD which can be imported.
+ my $rv = Net::SSLeay::X509V3_EXT_d2i($ext);
+ # $ext - value coresponding to openssl's X509_EXTENSION structure
+ #
+ # returns: pointer ???
 
-Actually you should consider using the following helper functions:
+=item * X509_NAME_get_text_by_NID
 
-    print Net::SSLeay::dump_peer_certificate($ssl);
-    Net::SSLeay::randomize();
+Retrieves the text from the first entry in name which matches $nid, if no
+such entry exists -1 is returned. 
+
+B<openssl note:> this is a legacy function which has various limitations which 
+makes it of minimal use in practice. It can only find the first matching
+entry and will copy the contents of the field verbatim: this can be highly
+confusing if the target is a muticharacter string type like a BMPString or a UTF8String.
+
+ Net::SSLeay::X509_NAME_get_text_by_NID($name, $nid);
+ # $name - value coresponding to openssl's X509_NAME structure
+ # $nid - NID value (integer)
+ #
+ # returns: text value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_NAME_get_index_by_NID.html|http://www.openssl.org/docs/crypto/X509_NAME_get_index_by_NID.html>
+
+=item * X509_NAME_oneline
+
+Return an ASCII version of $name.
+
+ Net::SSLeay::X509_NAME_oneline($name);
+ # $name - value coresponding to openssl's X509_NAME structure
+ #
+ # returns: (string) ASCII version of $name
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_NAME_print_ex.html|http://www.openssl.org/docs/crypto/X509_NAME_print_ex.html>
+
+=item * X509_STORE_CTX_get_current_cert
+
+Returns the certificate in ctx which caused the error or 0 if no certificate is relevant.
+
+ my $rv = Net::SSLeay::X509_STORE_CTX_get_current_cert($x509_store_ctx);
+ # $x509_store_ctx - value coresponding to openssl's X509_STORE_CTX structure
+ #
+ # returns: value coresponding to openssl's X509 structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html|http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html>
+
+=item * X509_STORE_CTX_get_error
+
+Returns the error code of $ctx.
+
+ my $rv = Net::SSLeay::X509_STORE_CTX_get_error($x509_store_ctx);
+ # $x509_store_ctx - value coresponding to openssl's X509_STORE_CTX structure
+ #
+ # returns: (integer) error code
+
+For more info about erro code values check function L</get_verify_result>.
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html|http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html>
+
+=item * X509_STORE_CTX_get_error_depth
+
+Returns the depth of the error. This is a non-negative integer representing
+where in the certificate chain the error occurred. If it is zero it occured
+in the end entity certificate, one if it is the certificate which signed
+the end entity certificate and so on.
+
+ my $rv = Net::SSLeay::X509_STORE_CTX_get_error_depth($x509_store_ctx);
+ # $x509_store_ctx - value coresponding to openssl's X509_STORE_CTX structure
+ #
+ # returns: (integer) depth
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html|http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html>
+
+=item * X509_STORE_CTX_get_ex_data
+
+Is used to retrieve the information for $idx from $x509_store_ctx.
+
+ my $rv = Net::SSLeay::X509_STORE_CTX_get_ex_data($x509_store_ctx, $idx);
+ # $x509_store_ctx - value coresponding to openssl's X509_STORE_CTX structure
+ # $idx - (integer) index for application specific data
+ #
+ # returns: pointer to ???
+
+=item * X509_STORE_CTX_set_ex_data
+
+Is used to store application data at arg for idx into $x509_store_ctx.
+
+ my $rv = Net::SSLeay::X509_STORE_CTX_set_ex_data($x509_store_ctx, $idx, $data);
+ # $x509_store_ctx - value coresponding to openssl's X509_STORE_CTX structure
+ # $idx - (integer) ???
+ # $data - (pointer) ???
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_STORE_CTX_set_cert
+
+Sets the certificate to be vertified in $x509_store_ctx to $x.
+
+ Net::SSLeay::X509_STORE_CTX_set_cert($x509_store_ctx, $x);
+ # $x509_store_ctx - value coresponding to openssl's X509_STORE_CTX structure
+ # $x - value coresponding to openssl's X509 structure
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_new.html|http://www.openssl.org/docs/crypto/X509_STORE_CTX_new.html>
+
+=item * X509_STORE_CTX_set_error
+
+Sets the error code of $ctx to $s. For example it might be used in a verification callback to set an error based on additional checks.
+
+ Net::SSLeay::X509_STORE_CTX_set_error($x509_store_ctx, $s);
+ # $x509_store_ctx - value coresponding to openssl's X509_STORE_CTX structure
+ # $s - (integer) error id
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html|http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html>
+
+=item * X509_STORE_add_cert
+
+Adds X509 certificate $x into the X509_STORE $store.
+
+ my $rv = Net::SSLeay::X509_STORE_add_cert($store, $x);
+ # $store - value coresponding to openssl's X509_STORE structure
+ # $x - value coresponding to openssl's X509 structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_STORE_add_crl
+
+Adds X509 CRL $x into the X509_STORE $store.
+
+ my $rv = Net::SSLeay::X509_STORE_add_crl($store, $x);
+ # $store - value coresponding to openssl's X509_STORE structure
+ # $x - value coresponding to openssl's X509_CRL structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_STORE_set1_param
+
+??? (more info needed)
+
+ my $rv = Net::SSLeay::X509_STORE_set1_param($store, $pm);
+ # $store - value coresponding to openssl's X509_STORE structure
+ # $pm - value coresponding to openssl's X509_VERIFY_PARAM structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_STORE_set_flags
+
+ Net::SSLeay::X509_STORE_set_flags($ctx, $flags);
+ # $ctx - value coresponding to openssl's X509_STORE structure
+ # $flags - (unsigned long) flags to be set (bitmask)
+ #
+ # returns: no return value
+
+ #to create $flags value use:  
+ 0x0001 - X509_V_FLAG_CB_ISSUER_CHECK - Send issuer+subject checks to verify_cb
+ 0x0002 - X509_V_FLAG_USE_CHECK_TIME - Use check time instead of current time
+ 0x0004 - X509_V_FLAG_CRL_CHECK - Lookup CRLs
+ 0x0008 - X509_V_FLAG_CRL_CHECK_ALL - Lookup CRLs for whole chain
+ 0x0010 - X509_V_FLAG_IGNORE_CRITICAL - Ignore unhandled critical extensions
+ 0x0020 - X509_V_FLAG_X509_STRICT - Disable workarounds for broken certificates
+ 0x0040 - X509_V_FLAG_ALLOW_PROXY_CERTS - Enable proxy certificate validation
+ 0x0080 - X509_V_FLAG_POLICY_CHECK - Enable policy checking
+ 0x0100 - X509_V_FLAG_EXPLICIT_POLICY - Policy variable require-explicit-policy
+ 0x0200 - X509_V_FLAG_INHIBIT_ANY - Policy variable inhibit-any-policy
+ 0x0400 - X509_V_FLAG_INHIBIT_MAP - Policy variable inhibit-policy-mapping
+ 0x0800 - X509_V_FLAG_NOTIFY_POLICY - Notify callback that policy is OK
+ 0x1000 - X509_V_FLAG_EXTENDED_CRL_SUPPORT - Extended CRL features such as indirect CRLs, alternate CRL signing keys
+ 0x2000 - X509_V_FLAG_USE_DELTAS - Delta CRL support
+ 0x4000 - X509_V_FLAG_CHECK_SS_SIGNATURE - Check selfsigned CA signature
+ 
+ #or use corresponding constants like
+ $flags = &Net::SSLeay::X509_V_FLAG_CB_ISSUER_CHECK;
+ ...
+ $flags = &Net::SSLeay::X509_V_FLAG_CHECK_SS_SIGNATURE;
+
+=item * X509_STORE_set_purpose
+
+ Net::SSLeay::X509_STORE_set_purpose($ctx, $purpose);
+ # $ctx - value coresponding to openssl's X509_STORE structure
+ # $purpose - (integer) purpose identifier
+ #
+ # returns: no return value
+
+For more details about $purpose identifier check L</CTX_set_purpose>.
+
+=item * X509_STORE_set_trust
+
+ Net::SSLeay::X509_STORE_set_trust($ctx, $trust);
+ # $ctx - value coresponding to openssl's X509_STORE structure
+ # $trust - (integer) trust identifier
+ #
+ # returns: no return value
+
+For more details about $trust identifier check L</CTX_set_trust>.
+
+=item * X509_VERIFY_PARAM_add0_policy
+
+Enables policy checking (it is disabled by default) and adds $policy to the acceptable policy set.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_add0_policy($param, $policy);
+ # $param - value coresponding to openssl's X509_VERIFY_PARAM structure
+ # $policy - value coresponding to openssl's ASN1_OBJECT structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
+
+=item * X509_VERIFY_PARAM_add0_table
+
+??? (more info needed)
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_add0_table($param);
+ # $param - value coresponding to openssl's X509_VERIFY_PARAM structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_VERIFY_PARAM_clear_flags
+
+Clears the flags $flags in param.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_clear_flags($param, $flags);
+ # $param - value coresponding to openssl's X509_VERIFY_PARAM structure
+ # $flags - (unsigned long) flags to be set (bitmask)
+ #
+ # returns: 1 on success, 0 on failure
+
+For more details about $flags bitmask see L</X509_STORE_set_flags>.
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
+
+=item * X509_VERIFY_PARAM_free
+
+Frees up the X509_VERIFY_PARAM structure.
+
+ Net::SSLeay::X509_VERIFY_PARAM_free($param);
+ # $param - value coresponding to openssl's X509_VERIFY_PARAM structure
+ #
+ # returns: no return value
+
+=item * X509_VERIFY_PARAM_get_depth
+
+Returns the current verification depth.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_get_depth($param);
+ # $param - value coresponding to openssl's X509_VERIFY_PARAM structure
+ #
+ # returns: (ineger) depth
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
+
+=item * X509_VERIFY_PARAM_get_flags
+
+Returns the current verification flags.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_get_flags($param);
+ # $param - value coresponding to openssl's X509_VERIFY_PARAM structure
+ #
+ # returns: (unsigned long) flags to be set (bitmask)
+
+For more details about returned flags bitmask see L</X509_STORE_set_flags>.
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
+
+=item * X509_VERIFY_PARAM_set_flags
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_set_flags($param, $flags);
+ # $param - value coresponding to openssl's X509_VERIFY_PARAM structure
+ # $flags - (unsigned long) flags to be set (bitmask)
+ #
+ # returns: 1 on success, 0 on failure
+ 
+For more details about $flags bitmask see L</X509_STORE_set_flags>.
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
+
+=item * X509_VERIFY_PARAM_inherit
+
+??? (more info needed)
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_inherit($to, $from);
+ # $to - value coresponding to openssl's X509_VERIFY_PARAM structure
+ # $from - value coresponding to openssl's X509_VERIFY_PARAM structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_VERIFY_PARAM_lookup
+
+Finds X509_VERIFY_PARAM by name.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_lookup($name);
+ # $name - (string) name we want to find
+ #
+ # returns: value coresponding to openssl's X509_VERIFY_PARAM structure (0 on failure)
+
+=item * X509_VERIFY_PARAM_new
+
+Creates a new X509_VERIFY_PARAM structure.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_new();
+ #
+ # returns: value coresponding to openssl's X509_VERIFY_PARAM structure (0 on failure)
+
+=item * X509_VERIFY_PARAM_set1
+
+Sets the name of X509_VERIFY_PARAM structure $to to the same value 
+as the name of X509_VERIFY_PARAM structure $from.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_set1($to, $from);
+ # $to - value coresponding to openssl's X509_VERIFY_PARAM structure
+ # $from - value coresponding to openssl's X509_VERIFY_PARAM structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_VERIFY_PARAM_set1_name
+
+Sets the name of X509_VERIFY_PARAM structure $param to $name.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_set1_name($param, $name);
+ # $param - value coresponding to openssl's X509_VERIFY_PARAM structure
+ # $name - (string) name to be set
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_VERIFY_PARAM_set1_policies
+
+Enables policy checking (it is disabled by default) and sets the acceptable policy set to policies. 
+Any existing policy set is cleared. The policies parameter can be 0 to clear an existing policy set.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_set1_policies($param, $policies);
+ # $param - value coresponding to openssl's X509_VERIFY_PARAM structure
+ # $policies - value coresponding to openssl's STACK_OF(ASN1_OBJECT) structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
+
+=item * X509_VERIFY_PARAM_set_depth
+
+Sets the maximum verification depth to depth. That is the maximum number of untrusted CA certificates that can appear in a chain.
+
+ Net::SSLeay::X509_VERIFY_PARAM_set_depth($param, $depth);
+ # $param - value coresponding to openssl's X509_VERIFY_PARAM structure
+ # $depth - (integer) depth to be set
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
+
+=item * X509_VERIFY_PARAM_set_purpose
+
+Sets the verification purpose in $param to $purpose. This determines the acceptable purpose 
+of the certificate chain, for example SSL client or SSL server.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_set_purpose($param, $purpose);
+ # $param - value coresponding to openssl's X509_VERIFY_PARAM structure
+ # $purpose - (integer) purpose identifier
+ #
+ # returns: 1 on success, 0 on failure
+
+For more details about $purpose identifier check L</CTX_set_purpose>.
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
+
+=item * X509_VERIFY_PARAM_set_time
+
+Sets the verification time in $param to $t. Normally the current time is used.
+
+ Net::SSLeay::X509_VERIFY_PARAM_set_time($param, $t);
+ # $param - value coresponding to openssl's X509_VERIFY_PARAM structure
+ # $t - (time_t) time in seconds since 1.1.1970
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
+
+=item * X509_VERIFY_PARAM_set_trust
+
+Sets the trust setting in $param to $trust.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_set_trust($param, $trust);
+ # $param - value coresponding to openssl's X509_VERIFY_PARAM structure
+ # $trust - (integer) trust identifier
+ #
+ # returns: 1 on success, 0 on failure
+
+For more details about $trust identifier check L</CTX_set_trust>.
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
+
+=item * X509_VERIFY_PARAM_table_cleanup
+
+??? (more info needed)
+
+ Net::SSLeay::X509_VERIFY_PARAM_table_cleanup();
+ #
+ # returns: no return value
+
+=item * X509_free
+
+Frees up the X509 structure.
+
+ Net::SSLeay::X509_free($a);
+ # $a - value coresponding to openssl's X509 structure
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_new.html|http://www.openssl.org/docs/crypto/X509_new.html>
+
+=item * X509_get_ext
+
+Returns X509_EXTENSION from $x509 based on given position/index.
+
+ my $rv = Net::SSLeay::X509_get_ext($x509, $index);
+ # $x509 - value coresponding to openssl's X509 structure
+ # $index - (integer) position/index of extension within $x509
+ #
+ # returns: value coresponding to openssl's X509_EXTENSION structure (0 on failure)
+
+=item * X509_get_ext_by_NID
+
+Returns X509_EXTENSION from $x509 based on given NID.
+
+ my $rv = Net::SSLeay::X509_get_ext_by_NID($x509, $nid, $loc);
+ # $x509 - value coresponding to openssl's X509 structure
+ # $nid - (integer) NID value
+ # $loc - (integer) position to start lookup at
+ #
+ # returns: position/index of extension, negative value on error
+ #          call Net::SSLeay::X509_get_ext($x509, $rv) to get the actual extension
+
+=item * X509_get_fingerprint
+
+Returns fingerprint of certificate $cert.
+
+B<NOTE:> Does not exactly correspond to any low level API function. The implementation
+is basen on openssl's C<X509_digest()>.
+
+ Net::SSLeay::X509_get_fingerprint($x509, $type);
+ # $x509 - value coresponding to openssl's X509 structure
+ # $type - (string) digest type, currently supported values:
+ #         "md5"
+ #         "sha1"
+ #         "sha256"
+ #         "ripemd160"
+ #
+ # returns: certificate digest - hexadecimal string (NOT binary data!)
+
+=item * X509_get_issuer_name
+
+Return an X509_NAME object representing the issuer of the certificate $cert.
+
+ my $rv = Net::SSLeay::X509_get_issuer_name($cert);
+ # $cert - value coresponding to openssl's X509 structure
+ #
+ # returns: value coresponding to openssl's X509_NAME structure (0 on failure)
+
+=item * X509_get_notAfter
+
+Return an object giving the time after which the certificate $cert is not valid.
+
+ my $rv = Net::SSLeay::X509_get_notAfter($cert);
+ # $cert - value coresponding to openssl's X509 structure
+ #
+ # returns: value coresponding to openssl's ASN1_TIME structure (0 on failure)
+
+To get human readable/printable form the return value you can use:
+
+ my $time = Net::SSLeay::X509_get_notAfter($cert);
+ print "notAfter=", Net::SSLeay::P_ASN1_TIME_get_isotime($time), "\n";
+
+=item * X509_get_notBefore
+
+Return an object giving the time before which the certificate $cert is not valid
+
+ my $rv = Net::SSLeay::X509_get_notBefore($cert);
+ # $cert - value coresponding to openssl's X509 structure
+ #
+ # returns: value coresponding to openssl's ASN1_TIME structure (0 on failure)
+
+To get human readable/printable form the return value you can use:
+
+ my $time = Net::SSLeay::X509_get_notBefore($cert);
+ print "notBefore=", Net::SSLeay::P_ASN1_TIME_get_isotime($time), "\n";
+
+=item * X509_get_subjectAltNames
+
+B<NOTE:> Does not exactly correspond to any low level API function.
+
+Returns the list of alternative subject names from X509 certificate $cert.
+
+ my @rv = Net::SSLeay::X509_get_subjectAltNames($cert);
+ # $cert - value coresponding to openssl's X509 structure
+ #
+ # returns: list containing pairs - name_type (integer), name_value (string)
+ #          where name_type can be:
+ #          0 - GEN_OTHERNAME
+ #          1 - GEN_EMAIL
+ #          2 - GEN_DNS
+ #          3 - GEN_X400
+ #          4 - GEN_DIRNAME
+ #          5 - GEN_EDIPARTY
+ #          6 - GEN_URI
+ #          7 - GEN_IPADD
+ #          8 - GEN_RID
+
+=item * X509_get_subject_name
+
+Returns the subject of the certificate $cert.
+
+ my $rv = Net::SSLeay::X509_get_subject_name($cert);
+ # $cert - value coresponding to openssl's X509 structure
+ #
+ # returns: value coresponding to openssl's X509_NAME structure (0 on failure)
+
+=item * X509_gmtime_adj
+
+Adjust th ASN1_TIME object to the timestamp (in GMT).
+
+ my $rv = Net::SSLeay::X509_gmtime_adj($s, $adj);
+ # $s - value coresponding to openssl's ASN1_TIME structure
+ # $adj - timestamp (seconds since 1.1.1970)
+ #
+ # returns: value coresponding to openssl's ASN1_TIME structure (0 on failure)
+
+L<BEWARE:> this function may fail for dates after 2038 as it is dependant on time_t size on your 
+system (32bit time_t does not work after 2038). Consider using L</P_ASN1_TIME_set_isotime> instead).
+ 
+=item * X509_load_cert_crl_file
+
+Takes PEM file and loads all X509 certificates and X509 CRLs from that file into X509_LOOKUP structure.
+
+ my $rv = Net::SSLeay::X509_load_cert_crl_file($ctx, $file, $type);
+ # $ctx - value coresponding to openssl's X509_LOOKUP structure
+ # $file - (string) file name
+ # $type - (integer) type - use constants &Net::SSLeay::FILETYPE_PEM or &Net::SSLeay::FILETYPE_ASN1
+ #                          if not FILETYPE_PEM then behaves as Net::SSLeay::X509_load_cert_file()
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_load_cert_file
+
+Loads/adds X509 certificate from $file to X509_LOOKUP structure
+
+ my $rv = Net::SSLeay::X509_load_cert_file($ctx, $file, $type);
+ # $ctx - value coresponding to openssl's X509_LOOKUP structure
+ # $file - (string) file name
+ # $type - (integer) type - use constants &Net::SSLeay::FILETYPE_PEM or &Net::SSLeay::FILETYPE_ASN1
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_load_crl_file
+
+Loads/adds X509 CRL from $file to X509_LOOKUP structure
+
+ my $rv = Net::SSLeay::X509_load_crl_file($ctx, $file, $type);
+ # $ctx - value coresponding to openssl's X509_LOOKUP structure
+ # $file - (string) file name
+ # $type - (integer) type - use constants &Net::SSLeay::FILETYPE_PEM or &Net::SSLeay::FILETYPE_ASN1
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_policy_level_get0_node
+
+??? (more info needed)
+
+ my $rv = Net::SSLeay::X509_policy_level_get0_node($level, $i);
+ # $level - value coresponding to openssl's X509_POLICY_LEVEL structure
+ # $i - (integer) index/position
+ #
+ # returns: value coresponding to openssl's X509_POLICY_NODE structure (0 on failure)
+
+=item * X509_policy_level_node_count
+
+??? (more info needed)
+
+ my $rv = Net::SSLeay::X509_policy_level_node_count($level);
+ # $level - value coresponding to openssl's X509_POLICY_LEVEL structure
+ #
+ # returns: (integer) node count
+
+=item * X509_policy_node_get0_parent
+
+??? (more info needed)
+
+ my $rv = Net::SSLeay::X509_policy_node_get0_parent($node);
+ # $node - value coresponding to openssl's X509_POLICY_NODE structure
+ #
+ # returns: value coresponding to openssl's X509_POLICY_NODE structure (0 on failure)
+
+=item * X509_policy_node_get0_policy
+
+??? (more info needed)
+
+ my $rv = Net::SSLeay::X509_policy_node_get0_policy($node);
+ # $node - value coresponding to openssl's X509_POLICY_NODE structure
+ #
+ # returns: value coresponding to openssl's ASN1_OBJECT structure (0 on failure)
+
+=item * X509_policy_node_get0_qualifiers
+
+??? (more info needed)
+
+ my $rv = Net::SSLeay::X509_policy_node_get0_qualifiers($node);
+ # $node - value coresponding to openssl's X509_POLICY_NODE structure
+ #
+ # returns: value coresponding to openssl's STACK_OF(POLICYQUALINFO) structure (0 on failure)
+
+=item * X509_policy_tree_free
+
+??? (more info needed)
+
+ Net::SSLeay::X509_policy_tree_free($tree);
+ # $tree - value coresponding to openssl's X509_POLICY_TREE structure
+ #
+ # returns: no return value
+
+=item * X509_policy_tree_get0_level
+
+??? (more info needed)
+
+ my $rv = Net::SSLeay::X509_policy_tree_get0_level($tree, $i);
+ # $tree - value coresponding to openssl's X509_POLICY_TREE structure
+ # $i - (integer) level index
+ #
+ # returns: value coresponding to openssl's X509_POLICY_LEVEL structure (0 on failure)
+
+=item * X509_policy_tree_get0_policies
+
+??? (more info needed)
+
+ my $rv = Net::SSLeay::X509_policy_tree_get0_policies($tree);
+ # $tree - value coresponding to openssl's X509_POLICY_TREE structure
+ #
+ # returns: value coresponding to openssl's X509_POLICY_NODE structure (0 on failure)
+
+=item * X509_policy_tree_get0_user_policies
+
+??? (more info needed)
+
+ my $rv = Net::SSLeay::X509_policy_tree_get0_user_policies($tree);
+ # $tree - value coresponding to openssl's X509_POLICY_TREE structure
+ #
+ # returns: value coresponding to openssl's X509_POLICY_NODE structure (0 on failure)
+
+=item * X509_policy_tree_level_count
+
+??? (more info needed)
+
+ my $rv = Net::SSLeay::X509_policy_tree_level_count($tree);
+ # $tree - value coresponding to openssl's X509_POLICY_TREE structure
+ #
+ # returns: (integer) count
+
+=item * X509_verify_cert_error_string
+
+Returns a human readable error string for verification error $n.
+
+ my $rv = Net::SSLeay::X509_verify_cert_error_string($n);
+ # $n - (long) numeric error code
+ #
+ # returns: error string
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html|http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html>
+
+=item * sk_X509_NAME_free
+
+Free an allocated STACK_OF(X509_NAME) structure.
+
+ Net::SSLeay::sk_X509_NAME_free($sk);
+ # $sk - value coresponding to openssl's STACK_OF(X509_NAME) structure
+ #
+ # returns: no return value
+
+=item * sk_X509_NAME_num
+
+Return number of items in STACK_OF(X509_NAME)
+
+ my $rv = Net::SSLeay::sk_X509_NAME_num($sk);
+ # $sk - value coresponding to openssl's STACK_OF(X509_NAME) structure
+ #
+ # returns: number of items
+
+=item * sk_X509_NAME_value
+
+Returns X509_NAME from position $index in STACK_OF(X509_NAME)
+
+ my $rv = Net::SSLeay::sk_X509_NAME_value($sk, $i);
+ # $sk - value coresponding to openssl's STACK_OF(X509_NAME) structure
+ # $i - (integer) index/position
+ #
+ # returns: value coresponding to openssl's X509_NAME structure (0 on failure)
+
+=item * add_file_cert_subjects_to_stack
+
+Add a file of certs to a stack. All certs in $file that are not already in the $stackCAs will be added.
+
+ my $rv = Net::SSLeay::add_file_cert_subjects_to_stack($stackCAs, $file);
+ # $stackCAs - value coresponding to openssl's STACK_OF(X509_NAME) structure
+ # $file - (string) filename
+ #
+ # returns: 1 on success, 0 on failure
+
+=back
 
 =head3 Low level API: Digest related functions
 
@@ -3185,14 +5223,57 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/BIO_f_ssl.html|http://www
 
 =head3 Low level API: Other functions
 
-Some very low level API functions are available:
+=over
 
-    $client_random = Net::SSLeay::get_client_random($ssl);
-    $server_random = Net::SSLeay::get_server_random($ssl);
-    $session = Net::SSLeay::get_session($ssl);
-    $master_key = Net::SSLeay::SESSION_get_master_key($session);
-    Net::SSLeay::SESSION_set_master_key($session, $master_secret);
-    $keyblocksize = Net::SSLeay::get_keyblock_size($session);
+=item * constant
+
+Gets openssl constant value.
+
+ my $rv = Net::SSLeay::constant($name);
+ # $name - (string) constant name
+ #
+ # returns: constant value
+
+Example:
+
+ print Net::SSLeay::constant("FILETYPE_PEM");
+ # which is the same as
+ print &Net::SSLeay::FILETYPE_PEM;
+ 
+=item * COMP_add_compression_method
+
+Adds the compression method cm with the identifier id to the list of available compression methods.
+This list is globally maintained for all SSL operations within this application.
+It cannot be set for specific SSL_CTX or SSL objects.
+
+ my $rv = Net::SSLeay::COMP_add_compression_method($id, $cm);
+ # $id - (integer) compression method id
+ #       0 to 63:    methods defined by the IETF
+ #       64 to 192:  external party methods assigned by IANA
+ #       193 to 255: reserved for private use
+ #
+ # $cm - value coresponding to openssl's COMP_METHOD structure
+ #
+ # returns: 0 on success, 1 on failure (check the error queue to find out the reason)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_COMP_add_compression_method.html|http://www.openssl.org/docs/ssl/SSL_COMP_add_compression_method.html>
+
+=item * DH_free
+
+Frees the DH structure and its components. The values are erased before the memory is returned to the system.
+
+ Net::SSLeay::DH_free($dh);
+ # $dh - value coresponding to openssl's DH structure
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/DH_new.html|http://www.openssl.org/docs/crypto/DH_new.html>
+
+=back
+
+=head2 Constants
+
+XXX-TODO
 
 =head1 EXAMPLES
 

@@ -1495,7 +1495,7 @@ long
 SSL_get_options(ssl)
      SSL *          ssl
 
-void
+long
 SSL_set_options(ssl,op)
      SSL *          ssl
      long	    op
@@ -1504,7 +1504,7 @@ long
 SSL_CTX_get_options(ctx)
      SSL_CTX *      ctx
 
-void
+long
 SSL_CTX_set_options(ctx,op)
      SSL_CTX *      ctx
      long	    op
@@ -3058,7 +3058,7 @@ SSL_get_app_data(s)
   RETVAL
 
 int	
-SSL_get_cipher_bits(s,np)
+SSL_get_cipher_bits(s,np=NULL)
      SSL *	s
      int *	np
   CODE:

@@ -63,6 +63,10 @@ Revision history for Perl extension Net::SSLeay.
     Added documentation for many CTX_ functions. Courtesy kmx.
     Fixed mionor typos in SSLeay.xs. Courtesy kmx.
     Moved documentation to new lib/Net/SSLeay.pod. Courtesy kmx.
+    Additions to documentation in pod. Courtesy kmx.
+    Fixed for some incorrect return types from SSL_set_options
+    SSL_CTX_set_options. Courtesy kmx.
+    Further documentation in pod. Courtesy kmx.
 
 1.42	 2011-10-03
     Fixed incorrect documentation of how to enable CRL checking. Patched
