@@ -2497,15 +2497,21 @@ SSL_CIPHER_description(cipher,buf,size)
 #if OPENSSL_VERSION_NUMBER < 0x0090707fL
 #define REM9 "NOTE: before 0.9.7g"
 
+const char *
+SSL_CIPHER_get_name(SSL_CIPHER *c)
+
 int	
-SSL_CIPHER_get_bits(c,alg_bits)
+SSL_CIPHER_get_bits(c,alg_bits=NULL)
      SSL_CIPHER *	c
      int *	alg_bits
 
 #else
 
+const char *
+SSL_CIPHER_get_name(const SSL_CIPHER *c)
+
 int	
-SSL_CIPHER_get_bits(c,alg_bits)
+SSL_CIPHER_get_bits(c,alg_bits=NULL)
      const SSL_CIPHER *	c
      int *	alg_bits
 
