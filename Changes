@@ -69,7 +69,10 @@ Revision history for Perl extension Net::SSLeay.
     Further documentation in pod. Courtesy kmx.
     Small fixes to XS code + one new trivial function SSL_CIPHER_get_name
     And one more thing - 02_pod_coverage.t is turned ON passing all tests - 
-    never ever allow a new function without at least a short doc. Courtesy kmx.
+    never ever allow a new function without at least a short doc. Courtesy
+    kmx.
+    Removed 2 unnecessary 'local $[;' from SSLeay.pm
+ 
 1.42	 2011-10-03
     Fixed incorrect documentation of how to enable CRL checking. Patched
     by Steffen_Ullrich.

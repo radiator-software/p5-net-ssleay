@@ -981,7 +981,6 @@ sub tcp_write_all {
 
 sub ssl_read_until ($;$$) {
     my ($ssl,$delim, $max_length) = @_;
-    local $[;
 
     # guess the delim string if missing
     if ( ! defined $delim ) {           
@@ -1062,7 +1061,6 @@ sub ssl_read_until ($;$$) {
 
 sub tcp_read_until {
     my ($delim, $max_length) = @_;
-    local $[;
 
     # guess the delim string if missing
     if ( ! defined $delim ) {           
