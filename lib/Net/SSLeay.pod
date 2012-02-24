@@ -1214,6 +1214,18 @@ Free an allocated SSL_SESSION structure.
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_SESSION_free.html|http://www.openssl.org/docs/ssl/SSL_SESSION_free.html>
 
+=item * SESSION_cmp
+
+Compare two SSL_SESSION structures.
+
+ my $rv = Net::SSLeay::SESSION_cmp($sesa, $sesb);
+ # $sesa - value corresponding to openssl's SSL_SESSION structure
+ # $sesb - value corresponding to openssl's SSL_SESSION structure
+ #
+ # returns: 0 if the two structures are the same
+
+B<NOTE:> Not available in openssl 1.0 or later
+
 =item * SESSION_get_app_data
 
 Can be used to get application defined value/data.

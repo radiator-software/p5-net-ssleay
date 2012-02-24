@@ -1,5 +1,8 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.45 2012-02-25
+     Added mising doc for SESSION_cmp. Patch by paul.
+
 1.44 2012-02-25
      Added missing t/data/binary-test.file to MANIFEST
 
