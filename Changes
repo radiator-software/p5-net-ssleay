@@ -1,6 +1,9 @@
 Revision history for Perl extension Net::SSLeay.
 
-??????
+1.44 2012-02-25
+     Added missing t/data/binary-test.file to MANIFEST
+
+1.43 2012-02-24
     Fixed some typos. Patched by Neil Bowers.
     SSLeay.pm convenience functions now call Net::SSLeay::initialize that
     initializes the SSL library at most once. 
