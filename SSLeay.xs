@@ -106,8 +106,9 @@ UV get_my_thread_id(void) /* returns threads->tid() value */
 {
     dSP;
     UV tid;
-    int count;
+    int count = 0;
 
+#ifdef USE_ITHREADS
     ENTER;
     SAVETMPS;
     PUSHMARK(SP);
@@ -123,6 +124,7 @@ UV get_my_thread_id(void) /* returns threads->tid() value */
     PUTBACK;
     FREETMPS;
     LEAVE;
+#endif
     
     return tid;
 }

@@ -1,5 +1,11 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.46 ??????
+     Fixed a problem reported by Atoomic: 
+      When bootstrapping Net::SSleay ( with DynaLoader ) if you override the SIG{DIE} signal, using 
+      Net::SSLeay will result in an error.
+
+
 1.45 2012-02-25
      Added mising doc for SESSION_cmp. Patch by paul.
 
