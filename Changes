@@ -4,7 +4,10 @@ Revision history for Perl extension Net::SSLeay.
      Fixed a problem reported by Atoomic: 
       When bootstrapping Net::SSleay ( with DynaLoader ) if you override the SIG{DIE} signal, using 
       Net::SSLeay will result in an error.
-      Recreated META.yml
+      Recreated META.yml, added META.yml to dist
+      Fixed typo: the word "corresponding" was mis-spelled as "coresponding"
+       throughout the POD. Patched by kmx.
+
 
 
 1.45 2012-02-25
