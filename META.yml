@@ -1,0 +1,24 @@
+---
+abstract: 'Perl extension for using OpenSSL'
+author:
+  - 'Maintained by Mike McCauley and Florian Ragwitz since November 2005'
+build_requires:
+  ExtUtils::MakeMaker: 6.42
+configure_requires:
+  ExtUtils::MakeMaker: 0
+distribution_type: module
+dynamic_config: 0
+generated_by: 'ExtUtils::MakeMaker version 6.57_05'
+license: unknown
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Net-SSLeay
+no_index:
+  directory:
+    - t
+    - inc
+requires:
+  MIME::Base64: 0
+  perl: 5.005
+version: 1.45
