@@ -22,3 +22,6 @@ requires:
   MIME::Base64: 0
   perl: 5.005
 version: 1.45
+resources:
+   repository: http://svn.debian.org/wsvn/net-ssleay
+   bugtracker: https://rt.cpan.org/Public/Dist/Display.html?Name=net-ssleay

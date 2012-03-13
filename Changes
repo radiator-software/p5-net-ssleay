@@ -7,7 +7,7 @@ Revision history for Perl extension Net::SSLeay.
       Recreated META.yml, added META.yml to dist
       Fixed typo: the word "corresponding" was mis-spelled as "coresponding"
        throughout the POD. Patched by kmx.
-
+      Updated META.yml to include repository and bugtracker
 
 
 1.45 2012-02-25
