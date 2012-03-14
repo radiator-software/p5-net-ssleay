@@ -34,10 +34,10 @@ sub postamble {
     return <<'MAKE'
 
 constants.c: helper_script/regen_openssl_constants.pl
-	$(ABSPERLRUN) helper_script/regen_openssl_constants.pl -gen-c > constants.c
+	$(ABSPERLRUN) helper_script/regen_openssl_constants.pl -gen-c constants.c
 
 t/local/21_constants.t: helper_script/regen_openssl_constants.pl
-	$(ABSPERLRUN) helper_script/regen_openssl_constants.pl -gen-t > t/local/21_constants.t
+	$(ABSPERLRUN) helper_script/regen_openssl_constants.pl -gen-t t/local/21_constants.t
 
 SSLeay.o: constants.c t/local/21_constants.t
 

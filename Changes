@@ -13,6 +13,9 @@ Revision history for Perl extension Net::SSLeay.
      Future changes in constants now under better control via
      t/local/21_constants.t - kmx
      Added missing new files
+     Reordering @EXPORT_OK (constants first, functions next) - kmx
+     Adding missing 51 constants to @EXPORT_OK + test to keep it in sync - kmx
+     Instructions "howto add new constant" added to helper_script/regen_openssl_constants.pl - kmx
 
 1.45 2012-02-25
      Added mising doc for SESSION_cmp. Patch by paul.
