@@ -931,7 +931,12 @@ CODE:
 
 double
 constant(name)
-     char *		name
+        char * name
+    CODE:
+        errno = 0;
+        RETVAL = constant(name, strlen(name));
+    OUTPUT:
+        RETVAL
 
 int
 hello()

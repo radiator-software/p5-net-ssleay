@@ -25,5 +25,21 @@ clean_files(map { fixpath($_) } qw(
 ));
 
 no_index( directory => qw( inc ext ) );
-resources( repository => 'svn://svn.debian.org/net-ssleay/trunk' );
+resources( repository => 'http://svn.debian.org/wsvn/net-ssleay' );
 WriteAll();
+
+package MY;
+
+sub postamble {
+    return <<'MAKE'
+
+constants.c: helper_script/regen_openssl_constants.pl
+	$(ABSPERLRUN) helper_script/regen_openssl_constants.pl -gen-c > constants.c
+
+t/local/21_constants.t: helper_script/regen_openssl_constants.pl
+	$(ABSPERLRUN) helper_script/regen_openssl_constants.pl -gen-t > t/local/21_constants.t
+
+SSLeay.o: constants.c t/local/21_constants.t
+
+MAKE
+}
