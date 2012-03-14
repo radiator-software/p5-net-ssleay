@@ -10,7 +10,9 @@ Revision history for Perl extension Net::SSLeay.
       Updated META.yml to include repository and bugtracker
      Constants cleanup - removing non existing constants (perhaps from pre-0.9.6 era) - kmx
      Automatic constants.c generation via helper_script/regen_openssl_constants.pl - kmx
-     Future changes in constants now under better control via t/local/21_constants.t - kmx
+     Future changes in constants now under better control via
+     t/local/21_constants.t - kmx
+     Added missing new files
 
 1.45 2012-02-25
      Added mising doc for SESSION_cmp. Patch by paul.
