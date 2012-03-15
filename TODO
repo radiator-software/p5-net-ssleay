@@ -1,5 +1,3 @@
-* Fix POD to pass t/02_pod_coverage.t.
-
 * Update documentation with regard to the various limitations which have been
   removed recently.
 

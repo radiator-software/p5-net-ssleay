@@ -16,6 +16,62 @@ Revision history for Perl extension Net::SSLeay.
      Reordering @EXPORT_OK (constants first, functions next) - kmx
      Adding missing 51 constants to @EXPORT_OK + test to keep it in sync - kmx
      Instructions "howto add new constant" added to helper_script/regen_openssl_constants.pl - kmx
+     NEWLY INTRODUCED CONSTANTS:
+     - Net::SSLeay::ASN1_STRFLGS_ESC_CTRL
+     - Net::SSLeay::ASN1_STRFLGS_ESC_MSB
+     - Net::SSLeay::ASN1_STRFLGS_ESC_QUOTE
+     - Net::SSLeay::ASN1_STRFLGS_RFC2253
+     - Net::SSLeay::ERROR_WANT_ACCEPT
+     - Net::SSLeay::EVP_PKS_DSA
+     - Net::SSLeay::EVP_PKS_EC
+     - Net::SSLeay::EVP_PKS_RSA
+     - Net::SSLeay::EVP_PKT_ENC
+     - Net::SSLeay::EVP_PKT_EXCH
+     - Net::SSLeay::EVP_PKT_EXP
+     - Net::SSLeay::EVP_PKT_SIGN
+     - Net::SSLeay::EVP_PK_DH
+     - Net::SSLeay::EVP_PK_DSA
+     - Net::SSLeay::EVP_PK_EC
+     - Net::SSLeay::EVP_PK_RSA
+     - Net::SSLeay::MBSTRING_ASC
+     - Net::SSLeay::MBSTRING_BMP
+     - Net::SSLeay::MBSTRING_FLAG
+     - Net::SSLeay::MBSTRING_UNIV
+     - Net::SSLeay::MBSTRING_UTF8
+     - Net::SSLeay::OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION
+     - Net::SSLeay::OP_CISCO_ANYCONNECT
+     - Net::SSLeay::OP_CRYPTOPRO_TLSEXT_BUG
+     - Net::SSLeay::OP_LEGACY_SERVER_CONNECT
+     - Net::SSLeay::OP_NO_TLSv1_1
+     - Net::SSLeay::OP_NO_TLSv1_2
+     - Net::SSLeay::OP_SINGLE_ECDH_USE
+     - Net::SSLeay::OP_TLS_BLOCK_PADDING_BUG
+     - Net::SSLeay::X509V3_EXT_CTX_DEP
+     - Net::SSLeay::X509V3_EXT_DYNAMIC
+     - Net::SSLeay::X509V3_EXT_MULTILINE
+     - Net::SSLeay::X509_V_FLAG_CHECK_SS_SIGNATURE
+     - Net::SSLeay::X509_V_FLAG_EXTENDED_CRL_SUPPORT
+     - Net::SSLeay::X509_V_FLAG_POLICY_MASK
+     - Net::SSLeay::X509_V_FLAG_USE_DELTAS
+     - Net::SSLeay::X509_V_OK
+     - Net::SSLeay::XN_FLAG_COMPAT
+     - Net::SSLeay::XN_FLAG_DN_REV
+     - Net::SSLeay::XN_FLAG_DUMP_UNKNOWN_FIELDS
+     - Net::SSLeay::XN_FLAG_FN_ALIGN
+     - Net::SSLeay::XN_FLAG_FN_LN
+     - Net::SSLeay::XN_FLAG_FN_MASK
+     - Net::SSLeay::XN_FLAG_FN_NONE
+     - Net::SSLeay::XN_FLAG_FN_OID
+     - Net::SSLeay::XN_FLAG_FN_SN
+     - Net::SSLeay::XN_FLAG_MULTILINE
+     - Net::SSLeay::XN_FLAG_ONELINE
+     - Net::SSLeay::XN_FLAG_RFC2253
+     - Net::SSLeay::XN_FLAG_SEP_COMMA_PLUS
+     - Net::SSLeay::XN_FLAG_SEP_CPLUS_SPC
+     - Net::SSLeay::XN_FLAG_SEP_MASK
+     - Net::SSLeay::XN_FLAG_SEP_MULTILINE
+     - Net::SSLeay::XN_FLAG_SEP_SPLUS_SPC
+     - Net::SSLeay::XN_FLAG_SPC_EQ
 
 1.45 2012-02-25
      Added mising doc for SESSION_cmp. Patch by paul.
@@ -47,7 +103,7 @@ Revision history for Perl extension Net::SSLeay.
     - Net::SSLeay::initialize
     - Net::SSLeay::SSLeay
     - Net::SSLeay::SSLeay_version
-    - Net::SSLeay::SSLeay_version
+    - Net::SSLeay::CIPHER_get_name
     - Net::SSLeay::ASN1_TIME_new
     - Net::SSLeay::ASN1_TIME_free
     - Net::SSLeay::ASN1_TIME_set

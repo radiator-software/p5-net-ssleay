@@ -326,9 +326,9 @@ constant (const char *name, size_t len) {
     break;
   case 9:
     /* Names all of length 9.  */
-    /* ERROR_SSL F_SSL_NEW GEN_EMAIL GEN_IPADD NID_dsa_2 NID_id_ad NID_id_ce
-       NID_id_kp NID_id_pe NID_pbes2 NID_pkcs3 NID_pkcs7 NID_pkcs9 NID_sxnet
-       NID_title NID_undef ST_ACCEPT ST_BEFORE */
+    /* ERROR_SSL EVP_PK_DH EVP_PK_EC F_SSL_NEW GEN_EMAIL GEN_IPADD NID_dsa_2
+       NID_id_ad NID_id_ce NID_id_kp NID_id_pe NID_pbes2 NID_pkcs3 NID_pkcs7
+       NID_pkcs9 NID_sxnet NID_title NID_undef ST_ACCEPT ST_BEFORE X509_V_OK */
     /* Offset 8 gives the best switch position.  */
     switch (name[8]) {
     case '2':
@@ -389,6 +389,18 @@ constant (const char *name, size_t len) {
 
       }
       break;
+    case 'C':
+      if (!memcmp(name, "EVP_PK_E", 8)) {
+      /*                         C     */
+        
+#ifdef EVP_PK_EC
+        return EVP_PK_EC;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
     case 'D':
       if (!memcmp(name, "GEN_IPAD", 8)) {
       /*                         D     */
@@ -407,6 +419,30 @@ constant (const char *name, size_t len) {
         
 #ifdef SSL_ST_BEFORE
         return SSL_ST_BEFORE;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'H':
+      if (!memcmp(name, "EVP_PK_D", 8)) {
+      /*                         H     */
+        
+#ifdef EVP_PK_DH
+        return EVP_PK_DH;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'K':
+      if (!memcmp(name, "X509_V_O", 8)) {
+      /*                         K     */
+        
+#ifdef X509_V_OK
+        return X509_V_OK;
 #else
         goto not_there;
 #endif
@@ -543,9 +579,9 @@ constant (const char *name, size_t len) {
     break;
   case 10:
     /* Names all of length 10.  */
-    /* ERROR_NONE F_SSL_READ NID_bf_cbc NID_bf_ecb NID_crlBag NID_keyBag
-       NID_ms_efs NID_ms_sgc NID_ns_sgc NID_pbmac1 NID_rc4_40 NID_rsadsi
-       R_X509_LIB ST_CONNECT */
+    /* ERROR_NONE EVP_PKS_EC EVP_PK_DSA EVP_PK_RSA F_SSL_READ NID_bf_cbc
+       NID_bf_ecb NID_crlBag NID_keyBag NID_ms_efs NID_ms_sgc NID_ns_sgc
+       NID_pbmac1 NID_rc4_40 NID_rsadsi R_X509_LIB ST_CONNECT */
     /* Offset 8 gives the best switch position.  */
     switch (name[8]) {
     case '4':
@@ -584,6 +620,18 @@ constant (const char *name, size_t len) {
 
       }
       break;
+    case 'E':
+      if (!memcmp(name, "EVP_PKS_EC", 10)) {
+      /*                         ^        */
+        
+#ifdef EVP_PKS_EC
+        return EVP_PKS_EC;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
     case 'I':
       if (!memcmp(name, "R_X509_LIB", 10)) {
       /*                         ^        */
@@ -602,6 +650,28 @@ constant (const char *name, size_t len) {
         
 #ifdef SSL_ERROR_NONE
         return SSL_ERROR_NONE;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'S':
+      if (!memcmp(name, "EVP_PK_DSA", 10)) {
+      /*                         ^        */
+        
+#ifdef EVP_PK_DSA
+        return EVP_PK_DSA;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "EVP_PK_RSA", 10)) {
+      /*                         ^        */
+        
+#ifdef EVP_PK_RSA
+        return EVP_PK_RSA;
 #else
         goto not_there;
 #endif
@@ -714,10 +784,11 @@ constant (const char *name, size_t len) {
     break;
   case 11:
     /* Names all of length 11.  */
-    /* GEN_DIRNAME NID_ad_OCSP NID_certBag NID_des_cbc NID_des_ecb NID_des_ede
-       NID_ext_req NID_id_pkix NID_rc2_cbc NID_rc2_ecb NID_rc5_cbc NID_rc5_ecb
-       NID_surname NID_x509Crl OP_NO_SSLv2 OP_NO_SSLv3 OP_NO_TLSv1 R_BAD_STATE
-       VERIFY_NONE VERIFY_PEER X509_LOOKUP */
+    /* EVP_PKS_DSA EVP_PKS_RSA EVP_PKT_ENC EVP_PKT_EXP GEN_DIRNAME NID_ad_OCSP
+       NID_certBag NID_des_cbc NID_des_ecb NID_des_ede NID_ext_req NID_id_pkix
+       NID_rc2_cbc NID_rc2_ecb NID_rc5_cbc NID_rc5_ecb NID_surname NID_x509Crl
+       OP_NO_SSLv2 OP_NO_SSLv3 OP_NO_TLSv1 R_BAD_STATE VERIFY_NONE VERIFY_PEER
+       X509_LOOKUP */
     /* Offset 9 gives the best switch position.  */
     switch (name[9]) {
     case 'E':
@@ -745,6 +816,16 @@ constant (const char *name, size_t len) {
       }
       break;
     case 'N':
+      if (!memcmp(name, "EVP_PKT_ENC", 11)) {
+      /*                          ^        */
+        
+#ifdef EVP_PKT_ENC
+        return EVP_PKT_ENC;
+#else
+        goto not_there;
+#endif
+
+      }
       if (!memcmp(name, "VERIFY_NONE", 11)) {
       /*                          ^        */
         
@@ -757,6 +838,26 @@ constant (const char *name, size_t len) {
       }
       break;
     case 'S':
+      if (!memcmp(name, "EVP_PKS_DSA", 11)) {
+      /*                          ^        */
+        
+#ifdef EVP_PKS_DSA
+        return EVP_PKS_DSA;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "EVP_PKS_RSA", 11)) {
+      /*                          ^        */
+        
+#ifdef EVP_PKS_RSA
+        return EVP_PKS_RSA;
+#else
+        goto not_there;
+#endif
+
+      }
       if (!memcmp(name, "NID_ad_OCSP", 11)) {
       /*                          ^        */
         
@@ -786,6 +887,18 @@ constant (const char *name, size_t len) {
         
 #ifdef SSL_X509_LOOKUP
         return SSL_X509_LOOKUP;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'X':
+      if (!memcmp(name, "EVP_PKT_EXP", 11)) {
+      /*                          ^        */
+        
+#ifdef EVP_PKT_EXP
+        return EVP_PKT_EXP;
 #else
         goto not_there;
 #endif
@@ -964,10 +1077,10 @@ constant (const char *name, size_t len) {
     break;
   case 12:
     /* Names all of length 12.  */
-    /* FILETYPE_PEM F_SSL_SET_FD GEN_EDIPARTY NID_bf_cfb64 NID_bf_ofb64
-       NID_des_ede3 NID_desx_cbc NID_idea_cbc NID_idea_ecb NID_initials
-       NID_md5_sha1 NID_netscape OP_NO_TICKET R_PEER_ERROR R_SHORT_READ
-       ST_READ_BODY */
+    /* EVP_PKT_EXCH EVP_PKT_SIGN FILETYPE_PEM F_SSL_SET_FD GEN_EDIPARTY
+       MBSTRING_ASC MBSTRING_BMP NID_bf_cfb64 NID_bf_ofb64 NID_des_ede3
+       NID_desx_cbc NID_idea_cbc NID_idea_ecb NID_initials NID_md5_sha1
+       NID_netscape OP_NO_TICKET R_PEER_ERROR R_SHORT_READ ST_READ_BODY */
     /* Offset 10 gives the best switch position.  */
     switch (name[10]) {
     case '6':
@@ -998,6 +1111,18 @@ constant (const char *name, size_t len) {
         
 #ifdef SSL_R_SHORT_READ
         return SSL_R_SHORT_READ;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'C':
+      if (!memcmp(name, "EVP_PKT_EXCH", 12)) {
+      /*                           ^        */
+        
+#ifdef EVP_PKT_EXCH
+        return EVP_PKT_EXCH;
 #else
         goto not_there;
 #endif
@@ -1050,12 +1175,48 @@ constant (const char *name, size_t len) {
 
       }
       break;
+    case 'G':
+      if (!memcmp(name, "EVP_PKT_SIGN", 12)) {
+      /*                           ^        */
+        
+#ifdef EVP_PKT_SIGN
+        return EVP_PKT_SIGN;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'M':
+      if (!memcmp(name, "MBSTRING_BMP", 12)) {
+      /*                           ^        */
+        
+#ifdef MBSTRING_BMP
+        return MBSTRING_BMP;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
     case 'O':
       if (!memcmp(name, "R_PEER_ERROR", 12)) {
       /*                           ^        */
         
 #ifdef SSL_R_PEER_ERROR
         return SSL_R_PEER_ERROR;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'S':
+      if (!memcmp(name, "MBSTRING_ASC", 12)) {
+      /*                           ^        */
+        
+#ifdef MBSTRING_ASC
+        return MBSTRING_ASC;
 #else
         goto not_there;
 #endif
@@ -1161,10 +1322,12 @@ constant (const char *name, size_t len) {
   case 13:
     /* Names all of length 13.  */
     /* ERROR_SYSCALL FILETYPE_ASN1 F_SSL_SET_RFD F_SSL_SET_WFD GEN_OTHERNAME
-       NID_OCSP_sign NID_algorithm NID_cast5_cbc NID_cast5_ecb NID_code_sign
-       NID_delta_crl NID_des_cfb64 NID_des_ofb64 NID_givenName NID_id_pbkdf2
-       NID_id_qt_cps NID_key_usage NID_rc2_cfb64 NID_rc2_ofb64 NID_rc5_cfb64
-       NID_rc5_ofb64 NID_ripemd160 NID_secretBag OP_TLS_D5_BUG SENT_SHUTDOWN */
+       MBSTRING_FLAG MBSTRING_UNIV MBSTRING_UTF8 NID_OCSP_sign NID_algorithm
+       NID_cast5_cbc NID_cast5_ecb NID_code_sign NID_delta_crl NID_des_cfb64
+       NID_des_ofb64 NID_givenName NID_id_pbkdf2 NID_id_qt_cps NID_key_usage
+       NID_rc2_cfb64 NID_rc2_ofb64 NID_rc5_cfb64 NID_rc5_ofb64 NID_ripemd160
+       NID_secretBag OP_NO_TLSv1_1 OP_NO_TLSv1_2 OP_TLS_D5_BUG SENT_SHUTDOWN
+       XN_FLAG_FN_LN XN_FLAG_FN_SN */
     /* Offset 12 gives the best switch position.  */
     switch (name[12]) {
     case '0':
@@ -1190,6 +1353,16 @@ constant (const char *name, size_t len) {
 #endif
 
       }
+      if (!memcmp(name, "OP_NO_TLSv1_", 12)) {
+      /*                             1      */
+        
+#ifdef SSL_OP_NO_TLSv1_1
+        return SSL_OP_NO_TLSv1_1;
+#else
+        goto not_there;
+#endif
+
+      }
       break;
     case '2':
       if (!memcmp(name, "NID_id_pbkdf", 12)) {
@@ -1197,6 +1370,16 @@ constant (const char *name, size_t len) {
         
 #ifdef NID_id_pbkdf2
         return NID_id_pbkdf2;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "OP_NO_TLSv1_", 12)) {
+      /*                             2      */
+        
+#ifdef SSL_OP_NO_TLSv1_2
+        return SSL_OP_NO_TLSv1_2;
 #else
         goto not_there;
 #endif
@@ -1265,6 +1448,18 @@ constant (const char *name, size_t len) {
 
       }
       break;
+    case '8':
+      if (!memcmp(name, "MBSTRING_UTF", 12)) {
+      /*                             8      */
+        
+#ifdef MBSTRING_UTF8
+        return MBSTRING_UTF8;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
     case 'D':
       if (!memcmp(name, "F_SSL_SET_RF", 12)) {
       /*                             D      */
@@ -1300,6 +1495,16 @@ constant (const char *name, size_t len) {
       }
       break;
     case 'G':
+      if (!memcmp(name, "MBSTRING_FLA", 12)) {
+      /*                             G      */
+        
+#ifdef MBSTRING_FLAG
+        return MBSTRING_FLAG;
+#else
+        goto not_there;
+#endif
+
+      }
       if (!memcmp(name, "OP_TLS_D5_BU", 12)) {
       /*                             G      */
         
@@ -1329,6 +1534,38 @@ constant (const char *name, size_t len) {
         
 #ifdef SSL_SENT_SHUTDOWN
         return SSL_SENT_SHUTDOWN;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "XN_FLAG_FN_L", 12)) {
+      /*                             N      */
+        
+#ifdef XN_FLAG_FN_LN
+        return XN_FLAG_FN_LN;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "XN_FLAG_FN_S", 12)) {
+      /*                             N      */
+        
+#ifdef XN_FLAG_FN_SN
+        return XN_FLAG_FN_SN;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'V':
+      if (!memcmp(name, "MBSTRING_UNI", 12)) {
+      /*                             V      */
+        
+#ifdef MBSTRING_UNIV
+        return MBSTRING_UNIV;
 #else
         goto not_there;
 #endif
@@ -1460,7 +1697,8 @@ constant (const char *name, size_t len) {
        NID_dsaWithSHA NID_idea_cfb64 NID_idea_ofb64 NID_localKeyID
        NID_md5WithRSA NID_ms_ext_req NID_pkcs7_data NID_rc2_40_cbc
        NID_rc2_64_cbc NID_time_stamp R_BAD_CHECKSUM R_NO_PUBLICKEY
-       R_NULL_SSL_CTX ST_READ_HEADER X509_TRUST_TSA */
+       R_NULL_SSL_CTX ST_READ_HEADER X509_TRUST_TSA XN_FLAG_COMPAT
+       XN_FLAG_DN_REV XN_FLAG_FN_OID XN_FLAG_SPC_EQ */
     /* Offset 13 gives the best switch position.  */
     switch (name[13]) {
     case '4':
@@ -1528,6 +1766,16 @@ constant (const char *name, size_t len) {
 #endif
 
       }
+      if (!memcmp(name, "XN_FLAG_FN_OI", 13)) {
+      /*                              D      */
+        
+#ifdef XN_FLAG_FN_OID
+        return XN_FLAG_FN_OID;
+#else
+        goto not_there;
+#endif
+
+      }
       break;
     case 'M':
       if (!memcmp(name, "R_BAD_CHECKSU", 13)) {
@@ -1575,6 +1823,18 @@ constant (const char *name, size_t len) {
 
       }
       break;
+    case 'Q':
+      if (!memcmp(name, "XN_FLAG_SPC_E", 13)) {
+      /*                              Q      */
+        
+#ifdef XN_FLAG_SPC_EQ
+        return XN_FLAG_SPC_EQ;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
     case 'R':
       if (!memcmp(name, "ST_READ_HEADE", 13)) {
       /*                              R      */
@@ -1593,6 +1853,28 @@ constant (const char *name, size_t len) {
         
 #ifdef SSL_CB_ACCEPT_EXIT
         return SSL_CB_ACCEPT_EXIT;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "XN_FLAG_COMPA", 13)) {
+      /*                              T      */
+        
+#ifdef XN_FLAG_COMPAT
+        return XN_FLAG_COMPAT;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'V':
+      if (!memcmp(name, "XN_FLAG_DN_RE", 13)) {
+      /*                              V      */
+        
+#ifdef XN_FLAG_DN_REV
+        return XN_FLAG_DN_REV;
 #else
         goto not_there;
 #endif
@@ -1738,7 +2020,8 @@ constant (const char *name, size_t len) {
        NID_des_ede_cbc NID_description NID_dnQualifier NID_dsaWithSHA1
        NID_info_access NID_mdc2WithRSA NID_ms_code_com NID_ms_code_ind
        NID_ms_ctl_sign NID_server_auth NID_sha1WithRSA OP_NO_QUERY_MTU
-       R_NO_PRIVATEKEY R_UNKNOWN_STATE */
+       R_NO_PRIVATEKEY R_UNKNOWN_STATE XN_FLAG_FN_MASK XN_FLAG_FN_NONE
+       XN_FLAG_ONELINE XN_FLAG_RFC2253 */
     /* Offset 14 gives the best switch position.  */
     switch (name[14]) {
     case '1':
@@ -1747,6 +2030,18 @@ constant (const char *name, size_t len) {
         
 #ifdef NID_dsaWithSHA1
         return NID_dsaWithSHA1;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case '3':
+      if (!memcmp(name, "XN_FLAG_RFC225", 14)) {
+      /*                               3      */
+        
+#ifdef XN_FLAG_RFC2253
+        return XN_FLAG_RFC2253;
 #else
         goto not_there;
 #endif
@@ -1820,6 +2115,26 @@ constant (const char *name, size_t len) {
 #endif
 
       }
+      if (!memcmp(name, "XN_FLAG_FN_NON", 14)) {
+      /*                               E      */
+        
+#ifdef XN_FLAG_FN_NONE
+        return XN_FLAG_FN_NONE;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "XN_FLAG_ONELIN", 14)) {
+      /*                               E      */
+        
+#ifdef XN_FLAG_ONELINE
+        return XN_FLAG_ONELINE;
+#else
+        goto not_there;
+#endif
+
+      }
       break;
     case 'G':
       if (!memcmp(name, "F_WRITE_PENDIN", 14)) {
@@ -1827,6 +2142,18 @@ constant (const char *name, size_t len) {
         
 #ifdef SSL_F_WRITE_PENDING
         return SSL_F_WRITE_PENDING;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'K':
+      if (!memcmp(name, "XN_FLAG_FN_MAS", 14)) {
+      /*                               K      */
+        
+#ifdef XN_FLAG_FN_MASK
+        return XN_FLAG_FN_MASK;
 #else
         goto not_there;
 #endif
@@ -2004,7 +2331,8 @@ constant (const char *name, size_t len) {
     /* ERROR_WANT_WRITE NID_des_ede3_cbc NID_friendlyName NID_hmacWithSHA1
        NID_localityName NID_pkcs7_digest NID_pkcs7_signed NID_serialNumber
        OP_EPHEMERAL_RSA OP_PKCS1_CHECK_1 OP_PKCS1_CHECK_2 OP_SINGLE_DH_USE
-       R_BAD_MAC_DECODE R_NO_CIPHER_LIST X509_PURPOSE_ANY X509_TRUST_EMAIL */
+       R_BAD_MAC_DECODE R_NO_CIPHER_LIST X509_PURPOSE_ANY X509_TRUST_EMAIL
+       XN_FLAG_FN_ALIGN XN_FLAG_SEP_MASK */
     /* Offset 8 gives the best switch position.  */
     switch (name[8]) {
     case '7':
@@ -2063,6 +2391,18 @@ constant (const char *name, size_t len) {
 
       }
       break;
+    case 'F':
+      if (!memcmp(name, "XN_FLAG_FN_ALIGN", 16)) {
+      /*                         ^              */
+        
+#ifdef XN_FLAG_FN_ALIGN
+        return XN_FLAG_FN_ALIGN;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
     case 'H':
       if (!memcmp(name, "R_NO_CIPHER_LIST", 16)) {
       /*                         ^              */
@@ -2105,6 +2445,16 @@ constant (const char *name, size_t len) {
         
 #ifdef X509_TRUST_EMAIL
         return X509_TRUST_EMAIL;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "XN_FLAG_SEP_MASK", 16)) {
+      /*                         ^              */
+        
+#ifdef XN_FLAG_SEP_MASK
+        return XN_FLAG_SEP_MASK;
 #else
         goto not_there;
 #endif
@@ -2197,11 +2547,11 @@ constant (const char *name, size_t len) {
     break;
   case 17:
     /* Names all of length 17.  */
-    /* ERROR_ZERO_RETURN F_D2I_SSL_SESSION F_I2D_SSL_SESSION F_SSL_SESSION_NEW
-       NID_ad_ca_issuers NID_des_ede_cfb64 NID_des_ede_ofb64 NID_dsaWithSHA1_2
-       NID_email_protect NID_ext_key_usage NID_id_qt_unotice NID_rsaEncryption
-       OP_NO_COMPRESSION RECEIVED_SHUTDOWN R_BAD_WRITE_RETRY R_NO_CIPHER_MATCH
-       X509_TRUST_COMPAT */
+    /* ERROR_WANT_ACCEPT ERROR_ZERO_RETURN F_D2I_SSL_SESSION F_I2D_SSL_SESSION
+       F_SSL_SESSION_NEW NID_ad_ca_issuers NID_des_ede_cfb64 NID_des_ede_ofb64
+       NID_dsaWithSHA1_2 NID_email_protect NID_ext_key_usage NID_id_qt_unotice
+       NID_rsaEncryption OP_NO_COMPRESSION RECEIVED_SHUTDOWN R_BAD_WRITE_RETRY
+       R_NO_CIPHER_MATCH X509_TRUST_COMPAT XN_FLAG_MULTILINE */
     /* Offset 8 gives the best switch position.  */
     switch (name[8]) {
     case 'H':
@@ -2256,6 +2606,28 @@ constant (const char *name, size_t len) {
         
 #ifdef SSL_OP_NO_COMPRESSION
         return SSL_OP_NO_COMPRESSION;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "XN_FLAG_MULTILINE", 17)) {
+      /*                         ^               */
+        
+#ifdef XN_FLAG_MULTILINE
+        return XN_FLAG_MULTILINE;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'N':
+      if (!memcmp(name, "ERROR_WANT_ACCEPT", 17)) {
+      /*                         ^               */
+        
+#ifdef SSL_ERROR_WANT_ACCEPT
+        return SSL_ERROR_WANT_ACCEPT;
 #else
         goto not_there;
 #endif
@@ -2408,12 +2780,25 @@ constant (const char *name, size_t len) {
     /* Names all of length 18.  */
     /* ERROR_WANT_CONNECT F_GET_CLIENT_HELLO F_GET_SERVER_HELLO
        NID_des_ede3_cfb64 NID_des_ede3_ofb64 NID_dhKeyAgreement
-       OP_COOKIE_EXCHANGE R_BAD_SSL_FILETYPE VERIFY_CLIENT_ONCE */
-    /* Offset 7 gives the best switch position.  */
-    switch (name[7]) {
-    case 'A':
+       OP_COOKIE_EXCHANGE OP_SINGLE_ECDH_USE R_BAD_SSL_FILETYPE
+       VERIFY_CLIENT_ONCE X509V3_EXT_CTX_DEP X509V3_EXT_DYNAMIC */
+    /* Offset 15 gives the best switch position.  */
+    switch (name[15]) {
+    case 'D':
+      if (!memcmp(name, "X509V3_EXT_CTX_DEP", 18)) {
+      /*                                ^         */
+        
+#ifdef X509V3_EXT_CTX_DEP
+        return X509V3_EXT_CTX_DEP;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'E':
       if (!memcmp(name, "ERROR_WANT_CONNECT", 18)) {
-      /*                        ^                 */
+      /*                                ^         */
         
 #ifdef SSL_ERROR_WANT_CONNECT
         return SSL_ERROR_WANT_CONNECT;
@@ -2423,21 +2808,19 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case 'C':
-      if (!memcmp(name, "VERIFY_CLIENT_ONCE", 18)) {
-      /*                        ^                 */
+    case 'L':
+      if (!memcmp(name, "F_GET_CLIENT_HELLO", 18)) {
+      /*                                ^         */
         
-#ifdef SSL_VERIFY_CLIENT_ONCE
-        return SSL_VERIFY_CLIENT_ONCE;
+#ifdef SSL_F_GET_CLIENT_HELLO
+        return SSL_F_GET_CLIENT_HELLO;
 #else
         goto not_there;
 #endif
 
       }
-      break;
-    case 'E':
       if (!memcmp(name, "F_GET_SERVER_HELLO", 18)) {
-      /*                        ^                 */
+      /*                                ^         */
         
 #ifdef SSL_F_GET_SERVER_HELLO
         return SSL_F_GET_SERVER_HELLO;
@@ -2447,9 +2830,21 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case 'I':
+    case 'M':
+      if (!memcmp(name, "X509V3_EXT_DYNAMIC", 18)) {
+      /*                                ^         */
+        
+#ifdef X509V3_EXT_DYNAMIC
+        return X509V3_EXT_DYNAMIC;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'N':
       if (!memcmp(name, "OP_COOKIE_EXCHANGE", 18)) {
-      /*                        ^                 */
+      /*                                ^         */
         
 #ifdef SSL_OP_COOKIE_EXCHANGE
         return SSL_OP_COOKIE_EXCHANGE;
@@ -2458,22 +2853,32 @@ constant (const char *name, size_t len) {
 #endif
 
       }
-      break;
-    case 'L':
-      if (!memcmp(name, "F_GET_CLIENT_HELLO", 18)) {
-      /*                        ^                 */
+      if (!memcmp(name, "VERIFY_CLIENT_ONCE", 18)) {
+      /*                                ^         */
         
-#ifdef SSL_F_GET_CLIENT_HELLO
-        return SSL_F_GET_CLIENT_HELLO;
+#ifdef SSL_VERIFY_CLIENT_ONCE
+        return SSL_VERIFY_CLIENT_ONCE;
 #else
         goto not_there;
 #endif
 
       }
       break;
-    case 'S':
+    case 'U':
+      if (!memcmp(name, "OP_SINGLE_ECDH_USE", 18)) {
+      /*                                ^         */
+        
+#ifdef SSL_OP_SINGLE_ECDH_USE
+        return SSL_OP_SINGLE_ECDH_USE;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'Y':
       if (!memcmp(name, "R_BAD_SSL_FILETYPE", 18)) {
-      /*                        ^                 */
+      /*                                ^         */
         
 #ifdef SSL_R_BAD_SSL_FILETYPE
         return SSL_R_BAD_SSL_FILETYPE;
@@ -2483,9 +2888,9 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case '_':
+    case 'b':
       if (!memcmp(name, "NID_des_ede3_cfb64", 18)) {
-      /*                        ^                 */
+      /*                                ^         */
         
 #ifdef NID_des_ede3_cfb64
         return NID_des_ede3_cfb64;
@@ -2495,7 +2900,7 @@ constant (const char *name, size_t len) {
 
       }
       if (!memcmp(name, "NID_des_ede3_ofb64", 18)) {
-      /*                        ^                 */
+      /*                                ^         */
         
 #ifdef NID_des_ede3_ofb64
         return NID_des_ede3_ofb64;
@@ -2507,7 +2912,7 @@ constant (const char *name, size_t len) {
       break;
     case 'e':
       if (!memcmp(name, "NID_dhKeyAgreement", 18)) {
-      /*                        ^                 */
+      /*                                ^         */
         
 #ifdef NID_dhKeyAgreement
         return NID_dhKeyAgreement;
@@ -2524,24 +2929,13 @@ constant (const char *name, size_t len) {
     /* F_CLIENT_MASTER_KEY F_GET_SERVER_VERIFY NID_invalidity_date
        NID_issuer_alt_name NID_pkcs7_encrypted NID_pkcs7_enveloped
        NID_rle_compression NID_safeContentsBag NID_sdsiCertificate
-       NID_x509Certificate OP_NON_EXPORT_FIRST OP_TLS_ROLLBACK_BUG */
-    /* Offset 5 gives the best switch position.  */
-    switch (name[5]) {
-    case '5':
-      if (!memcmp(name, "NID_x509Certificate", 19)) {
-      /*                      ^                    */
-        
-#ifdef NID_x509Certificate
-        return NID_x509Certificate;
-#else
-        goto not_there;
-#endif
-
-      }
-      break;
-    case 'E':
+       NID_x509Certificate OP_CISCO_ANYCONNECT OP_NON_EXPORT_FIRST
+       OP_TLS_ROLLBACK_BUG */
+    /* Offset 10 gives the best switch position.  */
+    switch (name[10]) {
+    case 'A':
       if (!memcmp(name, "F_CLIENT_MASTER_KEY", 19)) {
-      /*                      ^                    */
+      /*                           ^               */
         
 #ifdef SSL_F_CLIENT_MASTER_KEY
         return SSL_F_CLIENT_MASTER_KEY;
@@ -2551,33 +2945,9 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case 'N':
-      if (!memcmp(name, "OP_NON_EXPORT_FIRST", 19)) {
-      /*                      ^                    */
-        
-#ifdef SSL_OP_NON_EXPORT_FIRST
-        return SSL_OP_NON_EXPORT_FIRST;
-#else
-        goto not_there;
-#endif
-
-      }
-      break;
-    case 'S':
-      if (!memcmp(name, "OP_TLS_ROLLBACK_BUG", 19)) {
-      /*                      ^                    */
-        
-#ifdef SSL_OP_TLS_ROLLBACK_BUG
-        return SSL_OP_TLS_ROLLBACK_BUG;
-#else
-        goto not_there;
-#endif
-
-      }
-      break;
-    case '_':
+    case 'E':
       if (!memcmp(name, "F_GET_SERVER_VERIFY", 19)) {
-      /*                      ^                    */
+      /*                           ^               */
         
 #ifdef SSL_F_GET_SERVER_VERIFY
         return SSL_F_GET_SERVER_VERIFY;
@@ -2587,12 +2957,48 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case 'a':
-      if (!memcmp(name, "NID_safeContentsBag", 19)) {
-      /*                      ^                    */
+    case 'L':
+      if (!memcmp(name, "OP_TLS_ROLLBACK_BUG", 19)) {
+      /*                           ^               */
         
-#ifdef NID_safeContentsBag
-        return NID_safeContentsBag;
+#ifdef SSL_OP_TLS_ROLLBACK_BUG
+        return SSL_OP_TLS_ROLLBACK_BUG;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'N':
+      if (!memcmp(name, "OP_CISCO_ANYCONNECT", 19)) {
+      /*                           ^               */
+        
+#ifdef SSL_OP_CISCO_ANYCONNECT
+        return SSL_OP_CISCO_ANYCONNECT;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'O':
+      if (!memcmp(name, "OP_NON_EXPORT_FIRST", 19)) {
+      /*                           ^               */
+        
+#ifdef SSL_OP_NON_EXPORT_FIRST
+        return SSL_OP_NON_EXPORT_FIRST;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case '_':
+      if (!memcmp(name, "NID_issuer_alt_name", 19)) {
+      /*                           ^               */
+        
+#ifdef NID_issuer_alt_name
+        return NID_issuer_alt_name;
 #else
         goto not_there;
 #endif
@@ -2600,20 +3006,20 @@ constant (const char *name, size_t len) {
       }
       break;
     case 'd':
-      if (!memcmp(name, "NID_sdsiCertificate", 19)) {
-      /*                      ^                    */
+      if (!memcmp(name, "NID_invalidity_date", 19)) {
+      /*                           ^               */
         
-#ifdef NID_sdsiCertificate
-        return NID_sdsiCertificate;
+#ifdef NID_invalidity_date
+        return NID_invalidity_date;
 #else
         goto not_there;
 #endif
 
       }
       break;
-    case 'k':
+    case 'e':
       if (!memcmp(name, "NID_pkcs7_encrypted", 19)) {
-      /*                      ^                    */
+      /*                           ^               */
         
 #ifdef NID_pkcs7_encrypted
         return NID_pkcs7_encrypted;
@@ -2623,7 +3029,7 @@ constant (const char *name, size_t len) {
 
       }
       if (!memcmp(name, "NID_pkcs7_enveloped", 19)) {
-      /*                      ^                    */
+      /*                           ^               */
         
 #ifdef NID_pkcs7_enveloped
         return NID_pkcs7_enveloped;
@@ -2633,9 +3039,9 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case 'l':
+    case 'm':
       if (!memcmp(name, "NID_rle_compression", 19)) {
-      /*                      ^                    */
+      /*                           ^               */
         
 #ifdef NID_rle_compression
         return NID_rle_compression;
@@ -2646,23 +3052,33 @@ constant (const char *name, size_t len) {
       }
       break;
     case 'n':
-      if (!memcmp(name, "NID_invalidity_date", 19)) {
-      /*                      ^                    */
+      if (!memcmp(name, "NID_safeContentsBag", 19)) {
+      /*                           ^               */
         
-#ifdef NID_invalidity_date
-        return NID_invalidity_date;
+#ifdef NID_safeContentsBag
+        return NID_safeContentsBag;
 #else
         goto not_there;
 #endif
 
       }
       break;
-    case 's':
-      if (!memcmp(name, "NID_issuer_alt_name", 19)) {
-      /*                      ^                    */
+    case 'r':
+      if (!memcmp(name, "NID_sdsiCertificate", 19)) {
+      /*                           ^               */
         
-#ifdef NID_issuer_alt_name
-        return NID_issuer_alt_name;
+#ifdef NID_sdsiCertificate
+        return NID_sdsiCertificate;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "NID_x509Certificate", 19)) {
+      /*                           ^               */
+        
+#ifdef NID_x509Certificate
+        return NID_x509Certificate;
 #else
         goto not_there;
 #endif
@@ -2673,15 +3089,16 @@ constant (const char *name, size_t len) {
     break;
   case 20:
     /* Names all of length 20.  */
-    /* F_CLIENT_CERTIFICATE F_SSL_USE_PRIVATEKEY NID_netscape_comment
-       NID_organizationName NID_ripemd160WithRSA NID_subject_alt_name
-       NID_uniqueIdentifier NID_zlib_compression R_NO_CERTIFICATE_SET
-       SESSION_ASN1_VERSION X509_TRUST_OCSP_SIGN */
-    /* Offset 7 gives the best switch position.  */
-    switch (name[7]) {
-    case 'R':
+    /* ASN1_STRFLGS_ESC_MSB ASN1_STRFLGS_RFC2253 F_CLIENT_CERTIFICATE
+       F_SSL_USE_PRIVATEKEY NID_netscape_comment NID_organizationName
+       NID_ripemd160WithRSA NID_subject_alt_name NID_uniqueIdentifier
+       NID_zlib_compression R_NO_CERTIFICATE_SET SESSION_ASN1_VERSION
+       X509V3_EXT_MULTILINE X509_TRUST_OCSP_SIGN */
+    /* Offset 13 gives the best switch position.  */
+    switch (name[13]) {
+    case 'A':
       if (!memcmp(name, "R_NO_CERTIFICATE_SET", 20)) {
-      /*                        ^                   */
+      /*                              ^             */
         
 #ifdef SSL_R_NO_CERTIFICATE_SET
         return SSL_R_NO_CERTIFICATE_SET;
@@ -2691,21 +3108,21 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case 'S':
-      if (!memcmp(name, "F_SSL_USE_PRIVATEKEY", 20)) {
-      /*                        ^                   */
+    case 'E':
+      if (!memcmp(name, "ASN1_STRFLGS_ESC_MSB", 20)) {
+      /*                              ^             */
         
-#ifdef SSL_F_SSL_USE_PRIVATEKEY
-        return SSL_F_SSL_USE_PRIVATEKEY;
+#ifdef ASN1_STRFLGS_ESC_MSB
+        return ASN1_STRFLGS_ESC_MSB;
 #else
         goto not_there;
 #endif
 
       }
       break;
-    case 'T':
+    case 'I':
       if (!memcmp(name, "F_CLIENT_CERTIFICATE", 20)) {
-      /*                        ^                   */
+      /*                              ^             */
         
 #ifdef SSL_F_CLIENT_CERTIFICATE
         return SSL_F_CLIENT_CERTIFICATE;
@@ -2715,9 +3132,33 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case 'U':
+    case 'L':
+      if (!memcmp(name, "X509V3_EXT_MULTILINE", 20)) {
+      /*                              ^             */
+        
+#ifdef X509V3_EXT_MULTILINE
+        return X509V3_EXT_MULTILINE;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'R':
+      if (!memcmp(name, "ASN1_STRFLGS_RFC2253", 20)) {
+      /*                              ^             */
+        
+#ifdef ASN1_STRFLGS_RFC2253
+        return ASN1_STRFLGS_RFC2253;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'S':
       if (!memcmp(name, "X509_TRUST_OCSP_SIGN", 20)) {
-      /*                        ^                   */
+      /*                              ^             */
         
 #ifdef X509_TRUST_OCSP_SIGN
         return X509_TRUST_OCSP_SIGN;
@@ -2727,9 +3168,19 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case '_':
+    case 'V':
+      if (!memcmp(name, "F_SSL_USE_PRIVATEKEY", 20)) {
+      /*                              ^             */
+        
+#ifdef SSL_F_SSL_USE_PRIVATEKEY
+        return SSL_F_SSL_USE_PRIVATEKEY;
+#else
+        goto not_there;
+#endif
+
+      }
       if (!memcmp(name, "SESSION_ASN1_VERSION", 20)) {
-      /*                        ^                   */
+      /*                              ^             */
         
 #ifdef SSL_SESSION_ASN1_VERSION
         return SSL_SESSION_ASN1_VERSION;
@@ -2739,33 +3190,9 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case 'a':
-      if (!memcmp(name, "NID_organizationName", 20)) {
-      /*                        ^                   */
-        
-#ifdef NID_organizationName
-        return NID_organizationName;
-#else
-        goto not_there;
-#endif
-
-      }
-      break;
-    case 'b':
-      if (!memcmp(name, "NID_zlib_compression", 20)) {
-      /*                        ^                   */
-        
-#ifdef NID_zlib_compression
-        return NID_zlib_compression;
-#else
-        goto not_there;
-#endif
-
-      }
-      break;
-    case 'e':
+    case 'W':
       if (!memcmp(name, "NID_ripemd160WithRSA", 20)) {
-      /*                        ^                   */
+      /*                              ^             */
         
 #ifdef NID_ripemd160WithRSA
         return NID_ripemd160WithRSA;
@@ -2775,9 +3202,33 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case 'j':
+    case 'c':
+      if (!memcmp(name, "NID_netscape_comment", 20)) {
+      /*                              ^             */
+        
+#ifdef NID_netscape_comment
+        return NID_netscape_comment;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'i':
+      if (!memcmp(name, "NID_organizationName", 20)) {
+      /*                              ^             */
+        
+#ifdef NID_organizationName
+        return NID_organizationName;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'l':
       if (!memcmp(name, "NID_subject_alt_name", 20)) {
-      /*                        ^                   */
+      /*                              ^             */
         
 #ifdef NID_subject_alt_name
         return NID_subject_alt_name;
@@ -2787,9 +3238,9 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case 'q':
+    case 'n':
       if (!memcmp(name, "NID_uniqueIdentifier", 20)) {
-      /*                        ^                   */
+      /*                              ^             */
         
 #ifdef NID_uniqueIdentifier
         return NID_uniqueIdentifier;
@@ -2799,12 +3250,12 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case 's':
-      if (!memcmp(name, "NID_netscape_comment", 20)) {
-      /*                        ^                   */
+    case 'r':
+      if (!memcmp(name, "NID_zlib_compression", 20)) {
+      /*                              ^             */
         
-#ifdef NID_netscape_comment
-        return NID_netscape_comment;
+#ifdef NID_zlib_compression
+        return NID_zlib_compression;
 #else
         goto not_there;
 #endif
@@ -2815,14 +3266,26 @@ constant (const char *name, size_t len) {
     break;
   case 21:
     /* Names all of length 21.  */
-    /* F_GET_CLIENT_FINISHED F_GET_SERVER_FINISHED F_REQUEST_CERTIFICATE
-       F_SSL_GET_NEW_SESSION F_SSL_USE_CERTIFICATE NID_SMIMECapabilities
-       NID_basic_constraints NID_netscape_base_url NID_pkcs9_contentType
-       NID_pkcs9_signingTime OP_NETSCAPE_CA_DN_BUG X509_PURPOSE_CRL_SIGN
-       X509_TRUST_SSL_CLIENT X509_TRUST_SSL_SERVER X509_V_FLAG_CRL_CHECK */
+    /* ASN1_STRFLGS_ESC_CTRL F_GET_CLIENT_FINISHED F_GET_SERVER_FINISHED
+       F_REQUEST_CERTIFICATE F_SSL_GET_NEW_SESSION F_SSL_USE_CERTIFICATE
+       NID_SMIMECapabilities NID_basic_constraints NID_netscape_base_url
+       NID_pkcs9_contentType NID_pkcs9_signingTime OP_NETSCAPE_CA_DN_BUG
+       X509_PURPOSE_CRL_SIGN X509_TRUST_SSL_CLIENT X509_TRUST_SSL_SERVER
+       X509_V_FLAG_CRL_CHECK XN_FLAG_SEP_CPLUS_SPC XN_FLAG_SEP_MULTILINE
+       XN_FLAG_SEP_SPLUS_SPC */
     /* Offset 15 gives the best switch position.  */
     switch (name[15]) {
     case 'C':
+      if (!memcmp(name, "ASN1_STRFLGS_ESC_CTRL", 21)) {
+      /*                                ^            */
+        
+#ifdef ASN1_STRFLGS_ESC_CTRL
+        return ASN1_STRFLGS_ESC_CTRL;
+#else
+        goto not_there;
+#endif
+
+      }
       if (!memcmp(name, "X509_TRUST_SSL_CLIENT", 21)) {
       /*                                ^            */
         
@@ -2926,6 +3389,40 @@ constant (const char *name, size_t len) {
 
       }
       break;
+    case 'T':
+      if (!memcmp(name, "XN_FLAG_SEP_MULTILINE", 21)) {
+      /*                                ^            */
+        
+#ifdef XN_FLAG_SEP_MULTILINE
+        return XN_FLAG_SEP_MULTILINE;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'U':
+      if (!memcmp(name, "XN_FLAG_SEP_CPLUS_SPC", 21)) {
+      /*                                ^            */
+        
+#ifdef XN_FLAG_SEP_CPLUS_SPC
+        return XN_FLAG_SEP_CPLUS_SPC;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "XN_FLAG_SEP_SPLUS_SPC", 21)) {
+      /*                                ^            */
+        
+#ifdef XN_FLAG_SEP_SPLUS_SPC
+        return XN_FLAG_SEP_SPLUS_SPC;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
     case '_':
       if (!memcmp(name, "X509_V_FLAG_CRL_CHECK", 21)) {
       /*                                ^            */
@@ -3000,9 +3497,10 @@ constant (const char *name, size_t len) {
     break;
   case 22:
     /* Names all of length 22.  */
-    /* ERROR_WANT_X509_LOOKUP F_SSL_SESSION_PRINT_FP NID_netscape_cert_type
-       NID_netscape_data_type NID_pkcs9_emailAddress OPENSSL_VERSION_NUMBER
-       R_PEER_ERROR_NO_CIPHER X509_TRUST_OBJECT_SIGN _TEST_INVALID_CONSTANT */
+    /* ASN1_STRFLGS_ESC_QUOTE ERROR_WANT_X509_LOOKUP F_SSL_SESSION_PRINT_FP
+       NID_netscape_cert_type NID_netscape_data_type NID_pkcs9_emailAddress
+       OPENSSL_VERSION_NUMBER R_PEER_ERROR_NO_CIPHER X509_TRUST_OBJECT_SIGN
+       X509_V_FLAG_USE_DELTAS XN_FLAG_SEP_COMMA_PLUS _TEST_INVALID_CONSTANT */
     /* Offset 14 gives the best switch position.  */
     switch (name[14]) {
     case '9':
@@ -3029,6 +3527,28 @@ constant (const char *name, size_t len) {
         
 #ifdef X509_TRUST_OBJECT_SIGN
         return X509_TRUST_OBJECT_SIGN;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "X509_V_FLAG_USE_DELTAS", 22)) {
+      /*                               ^              */
+        
+#ifdef X509_V_FLAG_USE_DELTAS
+        return X509_V_FLAG_USE_DELTAS;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'M':
+      if (!memcmp(name, "XN_FLAG_SEP_COMMA_PLUS", 22)) {
+      /*                               ^              */
+        
+#ifdef XN_FLAG_SEP_COMMA_PLUS
+        return XN_FLAG_SEP_COMMA_PLUS;
 #else
         goto not_there;
 #endif
@@ -3065,6 +3585,18 @@ constant (const char *name, size_t len) {
         
 #ifdef SSL_F_SSL_SESSION_PRINT_FP
         return SSL_F_SSL_SESSION_PRINT_FP;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'S':
+      if (!memcmp(name, "ASN1_STRFLGS_ESC_QUOTE", 22)) {
+      /*                               ^              */
+        
+#ifdef ASN1_STRFLGS_ESC_QUOTE
+        return ASN1_STRFLGS_ESC_QUOTE;
 #else
         goto not_there;
 #endif
@@ -3112,85 +3644,16 @@ constant (const char *name, size_t len) {
   case 23:
     /* Names all of length 23.  */
     /* F_GET_CLIENT_MASTER_KEY F_SSL_USE_RSAPRIVATEKEY NID_pkcs8ShroudedKeyBag
-       NID_pkcs9_messageDigest NID_stateOrProvinceName R_BAD_RESPONSE_ARGUMENT
-       R_PUBLIC_KEY_IS_NOT_RSA X509_PURPOSE_SMIME_SIGN X509_PURPOSE_SSL_CLIENT
-       X509_PURPOSE_SSL_SERVER X509_TRUST_OCSP_REQUEST X509_V_FLAG_INHIBIT_ANY
-       X509_V_FLAG_INHIBIT_MAP X509_V_FLAG_X509_STRICT */
-    /* Offset 14 gives the best switch position.  */
-    switch (name[14]) {
-    case '0':
-      if (!memcmp(name, "X509_V_FLAG_X509_STRICT", 23)) {
-      /*                               ^               */
-        
-#ifdef X509_V_FLAG_X509_STRICT
-        return X509_V_FLAG_X509_STRICT;
-#else
-        goto not_there;
-#endif
-
-      }
-      break;
+       NID_pkcs9_messageDigest NID_stateOrProvinceName OP_CRYPTOPRO_TLSEXT_BUG
+       R_BAD_RESPONSE_ARGUMENT R_PUBLIC_KEY_IS_NOT_RSA X509_PURPOSE_SMIME_SIGN
+       X509_PURPOSE_SSL_CLIENT X509_PURPOSE_SSL_SERVER X509_TRUST_OCSP_REQUEST
+       X509_V_FLAG_INHIBIT_ANY X509_V_FLAG_INHIBIT_MAP X509_V_FLAG_POLICY_MASK
+       X509_V_FLAG_X509_STRICT */
+    /* Offset 17 gives the best switch position.  */
+    switch (name[17]) {
     case 'A':
-      if (!memcmp(name, "F_GET_CLIENT_MASTER_KEY", 23)) {
-      /*                               ^               */
-        
-#ifdef SSL_F_GET_CLIENT_MASTER_KEY
-        return SSL_F_GET_CLIENT_MASTER_KEY;
-#else
-        goto not_there;
-#endif
-
-      }
-      break;
-    case 'H':
-      if (!memcmp(name, "X509_V_FLAG_INHIBIT_ANY", 23)) {
-      /*                               ^               */
-        
-#ifdef X509_V_FLAG_INHIBIT_ANY
-        return X509_V_FLAG_INHIBIT_ANY;
-#else
-        goto not_there;
-#endif
-
-      }
-      if (!memcmp(name, "X509_V_FLAG_INHIBIT_MAP", 23)) {
-      /*                               ^               */
-        
-#ifdef X509_V_FLAG_INHIBIT_MAP
-        return X509_V_FLAG_INHIBIT_MAP;
-#else
-        goto not_there;
-#endif
-
-      }
-      break;
-    case 'M':
-      if (!memcmp(name, "X509_PURPOSE_SMIME_SIGN", 23)) {
-      /*                               ^               */
-        
-#ifdef X509_PURPOSE_SMIME_SIGN
-        return X509_PURPOSE_SMIME_SIGN;
-#else
-        goto not_there;
-#endif
-
-      }
-      break;
-    case 'P':
-      if (!memcmp(name, "X509_TRUST_OCSP_REQUEST", 23)) {
-      /*                               ^               */
-        
-#ifdef X509_TRUST_OCSP_REQUEST
-        return X509_TRUST_OCSP_REQUEST;
-#else
-        goto not_there;
-#endif
-
-      }
-      break;
-    case 'R':
       if (!memcmp(name, "F_SSL_USE_RSAPRIVATEKEY", 23)) {
-      /*                               ^               */
+      /*                                  ^            */
         
 #ifdef SSL_F_SSL_USE_RSAPRIVATEKEY
         return SSL_F_SSL_USE_RSAPRIVATEKEY;
@@ -3200,19 +3663,9 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case 'S':
-      if (!memcmp(name, "R_PUBLIC_KEY_IS_NOT_RSA", 23)) {
-      /*                               ^               */
-        
-#ifdef SSL_R_PUBLIC_KEY_IS_NOT_RSA
-        return SSL_R_PUBLIC_KEY_IS_NOT_RSA;
-#else
-        goto not_there;
-#endif
-
-      }
+    case 'C':
       if (!memcmp(name, "X509_PURPOSE_SSL_CLIENT", 23)) {
-      /*                               ^               */
+      /*                                  ^            */
         
 #ifdef X509_PURPOSE_SSL_CLIENT
         return X509_PURPOSE_SSL_CLIENT;
@@ -3221,32 +3674,10 @@ constant (const char *name, size_t len) {
 #endif
 
       }
-      if (!memcmp(name, "X509_PURPOSE_SSL_SERVER", 23)) {
-      /*                               ^               */
-        
-#ifdef X509_PURPOSE_SSL_SERVER
-        return X509_PURPOSE_SSL_SERVER;
-#else
-        goto not_there;
-#endif
-
-      }
       break;
-    case '_':
-      if (!memcmp(name, "R_BAD_RESPONSE_ARGUMENT", 23)) {
-      /*                               ^               */
-        
-#ifdef SSL_R_BAD_RESPONSE_ARGUMENT
-        return SSL_R_BAD_RESPONSE_ARGUMENT;
-#else
-        goto not_there;
-#endif
-
-      }
-      break;
-    case 'a':
+    case 'D':
       if (!memcmp(name, "NID_pkcs9_messageDigest", 23)) {
-      /*                               ^               */
+      /*                                  ^            */
         
 #ifdef NID_pkcs9_messageDigest
         return NID_pkcs9_messageDigest;
@@ -3256,9 +3687,75 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case 'd':
+    case 'E':
+      if (!memcmp(name, "F_GET_CLIENT_MASTER_KEY", 23)) {
+      /*                                  ^            */
+        
+#ifdef SSL_F_GET_CLIENT_MASTER_KEY
+        return SSL_F_GET_CLIENT_MASTER_KEY;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "X509_PURPOSE_SMIME_SIGN", 23)) {
+      /*                                  ^            */
+        
+#ifdef X509_PURPOSE_SMIME_SIGN
+        return X509_PURPOSE_SMIME_SIGN;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "X509_TRUST_OCSP_REQUEST", 23)) {
+      /*                                  ^            */
+        
+#ifdef X509_TRUST_OCSP_REQUEST
+        return X509_TRUST_OCSP_REQUEST;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'G':
+      if (!memcmp(name, "R_BAD_RESPONSE_ARGUMENT", 23)) {
+      /*                                  ^            */
+        
+#ifdef SSL_R_BAD_RESPONSE_ARGUMENT
+        return SSL_R_BAD_RESPONSE_ARGUMENT;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'I':
+      if (!memcmp(name, "X509_V_FLAG_INHIBIT_ANY", 23)) {
+      /*                                  ^            */
+        
+#ifdef X509_V_FLAG_INHIBIT_ANY
+        return X509_V_FLAG_INHIBIT_ANY;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "X509_V_FLAG_INHIBIT_MAP", 23)) {
+      /*                                  ^            */
+        
+#ifdef X509_V_FLAG_INHIBIT_MAP
+        return X509_V_FLAG_INHIBIT_MAP;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'K':
       if (!memcmp(name, "NID_pkcs8ShroudedKeyBag", 23)) {
-      /*                               ^               */
+      /*                                  ^            */
         
 #ifdef NID_pkcs8ShroudedKeyBag
         return NID_pkcs8ShroudedKeyBag;
@@ -3268,9 +3765,67 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case 'v':
+    case 'O':
+      if (!memcmp(name, "R_PUBLIC_KEY_IS_NOT_RSA", 23)) {
+      /*                                  ^            */
+        
+#ifdef SSL_R_PUBLIC_KEY_IS_NOT_RSA
+        return SSL_R_PUBLIC_KEY_IS_NOT_RSA;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'S':
+      if (!memcmp(name, "X509_PURPOSE_SSL_SERVER", 23)) {
+      /*                                  ^            */
+        
+#ifdef X509_PURPOSE_SSL_SERVER
+        return X509_PURPOSE_SSL_SERVER;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "X509_V_FLAG_X509_STRICT", 23)) {
+      /*                                  ^            */
+        
+#ifdef X509_V_FLAG_X509_STRICT
+        return X509_V_FLAG_X509_STRICT;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'X':
+      if (!memcmp(name, "OP_CRYPTOPRO_TLSEXT_BUG", 23)) {
+      /*                                  ^            */
+        
+#ifdef SSL_OP_CRYPTOPRO_TLSEXT_BUG
+        return SSL_OP_CRYPTOPRO_TLSEXT_BUG;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'Y':
+      if (!memcmp(name, "X509_V_FLAG_POLICY_MASK", 23)) {
+      /*                                  ^            */
+        
+#ifdef X509_V_FLAG_POLICY_MASK
+        return X509_V_FLAG_POLICY_MASK;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'c':
       if (!memcmp(name, "NID_stateOrProvinceName", 23)) {
-      /*                               ^               */
+      /*                                  ^            */
         
 #ifdef NID_stateOrProvinceName
         return NID_stateOrProvinceName;
@@ -3289,7 +3844,8 @@ constant (const char *name, size_t len) {
        NID_netscape_renewal_url NID_pbeWithMD2AndDES_CBC
        NID_pbeWithMD2AndRC2_CBC NID_pbeWithMD5AndDES_CBC
        NID_pbeWithMD5AndRC2_CBC NID_shaWithRSAEncryption
-       OP_MICROSOFT_SESS_ID_BUG R_CHALLENGE_IS_DIFFERENT
+       OP_LEGACY_SERVER_CONNECT OP_MICROSOFT_SESS_ID_BUG
+       OP_TLS_BLOCK_PADDING_BUG R_CHALLENGE_IS_DIFFERENT
        R_CIPHER_TABLE_SRC_ERROR R_PEER_ERROR_CERTIFICATE
        R_READ_WRONG_PACKET_TYPE X509_PURPOSE_OCSP_HELPER
        X509_V_FLAG_POLICY_CHECK */
@@ -3313,6 +3869,18 @@ constant (const char *name, size_t len) {
         
 #ifdef SSL_R_READ_WRONG_PACKET_TYPE
         return SSL_R_READ_WRONG_PACKET_TYPE;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'G':
+      if (!memcmp(name, "OP_LEGACY_SERVER_CONNECT", 24)) {
+      /*                      ^                         */
+        
+#ifdef SSL_OP_LEGACY_SERVER_CONNECT
+        return SSL_OP_LEGACY_SERVER_CONNECT;
 #else
         goto not_there;
 #endif
@@ -3361,6 +3929,18 @@ constant (const char *name, size_t len) {
         
 #ifdef SSL_R_PEER_ERROR_CERTIFICATE
         return SSL_R_PEER_ERROR_CERTIFICATE;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'S':
+      if (!memcmp(name, "OP_TLS_BLOCK_PADDING_BUG", 24)) {
+      /*                      ^                         */
+        
+#ifdef SSL_OP_TLS_BLOCK_PADDING_BUG
+        return SSL_OP_TLS_BLOCK_PADDING_BUG;
 #else
         goto not_there;
 #endif
@@ -3832,7 +4412,7 @@ constant (const char *name, size_t len) {
        R_BAD_SSL_SESSION_ID_LENGTH R_UNKNOWN_REMOTE_ERROR_TYPE
        VERIFY_FAIL_IF_NO_PEER_CERT X509_PURPOSE_TIMESTAMP_SIGN
        X509_V_FLAG_CB_ISSUER_CHECK X509_V_FLAG_EXPLICIT_POLICY
-       X509_V_FLAG_IGNORE_CRITICAL */
+       X509_V_FLAG_IGNORE_CRITICAL XN_FLAG_DUMP_UNKNOWN_FIELDS */
     /* Offset 13 gives the best switch position.  */
     switch (name[13]) {
     case 'B':
@@ -3925,6 +4505,18 @@ constant (const char *name, size_t len) {
         
 #ifdef X509_PURPOSE_TIMESTAMP_SIGN
         return X509_PURPOSE_TIMESTAMP_SIGN;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'U':
+      if (!memcmp(name, "XN_FLAG_DUMP_UNKNOWN_FIELDS", 27)) {
+      /*                              ^                    */
+        
+#ifdef XN_FLAG_DUMP_UNKNOWN_FIELDS
+        return XN_FLAG_DUMP_UNKNOWN_FIELDS;
 #else
         goto not_there;
 #endif
@@ -4170,15 +4762,16 @@ constant (const char *name, size_t len) {
   case 30:
     /* Names all of length 30.  */
     /* NID_netscape_ca_revocation_url OP_DONT_INSERT_EMPTY_FRAGMENTS
-       OP_SSLREF2_REUSE_CERT_TYPE_BUG R_UNABLE_TO_EXTRACT_PUBLIC_KEY */
-    /* Offset 14 gives the best switch position.  */
-    switch (name[14]) {
-    case 'S':
-      if (!memcmp(name, "OP_SSLREF2_REUSE_CERT_TYPE_BUG", 30)) {
-      /*                               ^                      */
+       OP_SSLREF2_REUSE_CERT_TYPE_BUG R_UNABLE_TO_EXTRACT_PUBLIC_KEY
+       X509_V_FLAG_CHECK_SS_SIGNATURE */
+    /* Offset 13 gives the best switch position.  */
+    switch (name[13]) {
+    case 'H':
+      if (!memcmp(name, "X509_V_FLAG_CHECK_SS_SIGNATURE", 30)) {
+      /*                              ^                       */
         
-#ifdef SSL_OP_SSLREF2_REUSE_CERT_TYPE_BUG
-        return SSL_OP_SSLREF2_REUSE_CERT_TYPE_BUG;
+#ifdef X509_V_FLAG_CHECK_SS_SIGNATURE
+        return X509_V_FLAG_CHECK_SS_SIGNATURE;
 #else
         goto not_there;
 #endif
@@ -4186,20 +4779,8 @@ constant (const char *name, size_t len) {
       }
       break;
     case 'T':
-      if (!memcmp(name, "R_UNABLE_TO_EXTRACT_PUBLIC_KEY", 30)) {
-      /*                               ^                      */
-        
-#ifdef SSL_R_UNABLE_TO_EXTRACT_PUBLIC_KEY
-        return SSL_R_UNABLE_TO_EXTRACT_PUBLIC_KEY;
-#else
-        goto not_there;
-#endif
-
-      }
-      break;
-    case '_':
       if (!memcmp(name, "OP_DONT_INSERT_EMPTY_FRAGMENTS", 30)) {
-      /*                               ^                      */
+      /*                              ^                       */
         
 #ifdef SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS
         return SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS;
@@ -4209,9 +4790,33 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case 'a':
+    case 'U':
+      if (!memcmp(name, "OP_SSLREF2_REUSE_CERT_TYPE_BUG", 30)) {
+      /*                              ^                       */
+        
+#ifdef SSL_OP_SSLREF2_REUSE_CERT_TYPE_BUG
+        return SSL_OP_SSLREF2_REUSE_CERT_TYPE_BUG;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'X':
+      if (!memcmp(name, "R_UNABLE_TO_EXTRACT_PUBLIC_KEY", 30)) {
+      /*                              ^                       */
+        
+#ifdef SSL_R_UNABLE_TO_EXTRACT_PUBLIC_KEY
+        return SSL_R_UNABLE_TO_EXTRACT_PUBLIC_KEY;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'c':
       if (!memcmp(name, "NID_netscape_ca_revocation_url", 30)) {
-      /*                               ^                      */
+      /*                              ^                       */
         
 #ifdef NID_netscape_ca_revocation_url
         return NID_netscape_ca_revocation_url;
@@ -4255,14 +4860,34 @@ constant (const char *name, size_t len) {
     }
     break;
   case 32:
-    if (!memcmp(name, "NID_pbe_WithSHA1And128BitRC2_CBC", 32)) {
-      
+    /* Names all of length 32.  */
+    /* NID_pbe_WithSHA1And128BitRC2_CBC X509_V_FLAG_EXTENDED_CRL_SUPPORT */
+    /* Offset 25 gives the best switch position.  */
+    switch (name[25]) {
+    case 'R':
+      if (!memcmp(name, "NID_pbe_WithSHA1And128BitRC2_CBC", 32)) {
+      /*                                          ^             */
+        
 #ifdef NID_pbe_WithSHA1And128BitRC2_CBC
         return NID_pbe_WithSHA1And128BitRC2_CBC;
 #else
         goto not_there;
 #endif
 
+      }
+      break;
+    case 'S':
+      if (!memcmp(name, "X509_V_FLAG_EXTENDED_CRL_SUPPORT", 32)) {
+      /*                                          ^             */
+        
+#ifdef X509_V_FLAG_EXTENDED_CRL_SUPPORT
+        return X509_V_FLAG_EXTENDED_CRL_SUPPORT;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
     }
     break;
   case 34:
@@ -4306,6 +4931,17 @@ constant (const char *name, size_t len) {
 
       }
       break;
+    }
+    break;
+  case 36:
+    if (!memcmp(name, "OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION", 36)) {
+      
+#ifdef SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION
+        return SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION;
+#else
+        goto not_there;
+#endif
+
     }
     break;
   case 38:
