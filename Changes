@@ -72,6 +72,8 @@ Revision history for Perl extension Net::SSLeay.
      - Net::SSLeay::XN_FLAG_SEP_MULTILINE
      - Net::SSLeay::XN_FLAG_SEP_SPLUS_SPC
      - Net::SSLeay::XN_FLAG_SPC_EQ
+     A number of tests were present in svn, but missing from MANIFEST, and
+     were therefore not included in the dist. Added.
 
 1.45 2012-02-25
      Added mising doc for SESSION_cmp. Patch by paul.
