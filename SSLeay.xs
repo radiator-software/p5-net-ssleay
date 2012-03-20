@@ -97,11 +97,6 @@ static perl_mutex *GLOBAL_openssl_mutex = NULL;
 #endif
 static int LIB_initialized;
 
-#ifdef WIN32
-/* see comment in openssl_threads_cleanup() */
-DWORD GLOBAL_openssl_mutex_creator;
-#endif
-
 UV get_my_thread_id(void) /* returns threads->tid() value */
 {
     dSP;
@@ -133,7 +128,9 @@ UV get_my_thread_id(void) /* returns threads->tid() value */
  * openssl locking was implemented according to http://www.openssl.org/docs/crypto/threads.html
  * we implement both static and dynamic locking as described on URL above
  * we do not support locking on pre-0.9.4 as CRYPTO_num_locks() was added in OpenSSL 0.9.4 
- * we not support dynamic locking on pre-0.9.6 as necessary functions were added in OpenSSL 0.9.5b-dev
+ * we do not support dynamic locking on pre-0.9.6 as necessary functions were added in OpenSSL 0.9.5b-dev
+ * we intentionally do not implement cleanup of openssl's threading as it causes troubles 
+ * with apache-mpm-worker+mod_perl+mod_ssl+net-ssleay
  */
 #if defined(USE_ITHREADS) && defined(OPENSSL_THREADS) && OPENSSL_VERSION_NUMBER >= 0x00904000L
 
@@ -200,66 +197,39 @@ void openssl_threads_init(void)
     int i;
  
     /* initialize static locking */
-    New(0, GLOBAL_openssl_mutex, CRYPTO_num_locks(), perl_mutex);	
-    if (!GLOBAL_openssl_mutex) return;    
-    for (i=0; i<CRYPTO_num_locks(); i++) MUTEX_INIT(&GLOBAL_openssl_mutex[i]);
-    CRYPTO_set_locking_callback((void (*)(int,int,const char *,int))openssl_locking_function);
-#ifdef WIN32    
-    GLOBAL_openssl_mutex_creator = GetCurrentThreadId();     
-#endif
-
-#ifndef WIN32
-    /* no need for threadid_func() on Win32 */
+    if ( !CRYPTO_get_locking_callback() ) {        
 #if OPENSSL_VERSION_NUMBER < 0x10000000L
-    CRYPTO_set_id_callback(openssl_threadid_func);
+        if ( !CRYPTO_get_id_callback() ) {
 #else    
-    CRYPTO_THREADID_set_callback(openssl_threadid_func);
+        if ( !CRYPTO_THREADID_get_callback() ) {
 #endif
-#endif
-
-#if OPENSSL_VERSION_NUMBER >= 0x00906000L
-    /* initialize dynamic locking (0.9.6+) */
-    CRYPTO_set_dynlock_create_callback(openssl_dynlocking_create_function);
-    CRYPTO_set_dynlock_lock_callback(openssl_dynlocking_lock_function);
-    CRYPTO_set_dynlock_destroy_callback(openssl_dynlocking_destroy_function);
-#endif   
-}
-
-void openssl_threads_cleanup(void)
-{
-    int i;
     
-    if (!GLOBAL_openssl_mutex) return;
+            New(0, GLOBAL_openssl_mutex, CRYPTO_num_locks(), perl_mutex);	
+            if (!GLOBAL_openssl_mutex) return;    
+            for (i=0; i<CRYPTO_num_locks(); i++) MUTEX_INIT(&GLOBAL_openssl_mutex[i]);
+            CRYPTO_set_locking_callback((void (*)(int,int,const char *,int))openssl_locking_function);
 
-#if OPENSSL_VERSION_NUMBER >= 0x00906000L
-    /* shutdown dynamic locking (0.9.6+) */
-    CRYPTO_set_dynlock_create_callback(NULL);
-    CRYPTO_set_dynlock_lock_callback(NULL);
-    CRYPTO_set_dynlock_destroy_callback(NULL);
-#endif
-
-    /* shutdown static locking */
-#ifdef WIN32
-    /* BEWARE: Win32 workaround!
-     * in fork() emulation on Win32 which is implemented via threads the 
-     * function END() is called multiple times, thus we have to avoid
-     * multiple destruction by allowing the destruction only by thread
-     * that has allocated GLOBAL_openssl_mutex
-     */
-    if (GLOBAL_openssl_mutex_creator != GetCurrentThreadId()) return;
-#endif
-
-    CRYPTO_set_locking_callback(NULL);
 #ifndef WIN32
-    /* only relevat to non-Windows platforms */
+            /* no need for threadid_func() on Win32 */
 #if OPENSSL_VERSION_NUMBER < 0x10000000L
-    CRYPTO_set_id_callback(NULL);
+            CRYPTO_set_id_callback(openssl_threadid_func);
 #else    
-    CRYPTO_THREADID_set_callback(NULL);
+            CRYPTO_THREADID_set_callback(openssl_threadid_func);
 #endif
-#endif    
-    for (i=0; i<CRYPTO_num_locks(); i++) MUTEX_DESTROY(&GLOBAL_openssl_mutex[i]);
-    Safefree(GLOBAL_openssl_mutex);
+#endif
+        }
+    }
+
+    /* initialize dynamic locking (0.9.6+) */
+#if OPENSSL_VERSION_NUMBER >= 0x00906000L    
+    if ( !CRYPTO_get_dynlock_create_callback() &&
+         !CRYPTO_get_dynlock_lock_callback() &&
+         !CRYPTO_get_dynlock_destroy_callback() ) {        
+        CRYPTO_set_dynlock_create_callback(openssl_dynlocking_create_function);
+        CRYPTO_set_dynlock_lock_callback(openssl_dynlocking_lock_function);
+        CRYPTO_set_dynlock_destroy_callback(openssl_dynlocking_destroy_function);        
+    }
+#endif   
 }
 
 #endif
@@ -918,16 +888,6 @@ CODE:
     MY_CXT.ssleay_ctx_cert_verify_cbs = (HV*)NULL;
     MY_CXT.ssleay_session_secret_cbs = (HV*)NULL;
     MY_CXT.tid = get_my_thread_id();
-
-void
-END(...)
-CODE:
-#ifdef USE_ITHREADS
-    MUTEX_DESTROY(&LIB_init_mutex);
-#if defined(OPENSSL_THREADS) && OPENSSL_VERSION_NUMBER >= 0x00904000L
-    openssl_threads_cleanup();
-#endif
-#endif
 
 double
 constant(name)

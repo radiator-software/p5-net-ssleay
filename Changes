@@ -74,6 +74,10 @@ Revision history for Perl extension Net::SSLeay.
      - Net::SSLeay::XN_FLAG_SPC_EQ
      A number of tests were present in svn, but missing from MANIFEST, and
      were therefore not included in the dist. Added.
+     Fixed a problem with multiple Safefree of GLOBAL_openssl_mutex when run
+     under apache2+mod_perl on recent Debain distros. Removed END and
+     openssl_threads_cleanup() since they can be called during thread
+     destruction, and not necessarily at process exit time.
 
 1.45 2012-02-25
      Added mising doc for SESSION_cmp. Patch by paul.
