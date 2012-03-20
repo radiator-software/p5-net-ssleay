@@ -78,6 +78,7 @@ Revision history for Perl extension Net::SSLeay.
      under apache2+mod_perl on recent Debain distros. Removed END and
      openssl_threads_cleanup() since they can be called during thread
      destruction, and not necessarily at process exit time.
+     Added missing helper_script/regen_openssl_constants.pl to MANIFEST. Add MANIFEST to svn.
 
 1.45 2012-02-25
      Added mising doc for SESSION_cmp. Patch by paul.
