@@ -4,11 +4,17 @@
 
 use strict;
 use warnings;
-use Test::More tests => 405;
 use Net::SSLeay;
 
 eval "use Test::Exception;";
-plan skip_all => 'Some tests need Test::Exception' if $@;
+if ($@)
+{
+    eval "use Test::More skip_all => 'Some tests need Test::Exception';";
+}
+else
+{
+    eval "use Test::More tests => 405;";
+}
 
 my @c = (qw/
  ASN1_STRFLGS_ESC_CTRL           NID_id_ad                              OP_EPHEMERAL_RSA

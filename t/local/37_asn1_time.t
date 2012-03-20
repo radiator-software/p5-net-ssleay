@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 9;
+use Test::More tests => 10;
 use Net::SSLeay;
 
 my $atime1 = Net::SSLeay::ASN1_TIME_new();
@@ -35,6 +35,6 @@ Net::SSLeay::ASN1_TIME_free($atime2);
 
 my $atime3 = Net::SSLeay::ASN1_TIME_new();
 ok($atime1, 'ASN1_TIME_new [3]');
-Net::SSLeay::X509_gmtime_adj($atime3, 60*60*24*365*10);
-like(Net::SSLeay::P_ASN1_TIME_put2string($atime1), qr/[A-Z][a-z]+ +\d+ +\d+:\d+:\d+ +20\d\d/, 'X509_gmtime_adj');
+ok(Net::SSLeay::X509_gmtime_adj($atime3, 60*60*24*365*2));
+like(Net::SSLeay::P_ASN1_TIME_put2string($atime3), qr/[A-Z][a-z]+ +\d+ +\d+:\d+:\d+ +20\d\d/, 'X509_gmtime_adj');
 Net::SSLeay::ASN1_TIME_free($atime3);

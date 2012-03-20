@@ -893,6 +893,38 @@ Registers the error strings for SSL related functions. No need to call this func
  #
  # returns: no return value
 
+=item * OpenSSL_add_all_algorithms
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Add algorithms to internal table.
+
+ Net::SSLeay::OpenSSL_add_all_algorithms();
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/OpenSSL_add_all_algorithms.html|http://www.openssl.org/docs/crypto/OpenSSL_add_all_algorithms.html>
+
+=item * OPENSSL_add_all_algorithms_conf
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Similar to L</OpenSSL_add_all_algorithms> - will ALWAYS load the config file
+
+ Net::SSLeay::OPENSSL_add_all_algorithms_conf();
+ #
+ # returns: no return value
+
+=item * OPENSSL_add_all_algorithms_noconf
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Similar to L</OpenSSL_add_all_algorithms> - will NEVER load the config file
+
+ Net::SSLeay::OPENSSL_add_all_algorithms_noconf();
+ #
+ # returns: no return value
+
 =back
 
 =head3 Low level API: ERR_* and SSL_alert_* related functions
@@ -1120,6 +1152,89 @@ Copies the parameters from key $from to key $to.
 
 Check openssl doc L<http://www.openssl.org/docs/crypto/EVP_PKEY_cmp.html|http://www.openssl.org/docs/crypto/EVP_PKEY_cmp.html>
 
+=item * EVP_PKEY_new
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Creates a new EVP_PKEY structure.
+
+ my $rv = Net::SSLeay::EVP_PKEY_new();
+ #
+ # returns: value corresponding to openssl's EVP_PKEY structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/EVP_PKEY_new.html|http://www.openssl.org/docs/crypto/EVP_PKEY_new.html>
+
+=item * EVP_PKEY_free
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Free an allocated EVP_PKEY structure.
+
+ Net::SSLeay::EVP_PKEY_free($pkey);
+ # $pkey - value corresponding to openssl's EVP_PKEY structure
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/EVP_PKEY_new.html|http://www.openssl.org/docs/crypto/EVP_PKEY_new.html>
+
+=item * EVP_PKEY_assign_RSA
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Set the key referenced by $pkey to $key
+
+B<NOTE:> In accordance with the OpenSSL naming convention the $key assigned
+to the $pkey using the "1" functions must be freed as well as $pkey. 
+
+ my $rv = Net::SSLeay::EVP_PKEY_assign_RSA($pkey, $key);
+ # $pkey - value corresponding to openssl's EVP_PKEY structure
+ # $key - value corresponding to openssl's RSA structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/EVP_PKEY_set1_RSA.html|http://www.openssl.org/docs/crypto/EVP_PKEY_set1_RSA.html>
+
+=item * EVP_PKEY_bits
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns the size of the key $pkey in bits.
+
+ my $rv = Net::SSLeay::EVP_PKEY_bits($pkey);
+ # $pkey - value corresponding to openssl's EVP_PKEY structure
+ #
+ # returns: size in bits
+
+=item * EVP_PKEY_size
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns the maximum size of a signature in bytes. The actual signature may be smaller.
+
+ my $rv = Net::SSLeay::EVP_PKEY_size($pkey);
+ # $pkey - value corresponding to openssl's EVP_PKEY structure
+ #
+ # returns: the maximum size in bytes
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/EVP_SignInit.html|http://www.openssl.org/docs/crypto/EVP_SignInit.html>
+
+=item * EVP_PKEY_id
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-1.0.0
+
+Returns $pkey type (integer value of corresponding NID).
+
+ my $rv = Net::SSLeay::EVP_PKEY_id($pkey);
+ # $pkey - value corresponding to openssl's EVP_PKEY structure
+ #
+ # returns: (integer) key type
+
+Example:
+
+ my $pubkey = Net::SSLeay::X509_get_pubkey($x509);
+ my $type = Net::SSLeay::EVP_PKEY_id($pubkey);
+ print Net::SSLeay::OBJ_nid2sn($type);             #prints e.g. 'rsaEncryption'
+ 
 =back
 
 =head3 Low level API: PEM_* related functions
@@ -1127,6 +1242,40 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/EVP_PKEY_cmp.html|http://
 Check openssl doc L<http://www.openssl.org/docs/crypto/pem.html|http://www.openssl.org/docs/crypto/pem.html>
 
 =over
+
+=item * PEM_read_bio_X509
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Loads PEM formated X509 certificate via given BIO structure.
+
+ my $rv = Net::SSLeay::PEM_read_bio_X509($bio);
+ # $bio - value corresponding to openssl's BIO structure
+ #
+ # returns: value corresponding to openssl's X509 structure (0 on failure)
+
+Example:
+
+ my $bio = Net::SSLeay::BIO_new_file($filename, 'r');
+ my $x509 = Net::SSLeay::PEM_read_bio_X509($bio);
+ Net::SSLeay::BIO_free($bio);
+
+=item * PEM_read_bio_X509_REQ
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Loads PEM formated X509_REQ object via given BIO structure.
+
+ my $rv = Net::SSLeay::PEM_read_bio_X509_REQ($bio, $x=NULL, $cb=NULL, $u=NULL);
+ # $bio - value corresponding to openssl's BIO structure
+ #
+ # returns: value corresponding to openssl's X509_REQ structure (0 on failure)
+
+Example:
+
+ my $bio = Net::SSLeay::BIO_new_file($filename, 'r');
+ my $x509_req = Net::SSLeay::PEM_read_bio_X509_REQ($bio);
+ Net::SSLeay::BIO_free($bio);
 
 =item * PEM_read_bio_DHparams
 
@@ -1146,6 +1295,43 @@ Reads X509_CRL structure from BIO.
  #
  # returns: value corresponding to openssl's X509_CRL structure (0 on failure)
 
+=item * PEM_read_bio_PrivateKey
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Loads PEM formated private key via given BIO structure.
+
+ my $rv = Net::SSLeay::PEM_read_bio_PrivateKey($bio, $cb, $data);
+ # $bio - value corresponding to openssl's BIO structure
+ # $cb - reference to perl callback function
+ # $data - data that will be passed to callback function (see examples below)
+ #
+ # returns: value corresponding to openssl's EVP_PKEY structure (0 on failure)
+
+Example:
+
+ my $bio = Net::SSLeay::BIO_new_file($filename, 'r');
+ my $privkey = Net::SSLeay::PEM_read_bio_PrivateKey($bio); #ask for password if needed
+ Net::SSLeay::BIO_free($bio);
+
+To use password you have the following options:
+
+ $privkey = Net::SSLeay::PEM_read_bio_PrivateKey($bio, \&callback_func); # use callback func for getting password
+ $privkey = Net::SSLeay::PEM_read_bio_PrivateKey($bio, \&callback_func, $data); # use callback_func + pass $data to callback_func
+ $privkey = Net::SSLeay::PEM_read_bio_PrivateKey($bio, undef, "secret"); # use password "secret"
+ $privkey = Net::SSLeay::PEM_read_bio_PrivateKey($bio, undef, "");       # use empty password
+
+Callback function signature:
+
+ sub callback_func {
+   my ($max_passwd_size, $rwflag, $data) = @_;
+   # $max_passwd_size - maximum size of returned password (longer values will be discarded)
+   # $rwflag - indicates whether we are loading (0) or storing (1) - for PEM_read_bio_PrivateKey always 0
+   # $data - the data passed to PEM_read_bio_PrivateKey as 3rd parameter
+   
+   return "secret";
+ }
+ 
 =item * PEM_get_string_X509
 
 B<NOTE:> Does not exactly correspond to any low level API function
@@ -1156,6 +1342,106 @@ Converts/exports X509 certificate to string (PEM format).
  # $x509 - value corresponding to openssl's X509 structure
  #
  # returns: string with $x509 in PEM format
+
+=item * PEM_get_string_PrivateKey
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Converts public key $pk into PEM formated string (optionally protected with password).
+
+ my $rv = Net::SSLeay::PEM_get_string_PrivateKey($pk, $passwd, $enc_alg);
+ # $pk - value corresponding to openssl's EVP_PKEY structure
+ # $passwd - [optional] (string) password to use for key encryption
+ # $enc_alg - [optional] algorithm to use for key encryption (default: DES_CBC) - value corresponding to openssl's EVP_CIPHER structure
+ #
+ # returns: PEM formated string
+
+Examples:
+
+ $pem_privkey = Net::SSLeay::PEM_get_string_PrivateKey($pk);
+ $pem_privkey = Net::SSLeay::PEM_get_string_PrivateKey($pk, "secret");
+ $pem_privkey = Net::SSLeay::PEM_get_string_PrivateKey($pk, "secret", Net::SSLeay::EVP_get_cipherbyname("DES-EDE3-CBC"));
+ 
+=item * PEM_get_string_X509_CRL
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Converts X509_CRL object $x509_crl into PEM formated string.
+
+ Net::SSLeay::PEM_get_string_X509_CRL($x509_crl);
+ # $x509_crl - value corresponding to openssl's X509_CRL structure
+ #
+ # returns: no return value
+
+=item * PEM_get_string_X509_REQ
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Converts X509_REQ object $x509_crl into PEM formated string.
+
+ Net::SSLeay::PEM_get_string_X509_REQ($x509_req);
+ # $x509_req - value corresponding to openssl's X509_REQ structure
+ #
+ # returns: no return value
+
+=back
+
+=head3 Low level API: d2i_* (DER format) related functions
+
+=over
+
+=item * d2i_X509_bio
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Loads DER formated X509 certificate via given BIO structure.
+
+ my $rv = Net::SSLeay::d2i_X509_bio($bp);
+ # $bp - value corresponding to openssl's BIO structure
+ #
+ # returns: value corresponding to openssl's X509 structure (0 on failure)
+
+Example:
+
+ my $bio = Net::SSLeay::BIO_new_file($filename, 'rb');
+ my $x509 = Net::SSLeay::d2i_X509_bio($bio);
+ Net::SSLeay::BIO_free($bio);
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/d2i_X509.html|http://www.openssl.org/docs/crypto/d2i_X509.html>
+
+=item * d2i_X509_CRL_bio
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Loads DER formated X509_CRL object via given BIO structure.
+
+ my $rv = Net::SSLeay::d2i_X509_CRL_bio($bp);
+ # $bp - value corresponding to openssl's BIO structure
+ #
+ # returns: value corresponding to openssl's X509_CRL structure (0 on failure)
+
+Example:
+
+ my $bio = Net::SSLeay::BIO_new_file($filename, 'rb');
+ my $x509_crl = Net::SSLeay::d2i_X509_CRL_bio($bio);
+ Net::SSLeay::BIO_free($bio);
+
+=item * d2i_X509_REQ_bio
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Loads DER formated X509_REQ object via given BIO structure.
+
+ my $rv = Net::SSLeay::d2i_X509_REQ_bio($bp);
+ # $bp - value corresponding to openssl's BIO structure
+ #
+ # returns: value corresponding to openssl's X509_REQ structure (0 on failure)
+
+Example:
+
+ my $bio = Net::SSLeay::BIO_new_file($filename, 'rb');
+ my $x509_req = Net::SSLeay::d2i_X509_REQ_bio($bio);
+ Net::SSLeay::BIO_free($bio);
 
 =back
 
@@ -4077,6 +4363,131 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/OBJ_nid2obj.html|http://w
 
 =back
 
+=head3 Low level API: ASN1_INTEGER_* related functions
+
+=over
+
+=item * ASN1_INTEGER_new
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Creates a new ASN1_INTEGER structure.
+
+ my $rv = Net::SSLeay::ASN1_INTEGER_new();
+ #
+ # returns: value corresponding to openssl's ASN1_INTEGER structure (0 on failure)
+
+=item * ASN1_INTEGER_free
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Free an allocated ASN1_INTEGER structure.
+
+ Net::SSLeay::ASN1_INTEGER_free($i);
+ # $i - value corresponding to openssl's ASN1_INTEGER structure
+ #
+ # returns: no return value
+
+=item * ASN1_INTEGER_get
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns integer value of given ASN1_INTEGER object.
+
+B<BEWARE:> If the value stored in ASN1_INTEGER is greater than max. integer that can be stored 
+in 'long' type (usually 32bit but may vary according to platform) then this function will return -1.
+For getting large ASN1_INTEGER values consider using L</P_ASN1_INTEGER_get_dec> or L</P_ASN1_INTEGER_get_hex>.
+
+ my $rv = Net::SSLeay::ASN1_INTEGER_get($a);
+ # $a - value corresponding to openssl's ASN1_INTEGER structure
+ #
+ # returns: integer value of ASN1_INTEGER object in $a
+
+=item * ASN1_INTEGER_set
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Sets value of given ASN1_INTEGER object to value $val
+
+B<BEWARE:> $val has max. limit (= max. integer that can be stored in 'long' type).
+For setting large ASN1_INTEGER values consider using L</P_ASN1_INTEGER_set_dec> or L</P_ASN1_INTEGER_set_hex>.
+
+ my $rv = Net::SSLeay::ASN1_INTEGER_set($i, $val);
+ # $i - value corresponding to openssl's ASN1_INTEGER structure
+ # $val - integer value
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * P_ASN1_INTEGER_get_dec
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns string with decimal representation of integer value of given ASN1_INTEGER object.
+
+ Net::SSLeay::P_ASN1_INTEGER_get_dec($i);
+ # $i - value corresponding to openssl's ASN1_INTEGER structure
+ #
+ # returns: string with decimal representation
+
+=item * P_ASN1_INTEGER_get_hex
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns string with hexadecimal representation of integer value of given ASN1_INTEGER object.
+
+ Net::SSLeay::P_ASN1_INTEGER_get_hex($i);
+ # $i - value corresponding to openssl's ASN1_INTEGER structure
+ #
+ # returns: string with hexadecimal representation
+
+=item * P_ASN1_INTEGER_set_dec
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Sets value of given ASN1_INTEGER object to value $val (decimal string, suitable for large integers)
+
+ Net::SSLeay::P_ASN1_INTEGER_set_dec($i, $str);
+ # $i - value corresponding to openssl's ASN1_INTEGER structure
+ # $str - string with decimal representation
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * P_ASN1_INTEGER_set_hex
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Sets value of given ASN1_INTEGER object to value $val (hexadecimal string, suitable for large integers)
+
+ Net::SSLeay::P_ASN1_INTEGER_set_hex($i, $str);
+ # $i - value corresponding to openssl's ASN1_INTEGER structure
+ # $str - string with hexadecimal representation
+ #
+ # returns: 1 on success, 0 on failure
+
+=back
+
+=head3 Low level API: ASN1_STRING_* related functions
+
+=over
+
+=item * P_ASN1_STRING_get
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns string value of given ASN1_STRING object.
+
+ Net::SSLeay::P_ASN1_STRING_get($s, $utf8_decode);
+ # $s - value corresponding to openssl's ASN1_STRING structure
+ # $utf8_decode - [optional] 0 or 1 whether the returned value should be utf8 decoded (default=0)
+ #
+ # returns: string
+ 
+ $string = Net::SSLeay::P_ASN1_STRING_get($s); 
+ #is the same as:
+ $string = Net::SSLeay::P_ASN1_STRING_get($s, 0); 
+
+=back
+
 =head3 Low level API: ASN1_TIME_* related functions
 
 =over
@@ -4166,408 +4577,17 @@ for L</P_ASN1_TIME_put2string>
 
 =over
 
-=item * X509V3_EXT_d2i
+=item * X509_new
 
-Parses an extension and returns its internal structure.
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
- my $rv = Net::SSLeay::X509V3_EXT_d2i($ext);
- # $ext - value corresponding to openssl's X509_EXTENSION structure
- #
- # returns: pointer ???
+Allocates and initializes a X509 structure.
 
-=item * X509_NAME_get_text_by_NID
-
-Retrieves the text from the first entry in name which matches $nid, if no
-such entry exists -1 is returned. 
-
-B<openssl note:> this is a legacy function which has various limitations which 
-makes it of minimal use in practice. It can only find the first matching
-entry and will copy the contents of the field verbatim: this can be highly
-confusing if the target is a muticharacter string type like a BMPString or a UTF8String.
-
- Net::SSLeay::X509_NAME_get_text_by_NID($name, $nid);
- # $name - value corresponding to openssl's X509_NAME structure
- # $nid - NID value (integer)
- #
- # returns: text value
-
-Check openssl doc L<http://www.openssl.org/docs/crypto/X509_NAME_get_index_by_NID.html|http://www.openssl.org/docs/crypto/X509_NAME_get_index_by_NID.html>
-
-=item * X509_NAME_oneline
-
-Return an ASCII version of $name.
-
- Net::SSLeay::X509_NAME_oneline($name);
- # $name - value corresponding to openssl's X509_NAME structure
- #
- # returns: (string) ASCII version of $name
-
-Check openssl doc L<http://www.openssl.org/docs/crypto/X509_NAME_print_ex.html|http://www.openssl.org/docs/crypto/X509_NAME_print_ex.html>
-
-=item * X509_STORE_CTX_get_current_cert
-
-Returns the certificate in ctx which caused the error or 0 if no certificate is relevant.
-
- my $rv = Net::SSLeay::X509_STORE_CTX_get_current_cert($x509_store_ctx);
- # $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
+ my $rv = Net::SSLeay::X509_new();
  #
  # returns: value corresponding to openssl's X509 structure (0 on failure)
 
-Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html|http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html>
-
-=item * X509_STORE_CTX_get_error
-
-Returns the error code of $ctx.
-
- my $rv = Net::SSLeay::X509_STORE_CTX_get_error($x509_store_ctx);
- # $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
- #
- # returns: (integer) error code
-
-For more info about erro code values check function L</get_verify_result>.
-
-Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html|http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html>
-
-=item * X509_STORE_CTX_get_error_depth
-
-Returns the depth of the error. This is a non-negative integer representing
-where in the certificate chain the error occurred. If it is zero it occured
-in the end entity certificate, one if it is the certificate which signed
-the end entity certificate and so on.
-
- my $rv = Net::SSLeay::X509_STORE_CTX_get_error_depth($x509_store_ctx);
- # $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
- #
- # returns: (integer) depth
-
-Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html|http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html>
-
-=item * X509_STORE_CTX_get_ex_data
-
-Is used to retrieve the information for $idx from $x509_store_ctx.
-
- my $rv = Net::SSLeay::X509_STORE_CTX_get_ex_data($x509_store_ctx, $idx);
- # $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
- # $idx - (integer) index for application specific data
- #
- # returns: pointer to ???
-
-=item * X509_STORE_CTX_set_ex_data
-
-Is used to store application data at arg for idx into $x509_store_ctx.
-
- my $rv = Net::SSLeay::X509_STORE_CTX_set_ex_data($x509_store_ctx, $idx, $data);
- # $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
- # $idx - (integer) ???
- # $data - (pointer) ???
- #
- # returns: 1 on success, 0 on failure
-
-=item * X509_STORE_CTX_set_cert
-
-Sets the certificate to be vertified in $x509_store_ctx to $x.
-
- Net::SSLeay::X509_STORE_CTX_set_cert($x509_store_ctx, $x);
- # $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
- # $x - value corresponding to openssl's X509 structure
- #
- # returns: no return value
-
-Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_new.html|http://www.openssl.org/docs/crypto/X509_STORE_CTX_new.html>
-
-=item * X509_STORE_CTX_set_error
-
-Sets the error code of $ctx to $s. For example it might be used in a verification callback to set an error based on additional checks.
-
- Net::SSLeay::X509_STORE_CTX_set_error($x509_store_ctx, $s);
- # $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
- # $s - (integer) error id
- #
- # returns: no return value
-
-Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html|http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html>
-
-=item * X509_STORE_add_cert
-
-Adds X509 certificate $x into the X509_STORE $store.
-
- my $rv = Net::SSLeay::X509_STORE_add_cert($store, $x);
- # $store - value corresponding to openssl's X509_STORE structure
- # $x - value corresponding to openssl's X509 structure
- #
- # returns: 1 on success, 0 on failure
-
-=item * X509_STORE_add_crl
-
-Adds X509 CRL $x into the X509_STORE $store.
-
- my $rv = Net::SSLeay::X509_STORE_add_crl($store, $x);
- # $store - value corresponding to openssl's X509_STORE structure
- # $x - value corresponding to openssl's X509_CRL structure
- #
- # returns: 1 on success, 0 on failure
-
-=item * X509_STORE_set1_param
-
-??? (more info needed)
-
- my $rv = Net::SSLeay::X509_STORE_set1_param($store, $pm);
- # $store - value corresponding to openssl's X509_STORE structure
- # $pm - value corresponding to openssl's X509_VERIFY_PARAM structure
- #
- # returns: 1 on success, 0 on failure
-
-=item * X509_STORE_set_flags
-
- Net::SSLeay::X509_STORE_set_flags($ctx, $flags);
- # $ctx - value corresponding to openssl's X509_STORE structure
- # $flags - (unsigned long) flags to be set (bitmask)
- #
- # returns: no return value
-
- #to create $flags value use:  
- 0x0001 - X509_V_FLAG_CB_ISSUER_CHECK - Send issuer+subject checks to verify_cb
- 0x0002 - X509_V_FLAG_USE_CHECK_TIME - Use check time instead of current time
- 0x0004 - X509_V_FLAG_CRL_CHECK - Lookup CRLs
- 0x0008 - X509_V_FLAG_CRL_CHECK_ALL - Lookup CRLs for whole chain
- 0x0010 - X509_V_FLAG_IGNORE_CRITICAL - Ignore unhandled critical extensions
- 0x0020 - X509_V_FLAG_X509_STRICT - Disable workarounds for broken certificates
- 0x0040 - X509_V_FLAG_ALLOW_PROXY_CERTS - Enable proxy certificate validation
- 0x0080 - X509_V_FLAG_POLICY_CHECK - Enable policy checking
- 0x0100 - X509_V_FLAG_EXPLICIT_POLICY - Policy variable require-explicit-policy
- 0x0200 - X509_V_FLAG_INHIBIT_ANY - Policy variable inhibit-any-policy
- 0x0400 - X509_V_FLAG_INHIBIT_MAP - Policy variable inhibit-policy-mapping
- 0x0800 - X509_V_FLAG_NOTIFY_POLICY - Notify callback that policy is OK
- 0x1000 - X509_V_FLAG_EXTENDED_CRL_SUPPORT - Extended CRL features such as indirect CRLs, alternate CRL signing keys
- 0x2000 - X509_V_FLAG_USE_DELTAS - Delta CRL support
- 0x4000 - X509_V_FLAG_CHECK_SS_SIGNATURE - Check selfsigned CA signature
- 
- #or use corresponding constants like
- $flags = &Net::SSLeay::X509_V_FLAG_CB_ISSUER_CHECK;
- ...
- $flags = &Net::SSLeay::X509_V_FLAG_CHECK_SS_SIGNATURE;
-
-=item * X509_STORE_set_purpose
-
- Net::SSLeay::X509_STORE_set_purpose($ctx, $purpose);
- # $ctx - value corresponding to openssl's X509_STORE structure
- # $purpose - (integer) purpose identifier
- #
- # returns: no return value
-
-For more details about $purpose identifier check L</CTX_set_purpose>.
-
-=item * X509_STORE_set_trust
-
- Net::SSLeay::X509_STORE_set_trust($ctx, $trust);
- # $ctx - value corresponding to openssl's X509_STORE structure
- # $trust - (integer) trust identifier
- #
- # returns: no return value
-
-For more details about $trust identifier check L</CTX_set_trust>.
-
-=item * X509_VERIFY_PARAM_add0_policy
-
-Enables policy checking (it is disabled by default) and adds $policy to the acceptable policy set.
-
- my $rv = Net::SSLeay::X509_VERIFY_PARAM_add0_policy($param, $policy);
- # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
- # $policy - value corresponding to openssl's ASN1_OBJECT structure
- #
- # returns: 1 on success, 0 on failure
-
-Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
-
-=item * X509_VERIFY_PARAM_add0_table
-
-??? (more info needed)
-
- my $rv = Net::SSLeay::X509_VERIFY_PARAM_add0_table($param);
- # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
- #
- # returns: 1 on success, 0 on failure
-
-=item * X509_VERIFY_PARAM_clear_flags
-
-Clears the flags $flags in param.
-
- my $rv = Net::SSLeay::X509_VERIFY_PARAM_clear_flags($param, $flags);
- # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
- # $flags - (unsigned long) flags to be set (bitmask)
- #
- # returns: 1 on success, 0 on failure
-
-For more details about $flags bitmask see L</X509_STORE_set_flags>.
-
-Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
-
-=item * X509_VERIFY_PARAM_free
-
-Frees up the X509_VERIFY_PARAM structure.
-
- Net::SSLeay::X509_VERIFY_PARAM_free($param);
- # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
- #
- # returns: no return value
-
-=item * X509_VERIFY_PARAM_get_depth
-
-Returns the current verification depth.
-
- my $rv = Net::SSLeay::X509_VERIFY_PARAM_get_depth($param);
- # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
- #
- # returns: (ineger) depth
-
-Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
-
-=item * X509_VERIFY_PARAM_get_flags
-
-Returns the current verification flags.
-
- my $rv = Net::SSLeay::X509_VERIFY_PARAM_get_flags($param);
- # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
- #
- # returns: (unsigned long) flags to be set (bitmask)
-
-For more details about returned flags bitmask see L</X509_STORE_set_flags>.
-
-Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
-
-=item * X509_VERIFY_PARAM_set_flags
-
- my $rv = Net::SSLeay::X509_VERIFY_PARAM_set_flags($param, $flags);
- # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
- # $flags - (unsigned long) flags to be set (bitmask)
- #
- # returns: 1 on success, 0 on failure
- 
-For more details about $flags bitmask see L</X509_STORE_set_flags>.
-
-Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
-
-=item * X509_VERIFY_PARAM_inherit
-
-??? (more info needed)
-
- my $rv = Net::SSLeay::X509_VERIFY_PARAM_inherit($to, $from);
- # $to - value corresponding to openssl's X509_VERIFY_PARAM structure
- # $from - value corresponding to openssl's X509_VERIFY_PARAM structure
- #
- # returns: 1 on success, 0 on failure
-
-=item * X509_VERIFY_PARAM_lookup
-
-Finds X509_VERIFY_PARAM by name.
-
- my $rv = Net::SSLeay::X509_VERIFY_PARAM_lookup($name);
- # $name - (string) name we want to find
- #
- # returns: value corresponding to openssl's X509_VERIFY_PARAM structure (0 on failure)
-
-=item * X509_VERIFY_PARAM_new
-
-Creates a new X509_VERIFY_PARAM structure.
-
- my $rv = Net::SSLeay::X509_VERIFY_PARAM_new();
- #
- # returns: value corresponding to openssl's X509_VERIFY_PARAM structure (0 on failure)
-
-=item * X509_VERIFY_PARAM_set1
-
-Sets the name of X509_VERIFY_PARAM structure $to to the same value 
-as the name of X509_VERIFY_PARAM structure $from.
-
- my $rv = Net::SSLeay::X509_VERIFY_PARAM_set1($to, $from);
- # $to - value corresponding to openssl's X509_VERIFY_PARAM structure
- # $from - value corresponding to openssl's X509_VERIFY_PARAM structure
- #
- # returns: 1 on success, 0 on failure
-
-=item * X509_VERIFY_PARAM_set1_name
-
-Sets the name of X509_VERIFY_PARAM structure $param to $name.
-
- my $rv = Net::SSLeay::X509_VERIFY_PARAM_set1_name($param, $name);
- # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
- # $name - (string) name to be set
- #
- # returns: 1 on success, 0 on failure
-
-=item * X509_VERIFY_PARAM_set1_policies
-
-Enables policy checking (it is disabled by default) and sets the acceptable policy set to policies. 
-Any existing policy set is cleared. The policies parameter can be 0 to clear an existing policy set.
-
- my $rv = Net::SSLeay::X509_VERIFY_PARAM_set1_policies($param, $policies);
- # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
- # $policies - value corresponding to openssl's STACK_OF(ASN1_OBJECT) structure
- #
- # returns: 1 on success, 0 on failure
-
-Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
-
-=item * X509_VERIFY_PARAM_set_depth
-
-Sets the maximum verification depth to depth. That is the maximum number of untrusted CA certificates that can appear in a chain.
-
- Net::SSLeay::X509_VERIFY_PARAM_set_depth($param, $depth);
- # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
- # $depth - (integer) depth to be set
- #
- # returns: no return value
-
-Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
-
-=item * X509_VERIFY_PARAM_set_purpose
-
-Sets the verification purpose in $param to $purpose. This determines the acceptable purpose 
-of the certificate chain, for example SSL client or SSL server.
-
- my $rv = Net::SSLeay::X509_VERIFY_PARAM_set_purpose($param, $purpose);
- # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
- # $purpose - (integer) purpose identifier
- #
- # returns: 1 on success, 0 on failure
-
-For more details about $purpose identifier check L</CTX_set_purpose>.
-
-Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
-
-=item * X509_VERIFY_PARAM_set_time
-
-Sets the verification time in $param to $t. Normally the current time is used.
-
- Net::SSLeay::X509_VERIFY_PARAM_set_time($param, $t);
- # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
- # $t - (time_t) time in seconds since 1.1.1970
- #
- # returns: no return value
-
-Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
-
-=item * X509_VERIFY_PARAM_set_trust
-
-Sets the trust setting in $param to $trust.
-
- my $rv = Net::SSLeay::X509_VERIFY_PARAM_set_trust($param, $trust);
- # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
- # $trust - (integer) trust identifier
- #
- # returns: 1 on success, 0 on failure
-
-For more details about $trust identifier check L</CTX_set_trust>.
-
-Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
-
-=item * X509_VERIFY_PARAM_table_cleanup
-
-??? (more info needed)
-
- Net::SSLeay::X509_VERIFY_PARAM_table_cleanup();
- #
- # returns: no return value
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_new.html|http://www.openssl.org/docs/crypto/X509_new.html>
 
 =item * X509_free
 
@@ -4579,6 +4599,235 @@ Frees up the X509 structure.
  # returns: no return value
 
 Check openssl doc L<http://www.openssl.org/docs/crypto/X509_new.html|http://www.openssl.org/docs/crypto/X509_new.html>
+
+=item * X509_certificate_type
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns bitmask with type of certificate $x.
+
+ my $rv = Net::SSLeay::X509_certificate_type($x);
+ # $x - value corresponding to openssl's X509 structure
+ #
+ # returns: (integer) bitmask with certificate type
+ 
+ #to decode bitmask returned by this function use these constants:
+ &Net::SSLeay::EVP_PKS_DSA
+ &Net::SSLeay::EVP_PKS_EC
+ &Net::SSLeay::EVP_PKS_RSA
+ &Net::SSLeay::EVP_PKT_ENC
+ &Net::SSLeay::EVP_PKT_EXCH
+ &Net::SSLeay::EVP_PKT_EXP
+ &Net::SSLeay::EVP_PKT_SIGN
+ &Net::SSLeay::EVP_PK_DH
+ &Net::SSLeay::EVP_PK_DSA
+ &Net::SSLeay::EVP_PK_EC
+ &Net::SSLeay::EVP_PK_RSA 
+
+=item * X509_digest
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Computes digest/fingerprint of X509 $data using $type hash function.
+
+ my $digest_value = Net::SSLeay::X509_digest($data, $type);
+ # $data - value corresponding to openssl's X509 structure
+ # $type - value corresponding to openssl's EVP_MD structure - e.g. got via EVP_get_digestbyname()
+ #
+ # returns: hash value (binary)
+ 
+ #to get printable (hex) value of digest use:
+ print unpack('H*', $digest_value);
+
+=item * X509_issuer_and_serial_hash
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Sort of a checksum of issuer name and serial number of X509 certificate $x.
+The result is not a full hash (e.g. sha-1), it is kind-of-a-hash truncated to the size of 'unsigned long' (32 bits).
+The resulting value might differ accross different openssl versions for the same X509 certificate.
+
+ my $rv = Net::SSLeay::X509_issuer_and_serial_hash($x);
+ # $x - value corresponding to openssl's X509 structure
+ #
+ # returns: number representing checksum
+
+=item * X509_issuer_name_hash
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Sort of a checksum of issuer name of X509 certificate $x.
+The result is not a full hash (e.g. sha-1), it is kind-of-a-hash truncated to the size of 'unsigned long' (32 bits).
+The resulting value might differ accross different openssl versions for the same X509 certificate.
+
+ my $rv = Net::SSLeay::X509_issuer_name_hash($x);
+ # $x - value corresponding to openssl's X509 structure
+ #
+ # returns: number representing checksum
+
+=item * X509_subject_name_hash
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Sort of a checksum of subject name of X509 certificate $x.
+The result is not a full hash (e.g. sha-1), it is kind-of-a-hash truncated to the size of 'unsigned long' (32 bits).
+The resulting value might differ accross different openssl versions for the same X509 certificate.
+
+ my $rv = Net::SSLeay::X509_subject_name_hash($x);
+ # $x - value corresponding to openssl's X509 structure
+ #
+ # returns: number representing checksum
+
+=item * X509_pubkey_digest
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+
+Computes digest/fingerprint of public key from X509 certificate $data using $type hash function.
+
+ my $digest_value = Net::SSLeay::X509_pubkey_digest($data, $type);
+ # $data - value corresponding to openssl's X509 structure
+ # $type - value corresponding to openssl's EVP_MD structure - e.g. got via EVP_get_digestbyname()
+ #
+ # returns: hash value (binary)
+ 
+ #to get printable (hex) value of digest use:
+ print unpack('H*', $digest_value);
+
+=item * X509_set_issuer_name
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Sets issuer of X509 certificate $x to $name.
+
+ my $rv = Net::SSLeay::X509_set_issuer_name($x, $name);
+ # $x - value corresponding to openssl's X509 structure
+ # $name - value corresponding to openssl's X509_NAME structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_set_pubkey
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Sets public key of X509 certificate $x to $pkey.
+
+ my $rv = Net::SSLeay::X509_set_pubkey($x, $pkey);
+ # $x - value corresponding to openssl's X509 structure
+ # $pkey - value corresponding to openssl's EVP_PKEY structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_set_serialNumber
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Sets serial number of X509 certificate $x to $serial.
+
+ my $rv = Net::SSLeay::X509_set_serialNumber($x, $serial);
+ # $x - value corresponding to openssl's X509 structure
+ # $serial - value corresponding to openssl's ASN1_INTEGER structure
+ #
+ # returns: 1 on success, 0 on failure
+ 
+ #to create $serial value use one of these:
+ $serial = Net::SSLeay::P_ASN1_INTEGER_set_hex('45ad6f');
+ $serial = Net::SSLeay::P_ASN1_INTEGER_set_dec('7896541238529631478');
+ $serial = Net::SSLeay::ASN1_INTEGER_set(45896);
+ 
+=item * X509_set_subject_name
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Sets subject of X509 certificate $x to $name.
+
+ my $rv = Net::SSLeay::X509_set_subject_name($x, $name);
+ # $x - value corresponding to openssl's X509 structure
+ # $name - value corresponding to openssl's X509_NAME structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_set_version
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Set 'version' value for X509 certificate $ to $version.
+
+ my $rv = Net::SSLeay::X509_set_version($x, $version);
+ # $x - value corresponding to openssl's X509 structure
+ # $version - (integer) version number
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_sign
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Sign X509 certificate $x with private key $pkey (using digest algorithm $md).
+
+ my $rv = Net::SSLeay::X509_sign($x, $pkey, $md);
+ # $x - value corresponding to openssl's X509 structure
+ # $pkey - value corresponding to openssl's EVP_PKEY structure
+ # $md - value corresponding to openssl's EVP_MD structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_verify
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Verifies X509 object $a using public key $r (pubkey of issuing CA).
+
+ my $rv = Net::SSLeay::X509_verify($x, $r);
+ # $x - value corresponding to openssl's X509 structure
+ # $r - value corresponding to openssl's EVP_PKEY structure
+ #
+ # returns: 0 - verify failure, 1 - verify OK, <0 - error
+
+=item * X509_get_ext_count
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns the total number of extensions in X509 object $x.
+
+ my $rv = Net::SSLeay::X509_get_ext_count($x);
+ # $x - value corresponding to openssl's X509 structure
+ #
+ # returns: count of extensions
+
+=item * X509_get_pubkey
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns public key corresponding to given X509 object $x.
+
+ my $rv = Net::SSLeay::X509_get_pubkey($x);
+ # $x - value corresponding to openssl's X509 structure
+ #
+ # returns: value corresponding to openssl's EVP_PKEY structure (0 on failure)
+
+=item * X509_get_serialNumber
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns serial number of X509 certificate $x.
+
+ my $rv = Net::SSLeay::X509_get_serialNumber($x);
+ # $x - value corresponding to openssl's X509 structure
+ #
+ # returns: value corresponding to openssl's ASN1_INTEGER structure (0 on failure)
+
+See L</P_ASN1_INTEGER_get_dec>, L</P_ASN1_INTEGER_get_hex> or L</ASN1_INTEGER_get> to decode ASN1_INTEGER object.
+
+=item * X509_get_version
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns 'version' value of given X509 certificate $x.
+
+ my $rv = Net::SSLeay::X509_get_version($x);
+ # $x - value corresponding to openssl's X509 structure
+ #
+ # returns: (integer) version
 
 =item * X509_get_ext
 
@@ -4836,6 +5085,902 @@ Returns a human readable error string for verification error $n.
 
 Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html|http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html>
 
+=item * P_X509_add_extensions
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Adds one or more X509 extensions to X509 object $x.
+
+ my $rv = Net::SSLeay::P_X509_add_extensions($x, $ca_cert, $nid, $value);
+ # $x - value corresponding to openssl's X509 structure
+ # $ca_cert - value corresponding to openssl's X509 structure (issuer's cert - necessary for sertting NID_authority_key_identifier)
+ # $nid - NID identifying extension to be set
+ # $value - extension value
+ #
+ # returns: 1 on success, 0 on failure
+
+You can set more extensions at once:
+
+ my $rv = Net::SSLeay::P_X509_add_extensions($x509, $ca_cert,
+                &Net::SSLeay::NID_key_usage => 'digitalSignature,keyEncipherment',
+                &Net::SSLeay::NID_subject_key_identifier => 'hash',
+                &Net::SSLeay::NID_authority_key_identifier => 'keyid',
+                &Net::SSLeay::NID_authority_key_identifier => 'issuer',
+                &Net::SSLeay::NID_basic_constraints => 'CA:FALSE',
+                &Net::SSLeay::NID_ext_key_usage => 'serverAuth,clientAuth',
+                &Net::SSLeay::NID_netscape_cert_type => 'server',
+                &Net::SSLeay::NID_subject_alt_name => 'DNS:s1.dom.com,DNS:s2.dom.com,DNS:s3.dom.com',
+          );
+ 
+=item * P_X509_copy_extensions
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Copies X509 extensions from X509_REQ object to X509 object - handy when you need to turn X509_REQ into X509 certificate.
+
+ Net::SSLeay::P_X509_copy_extensions($x509_req, $x509, $override);
+ # $x509_req - value corresponding to openssl's X509_REQ structure
+ # $x509 - value corresponding to openssl's X509 structure
+ # $override - (integer) flag indication whether to override already existing items in $x509 (default 1)
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * P_X509_get_crl_distribution_points
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+
+Get the list of CRL distribution points from X509 certificate.
+
+ my @cdp = Net::SSLeay::P_X509_get_crl_distribution_points($x509);
+ # $x509 - value corresponding to openssl's X509 structure
+ #
+ # returns: list of distribution points (usually URLs)
+
+=item * P_X509_get_ext_key_usage
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+
+Gets the list of extended key usage of given X509 certificate $cert.
+
+ my @ext_usage = Net::SSLeay::P_X509_get_ext_key_usage($cert, $format);
+ # $cert - value corresponding to openssl's X509 structure
+ # $format - choose type of return values: 0=OIDs, 1=NIDs, 2=shortnames, 3=longnames
+ #
+ # returns: list of values
+
+Examples:
+
+ my @extkeyusage_oid = Net::SSLeay::P_X509_get_ext_key_usage($x509,0);
+ # returns for example: ("1.3.6.1.5.5.7.3.1", "1.3.6.1.5.5.7.3.2") 
+
+ my @extkeyusage_nid = Net::SSLeay::P_X509_get_ext_key_usage($x509,1);
+ # returns for example: (129, 130)
+ 
+ my @extkeyusage_sn  = Net::SSLeay::P_X509_get_ext_key_usage($x509,2);
+ # returns for example: ("serverAuth", "clientAuth")
+ 
+ my @extkeyusage_ln  = Net::SSLeay::P_X509_get_ext_key_usage($x509,3); 
+ # returns for example: ("TLS Web Server Authentication",  "TLS Web Client Authentication")
+
+=item * P_X509_get_key_usage
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Gets the list of key usage of given X509 certificate $cert.
+
+ my @keyusage = Net::SSLeay::P_X509_get_key_usage($cert);
+ # $cert - value corresponding to openssl's X509 structure
+ #
+ # returns: list of key usage values which can be none, one or more from the following list:
+ #          "digitalSignature"
+ #          "nonRepudiation"
+ #          "keyEncipherment"
+ #          "dataEncipherment"
+ #          "keyAgreement"
+ #          "keyCertSign"
+ #          "cRLSign"
+ #          "encipherOnly"
+ #          "decipherOnly"
+
+=item * P_X509_get_netscape_cert_type
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Gets the list of Netscape cert types of given X509 certificate $cert.
+
+ Net::SSLeay::P_X509_get_netscape_cert_type($cert);
+ # $cert - value corresponding to openssl's X509 structure
+ #
+ # returns: list of Netscape type values which can be none, one or more from the following list:
+ #          "client"
+ #          "server"
+ #          "email"
+ #          "objsign"
+ #          "reserved"
+ #          "sslCA"
+ #          "emailCA"
+ #          "objCA"
+
+=item * P_X509_get_pubkey_alg
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns ASN1_OBJECT corresponding to X509 certificate public key algorithm.
+
+ my $rv = Net::SSLeay::P_X509_get_pubkey_alg($x);
+ # $x - value corresponding to openssl's X509 structure
+ #
+ # returns: value corresponding to openssl's ASN1_OBJECT structure (0 on failure)
+
+To get textual representation use:
+
+ my $alg = Net::SSLeay::OBJ_obj2txt(Net::SSLeay::P_X509_get_pubkey_alg($x509));
+ # returns for example: "rsaEncryption"
+
+=item * P_X509_get_signature_alg
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns ASN1_OBJECT corresponding to X509 signarite key algorithm.
+
+ my $rv = Net::SSLeay::P_X509_get_signature_alg($x);
+ # $x - value corresponding to openssl's X509 structure
+ #
+ # returns: value corresponding to openssl's ASN1_OBJECT structure (0 on failure)
+ 
+To get textual representation use:
+
+ my $alg = Net::SSLeay::OBJ_obj2txt(Net::SSLeay::P_X509_get_signature_alg($x509))
+ # returns for example: "sha1WithRSAEncryption"
+
+=back
+
+=head3 Low level API: X509_REQ_* related functions
+
+=over
+
+=item * X509_REQ_new
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Creates a new X509_REQ structure.
+
+ my $rv = Net::SSLeay::X509_REQ_new();
+ #
+ # returns: value corresponding to openssl's X509_REQ structure (0 on failure)
+
+=item * X509_REQ_free
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Free an allocated X509_REQ structure.
+
+ Net::SSLeay::X509_REQ_free($x);
+ # $x - value corresponding to openssl's X509_REQ structure
+ #
+ # returns: no return value
+
+=item * X509_REQ_add1_attr_by_NID
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Adds an attribute whose name is defined by a NID $nid. The field value to be added is in $bytes.
+
+ my $rv = Net::SSLeay::X509_REQ_add1_attr_by_NID($req, $nid, $type, $bytes);
+ # $req - value corresponding to openssl's X509_REQ structure
+ # $nid - (integer) NID value
+ # $type - (integer) type of data in $bytes (see below)
+ # $bytes - data to be set
+ #
+ # returns: 1 on success, 0 on failure
+
+ # values for $type - use constants:
+ &Net::SSLeay::MBSTRING_UTF8     - $bytes contains utf8 encoded data
+ &Net::SSLeay::MBSTRING_ASC      - $bytes contains ASCII data
+
+=item * X509_REQ_digest
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Computes digest/fingerprint of X509_REQ $data using $type hash function.
+
+ my $digest_value = Net::SSLeay::X509_REQ_digest($data, $type);
+ # $data - value corresponding to openssl's X509_REQ structure
+ # $type - value corresponding to openssl's EVP_MD structure - e.g. got via EVP_get_digestbyname()
+ #
+ # returns: hash value (binary)
+ 
+ #to get printable (hex) value of digest use:
+ print unpack('H*', $digest_value);
+
+=item * X509_REQ_get_attr_by_NID
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Retrieve the next index matching $nid after $lastpos ($lastpos should initially be set to -1).
+
+ my $rv = Net::SSLeay::X509_REQ_get_attr_by_NID($req, $nid, $lastpos=-1);
+ # $req - value corresponding to openssl's X509_REQ structure
+ # $nid - (integer) NID value
+ # $lastpos - [optional] (integer) index where to start search (default -1)
+ #
+ # returns: index (-1 if there are no more entries)
+
+Note: use L</P_X509_REQ_get_attr> to get the actual attribute value - e.g.
+
+ my $index = Net::SSLeay::X509_REQ_get_attr_by_NID($req, $nid);
+ my @attr_values = Net::SSLeay::P_X509_REQ_get_attr($req, $index);
+
+=item * X509_REQ_get_attr_by_OBJ
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Retrieve the next index matching $obj after $lastpos ($lastpos should initially be set to -1).
+
+ my $rv = Net::SSLeay::X509_REQ_get_attr_by_OBJ($req, $obj, $lastpos=-1);
+ # $req - value corresponding to openssl's X509_REQ structure
+ # $obj - value corresponding to openssl's ASN1_OBJECT structure
+ # $lastpos - [optional] (integer) index where to start search (default -1)
+ #
+ # returns: index (-1 if there are no more entries)
+
+Note: use L</P_X509_REQ_get_attr> to get the actual attribute value - e.g.
+
+ my $index = Net::SSLeay::X509_REQ_get_attr_by_NID($req, $nid);
+ my @attr_values = Net::SSLeay::P_X509_REQ_get_attr($req, $index);
+
+=item * X509_REQ_get_attr_count
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns the total number of attributes in $req.
+
+ my $rv = Net::SSLeay::X509_REQ_get_attr_count($req);
+ # $req - value corresponding to openssl's X509_REQ structure
+ #
+ # returns: (integer) items count
+
+=item * X509_REQ_get_pubkey
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns public key corresponding to given X509_REQ object $x.
+
+ my $rv = Net::SSLeay::X509_REQ_get_pubkey($x);
+ # $x - value corresponding to openssl's X509_REQ structure
+ #
+ # returns: value corresponding to openssl's EVP_PKEY structure (0 on failure)
+
+=item * X509_REQ_get_subject_name
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns X509_NAME object corresponding to subject name of given X509_REQ object $x.
+
+ my $rv = Net::SSLeay::X509_REQ_get_subject_name($x);
+ # $x - value corresponding to openssl's X509_REQ structure
+ #
+ # returns: value corresponding to openssl's X509_NAME structure (0 on failure)
+
+=item * X509_REQ_get_version
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns 'version' value for given X509_REQ object $x.
+
+ my $rv = Net::SSLeay::X509_REQ_get_version($x);
+ # $x - value corresponding to openssl's X509_REQ structure
+ #
+ # returns: (integer) version e.g. 0 = "version 1"
+
+=item * X509_REQ_set_pubkey
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Sets public key of given X509_REQ object $x to $pkey.
+
+ my $rv = Net::SSLeay::X509_REQ_set_pubkey($x, $pkey);
+ # $x - value corresponding to openssl's X509_REQ structure
+ # $pkey - value corresponding to openssl's EVP_PKEY structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_REQ_set_subject_name
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Sets subject name of given X509_REQ object $x to X509_NAME object $name.
+
+ my $rv = Net::SSLeay::X509_REQ_set_subject_name($x, $name);
+ # $x - value corresponding to openssl's X509_REQ structure
+ # $name - value corresponding to openssl's X509_NAME structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_REQ_set_version
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Sets 'version' of given X509_REQ object $x to $version.
+
+ my $rv = Net::SSLeay::X509_REQ_set_version($x, $version);
+ # $x - value corresponding to openssl's X509_REQ structure
+ # $version - (integer) e.g. 0 = "version 1"
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_REQ_sign
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Sign X509_REQ object $x with private key $pk (using digest algorithm $md).
+
+ my $rv = Net::SSLeay::X509_REQ_sign($x, $pk, $md);
+ # $x - value corresponding to openssl's X509_REQ structure
+ # $pk - value corresponding to openssl's EVP_PKEY structure (requestor's private key)
+ # $md - value corresponding to openssl's EVP_MD structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_REQ_verify
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Verifies X509_REQ object $x using public key $r (pubkey of requesting party).
+
+ my $rv = Net::SSLeay::X509_REQ_verify($x, $r);
+ # $x - value corresponding to openssl's X509_REQ structure
+ # $r - value corresponding to openssl's EVP_PKEY structure
+ #
+ # returns: 0 - verify failure, 1 - verify OK, <0 - error
+
+=item * P_X509_REQ_add_extensions
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Adds one or more X509 extensions to X509_REQ object $x.
+
+ my $rv = Net::SSLeay::P_X509_REQ_add_extensions($x, $nid, $value);
+ # $x - value corresponding to openssl's X509_REQ structure
+ # $nid - NID identifying extension to be set
+ # $value - extension value
+ #
+ # returns: 1 on success, 0 on failure
+
+You can set more extensions at once:
+
+ my $rv = Net::SSLeay::P_X509_REQ_add_extensions($x509_req,
+            &Net::SSLeay::NID_key_usage => 'digitalSignature,keyEncipherment',
+            &Net::SSLeay::NID_basic_constraints => 'CA:FALSE',
+            &Net::SSLeay::NID_ext_key_usage => 'serverAuth,clientAuth',
+            &Net::SSLeay::NID_netscape_cert_type => 'server',
+            &Net::SSLeay::NID_subject_alt_name => 'DNS:s1.com,DNS:s2.com',
+            &Net::SSLeay::NID_crl_distribution_points => 'URI:http://pki.com/crl1,URI:http://pki.com/crl2', 
+          );
+
+=item * P_X509_REQ_get_attr
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+
+Returns attribute value for X509_REQ's attribute at index $n.
+
+ Net::SSLeay::P_X509_REQ_get_attr($req, $n);
+ # $req - value corresponding to openssl's X509_REQ structure
+ # $n - (integer) attribute index
+ #
+ # returns: value corresponding to openssl's ASN1_STRING structure
+
+=back
+
+=head3 Low level API: X509_CRL_* related functions
+
+=over
+
+=item * X509_CRL_new
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Creates a new X509_CRL structure.
+
+ my $rv = Net::SSLeay::X509_CRL_new();
+ #
+ # returns: value corresponding to openssl's X509_CRL structure (0 on failure)
+
+=item * X509_CRL_free
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Free an allocated X509_CRL structure.
+
+ Net::SSLeay::X509_CRL_free($x);
+ # $x - value corresponding to openssl's X509_CRL structure
+ #
+ # returns: no return value
+
+=item * X509_CRL_digest
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Computes digest/fingerprint of X509_CRL $data using $type hash function.
+
+ my $digest_value = Net::SSLeay::X509_CRL_digest($data, $type);
+ # $data - value corresponding to openssl's X509_CRL structure
+ # $type - value corresponding to openssl's EVP_MD structure - e.g. got via EVP_get_digestbyname()
+ #
+ # returns: hash value (binary)
+
+Example:
+
+ my $x509_crl
+ my $md = Net::SSLeay::EVP_get_digestbyname("sha1");
+ my $digest_value = Net::SSLeay::X509_CRL_digest($x509_crl, $md);
+ #to get printable (hex) value of digest use:
+ print "digest=", unpack('H*', $digest_value), "\n";
+
+=item * X509_CRL_get_issuer
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns X509_NAME object corresponding to the issuer of X509_CRL $x.
+
+ my $rv = Net::SSLeay::X509_CRL_get_issuer($x);
+ # $x - value corresponding to openssl's X509_CRL structure
+ #
+ # returns: value corresponding to openssl's X509_NAME structure (0 on failure)
+
+See other C<X509_NAME_*> functions to get more info from X509_NAME structure.
+
+=item * X509_CRL_get_lastUpdate
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns 'lastUpdate' date-time value of X509_CRL object $x.
+
+ my $rv = Net::SSLeay::X509_CRL_get_lastUpdate($x);
+ # $x - value corresponding to openssl's X509_CRL structure
+ #
+ # returns: value corresponding to openssl's ASN1_TIME structure (0 on failure)
+
+=item * X509_CRL_get_nextUpdate
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns 'nextUpdate' date-time value of X509_CRL object $x.
+
+ my $rv = Net::SSLeay::X509_CRL_get_nextUpdate($x);
+ # $x - value corresponding to openssl's X509_CRL structure
+ #
+ # returns: value corresponding to openssl's ASN1_TIME structure (0 on failure)
+
+=item * X509_CRL_get_version
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns 'version' value of given X509_CRL structure $x.
+
+ my $rv = Net::SSLeay::X509_CRL_get_version($x);
+ # $x - value corresponding to openssl's X509_CRL structure
+ #
+ # returns: (integer) version
+
+=item * X509_CRL_set_issuer_name
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+
+Sets the issuer of X509_CRL object $x to X509_NAME object $name.
+
+ my $rv = Net::SSLeay::X509_CRL_set_issuer_name($x, $name);
+ # $x - value corresponding to openssl's X509_CRL structure
+ # $name - value corresponding to openssl's X509_NAME structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_CRL_set_lastUpdate
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+
+Sets 'lastUpdate' value of X509_CRL object $x to $tm.
+
+ my $rv = Net::SSLeay::X509_CRL_set_lastUpdate($x, $tm);
+ # $x - value corresponding to openssl's X509_CRL structure
+ # $tm - value corresponding to openssl's ASN1_TIME structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_CRL_set_nextUpdate
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+
+Sets 'nextUpdate' value of X509_CRL object $x to $tm.
+
+ my $rv = Net::SSLeay::X509_CRL_set_nextUpdate($x, $tm);
+ # $x - value corresponding to openssl's X509_CRL structure
+ # $tm - value corresponding to openssl's ASN1_TIME structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_CRL_set_version
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+
+Sets 'version' value of given X509_CRL structure $x to $version.
+
+ my $rv = Net::SSLeay::X509_CRL_set_version($x, $version);
+ # $x - value corresponding to openssl's X509_CRL structure
+ # $version - (integer) version number (1 = version 2 CRL)
+ #
+ # returns: 1 on success, 0 on failure
+
+Note that if you want to use any X509_CRL extension you need to set "version 2 CRL" - C<Net::SSLeay::X509_CRL_set_version($x, 1)>.
+
+=item * X509_CRL_sign
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Sign X509_CRL object $x with private key $pkey (using digest algorithm $md).
+
+ my $rv = Net::SSLeay::X509_CRL_sign($x, $pkey, $md);
+ # $x - value corresponding to openssl's X509_CRL structure
+ # $pkey - value corresponding to openssl's EVP_PKEY structure
+ # $md - value corresponding to openssl's EVP_MD structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_CRL_sort
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+
+Sorts the data of X509_CRL object so it will be written in serial number order.
+
+ my $rv = Net::SSLeay::X509_CRL_sort($x);
+ # $x - value corresponding to openssl's X509_CRL structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_CRL_verify
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Verifies X509_CRL object $a using public key $r (pubkey of issuing CA).
+
+ my $rv = Net::SSLeay::X509_CRL_verify($a, $r);
+ # $a - value corresponding to openssl's X509_CRL structure
+ # $r - value corresponding to openssl's EVP_PKEY structure
+ #
+ # returns: 0 - verify failure, 1 - verify OK, <0 - error
+
+=item * P_X509_CRL_add_revoked_serial_hex
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+
+Adds given serian number $serial_hex to X509_CRL object $crl.
+
+ Net::SSLeay::P_X509_CRL_add_revoked_serial_hex($crl, $serial_hex, $rev_time, $reason_code, $comp_time);
+ # $crl - value corresponding to openssl's X509_CRL structure
+ # $serial_hex - string (hexadecimal) representation of serial number
+ # $rev_time - (revocation time) value corresponding to openssl's ASN1_TIME structure
+ # $reason_code - [optional] (integer) reason code (see below) - default 0
+ # $comp_time - [optional] (compromise time) value corresponding to openssl's ASN1_TIME structure
+ #
+ # returns: no return value
+ 
+ reason codes:
+ 0 - unspecified
+ 1 - keyCompromise
+ 2 - CACompromise
+ 3 - affiliationChanged
+ 4 - superseded
+ 5 - cessationOfOperation
+ 6 - certificateHold
+ 7 - removeFromCRL
+
+=item * P_X509_CRL_get_serial
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+
+Returns serial number of X509_CRL object.
+
+ my $rv = Net::SSLeay::P_X509_CRL_get_serial($crl);
+ # $crl - value corresponding to openssl's X509_CRL structure
+ #
+ # returns: value corresponding to openssl's ASN1_INTEGER structure (0 on failure)
+
+=item * P_X509_CRL_set_serial
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+
+Sets serial number of X509_CRL object to $crl_number.
+
+ my $rv = Net::SSLeay::P_X509_CRL_set_serial($crl, $crl_number);
+ # $crl - value corresponding to openssl's X509_CRL structure
+ # $crl_number - value corresponding to openssl's ASN1_INTEGER structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=back
+
+=head3 Low level API: X509_EXTENSION_* related functions
+
+=over
+
+=item * X509_EXTENSION_get_critical
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns 'critical' flag of given X509_EXTENSION object $ex.
+
+ my $rv = Net::SSLeay::X509_EXTENSION_get_critical($ex);
+ # $ex - value corresponding to openssl's X509_EXTENSION structure
+ #
+ # returns: (integer) 1 - critical, 0 - noncritical
+
+=item * X509_EXTENSION_get_data
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns value (raw data) of X509_EXTENSION object $ne.
+
+ my $rv = Net::SSLeay::X509_EXTENSION_get_data($ne);
+ # $ne - value corresponding to openssl's X509_EXTENSION structure
+ #
+ # returns: value corresponding to openssl's ASN1_OCTET_STRING structure (0 on failure)
+
+Note: you can use L</P_ASN1_STRING_get> to convert ASN1_OCTET_STRING into perl scalar variable.
+
+=item * X509_EXTENSION_get_object
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns OID (ASN1_OBJECT) of X509_EXTENSION object $ne.
+
+ my $rv = Net::SSLeay::X509_EXTENSION_get_object($ex);
+ # $ex - value corresponding to openssl's X509_EXTENSION structure
+ #
+ # returns: value corresponding to openssl's ASN1_OBJECT structure (0 on failure)
+
+=item * X509V3_EXT_print
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns string representation of given X509_EXTENSION object $ext.
+
+ Net::SSLeay::X509V3_EXT_print($ext, $flags, $utf8_decode);
+ # $ext - value corresponding to openssl's X509_EXTENSION structure
+ # $flags - [optional] (integer) Currently the flag argument is unused and should be set to 0
+ # $utf8_decode - [optional] 0 or 1 whether the returned value should be utf8 decoded (default=0)
+ #
+ # returns: no return value
+
+=item * X509V3_EXT_d2i
+
+Parses an extension and returns its internal structure.
+
+ my $rv = Net::SSLeay::X509V3_EXT_d2i($ext);
+ # $ext - value corresponding to openssl's X509_EXTENSION structure
+ #
+ # returns: pointer ???
+
+=back
+
+=head3 Low level API: X509_NAME_* related functions
+
+=over
+
+=item * X509_NAME_ENTRY_get_data
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Retrieves the field value of $ne in and ASN1_STRING structure.
+
+ my $rv = Net::SSLeay::X509_NAME_ENTRY_get_data($ne);
+ # $ne - value corresponding to openssl's X509_NAME_ENTRY structure
+ #
+ # returns: value corresponding to openssl's ASN1_STRING structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_NAME_ENTRY_get_object.html|http://www.openssl.org/docs/crypto/X509_NAME_ENTRY_get_object.html>
+
+=item * X509_NAME_ENTRY_get_object
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Retrieves the field name of $ne in and ASN1_OBJECT structure.
+
+ my $rv = Net::SSLeay::X509_NAME_ENTRY_get_object($ne);
+ # $ne - value corresponding to openssl's X509_NAME_ENTRY structure
+ #
+ # returns: value corresponding to openssl's ASN1_OBJECT structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_NAME_ENTRY_get_object.html|http://www.openssl.org/docs/crypto/X509_NAME_ENTRY_get_object.html>
+
+=item * X509_NAME_add_entry_by_txt
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.5
+
+Adds a field whose name is defined by a string $field. The field value to be added is in $bytes.
+
+ my $rv = Net::SSLeay::X509_NAME_add_entry_by_txt($name, $field, $type, $bytes, $len, $loc, $set);
+ # $name - value corresponding to openssl's X509_NAME structure
+ # $field - (string) field definition (name) - e.g. "organizationName"
+ # $type - (integer) type of data in $bytes (see below)
+ # $bytes - data to be set
+ # $loc - [optional] (integer) index where the new entry is inserted: if it is -1 (default) it is appended
+ # $set - [optional] (integer) determines how the new type is added. If it is 0 (default) a new RDN is created
+ #
+ # returns: 1 on success, 0 on failure
+
+ # values for $type - use constants:
+ &Net::SSLeay::MBSTRING_UTF8     - $bytes contains utf8 encoded data
+ &Net::SSLeay::MBSTRING_ASC      - $bytes contains ASCII data
+ 
+Unicode note: when passing non-ascii (unicode) string in $bytes do not forget to set C<$flags = &Net::SSLeay::MBSTRING_UTF8> and encode the perl $string via C<$bytes = encode('utf-8', $string)>.
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_NAME_add_entry_by_txt.html|http://www.openssl.org/docs/crypto/X509_NAME_add_entry_by_txt.html>
+
+=item * X509_NAME_add_entry_by_NID
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.5
+
+Adds a field whose name is defined by a NID $nid. The field value to be added is in $bytes.
+
+ my $rv = Net::SSLeay::X509_NAME_add_entry_by_NID($name, $nid, $type, $bytes, $len, $loc, $set);
+ # $name - value corresponding to openssl's X509_NAME structure
+ # $nid - (integer) field definition - NID value
+ # $type - (integer) type of data in $bytes (see below)
+ # $bytes - data to be set
+ # $loc - [optional] (integer) index where the new entry is inserted: if it is -1 (default) it is appended
+ # $set - [optional] (integer) determines how the new type is added. If it is 0 (default) a new RDN is created
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_NAME_add_entry_by_txt.html|http://www.openssl.org/docs/crypto/X509_NAME_add_entry_by_txt.html>
+
+=item * X509_NAME_add_entry_by_OBJ
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.5
+
+Adds a field whose name is defined by a object (OID) $obj . The field value to be added is in $bytes.
+
+ my $rv = Net::SSLeay::X509_NAME_add_entry_by_OBJ($name, $obj, $type, $bytes, $len, $loc, $set);
+ # $name - value corresponding to openssl's X509_NAME structure
+ # $obj - field definition - value corresponding to openssl's ASN1_OBJECT structure
+ # $type - (integer) type of data in $bytes (see below)
+ # $bytes - data to be set
+ # $loc - [optional] (integer) index where the new entry is inserted: if it is -1 (default) it is appended
+ # $set - [optional] (integer) determines how the new type is added. If it is 0 (default) a new RDN is created
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_NAME_add_entry_by_txt.html|http://www.openssl.org/docs/crypto/X509_NAME_add_entry_by_txt.html>
+
+=item * X509_NAME_cmp
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Compares two X509_NAME obejcts.
+
+ my $rv = Net::SSLeay::X509_NAME_cmp($a, $b);
+ # $a - value corresponding to openssl's X509_NAME structure
+ # $b - value corresponding to openssl's X509_NAME structure
+ #
+ # returns: 0 if $a matches $b; non zero otherwise
+
+=item * X509_NAME_digest
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Computes digest/fingerprint of X509_NAME $data using $type hash function.
+
+ my $digest_value = Net::SSLeay::X509_NAME_digest($data, $type);
+ # $data - value corresponding to openssl's X509_NAME structure
+ # $type - value corresponding to openssl's EVP_MD structure - e.g. got via EVP_get_digestbyname()
+ #
+ # returns: hash value (binary)
+ 
+ #to get printable (hex) value of digest use:
+ print unpack('H*', $digest_value);
+
+=item * X509_NAME_entry_count
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns the total number of entries in $name.
+
+ my $rv = Net::SSLeay::X509_NAME_entry_count($name);
+ # $name - value corresponding to openssl's X509_NAME structure
+ #
+ # returns: (integer) entries count
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_NAME_get_index_by_NID.html|http://www.openssl.org/docs/crypto/X509_NAME_get_index_by_NID.html>
+
+=item * X509_NAME_get_entry
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Retrieves the X509_NAME_ENTRY from $name corresponding to index $loc. Acceptable values for $loc run 
+from 0 to C<Net::SSLeay::X509_NAME_entry_count($name)- 1>. The value returned is an internal pointer which must not be freed.
+
+ my $rv = Net::SSLeay::X509_NAME_get_entry($name, $loc);
+ # $name - value corresponding to openssl's X509_NAME structure
+ # $loc - (integer) index of wanted entry
+ #
+ # returns: value corresponding to openssl's X509_NAME_ENTRY structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_NAME_get_index_by_NID.html|http://www.openssl.org/docs/crypto/X509_NAME_get_index_by_NID.html>
+
+=item * X509_NAME_print_ex
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns a string with human readable version of $name.
+
+ Net::SSLeay::X509_NAME_print_ex($name, $flags, $utf8_decode);
+ # $name - value corresponding to openssl's X509_NAME structure
+ # $flags - [optional] conversion flags (default XN_FLAG_RFC2253) - see below
+ # $utf8_decode - [optional] 0 or 1 whether the returned value should be utf8 decoded (default=0)
+ #
+ # returns: string representation of $name
+ 
+ #available conversion flags - use constants:
+ &Net::SSLeay::XN_FLAG_COMPAT
+ &Net::SSLeay::XN_FLAG_DN_REV
+ &Net::SSLeay::XN_FLAG_DUMP_UNKNOWN_FIELDS
+ &Net::SSLeay::XN_FLAG_FN_ALIGN
+ &Net::SSLeay::XN_FLAG_FN_LN
+ &Net::SSLeay::XN_FLAG_FN_MASK
+ &Net::SSLeay::XN_FLAG_FN_NONE
+ &Net::SSLeay::XN_FLAG_FN_OID
+ &Net::SSLeay::XN_FLAG_FN_SN
+ &Net::SSLeay::XN_FLAG_MULTILINE
+ &Net::SSLeay::XN_FLAG_ONELINE
+ &Net::SSLeay::XN_FLAG_RFC2253
+ &Net::SSLeay::XN_FLAG_SEP_COMMA_PLUS
+ &Net::SSLeay::XN_FLAG_SEP_CPLUS_SPC
+ &Net::SSLeay::XN_FLAG_SEP_MASK
+ &Net::SSLeay::XN_FLAG_SEP_MULTILINE
+ &Net::SSLeay::XN_FLAG_SEP_SPLUS_SPC
+ &Net::SSLeay::XN_FLAG_SPC_EQ
+ 
+Most likely you will be fine with default:
+
+ Net::SSLeay::X509_NAME_print_ex($name, &Net::SSLeay::XN_FLAG_RFC2253);
+ 
+Or you might want RFC2253-like output without utf8 chars escaping:
+
+ use Net::SSLeay qw/XN_FLAG_RFC2253 ASN1_STRFLGS_ESC_MSB/;
+ my $flag_rfc22536_utf8 = (XN_FLAG_RFC2253) & (~ ASN1_STRFLGS_ESC_MSB);
+ my $result = Net::SSLeay::X509_NAME_print_ex($name, $flag_rfc22536_utf8, 1);
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_NAME_print_ex.html|http://www.openssl.org/docs/crypto/X509_NAME_print_ex.html>
+
+=item * X509_NAME_get_text_by_NID
+
+Retrieves the text from the first entry in name which matches $nid, if no
+such entry exists -1 is returned. 
+
+B<openssl note:> this is a legacy function which has various limitations which 
+makes it of minimal use in practice. It can only find the first matching
+entry and will copy the contents of the field verbatim: this can be highly
+confusing if the target is a muticharacter string type like a BMPString or a UTF8String.
+
+ Net::SSLeay::X509_NAME_get_text_by_NID($name, $nid);
+ # $name - value corresponding to openssl's X509_NAME structure
+ # $nid - NID value (integer)
+ #
+ # returns: text value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_NAME_get_index_by_NID.html|http://www.openssl.org/docs/crypto/X509_NAME_get_index_by_NID.html>
+
+=item * X509_NAME_oneline
+
+Return an ASCII version of $name.
+
+ Net::SSLeay::X509_NAME_oneline($name);
+ # $name - value corresponding to openssl's X509_NAME structure
+ #
+ # returns: (string) ASCII version of $name
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_NAME_print_ex.html|http://www.openssl.org/docs/crypto/X509_NAME_print_ex.html>
+
 =item * sk_X509_NAME_free
 
 Free an allocated STACK_OF(X509_NAME) structure.
@@ -4886,7 +6031,403 @@ Add a directory of certs to a stack. All certs in $dir that are not already in t
 
 =back
 
-=head3 Low level API: Digest related functions
+=head3 Low level API: X509_STORE_* related functions
+
+=over
+
+=item * X509_STORE_CTX_get_current_cert
+
+Returns the certificate in ctx which caused the error or 0 if no certificate is relevant.
+
+ my $rv = Net::SSLeay::X509_STORE_CTX_get_current_cert($x509_store_ctx);
+ # $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
+ #
+ # returns: value corresponding to openssl's X509 structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html|http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html>
+
+=item * X509_STORE_CTX_get_error
+
+Returns the error code of $ctx.
+
+ my $rv = Net::SSLeay::X509_STORE_CTX_get_error($x509_store_ctx);
+ # $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
+ #
+ # returns: (integer) error code
+
+For more info about erro code values check function L</get_verify_result>.
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html|http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html>
+
+=item * X509_STORE_CTX_get_error_depth
+
+Returns the depth of the error. This is a non-negative integer representing
+where in the certificate chain the error occurred. If it is zero it occured
+in the end entity certificate, one if it is the certificate which signed
+the end entity certificate and so on.
+
+ my $rv = Net::SSLeay::X509_STORE_CTX_get_error_depth($x509_store_ctx);
+ # $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
+ #
+ # returns: (integer) depth
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html|http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html>
+
+=item * X509_STORE_CTX_get_ex_data
+
+Is used to retrieve the information for $idx from $x509_store_ctx.
+
+ my $rv = Net::SSLeay::X509_STORE_CTX_get_ex_data($x509_store_ctx, $idx);
+ # $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
+ # $idx - (integer) index for application specific data
+ #
+ # returns: pointer to ???
+
+=item * X509_STORE_CTX_set_ex_data
+
+Is used to store application data at arg for idx into $x509_store_ctx.
+
+ my $rv = Net::SSLeay::X509_STORE_CTX_set_ex_data($x509_store_ctx, $idx, $data);
+ # $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
+ # $idx - (integer) ???
+ # $data - (pointer) ???
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_STORE_CTX_set_cert
+
+Sets the certificate to be vertified in $x509_store_ctx to $x.
+
+ Net::SSLeay::X509_STORE_CTX_set_cert($x509_store_ctx, $x);
+ # $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
+ # $x - value corresponding to openssl's X509 structure
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_new.html|http://www.openssl.org/docs/crypto/X509_STORE_CTX_new.html>
+
+=item * X509_STORE_CTX_set_error
+
+Sets the error code of $ctx to $s. For example it might be used in a verification callback to set an error based on additional checks.
+
+ Net::SSLeay::X509_STORE_CTX_set_error($x509_store_ctx, $s);
+ # $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
+ # $s - (integer) error id
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html|http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html>
+
+=item * X509_STORE_add_cert
+
+Adds X509 certificate $x into the X509_STORE $store.
+
+ my $rv = Net::SSLeay::X509_STORE_add_cert($store, $x);
+ # $store - value corresponding to openssl's X509_STORE structure
+ # $x - value corresponding to openssl's X509 structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_STORE_add_crl
+
+Adds X509 CRL $x into the X509_STORE $store.
+
+ my $rv = Net::SSLeay::X509_STORE_add_crl($store, $x);
+ # $store - value corresponding to openssl's X509_STORE structure
+ # $x - value corresponding to openssl's X509_CRL structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_STORE_set1_param
+
+??? (more info needed)
+
+ my $rv = Net::SSLeay::X509_STORE_set1_param($store, $pm);
+ # $store - value corresponding to openssl's X509_STORE structure
+ # $pm - value corresponding to openssl's X509_VERIFY_PARAM structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_STORE_set_flags
+
+ Net::SSLeay::X509_STORE_set_flags($ctx, $flags);
+ # $ctx - value corresponding to openssl's X509_STORE structure
+ # $flags - (unsigned long) flags to be set (bitmask)
+ #
+ # returns: no return value
+
+ #to create $flags value use:  
+ 0x0001 - X509_V_FLAG_CB_ISSUER_CHECK - Send issuer+subject checks to verify_cb
+ 0x0002 - X509_V_FLAG_USE_CHECK_TIME - Use check time instead of current time
+ 0x0004 - X509_V_FLAG_CRL_CHECK - Lookup CRLs
+ 0x0008 - X509_V_FLAG_CRL_CHECK_ALL - Lookup CRLs for whole chain
+ 0x0010 - X509_V_FLAG_IGNORE_CRITICAL - Ignore unhandled critical extensions
+ 0x0020 - X509_V_FLAG_X509_STRICT - Disable workarounds for broken certificates
+ 0x0040 - X509_V_FLAG_ALLOW_PROXY_CERTS - Enable proxy certificate validation
+ 0x0080 - X509_V_FLAG_POLICY_CHECK - Enable policy checking
+ 0x0100 - X509_V_FLAG_EXPLICIT_POLICY - Policy variable require-explicit-policy
+ 0x0200 - X509_V_FLAG_INHIBIT_ANY - Policy variable inhibit-any-policy
+ 0x0400 - X509_V_FLAG_INHIBIT_MAP - Policy variable inhibit-policy-mapping
+ 0x0800 - X509_V_FLAG_NOTIFY_POLICY - Notify callback that policy is OK
+ 0x1000 - X509_V_FLAG_EXTENDED_CRL_SUPPORT - Extended CRL features such as indirect CRLs, alternate CRL signing keys
+ 0x2000 - X509_V_FLAG_USE_DELTAS - Delta CRL support
+ 0x4000 - X509_V_FLAG_CHECK_SS_SIGNATURE - Check selfsigned CA signature
+ 
+ #or use corresponding constants like
+ $flags = &Net::SSLeay::X509_V_FLAG_CB_ISSUER_CHECK;
+ ...
+ $flags = &Net::SSLeay::X509_V_FLAG_CHECK_SS_SIGNATURE;
+
+=item * X509_STORE_set_purpose
+
+ Net::SSLeay::X509_STORE_set_purpose($ctx, $purpose);
+ # $ctx - value corresponding to openssl's X509_STORE structure
+ # $purpose - (integer) purpose identifier
+ #
+ # returns: no return value
+
+For more details about $purpose identifier check L</CTX_set_purpose>.
+
+=item * X509_STORE_set_trust
+
+ Net::SSLeay::X509_STORE_set_trust($ctx, $trust);
+ # $ctx - value corresponding to openssl's X509_STORE structure
+ # $trust - (integer) trust identifier
+ #
+ # returns: no return value
+
+For more details about $trust identifier check L</CTX_set_trust>.
+
+=back
+
+=head3 Low level API: X509_VERIFY_PARAM_* related functions
+
+=over
+
+=item * X509_VERIFY_PARAM_add0_policy
+
+Enables policy checking (it is disabled by default) and adds $policy to the acceptable policy set.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_add0_policy($param, $policy);
+ # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
+ # $policy - value corresponding to openssl's ASN1_OBJECT structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
+
+=item * X509_VERIFY_PARAM_add0_table
+
+??? (more info needed)
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_add0_table($param);
+ # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_VERIFY_PARAM_clear_flags
+
+Clears the flags $flags in param.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_clear_flags($param, $flags);
+ # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
+ # $flags - (unsigned long) flags to be set (bitmask)
+ #
+ # returns: 1 on success, 0 on failure
+
+For more details about $flags bitmask see L</X509_STORE_set_flags>.
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
+
+=item * X509_VERIFY_PARAM_free
+
+Frees up the X509_VERIFY_PARAM structure.
+
+ Net::SSLeay::X509_VERIFY_PARAM_free($param);
+ # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
+ #
+ # returns: no return value
+
+=item * X509_VERIFY_PARAM_get_depth
+
+Returns the current verification depth.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_get_depth($param);
+ # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
+ #
+ # returns: (ineger) depth
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
+
+=item * X509_VERIFY_PARAM_get_flags
+
+Returns the current verification flags.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_get_flags($param);
+ # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
+ #
+ # returns: (unsigned long) flags to be set (bitmask)
+
+For more details about returned flags bitmask see L</X509_STORE_set_flags>.
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
+
+=item * X509_VERIFY_PARAM_set_flags
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_set_flags($param, $flags);
+ # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
+ # $flags - (unsigned long) flags to be set (bitmask)
+ #
+ # returns: 1 on success, 0 on failure
+ 
+For more details about $flags bitmask see L</X509_STORE_set_flags>.
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
+
+=item * X509_VERIFY_PARAM_inherit
+
+??? (more info needed)
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_inherit($to, $from);
+ # $to - value corresponding to openssl's X509_VERIFY_PARAM structure
+ # $from - value corresponding to openssl's X509_VERIFY_PARAM structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_VERIFY_PARAM_lookup
+
+Finds X509_VERIFY_PARAM by name.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_lookup($name);
+ # $name - (string) name we want to find
+ #
+ # returns: value corresponding to openssl's X509_VERIFY_PARAM structure (0 on failure)
+
+=item * X509_VERIFY_PARAM_new
+
+Creates a new X509_VERIFY_PARAM structure.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_new();
+ #
+ # returns: value corresponding to openssl's X509_VERIFY_PARAM structure (0 on failure)
+
+=item * X509_VERIFY_PARAM_set1
+
+Sets the name of X509_VERIFY_PARAM structure $to to the same value 
+as the name of X509_VERIFY_PARAM structure $from.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_set1($to, $from);
+ # $to - value corresponding to openssl's X509_VERIFY_PARAM structure
+ # $from - value corresponding to openssl's X509_VERIFY_PARAM structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_VERIFY_PARAM_set1_name
+
+Sets the name of X509_VERIFY_PARAM structure $param to $name.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_set1_name($param, $name);
+ # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
+ # $name - (string) name to be set
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * X509_VERIFY_PARAM_set1_policies
+
+Enables policy checking (it is disabled by default) and sets the acceptable policy set to policies. 
+Any existing policy set is cleared. The policies parameter can be 0 to clear an existing policy set.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_set1_policies($param, $policies);
+ # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
+ # $policies - value corresponding to openssl's STACK_OF(ASN1_OBJECT) structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
+
+=item * X509_VERIFY_PARAM_set_depth
+
+Sets the maximum verification depth to depth. That is the maximum number of untrusted CA certificates that can appear in a chain.
+
+ Net::SSLeay::X509_VERIFY_PARAM_set_depth($param, $depth);
+ # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
+ # $depth - (integer) depth to be set
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
+
+=item * X509_VERIFY_PARAM_set_purpose
+
+Sets the verification purpose in $param to $purpose. This determines the acceptable purpose 
+of the certificate chain, for example SSL client or SSL server.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_set_purpose($param, $purpose);
+ # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
+ # $purpose - (integer) purpose identifier
+ #
+ # returns: 1 on success, 0 on failure
+
+For more details about $purpose identifier check L</CTX_set_purpose>.
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
+
+=item * X509_VERIFY_PARAM_set_time
+
+Sets the verification time in $param to $t. Normally the current time is used.
+
+ Net::SSLeay::X509_VERIFY_PARAM_set_time($param, $t);
+ # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
+ # $t - (time_t) time in seconds since 1.1.1970
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
+
+=item * X509_VERIFY_PARAM_set_trust
+
+Sets the trust setting in $param to $trust.
+
+ my $rv = Net::SSLeay::X509_VERIFY_PARAM_set_trust($param, $trust);
+ # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
+ # $trust - (integer) trust identifier
+ #
+ # returns: 1 on success, 0 on failure
+
+For more details about $trust identifier check L</CTX_set_trust>.
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
+
+=item * X509_VERIFY_PARAM_table_cleanup
+
+??? (more info needed)
+
+ Net::SSLeay::X509_VERIFY_PARAM_table_cleanup();
+ #
+ # returns: no return value
+
+=back
+
+=head3 Low level API: Cipher (EVP_CIPHER_*) related functions
+
+=over
+
+=item * EVP_get_cipherbyname
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Returns an EVP_CIPHER structure when passed a cipher name.
+
+ my $rv = Net::SSLeay::EVP_get_cipherbyname($name);
+ # $name - (string) cipher name e.g. 'aes-128-cbc', 'camellia-256-ecb', 'des-ede', ...
+ #
+ # returns: value corresponding to openssl's EVP_CIPHER structure
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/EVP_EncryptInit.html|http://www.openssl.org/docs/crypto/EVP_EncryptInit.html>
+
+=back
+
+=head3 Low level API: Digest (EVP_MD_*) related functions
 
 =over
 
@@ -5177,6 +6718,8 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least
 =over
 
 =item * CIPHER_get_name
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
 
 Returns name of the cipher used.
 

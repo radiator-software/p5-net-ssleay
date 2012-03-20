@@ -8,6 +8,9 @@ BEGIN {
   require threads;
 };
 
+#XXX-TODO perhaps perl+ithreads related issue (needs more investigation)
+plan skip_all => "this test sometimes crashes on cygwin" if $^O eq 'cygwin';
+
 plan tests => 1;
 
 use FindBin;

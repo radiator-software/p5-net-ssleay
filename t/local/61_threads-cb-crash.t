@@ -8,6 +8,9 @@ BEGIN {
   require threads;
 };
 
+#XXX-TODO perhaps perl+ithreads related issue (needs more investigation)
+plan skip_all => "this test sometimes crashes on cygwin" if $^O eq 'cygwin';
+
 # NOTE: expect warnings about threads still running under perl 5.8 and threads 1.71
 plan tests => 1;
 
@@ -28,7 +31,7 @@ threads->new( sub { sleep 20; warn "FATAL: TIMEOUT!"; exit } )->detach;
 #print STDERR "Gonna start main thread part\n";
 my $ctx = Net::SSLeay::CTX_new() or warn "CTX_new failed" and exit;
 Net::SSLeay::CTX_set_default_passwd_cb($ctx, \&callback);
-Net::SSLeay::CTX_use_PrivateKey_file($ctx, $file, &Net::SSLeay::FILETYPE_PEM) or warn "CTX_use_PrivateKey_file failed" and exit;
+Net::SSLeay::CTX_use_PrivateKey_file($ctx, $file, &Net::SSLeay::FILETYPE_PEM) or warn "CTX_use_PrivateKey_file (file=$file) failed" and exit;
 Net::SSLeay::CTX_set_default_passwd_cb($ctx, undef);
 Net::SSLeay::CTX_free($ctx);
 
@@ -56,7 +59,7 @@ sub do_check {
   
   my $c = Net::SSLeay::CTX_new() or warn "CTX_new failed" and exit;
   Net::SSLeay::CTX_set_default_passwd_cb($c, \&callback);
-  Net::SSLeay::CTX_use_PrivateKey_file($c, $file, &Net::SSLeay::FILETYPE_PEM) or warn "CTX_use_PrivateKey_file failed" and exit;
+  Net::SSLeay::CTX_use_PrivateKey_file($c, $file, &Net::SSLeay::FILETYPE_PEM) or warn "CTX_use_PrivateKey_file (file=$file) failed" and exit;
   Net::SSLeay::CTX_set_default_passwd_cb($c, undef);
   Net::SSLeay::CTX_free($c);
   #do_sleep(rand(500));

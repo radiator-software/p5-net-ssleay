@@ -334,6 +334,7 @@ typedef struct _ssleay_cb_t ssleay_ctx_passwd_cb_t;
 typedef struct _ssleay_cb_t ssleay_ctx_cert_verify_cb_t;
 typedef struct _ssleay_cb_t ssleay_session_secret_cb_t;
 typedef struct _ssleay_cb_t ssleay_RSA_generate_key_cb_t;
+typedef struct _ssleay_cb_t ssleay_pem_password_cb_t;
 
 ssleay_ctx_passwd_cb_t*
 ssleay_ctx_passwd_cb_new(SSL_CTX* ctx) {
@@ -852,13 +853,97 @@ ssleay_RSA_generate_key_cb_invoke(int i, int n, void* data) {
 	}
 }
 
+ssleay_pem_password_cb_t*
+ssleay_pem_password_cb_new(SV* func, SV* data) {
+    ssleay_pem_password_cb_t* cb;
+    dMY_CXT;
+    New(0, cb, 1, ssleay_pem_password_cb_t);
+    if (cb) {
+        SvREFCNT_inc(func);
+        SvREFCNT_inc(data);
+        cb->tid = MY_CXT.tid;
+        cb->func = func;
+        cb->data = data;
+    }
+    return cb;
+}
+
+void
+ssleay_pem_password_cb_free(ssleay_pem_password_cb_t* cb) {
+    if (cb) {
+        if (cb->func) {
+            SvREFCNT_dec(cb->func);
+            cb->func = NULL;
+        }
+        if (cb->data) {
+            SvREFCNT_dec(cb->data);
+            cb->data = NULL;
+        }
+    }
+    Safefree(cb);
+}
+
+int
+ssleay_pem_password_cb_invoke(char *buf, int bufsize, int rwflag, void *data) {
+    dSP;
+    dMY_CXT;
+    char *str;
+    int str_len = 0;
+
+    ssleay_pem_password_cb_t* cb = (ssleay_pem_password_cb_t*)data;
+
+    if (cb->tid != MY_CXT.tid) {
+        warn ("Net::SSLeay: cross-thread callbacks not allowed!");
+        return 0;
+    }
+
+    if (cb->func) {
+        int count;
+
+        ENTER;
+        SAVETMPS;
+
+        PUSHMARK(sp);
+
+        XPUSHs(sv_2mortal( newSViv(bufsize-1) ));
+        XPUSHs(sv_2mortal( newSViv(rwflag) ));
+
+        if (cb->data) XPUSHs( cb->data );
+
+        PUTBACK;
+
+        count = call_sv( cb->func, G_SCALAR );
+
+        SPAGAIN;
+
+        buf[0] = 0; /* start with an empty password */
+        if (count != 1) {
+            croak("Net::SSLeay: ssleay_pem_password_cb_invoke callback returned more than 1 value\n");
+        }
+        else {
+            str = POPpx;
+            str_len = strlen(str);
+            if (str_len+1 < bufsize) {
+                strcpy(buf, str);
+            }
+            else {
+                str_len = 0;
+                warn("Net::SSLeay: ssleay_pem_password_cb_invoke password too long\n");
+            }
+        }
+
+        PUTBACK;
+        FREETMPS;
+        LEAVE;
+    }
+    return str_len;
+}
 
 MODULE = Net::SSLeay		PACKAGE = Net::SSLeay          PREFIX = SSL_
 
 PROTOTYPES: ENABLE
 
 BOOT:
-{
     {
     MY_CXT_INIT;
     LIB_initialized = 0;
@@ -874,7 +959,6 @@ BOOT:
     MY_CXT.ssleay_session_secret_cbs = (HV*)NULL;
     MY_CXT.tid = get_my_thread_id();
     }
-}
 
 void
 CLONE(...)
@@ -1750,6 +1834,39 @@ X509_NAME*
 X509_get_subject_name(cert)
      X509 *      cert
 
+int
+X509_set_issuer_name(X509 *x, X509_NAME *name)
+
+int
+X509_set_subject_name(X509 *x, X509_NAME *name)
+
+int
+X509_set_version(X509 *x, long version)
+
+int
+X509_set_pubkey(X509 *x, EVP_PKEY *pkey)
+
+long
+X509_get_version(X509 *x)
+
+EVP_PKEY *
+X509_get_pubkey(X509 *x)
+
+ASN1_INTEGER *
+X509_get_serialNumber(X509 *x)
+
+int
+X509_set_serialNumber(X509 *x, ASN1_INTEGER *serial)
+
+int
+X509_certificate_type(X509 *x, EVP_PKEY *pubkey=NULL);
+
+int
+X509_sign(X509 *x, EVP_PKEY *pkey, const EVP_MD *md)
+
+int
+X509_verify(X509 *x, EVP_PKEY *r)
+
 void
 X509_NAME_oneline(name)
 	X509_NAME *    name
@@ -1760,6 +1877,34 @@ X509_NAME_oneline(name)
 	if (buf = X509_NAME_oneline(name, NULL, 0))
 		sv_setpvn( ST(0), buf, strlen(buf));
 	OPENSSL_free(buf); /* mem was allocated by openssl */
+
+void
+X509_NAME_print_ex(name,flags=XN_FLAG_RFC2253,utf8_decode=0)
+        X509_NAME * name
+        unsigned long flags
+        int utf8_decode
+    PREINIT:
+        char * buf;
+        BIO * bp;
+        int n, i, ident=0;
+    CODE:
+        ST(0) = sv_newmortal(); /* undef to start with */
+        bp = BIO_new(BIO_s_mem());
+        if (bp) {
+            if (X509_NAME_print_ex(bp, name, ident, flags)) {
+                n = BIO_ctrl_pending(bp);
+                New(0, buf, n, char);
+                if (buf) {
+                    i = BIO_read(bp,buf,n);
+                    if (i>=0 && i<=n) {
+                        sv_setpvn(ST(0), buf, i);
+                        if (utf8_decode) sv_utf8_decode(ST(0));
+                    }
+                    Safefree(buf);
+                }
+            }
+            BIO_free(bp);
+        }
 
 void
 X509_NAME_get_text_by_NID(name,nid)
@@ -1778,6 +1923,419 @@ X509_NAME_get_text_by_NID(name,nid)
                        sv_setpvn( ST(0), buf, length);
                Safefree(buf);
        }
+
+#if OPENSSL_VERSION_NUMBER >= 0x0090500fL
+#define REM17 "requires 0.9.5+"
+       
+int
+X509_NAME_add_entry_by_NID(name,nid,type,bytes,loc=-1,set=0)
+        X509_NAME *name
+        int nid
+        int type
+        int loc
+        int set
+    PREINIT:
+        STRLEN len;
+    INPUT:
+        unsigned char *bytes = SvPV(ST(3), len);
+    CODE:
+        RETVAL = X509_NAME_add_entry_by_NID(name,nid,type,bytes,len,loc,set);
+    OUTPUT:
+        RETVAL
+
+int
+X509_NAME_add_entry_by_OBJ(name,obj,type,bytes,loc=-1,set=0)
+        X509_NAME *name
+        ASN1_OBJECT *obj
+        int type
+        int loc
+        int set
+    PREINIT:
+        STRLEN len;
+    INPUT:
+        unsigned char *bytes = SvPV(ST(3), len);
+    CODE:
+        RETVAL = X509_NAME_add_entry_by_OBJ(name,obj,type,bytes,len,loc,set);
+    OUTPUT:
+        RETVAL
+
+#if OPENSSL_VERSION_NUMBER < 0x0090707fL
+#define REM18 "before 0.9.7g"
+
+int
+X509_NAME_add_entry_by_txt(name,field,type,bytes,loc=-1,set=0)
+        X509_NAME *name
+        char *field
+        int type
+        int loc
+        int set
+    PREINIT:
+        STRLEN len;
+    INPUT:
+        unsigned char *bytes = SvPV(ST(3), len);
+    CODE:
+        RETVAL = X509_NAME_add_entry_by_txt(name,field,type,bytes,len,loc,set);
+    OUTPUT:
+        RETVAL
+
+#else
+
+int
+X509_NAME_add_entry_by_txt(name,field,type,bytes,len=-1,loc=-1,set=0)
+        X509_NAME *name
+        const char *field
+        int type
+        int loc
+        int set
+    PREINIT:
+        STRLEN len;
+    INPUT:
+        const unsigned char *bytes = SvPV(ST(3), len);
+    CODE:
+        RETVAL = X509_NAME_add_entry_by_txt(name,field,type,bytes,len,loc,set);
+    OUTPUT:
+        RETVAL
+
+#endif
+
+#endif
+
+int
+X509_NAME_cmp(const X509_NAME *a, const X509_NAME *b)
+
+int
+X509_NAME_entry_count(X509_NAME *name)
+
+X509_NAME_ENTRY *
+X509_NAME_get_entry(X509_NAME *name, int loc)
+
+ASN1_STRING *
+X509_NAME_ENTRY_get_data(X509_NAME_ENTRY *ne)
+
+ASN1_OBJECT *
+X509_NAME_ENTRY_get_object(X509_NAME_ENTRY *ne)
+
+void
+X509_CRL_free(X509_CRL *x)
+
+X509_CRL *
+X509_CRL_new()
+
+#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
+#define REM19 "requires 0.9.7+"
+
+int
+X509_CRL_set_version(X509_CRL *x, long version)
+
+int
+X509_CRL_set_issuer_name(X509_CRL *x, X509_NAME *name)
+
+int 
+X509_CRL_set_lastUpdate(X509_CRL *x, ASN1_TIME *tm)
+
+int
+X509_CRL_set_nextUpdate(X509_CRL *x, ASN1_TIME *tm)
+
+int
+X509_CRL_sort(X509_CRL *x)
+
+#endif
+
+long
+X509_CRL_get_version(X509_CRL *x)
+
+X509_NAME *
+X509_CRL_get_issuer(X509_CRL *x)
+
+ASN1_TIME *
+X509_CRL_get_lastUpdate(X509_CRL *x)
+
+ASN1_TIME *
+X509_CRL_get_nextUpdate(X509_CRL *x)
+
+int
+X509_CRL_verify(X509_CRL *a, EVP_PKEY *r)
+
+int
+X509_CRL_sign(X509_CRL *x, EVP_PKEY *pkey, const EVP_MD *md)
+
+#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
+#define REM20 "requires 0.9.7+"
+
+int
+P_X509_CRL_set_serial(crl,crl_number)
+        X509_CRL *crl
+        ASN1_INTEGER * crl_number;
+    CODE:        
+        RETVAL = 0;
+        if (crl && crl_number)
+            if (X509_CRL_add1_ext_i2d(crl, NID_crl_number, crl_number, 0, 0)) RETVAL = 1;
+    OUTPUT:
+        RETVAL
+
+ASN1_INTEGER *
+P_X509_CRL_get_serial(crl)
+        X509_CRL *crl
+    INIT:
+        int i;
+    CODE:
+        RETVAL = (ASN1_INTEGER *)X509_CRL_get_ext_d2i(crl, NID_crl_number, &i, NULL);
+        if (!RETVAL || i==-1) XSRETURN_UNDEF;
+    OUTPUT:
+        RETVAL
+
+void
+P_X509_CRL_add_revoked_serial_hex(crl,serial_hex,rev_time,reason_code=0,comp_time=NULL)
+        X509_CRL *crl
+        char * serial_hex
+        ASN1_TIME *rev_time
+        long reason_code
+        ASN1_TIME *comp_time
+    PREINIT:
+        BIGNUM *bn = NULL;
+        ASN1_INTEGER *sn;
+        X509_REVOKED *rev;
+        ASN1_ENUMERATED *rsn = NULL;
+        int rv;
+    PPCODE:
+        rv=0;
+        rev = X509_REVOKED_new();
+        if (rev) {
+            if (BN_hex2bn(&bn, serial_hex)) {
+                sn = BN_to_ASN1_INTEGER(bn, NULL);
+                if (sn) {
+                    X509_REVOKED_set_serialNumber(rev, sn);
+                    ASN1_INTEGER_free(sn);
+                    rv = 1;
+                }
+                BN_free(bn);
+            }
+        }
+        if (!rv) XSRETURN_IV(0);
+
+        if (!rev_time) XSRETURN_IV(0);
+        if (!X509_REVOKED_set_revocationDate(rev, rev_time)) XSRETURN_IV(0);
+
+        if(reason_code) {
+            rv = 0;
+            rsn = ASN1_ENUMERATED_new();
+            if (rsn) {
+                if (ASN1_ENUMERATED_set(rsn, reason_code))
+                    if (X509_REVOKED_add1_ext_i2d(rev, NID_crl_reason, rsn, 0, 0))
+                        rv=1;
+                ASN1_ENUMERATED_free(rsn);
+            }
+            if (!rv) XSRETURN_IV(0);
+        }
+
+        if(comp_time) {
+            X509_REVOKED_add1_ext_i2d(rev, NID_invalidity_date, comp_time, 0, 0);
+        }
+
+        if(!X509_CRL_add0_revoked(crl, rev)) XSRETURN_IV(0);
+        XSRETURN_IV(1);
+
+#endif
+
+X509_REQ *
+X509_REQ_new()
+
+void
+X509_REQ_free(X509_REQ *x)
+
+X509_NAME *
+X509_REQ_get_subject_name(X509_REQ *x)
+
+int
+X509_REQ_set_subject_name(X509_REQ *x, X509_NAME *name)
+
+int
+X509_REQ_set_pubkey(X509_REQ *x, EVP_PKEY *pkey)
+
+EVP_PKEY *
+X509_REQ_get_pubkey(X509_REQ *x)
+
+int
+X509_REQ_sign(X509_REQ *x, EVP_PKEY *pk, const EVP_MD *md)
+
+int
+X509_REQ_verify(X509_REQ *x, EVP_PKEY *r)
+
+int
+X509_REQ_set_version(X509_REQ *x, long version)
+
+long
+X509_REQ_get_version(X509_REQ *x)
+
+int
+X509_REQ_get_attr_count(const X509_REQ *req);
+
+int
+X509_REQ_get_attr_by_NID(const X509_REQ *req, int nid, int lastpos=-1)
+
+int
+X509_REQ_get_attr_by_OBJ(const X509_REQ *req, ASN1_OBJECT *obj, int lastpos=-1)
+
+#if OPENSSL_VERSION_NUMBER < 0x0090700fL
+#define REM22 "NOTE: before 0.9.7"
+
+int
+X509_REQ_add1_attr_by_NID(req,nid,type,bytes)
+        X509_REQ *req
+        int nid
+        int type
+    PREINIT:
+        STRLEN len;
+    INPUT:
+        unsigned char *bytes = SvPV(ST(3), len);
+    CODE:
+        RETVAL = X509_REQ_add1_attr_by_NID(req,nid,type,bytes,len);
+    OUTPUT:
+        RETVAL
+
+#else
+
+int
+X509_REQ_add1_attr_by_NID(req,nid,type,bytes)
+        X509_REQ *req
+        int nid
+        int type
+    PREINIT:
+        STRLEN len;
+    INPUT:
+        const unsigned char *bytes = SvPV(ST(3), len);
+    CODE:
+        RETVAL = X509_REQ_add1_attr_by_NID(req,nid,type,bytes,len);
+    OUTPUT:
+        RETVAL
+
+#endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
+#define REM21 "requires 0.9.7+"
+
+void
+P_X509_REQ_get_attr(req,n)
+        X509_REQ *req
+        int n
+    INIT:
+        X509_ATTRIBUTE * att;
+        int count, i;
+        ASN1_STRING * s;
+    PPCODE:
+        att = X509_REQ_get_attr(req,n);
+        if (att->single) {
+            s = (att->value.single->value.asn1_string);
+            XPUSHs(sv_2mortal(newSViv(PTR2IV(s))));
+        }
+        else {
+            count = sk_ASN1_TYPE_num(att->value.set);
+            for (i=0; i<count; i++) {
+                s = (sk_ASN1_TYPE_value(att->value.set, i)->value.asn1_string);
+                XPUSHs(sv_2mortal(newSViv(PTR2IV(s))));
+            }
+        }
+
+#endif
+
+int
+P_X509_REQ_add_extensions(x,...)
+        X509_REQ *x
+    PREINIT:
+        int i=1;
+        int nid;
+        char *data;
+        X509_EXTENSION *ex;
+        STACK_OF(X509_EXTENSION) *stack;
+    CODE:
+        if (items>1) {
+            RETVAL = 1;
+            stack = sk_X509_EXTENSION_new_null();
+            while(i+1<items) {
+                nid = SvIV(ST(i));
+                data = SvPV_nolen(ST(i+1));
+                i+=2;
+                ex = X509V3_EXT_conf_nid(NULL, NULL, nid, data);
+                if (ex) 
+                    sk_X509_EXTENSION_push(stack, ex);
+                else
+                    RETVAL = 0;
+            }
+            X509_REQ_add_extensions(x, stack);
+            sk_X509_EXTENSION_pop_free(stack, X509_EXTENSION_free);
+        }
+        else
+            RETVAL = 0;
+    OUTPUT:
+        RETVAL
+
+int
+P_X509_add_extensions(x,ca_cert,...)
+        X509 *x
+        X509 *ca_cert
+    PREINIT:
+        int i=2;
+        int nid;
+        char *data;
+        X509_EXTENSION *ex;
+        X509V3_CTX ctx;
+    CODE:
+        if (items>1) {
+            RETVAL = 1;
+            while(i+1<items) {
+                nid = SvIV(ST(i));
+                data = SvPV_nolen(ST(i+1));
+                i+=2;
+                X509V3_set_ctx(&ctx, ca_cert, x, NULL, NULL, 0);
+                ex = X509V3_EXT_conf_nid(NULL, &ctx, nid, data);
+                if (ex) {
+                    X509_add_ext(x,ex,-1);
+                    X509_EXTENSION_free(ex);
+                }
+                else {
+                    warn("failure during X509V3_EXT_conf_nid() for nid=%d\n", nid);
+                    ERR_print_errors_fp(stderr);
+                    RETVAL = 0;
+                }
+            }
+        }
+        else
+            RETVAL = 0;
+    OUTPUT:
+            RETVAL
+
+void
+P_X509_copy_extensions(x509_req,x509,override=1)
+        X509_REQ *x509_req
+        X509 *x509
+        int override
+    PREINIT:
+        STACK_OF(X509_EXTENSION) *exts = NULL;
+        X509_EXTENSION *ext, *tmpext;
+        ASN1_OBJECT *obj;
+        int i, idx, ret = 1;
+    PPCODE:
+        if (!x509 || !x509_req) XSRETURN_IV(0);
+        exts = X509_REQ_get_extensions(x509_req);
+        for(i = 0; i < sk_X509_EXTENSION_num(exts); i++) {
+            ext = sk_X509_EXTENSION_value(exts, i);
+            obj = X509_EXTENSION_get_object(ext);
+            idx = X509_get_ext_by_OBJ(x509, obj, -1);
+            /* Does extension exist? */
+            if (idx != -1) {                
+                if (override) continue; /* don't override existing extension */
+                /* Delete all extensions of same type */
+                do {
+                    tmpext = X509_get_ext(x509, idx);
+                    X509_delete_ext(x509, idx);
+                    X509_EXTENSION_free(tmpext);
+                    idx = X509_get_ext_by_OBJ(x509, obj, -1);
+                } while (idx != -1);
+            }
+            if (!X509_add_ext(x509, ext, -1)) ret = 0;
+        }
+        sk_X509_EXTENSION_pop_free(exts, X509_EXTENSION_free);
+        XSRETURN_IV(ret);
 
 X509 *
 X509_STORE_CTX_get_current_cert(x509_store_ctx)
@@ -1891,8 +2449,122 @@ X509_get_subjectAltNames(cert)
 	}
 	XSRETURN(count * 2);
 
+#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
+
+void
+P_X509_get_crl_distribution_points(cert)
+        X509 * cert
+    INIT:
+        GENERAL_NAMES *gnames;
+        GENERAL_NAME *gn;
+        STACK_OF(DIST_POINT) *points;
+        DIST_POINT *p;
+        int i, j;
+    PPCODE:
+        points = X509_get_ext_d2i(cert, NID_crl_distribution_points, NULL, NULL);
+        if (points)
+        for (i = 0; i < sk_DIST_POINT_num(points); i++) {
+            p = sk_DIST_POINT_value(points, i);
+            if (!p->distpoint)
+                continue;
+            if (p->distpoint->type == 0) {
+                /* full name */
+                gnames = p->distpoint->name.fullname;
+                for (j = 0; j < sk_GENERAL_NAME_num(gnames); j++) {
+                    gn = sk_GENERAL_NAME_value(gnames, j);
+                    XPUSHs(sv_2mortal(newSVpv(ASN1_STRING_data(gn->d.ia5),ASN1_STRING_length(gn->d.ia5))));
+                }
+            }
+            else {
+                /* relative name - not supported */
+                /* XXX-TODO: the code below is just an idea; do not enable it without proper test case
+                BIO *bp;
+                char *buf;
+                int n;
+                X509_NAME ntmp;
+                ntmp.entries = p->distpoint->name.relativename;
+                bp = BIO_new(BIO_s_mem());
+                if (bp) {
+                    X509_NAME_print_ex(bp, &ntmp, 0, XN_FLAG_RFC2253);
+                    n = BIO_ctrl_pending(bp);
+                    New(0, buf, n, char);
+                    if (buf) {
+                        j = BIO_read(bp,buf,n);
+                        if (j>=0 && j<=n) XPUSHs(sv_2mortal(newSVpvn(buf,j)));
+                        Safefree(buf);
+                    }
+                    BIO_free(bp);
+                }
+                */
+            }
+        }
+
+void
+P_X509_get_ext_key_usage(cert,format=0)
+        X509 * cert
+        int format
+    PREINIT:
+        EXTENDED_KEY_USAGE *extusage;
+        int i, nid;
+        char buffer[100]; /* openssl doc: a buffer length of 80 should be more than enough to handle any OID encountered in practice */
+        ASN1_OBJECT *o;
+    PPCODE:
+        extusage = X509_get_ext_d2i(cert, NID_ext_key_usage, NULL, NULL);
+        for(i = 0; i < sk_ASN1_OBJECT_num(extusage); i++) {        
+           o = sk_ASN1_OBJECT_value(extusage,i);
+           nid = OBJ_obj2nid(o);
+           OBJ_obj2txt(buffer, sizeof(buffer)-1, o, 1);
+           if(format==0)
+               XPUSHs(sv_2mortal(newSVpv(buffer,0)));          /* format 0: oid */
+           else if(format==1 && nid>0)
+               XPUSHs(sv_2mortal(newSViv(nid)));               /* format 1: nid */
+           else if(format==2 && nid>0)
+               XPUSHs(sv_2mortal(newSVpv(OBJ_nid2sn(nid),0))); /* format 2: shortname */
+           else if(format==3 && nid>0)
+               XPUSHs(sv_2mortal(newSVpv(OBJ_nid2ln(nid),0))); /* format 3: longname */
+        }
+
+#endif
+
+void
+P_X509_get_key_usage(cert)
+        X509 * cert
+    INIT:
+        ASN1_BIT_STRING * u;
+    PPCODE:
+        u = X509_get_ext_d2i(cert, NID_key_usage, NULL, NULL);
+        if (u) {        
+            if (ASN1_BIT_STRING_get_bit(u,0)) XPUSHs(sv_2mortal(newSVpv("digitalSignature",0)));
+            if (ASN1_BIT_STRING_get_bit(u,1)) XPUSHs(sv_2mortal(newSVpv("nonRepudiation",0)));
+            if (ASN1_BIT_STRING_get_bit(u,2)) XPUSHs(sv_2mortal(newSVpv("keyEncipherment",0)));
+            if (ASN1_BIT_STRING_get_bit(u,3)) XPUSHs(sv_2mortal(newSVpv("dataEncipherment",0)));
+            if (ASN1_BIT_STRING_get_bit(u,4)) XPUSHs(sv_2mortal(newSVpv("keyAgreement",0)));
+            if (ASN1_BIT_STRING_get_bit(u,5)) XPUSHs(sv_2mortal(newSVpv("keyCertSign",0)));
+            if (ASN1_BIT_STRING_get_bit(u,6)) XPUSHs(sv_2mortal(newSVpv("cRLSign",0)));
+            if (ASN1_BIT_STRING_get_bit(u,7)) XPUSHs(sv_2mortal(newSVpv("encipherOnly",0)));
+            if (ASN1_BIT_STRING_get_bit(u,8)) XPUSHs(sv_2mortal(newSVpv("decipherOnly",0)));
+        }
+
+void
+P_X509_get_netscape_cert_type(cert)
+        X509 * cert
+    INIT:
+        ASN1_BIT_STRING * u;
+    PPCODE:
+        u = X509_get_ext_d2i(cert, NID_netscape_cert_type, NULL, NULL);
+        if (u) {
+            if (ASN1_BIT_STRING_get_bit(u,0)) XPUSHs(sv_2mortal(newSVpv("client",0)));
+            if (ASN1_BIT_STRING_get_bit(u,1)) XPUSHs(sv_2mortal(newSVpv("server",0)));
+            if (ASN1_BIT_STRING_get_bit(u,2)) XPUSHs(sv_2mortal(newSVpv("email",0)));
+            if (ASN1_BIT_STRING_get_bit(u,3)) XPUSHs(sv_2mortal(newSVpv("objsign",0)));
+            if (ASN1_BIT_STRING_get_bit(u,4)) XPUSHs(sv_2mortal(newSVpv("reserved",0)));
+            if (ASN1_BIT_STRING_get_bit(u,5)) XPUSHs(sv_2mortal(newSVpv("sslCA",0)));
+            if (ASN1_BIT_STRING_get_bit(u,6)) XPUSHs(sv_2mortal(newSVpv("emailCA",0)));
+            if (ASN1_BIT_STRING_get_bit(u,7)) XPUSHs(sv_2mortal(newSVpv("objCA",0)));
+        }
+
 int
-X509_get_ext_by_NID(x,nid,loc)
+X509_get_ext_by_NID(x,nid,loc=-1)
 	X509* x
 	int nid
 	int loc
@@ -1902,6 +2574,47 @@ X509_get_ext(x,loc)
 	X509* x
 	int loc
 	
+int
+X509_EXTENSION_get_critical(X509_EXTENSION *ex)
+
+ASN1_OCTET_STRING *
+X509_EXTENSION_get_data(X509_EXTENSION *ne)
+
+ASN1_OBJECT *
+X509_EXTENSION_get_object(X509_EXTENSION *ex)
+
+int
+X509_get_ext_count(X509 *x)
+
+void
+X509V3_EXT_print(ext,flags=0,utf8_decode=0)
+        X509_EXTENSION * ext
+        unsigned long flags
+        int utf8_decode
+    PREINIT:
+        BIO * bp;
+        char * buf;
+        int i, n;
+        int indent=0;
+    CODE:
+        ST(0) = sv_newmortal(); /* undef to start with */
+        bp = BIO_new(BIO_s_mem());
+        if (bp) {
+            if(X509V3_EXT_print(bp,ext,flags,indent)) {
+                n = BIO_ctrl_pending(bp);
+                New(0, buf, n, char);
+                if (buf) {
+                    i = BIO_read(bp,buf,n);
+                    if (i>=0 && i<=n) {
+                        sv_setpvn(ST(0), buf, i);
+                        if (utf8_decode) sv_utf8_decode(ST(0));
+                    }
+                    Safefree(buf);
+                }
+            }
+            BIO_free(bp);
+        }
+
 void *
 X509V3_EXT_d2i(ext)
 	X509_EXTENSION *ext
@@ -1986,6 +2699,88 @@ const char *
 X509_verify_cert_error_string(n)
     long n   
 
+ASN1_INTEGER *
+ASN1_INTEGER_new()
+
+void
+ASN1_INTEGER_free(ASN1_INTEGER *i)
+
+int
+ASN1_INTEGER_set(ASN1_INTEGER *i, long val)
+
+long
+ASN1_INTEGER_get(ASN1_INTEGER *a)
+
+void
+P_ASN1_INTEGER_set_hex(i,str)
+        ASN1_INTEGER * i
+        char * str
+    INIT:
+        BIGNUM *bn;
+        int rv = 1;
+    PPCODE:
+        bn = BN_new();
+        if (!BN_hex2bn(&bn, str)) XSRETURN_IV(0);
+        if (!BN_to_ASN1_INTEGER(bn, i)) rv = 0;
+        BN_free(bn);
+        XSRETURN_IV(rv);
+
+void
+P_ASN1_INTEGER_set_dec(i,str)
+        ASN1_INTEGER * i
+        char * str
+    INIT:
+        BIGNUM *bn;
+        int rv = 1;
+    PPCODE:
+        bn = BN_new();
+        if (!BN_dec2bn(&bn, str)) XSRETURN_IV(0);
+        if (!BN_to_ASN1_INTEGER(bn, i)) rv = 0;
+        BN_free(bn);
+        XSRETURN_IV(rv);
+
+void
+P_ASN1_INTEGER_get_hex(i)
+        ASN1_INTEGER * i
+    INIT:
+        BIGNUM *bn;
+        char *result;
+    PPCODE:
+        bn = BN_new();
+        if (!bn) XSRETURN_UNDEF;
+        ASN1_INTEGER_to_BN(i, bn);
+        result = BN_bn2hex(bn);
+        BN_free(bn);
+        if (!result) XSRETURN_UNDEF;
+        XPUSHs(sv_2mortal(newSVpv((const char*)result, strlen(result))));
+        OPENSSL_free(result);
+
+void
+P_ASN1_INTEGER_get_dec(i)
+        ASN1_INTEGER * i
+    INIT:
+        BIGNUM *bn;
+        char *result;
+    PPCODE:
+        bn = BN_new();
+        if (!bn) XSRETURN_UNDEF;
+        ASN1_INTEGER_to_BN(i, bn);
+        result = BN_bn2dec(bn);
+        BN_free(bn);
+        if (!result) XSRETURN_UNDEF;
+        XPUSHs(sv_2mortal(newSVpv((const char*)result, strlen(result))));
+        OPENSSL_free(result);
+
+void
+P_ASN1_STRING_get(s,utf8_decode=0)
+        ASN1_STRING * s
+        int utf8_decode
+    PREINIT:
+        SV * u8;
+    PPCODE:
+        u8 = newSVpv((const char*)ASN1_STRING_data(s), ASN1_STRING_length(s));
+        if (utf8_decode) sv_utf8_decode(u8);
+        XPUSHs(sv_2mortal(u8));
 
 ASN1_TIME *
 X509_get_notBefore(cert)
@@ -2121,22 +2916,131 @@ EVP_PKEY_copy_parameters(to,from)
      EVP_PKEY *		to
      EVP_PKEY * 	from
 
+EVP_PKEY *
+EVP_PKEY_new()
+
+void
+EVP_PKEY_free(EVP_PKEY *pkey)
+
+int
+EVP_PKEY_assign_RSA(EVP_PKEY *pkey, RSA *key)
+
+int
+EVP_PKEY_bits(EVP_PKEY *pkey)
+
+int
+EVP_PKEY_size(EVP_PKEY *pkey)
+
+#if OPENSSL_VERSION_NUMBER >= 0x1000000fL
+
+int
+EVP_PKEY_id(const EVP_PKEY *pkey)
+
+#endif
+
 void 
 PEM_get_string_X509(x509)
-     X509 *	x509
+        X509 * x509
      PREINIT:
-     BIO *bp;
-     int i;
-     char buffer[8196];
+        BIO *bp;
+        int i, n;
+        char *buf;
      CODE:
-     bp = BIO_new(BIO_s_mem());
-     PEM_write_bio_X509(bp,x509);
-     i = BIO_read(bp,buffer,8195);
-     buffer[i] = '\0';
-     ST(0) = sv_newmortal();   /* Undefined to start with */
-     if ( i > 0 )
-         sv_setpvn( ST(0), buffer, i );
-     BIO_free(bp);
+        ST(0) = sv_newmortal(); /* undef to start with */
+        bp = BIO_new(BIO_s_mem());
+        if (bp && x509) {
+            PEM_write_bio_X509(bp,x509);
+            n = BIO_ctrl_pending(bp);
+            New(0, buf, n, char);
+            if (buf) {
+                i = BIO_read(bp,buf,n);
+                if (i>=0 && i<=n) sv_setpvn(ST(0), buf, i);
+                Safefree(buf);
+            }
+            BIO_free(bp);
+        }
+
+void 
+PEM_get_string_X509_REQ(x509_req)
+        X509_REQ * x509_req
+    PREINIT:
+        BIO *bp;
+        int i, n;
+        char *buf;
+    CODE:
+        ST(0) = sv_newmortal(); /* undef to start with */
+        bp = BIO_new(BIO_s_mem());
+        if (bp && x509_req) {
+            PEM_write_bio_X509_REQ(bp,x509_req);
+            n = BIO_ctrl_pending(bp);
+            New(0, buf, n, char);
+            if (buf) {
+                i = BIO_read(bp,buf,n);
+                if (i>=0 && i<=n) sv_setpvn(ST(0), buf, i);
+                Safefree(buf);
+            }
+            BIO_free(bp);
+        }
+
+void 
+PEM_get_string_X509_CRL(x509_crl)
+        X509_CRL * x509_crl
+    PREINIT:
+        BIO *bp;
+        int i, n;
+        char *buf;
+    CODE:
+        ST(0) = sv_newmortal(); /* undef to start with */
+        bp = BIO_new(BIO_s_mem());
+        if (bp && x509_crl) {
+            PEM_write_bio_X509_CRL(bp,x509_crl);
+            n = BIO_ctrl_pending(bp);
+            New(0, buf, n, char);
+            if (buf) {
+                i = BIO_read(bp,buf,n);
+                if (i>=0 && i<=n) sv_setpvn(ST(0), buf, i);
+                Safefree(buf);
+            }
+            BIO_free(bp);
+        }
+
+void 
+PEM_get_string_PrivateKey(pk,passwd=NULL,enc_alg=NULL)
+        EVP_PKEY * pk
+        char * passwd
+        const EVP_CIPHER * enc_alg
+    PREINIT:
+        BIO *bp;
+        int i, n;
+        char *buf;
+        int passwd_len = 0;
+        pem_password_cb * cb = NULL;
+        void * u = NULL;
+    CODE:
+        ST(0) = sv_newmortal(); /* undef to start with */
+        bp = BIO_new(BIO_s_mem());
+        if (bp && pk) {
+            if (passwd) passwd_len = strlen(passwd);
+            if (passwd_len>0) {
+                /* encrypted key */
+                if (!enc_alg)
+                    PEM_write_bio_PrivateKey(bp,pk,EVP_des_cbc(),passwd,passwd_len,cb,u);
+                else
+                    PEM_write_bio_PrivateKey(bp,pk,enc_alg,passwd,passwd_len,cb,u);
+            }
+            else {
+                /* unencrypted key */
+                PEM_write_bio_PrivateKey(bp,pk,NULL,passwd,passwd_len,cb,u);
+            }
+            n = BIO_ctrl_pending(bp);
+            New(0, buf, n, char);
+            if (buf) {
+                i = BIO_read(bp,buf,n);
+                if (i>=0 && i<=n) sv_setpvn(ST(0), buf, i);
+                Safefree(buf);
+            }
+            BIO_free(bp);
+        }
 
 int
 CTX_use_PKCS12_file(ctx, file, password)
@@ -2163,7 +3067,8 @@ CTX_use_PKCS12_file(ctx, file, password)
     {
 #if OPENSSL_VERSION_NUMBER >= 0x0090700fL
     OPENSSL_add_all_algorithms_noconf();
-    /* note by kmx: not sure what happens on pre-0.9.7 */
+#else
+    OpenSSL_add_all_algorithms();
 #endif
     }
 
@@ -3156,9 +4061,21 @@ void
 RSA_free(r)
     RSA * r
 
+X509 *
+X509_new()
+
 void
 X509_free(a)
     X509 * a
+
+X509_CRL *
+d2i_X509_CRL_bio(BIO *bp,void *unused=NULL)
+
+X509_REQ *
+d2i_X509_REQ_bio(BIO *bp,void *unused=NULL)
+
+X509 *
+d2i_X509_bio(BIO *bp,void *unused=NULL)
 
 DH *
 PEM_read_bio_DHparams(bio,x=NULL,cb=NULL,u=NULL)
@@ -3173,6 +4090,37 @@ PEM_read_bio_X509_CRL(bio,x=NULL,cb=NULL,u=NULL)
 	void * x
 	pem_password_cb * cb
 	void * u
+
+X509 *
+PEM_read_bio_X509(BIO *bio,void *x=NULL,void *cb=NULL,void *u=NULL)
+
+X509_REQ *
+PEM_read_bio_X509_REQ(BIO *bio,void *x=NULL,pem_password_cb *cb=NULL,void *u=NULL)
+
+EVP_PKEY *
+PEM_read_bio_PrivateKey(bio,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
+        BIO *bio
+        SV* perl_cb
+        SV* perl_data
+    PREINIT:
+        ssleay_pem_password_cb_t* cb = NULL;
+    CODE:
+        if (SvOK(perl_cb)) {
+            /* setup our callback */
+            cb = ssleay_pem_password_cb_new(perl_cb, perl_data);
+            RETVAL = PEM_read_bio_PrivateKey(bio, NULL, ssleay_pem_password_cb_invoke, (void*)cb);
+            ssleay_pem_password_cb_free(cb);
+        }
+        else if (!SvOK(perl_cb) && SvOK(perl_data) && SvPOK(perl_data)) {
+            /* use perl_data as the password */
+            RETVAL = PEM_read_bio_PrivateKey(bio, NULL, NULL, SvPVX(perl_data));
+        }
+        else if (!SvOK(perl_cb) && !SvOK(perl_data)) {
+            /* will trigger default password callback */
+            RETVAL = PEM_read_bio_PrivateKey(bio, NULL, NULL, NULL);
+        }
+    OUTPUT:
+        RETVAL
 
 void
 DH_free(dh)
@@ -3401,6 +4349,22 @@ EVP_Digest(...)
 
 #endif
 
+const EVP_CIPHER *
+EVP_get_cipherbyname(const char *name)
+
+void
+OpenSSL_add_all_algorithms()
+
+#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
+
+void
+OPENSSL_add_all_algorithms_noconf()
+
+void
+OPENSSL_add_all_algorithms_conf()
+
+#endif
+
 #if OPENSSL_VERSION_NUMBER >= 0x10000000L
 
 int
@@ -3568,17 +4532,17 @@ OBJ_obj2nid(o)
     ASN1_OBJECT *o
 
 ASN1_OBJECT *	
-OBJ_txt2obj(s, no_name)
+OBJ_txt2obj(s, no_name=0)
     const char *s
     int no_name
 
 void
-OBJ_obj2txt(a, no_name)
+OBJ_obj2txt(a, no_name=0)
     ASN1_OBJECT *a
     int no_name
     PREINIT:
-	char buf[100];
-	int  len;
+    char buf[100]; /* openssl doc: a buffer length of 80 should be more than enough to handle any OID encountered in practice */
+    int  len;
     CODE:
     len = OBJ_obj2txt(buf, sizeof(buf), a, no_name);
     ST(0) = sv_newmortal();
@@ -3611,5 +4575,95 @@ int
 OBJ_cmp(a, b)
     ASN1_OBJECT *a
     ASN1_OBJECT *b
+
+#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
+
+void
+X509_pubkey_digest(data,type)
+        const X509 *data
+        const EVP_MD *type
+    PREINIT:
+        unsigned char md[EVP_MAX_MD_SIZE];
+        unsigned int md_size;
+    PPCODE:
+        if (X509_pubkey_digest(data,type,md,&md_size))
+            XSRETURN_PVN((char *)md, md_size);
+        else
+            XSRETURN_UNDEF;
+
+#endif
+
+void
+X509_digest(data,type)
+        const X509 *data
+        const EVP_MD *type
+    PREINIT:
+        unsigned char md[EVP_MAX_MD_SIZE];
+        unsigned int md_size;
+    PPCODE:
+        if (X509_digest(data,type,md,&md_size))
+            XSRETURN_PVN((unsigned char *)md, md_size);
+        XSRETURN_UNDEF;
+
+void
+X509_CRL_digest(data,type)
+        const X509_CRL *data
+        const EVP_MD *type
+    PREINIT:
+        unsigned char md[EVP_MAX_MD_SIZE];
+        unsigned int md_size;
+    PPCODE:
+        if (X509_CRL_digest(data,type,md,&md_size))
+            XSRETURN_PVN((unsigned char *)md, md_size);
+        XSRETURN_UNDEF;
+
+void
+X509_REQ_digest(data,type)
+        const X509_REQ *data
+        const EVP_MD *type
+    PREINIT:
+        unsigned char md[EVP_MAX_MD_SIZE];
+        unsigned int md_size;
+    PPCODE:
+        if (X509_REQ_digest(data,type,md,&md_size))
+            XSRETURN_PVN((unsigned char *)md, md_size);
+        XSRETURN_UNDEF;
+
+void
+X509_NAME_digest(data,type)
+        const X509_NAME *data
+        const EVP_MD *type
+    PREINIT:
+        unsigned char md[EVP_MAX_MD_SIZE];
+        unsigned int md_size;
+    PPCODE:
+        if (X509_NAME_digest(data,type,md,&md_size))
+            XSRETURN_PVN((unsigned char *)md, md_size);
+        XSRETURN_UNDEF;
+
+unsigned long
+X509_subject_name_hash(X509 *x)
+
+unsigned long
+X509_issuer_name_hash(X509 *a)
+
+unsigned long
+X509_issuer_and_serial_hash(X509 *a)
+
+ASN1_OBJECT *
+P_X509_get_signature_alg(x)
+        X509 * x
+    CODE:
+        RETVAL = (x->cert_info->signature->algorithm);
+    OUTPUT:
+        RETVAL
+
+ASN1_OBJECT *
+P_X509_get_pubkey_alg(x)
+        X509 * x
+    CODE:
+        RETVAL = (x->cert_info->key->algor->algorithm);
+    OUTPUT:
+        RETVAL
 
 #define REM_EOF "/* EOF - SSLeay.xs */"
