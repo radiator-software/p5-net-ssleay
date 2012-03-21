@@ -30,11 +30,14 @@ resources( repository => 'http://svn.debian.org/wsvn/net-ssleay' );
 resources( bugtracker => 'https://rt.cpan.org/Public/Dist/Display.html?Name=net-ssleay' );
 
 postamble <<MAKE;
-constants.c :: helper_script/regen_openssl_constants.pl
+constants.c : helper_script/regen_openssl_constants.pl
 	\$(ABSPERLRUN) helper_script/regen_openssl_constants.pl -gen-c constants.c
 
-t/local/21_constants.t :: helper_script/regen_openssl_constants.pl
+t/local/21_constants.t : helper_script/regen_openssl_constants.pl
 	\$(ABSPERLRUN) helper_script/regen_openssl_constants.pl -gen-t t/local/21_constants.t
+
+SSLeay.o : constants.c t/local/21_constants.t
+
 MAKE
 
 WriteAll();

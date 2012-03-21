@@ -46,9 +46,6 @@ Revision history for Perl extension Net::SSLeay.
      - Net::SSLeay::OP_NO_TLSv1_2
      - Net::SSLeay::OP_SINGLE_ECDH_USE
      - Net::SSLeay::OP_TLS_BLOCK_PADDING_BUG
-     - Net::SSLeay::X509V3_EXT_CTX_DEP
-     - Net::SSLeay::X509V3_EXT_DYNAMIC
-     - Net::SSLeay::X509V3_EXT_MULTILINE
      - Net::SSLeay::X509_V_FLAG_CHECK_SS_SIGNATURE
      - Net::SSLeay::X509_V_FLAG_EXTENDED_CRL_SUPPORT
      - Net::SSLeay::X509_V_FLAG_POLICY_MASK
@@ -188,6 +185,8 @@ Revision history for Perl extension Net::SSLeay.
      Fix 2 issues with CTX_use_PKCS12_file
       1/ leaking memory - missing EVP_PKEY_free + X509_free
       2/ pkcs12 filesize limitation
+     Fixed problems with regenerating scripts in Makefile.PL
+     Added missing dependencies for SSLeay.o to Makefile.PL
 
 1.45 2012-02-25
      Added mising doc for SESSION_cmp. Patch by paul.
