@@ -38,12 +38,12 @@ EOM
     $self->check_openssl_version($prefix, $exec);
     my $opts = $self->ssleay_get_build_opts($prefix, $exec);
 
-    $self->cc_inc_paths(      @{ $opts->{inc_paths} } );
-    $self->cc_lib_paths(      @{ $opts->{lib_paths} } );
-    $self->cc_lib_links(      @{ $opts->{lib_links} } );
-    $self->cc_optimize_flags(    $opts->{optimize}    );
-
-    $self->makemaker_args( CCCDLFLAGS => $opts->{cccdlflags} );
+    $self->makemaker_args(
+        CCCDLFLAGS => $opts->{cccdlflags},
+        OPTIMIZE => $opts->{optimize},
+        INC => join(' ', map {"-I$_"} @{$opts->{inc_paths}}),
+        LIBS => join(' ', (map {"-L$_"} @{$opts->{lib_paths}}), (map {"-l$_"} @{$opts->{lib_links}})),
+    );
 
     if ( $self->prompt(
             "Do you want to run external tests?\n".
@@ -75,22 +75,21 @@ EOM
 
     if ($^O eq 'MSWin32') {
         print "*** RSAREF build on Windows not supported out of box" if $rsaref;
-	if ($win_link_statically)
-	{
-	    # Link to static libs
-	    push @{ $opts->{lib_paths} }, "$prefix/lib/VC/static";
-	}
-	else
-	{
-	    push @{ $opts->{lib_paths} }, "$prefix/lib/VC";
-	}
-	# Library names depend on the compiler. We expect either 
-	# libeay32MD and ssleay32MD or
-	# libeay32 and ssleay32.
-	# This construction will not complain as long as it find at least one
-	# libssl32.a is made by openssl onWin21 with the ms/minw32.bat builder
-	push @{ $opts->{lib_links} }, qw( libeay32MD ssleay32MD libeay32 ssleay32 libssl32);
-    } else {
+        if ($win_link_statically) {
+            # Link to static libs
+            push @{ $opts->{lib_paths} }, "$prefix/lib/VC/static";
+        }
+        else {
+            push @{ $opts->{lib_paths} }, "$prefix/lib/VC";
+        }
+        # Library names depend on the compiler. We expect either 
+        # libeay32MD and ssleay32MD or
+        # libeay32 and ssleay32.
+        # This construction will not complain as long as it find at least one
+        # libssl32.a is made by openssl onWin21 with the ms/minw32.bat builder
+        push @{ $opts->{lib_links} }, qw( libeay32MD ssleay32MD libeay32 ssleay32 libssl32);
+    }
+    else {
         $opts->{optimize} = '-O2 -g';
         push @{ $opts->{lib_links} },
              ($rsaref
@@ -150,7 +149,7 @@ sub find_openssl_prefix {
             '/usr/local/ssl/bin/openssl'     => '/usr/local/ssl',
             '/usr/local/openssl/bin/openssl' => '/usr/local/openssl',
             '/apps/openssl/std/bin/openssl'  => '/apps/openssl/std',
-	    '/usr/sfw/bin/openssl'           => '/usr/sfw', # Open Solaris
+            '/usr/sfw/bin/openssl'           => '/usr/sfw', # Open Solaris
             'C:\OpenSSL\bin\openssl.exe'     => 'C:\OpenSSL',
             $Config{prefix} . '\bin\openssl.exe'      => $Config{prefix},           # strawberry perl
             $Config{prefix} . '\..\c\bin\openssl.exe' => $Config{prefix} . '\..\c', # strawberry perl

@@ -183,6 +183,11 @@ Revision history for Perl extension Net::SSLeay.
      Added missing helper_script/regen_openssl_constants.pl to MANIFEST. Add
      MANIFEST to svn.
      Fixed reported errors about try to plan twice in 21_constants.t on some platforms.
+     Removed MANIFEST from svn, improve possibility to use Module::Install in Net-SSleay 
+     distribution in usual way. new target for make manifest
+     Fix 2 issues with CTX_use_PKCS12_file
+      1/ leaking memory - missing EVP_PKEY_free + X509_free
+      2/ pkcs12 filesize limitation
 
 1.45 2012-02-25
      Added mising doc for SESSION_cmp. Patch by paul.

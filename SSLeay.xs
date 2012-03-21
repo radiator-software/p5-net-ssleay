@@ -3043,50 +3043,41 @@ PEM_get_string_PrivateKey(pk,passwd=NULL,enc_alg=NULL)
         }
 
 int
-CTX_use_PKCS12_file(ctx, file, password)
-    SSL_CTX *          ctx
-    char *             file
-    char *             password
+CTX_use_PKCS12_file(ctx, file, password=NULL)
+        SSL_CTX *ctx
+        char *file
+        char *password
     PREINIT:
-    BIO *bio;
-    int count;
-    char buffer[16384];
-    PKCS12 *p12;
-    EVP_PKEY* private_key;
-    X509* certificate;
-    FILE *fp;
+        PKCS12 *p12;
+        EVP_PKEY *private_key;
+        X509 *certificate;
+        FILE *fp;
     CODE:
-    RETVAL = 1;
-
-    fp = fopen (file, "rb");   
-    bio = BIO_new(BIO_s_mem());
-    while(count = fread(buffer, 1, sizeof(buffer), fp))
-	BIO_write(bio, buffer, count);
-    fclose(fp);
-
-    {
+        RETVAL = 0;        
+        if (fp = fopen (file, "rb")) {
 #if OPENSSL_VERSION_NUMBER >= 0x0090700fL
-    OPENSSL_add_all_algorithms_noconf();
+            OPENSSL_add_all_algorithms_noconf();
 #else
-    OpenSSL_add_all_algorithms();
+            OpenSSL_add_all_algorithms();
 #endif
-    }
-
-    p12 = d2i_PKCS12_bio(bio, NULL);
-    if (!p12)
-    	RETVAL = 0;
-    BIO_free(bio);
-    if (RETVAL && !PKCS12_parse(p12, password, &private_key, &certificate, NULL))
-    	RETVAL = 0;
-    PKCS12_free(p12);
-    if (RETVAL && !SSL_CTX_use_PrivateKey(ctx, private_key))
-    	RETVAL = 0;
-    if (RETVAL && !SSL_CTX_use_certificate(ctx, certificate))
-    	RETVAL = 0;
-    if (!RETVAL)
-        ERR_print_errors_fp(stderr);
+            if (p12 = d2i_PKCS12_fp(fp, NULL)) {
+                if (PKCS12_parse(p12, password, &private_key, &certificate, NULL)) {
+                    if (private_key) {
+                        if (SSL_CTX_use_PrivateKey(ctx, private_key)) RETVAL = 1;
+                        EVP_PKEY_free(private_key);
+                    }
+                    if (certificate) {
+                        if (SSL_CTX_use_certificate(ctx, certificate)) RETVAL = 1;
+                        X509_free(certificate);
+                    }
+                }
+                PKCS12_free(p12);
+            }
+            if (!RETVAL) ERR_print_errors_fp(stderr);
+            fclose(fp);    
+        }
     OUTPUT:
-    RETVAL
+        RETVAL
 
 #ifndef OPENSSL_NO_MD2
 

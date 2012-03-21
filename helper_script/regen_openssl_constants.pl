@@ -94,11 +94,17 @@ sub t_file {
 
 use strict;
 use warnings;
-use Test::More tests => $count;
 use Net::SSLeay;
 
 eval "use Test::Exception;";
-plan skip_all => 'Some tests need Test::Exception' if \$@;
+if (\$@)
+{
+    eval "use Test::More skip_all => 'Some tests need Test::Exception';";
+}
+else
+{
+    eval 'use Test::More tests => $count;';
+}
 
 my \@c = (qw/
 $list

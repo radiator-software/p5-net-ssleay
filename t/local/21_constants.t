@@ -13,7 +13,7 @@ if ($@)
 }
 else
 {
-    eval "use Test::More tests => 405;";
+    eval 'use Test::More tests => 405;';
 }
 
 my @c = (qw/
