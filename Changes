@@ -187,6 +187,7 @@ Revision history for Perl extension Net::SSLeay.
       2/ pkcs12 filesize limitation
      Fixed problems with regenerating scripts in Makefile.PL
      Added missing dependencies for SSLeay.o to Makefile.PL
+     Added missing test files to svn
 
 1.45 2012-02-25
      Added mising doc for SESSION_cmp. Patch by paul.
