@@ -174,7 +174,7 @@ Revision history for Perl extension Net::SSLeay.
      - Net::SSLeay::d2i_X509_CRL_bio
      - Net::SSLeay::d2i_X509_REQ_bio
      - Net::SSLeay::d2i_X509_bio
-     - Net::SSLeay::X509_verify::set_tlsext_host_name
+     - Net::SSLeay::set_tlsext_host_name
      Fixed a problem with multiple Safefree of GLOBAL_openssl_mutex when run
      under apache2+mod_perl on recent Debain distros. Removed END and
      openssl_threads_cleanup() since they can be called during thread
@@ -191,6 +191,8 @@ Revision history for Perl extension Net::SSLeay.
      Added missing dependencies for SSLeay.o to Makefile.PL
      Added missing test files to svn
      Fixed calling convention for Net::SSLeay::get_shared_ciphers + test + doc update
+     Added coding guidelines to SSLeay.xs
+     Fix for serial number issue.
 
 1.45 2012-02-25
      Added mising doc for SESSION_cmp. Patch by paul.

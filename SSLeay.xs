@@ -15,6 +15,113 @@
  * distribution (i.e. free, but mandatory attribution and NO WARRANTY).
  */
 
+/* ####
+ * #### PLEASE READ THE FOLLOWING RULES BEFORE YOU START EDITING THIS FILE! ####
+ * ####
+ *
+ * Function naming conventions:
+ *
+ * 1/ never change the aready existing function names (all calling convention) in a way
+ *    that may cause backward incompatibility (e.g. add ALIAS with old name if necessary)
+ *
+ * 2/ it is recommended to keep the original openssl function names for functions that are:
+ *
+ *    1:1 wrappers to the original openssl functions
+ *    see for example: X509_get_issuer_name(cert) >> Net::SSLeay::X509_get_issuer_name($cert)
+ *
+ *    nearly 1:1 wrappers implementing only necessary "glue" e.g. buffer handling
+ *    see for example: RAND_seed(buf,len) >> Net::SSLeay::RAND_seed($buf)
+ *
+ * 3/ OpenSSL functions starting with "SSL_" are added into SSLeay.xs with "SLL_" prefix
+ *    (e.g. SSL_CTX_new) but keep in mind that they will be available in Net::SSLeay without
+ *    "SSL_" prefix (e.g. Net::SSLeay::CTX_new) - keep this for all new functions
+ *
+ * 4/ The names of functions which do not fit rule 2/ (which means they implement some non
+ *    trivial code around original openssl function or do more complex tasks) should be
+ *    prefixed with "P_" - see for example: P_ASN1_TIME_set_isotime
+ *
+ * 5/ Exceptions from rules above:
+ *    functions that are part or wider set of already existing function not following this rule
+ *    for example: there already exists: PEM_get_string_X509_CRL + PEM_get_string_X509_REQ and you want
+ *    to add PEM_get_string_SOMETHING - then no need to follow 3/ (do not prefix with "P_")
+ *
+ * Support for different openssl versions, different platforms, different compilers:
+ *
+ * 1/ SSleay.xs is expected to build/pass test suite
+ *    - with openssl 0.9.6 and newer versions
+ *    - with perl 5.8 and newer versions
+ *
+ * 2/ Fix all compiler warnings - we expect 100% clean build
+ *
+ * 3/ If you are gonna add a function which is available since certain openssl version
+ *    use proper #ifdefs to assure that SSLeay.xs will compile also with older versions
+ *    which are missing this function
+ *
+ * 4/ Even warnings arising from different use of "const" in different openssl versions
+ *    needs to be hanled with #ifdefs - see for example: X509_NAME_add_entry_by_txt
+ *
+ * 5/ avoid using global C variables (it is very likely gonna break thread-safetyness)
+ *    use rather global MY_CXT structure
+ *
+ * 6/ avoid using any UNIX/POSIX specific functions, keep in mind that SSLeay.xs must
+ *    complile also on non-UNIX platforms like MS Windows and others
+ *
+ * 7/ avoid using c++ comments "//" (or other c++ features accepted by some c compiler)
+ *    even if your compiler can handle them without warnings
+ *
+ * Passing test suite:
+ *
+ * 1/ any changes to SSLeay.xs must not introduce a failure of existing test suite
+ *
+ * 2/ it is strongly recommended to create test(s) for newly added function(s), especially
+ *    when the new function is not only a 1:1 wrapper but contains a complex code
+ *
+ * 3/ it is mandatory to add a dcumentation for all newly added functions into SSLeay.pod
+ *    otherwise t/local/02_pod_coverage.t is gonna fail (and you will be asked to add
+ *    some doc into your patch)
+ *
+ * Prefered code layout:
+ *
+ * 1/ for simple 1:1 XS wrappers use:
+ *
+ *    a/ functions whith short "signarute" (short list of args):
+ *
+ *    long
+ *    SSL_set_tmp_dh(SSL *ssl,DH *dh)
+ *
+ *    b/ functions whith long "signarute" (long list of args):
+ *       simply when approach a/ does not fit to 120 columns
+ *
+ *    void
+ *    SSL_any_functions(library_flag,function_name,reason,file_name,line)
+ *            int library_flag
+ *            int function_name
+ *            int reason
+ *            char *file_name
+ *            int line
+ *
+ * 2/ for XS functions with full implementation use identation like this:
+ *
+ *    int
+ *    RAND_bytes(buf, num)
+ *            SV *buf
+ *            int num
+ *        PREINIT:
+ *            int rc;
+ *            unsigned char *random;
+ *        CODE:
+ *            / * some code here * /
+ *            RETVAL = rc;
+ *        OUTPUT:
+ *            RETVAL
+ *
+ * THE LAST RULE:
+ *
+ * The fact that some parts of SSLeay.xs do not follow the rules above is not 
+ * a reason why any new code can also break these rules in the same way
+ *
+ */
+
 /* Prevent warnings about strncpy from Windows compilers */
 #define _CRT_SECURE_NO_DEPRECATE
 
@@ -89,7 +196,7 @@ typedef struct {
     HV* ssleay_session_secret_cbs;
     UV tid;
 } my_cxt_t;
-START_MY_CXT; 
+START_MY_CXT;
 
 #ifdef USE_ITHREADS
 static perl_mutex LIB_init_mutex;
@@ -120,7 +227,7 @@ UV get_my_thread_id(void) /* returns threads->tid() value */
     FREETMPS;
     LEAVE;
 #endif
-    
+
     return tid;
 }
 
@@ -128,7 +235,7 @@ UV get_my_thread_id(void) /* returns threads->tid() value */
  * openssl locking was implemented according to http://www.openssl.org/docs/crypto/threads.html
  * we implement both static and dynamic locking as described on URL above
  * locking is supported when OPENSSL_THREADS macro is defined which means openssl-0.9.7 or newer
- * we intentionally do not implement cleanup of openssl's threading as it causes troubles 
+ * we intentionally do not implement cleanup of openssl's threading as it causes troubles
  * with apache-mpm-worker+mod_perl+mod_ssl+net-ssleay
  */
 #if defined(USE_ITHREADS) && defined(OPENSSL_THREADS)
@@ -141,11 +248,11 @@ static void openssl_locking_function(int mode, int type, const char *file, int l
     else
       MUTEX_UNLOCK(&GLOBAL_openssl_mutex[type]);
 }
- 
+
 #if OPENSSL_VERSION_NUMBER < 0x10000000L
 static unsigned long openssl_threadid_func(void)
 {
-    dMY_CXT;        
+    dMY_CXT;
     return (unsigned long)(MY_CXT.tid);
 }
 #else
@@ -189,15 +296,15 @@ void openssl_dynlocking_destroy_function (struct CRYPTO_dynlock_value *l, const 
 void openssl_threads_init(void)
 {
     int i;
- 
+
     /* initialize static locking */
     if ( !CRYPTO_get_locking_callback() ) {
 #if OPENSSL_VERSION_NUMBER < 0x10000000L
         if ( !CRYPTO_get_id_callback() ) {
-#else    
+#else
         if ( !CRYPTO_THREADID_get_callback() ) {
 #endif
-            New(0, GLOBAL_openssl_mutex, CRYPTO_num_locks(), perl_mutex);	
+            New(0, GLOBAL_openssl_mutex, CRYPTO_num_locks(), perl_mutex);
             if (!GLOBAL_openssl_mutex) return;
             for (i=0; i<CRYPTO_num_locks(); i++) MUTEX_INIT(&GLOBAL_openssl_mutex[i]);
             CRYPTO_set_locking_callback((void (*)(int,int,const char *,int))openssl_locking_function);
@@ -206,7 +313,7 @@ void openssl_threads_init(void)
             /* no need for threadid_func() on Win32 */
 #if OPENSSL_VERSION_NUMBER < 0x10000000L
             CRYPTO_set_id_callback(openssl_threadid_func);
-#else    
+#else
             CRYPTO_THREADID_set_callback(openssl_threadid_func);
 #endif
 #endif
@@ -240,9 +347,9 @@ typedef int perl_filehandle_t;
 
 #if OPENSSL_VERSION_NUMBER >= 0x1000000fL
 static void handler_list_md_fn(const EVP_MD *m, const char *from, const char *to, void *arg)
-{  
+{
   /* taken from apps/dgst.c */
-  const char *mname;  
+  const char *mname;
   if (!m) return;                                           /* Skip aliases */
   mname = OBJ_nid2ln(EVP_MD_type(m));
   if (strcmp(from, mname)) return;                          /* Skip shortnames */
@@ -695,7 +802,7 @@ ssleay_session_secret_cb_free(SSL* s) {
 int
 ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
 			   STACK_OF(SSL_CIPHER) *peer_ciphers,
-			   SSL_CIPHER **cipher, void *arg) 
+			   SSL_CIPHER **cipher, void *arg)
 {
 	dSP;
 	dMY_CXT;
@@ -1632,7 +1739,7 @@ SSL_CTX_sess_get_cache_size(ctx)
 long
 SSL_CTX_sess_set_cache_size(ctx,size)
      SSL_CTX *          ctx
-     int                size      
+     int                size
 
 int
 SSL_want(s)
@@ -1699,7 +1806,7 @@ SSL_library_init()
 #endif
 		RETVAL = 0;
 		if (!LIB_initialized) {
-			RETVAL = SSL_library_init();           
+			RETVAL = SSL_library_init();
 			LIB_initialized = 1;
 		}
 #ifdef USE_ITHREADS
@@ -1921,7 +2028,7 @@ X509_NAME_get_text_by_NID(name,nid)
 	ST(0) = sv_newmortal();   /* Undefined to start with */
 	length = X509_NAME_get_text_by_NID(name, nid, NULL, 0);
 
-       if (length>=0) {				 
+       if (length>=0) {
                New(0, buf, length+1, char);
                if (X509_NAME_get_text_by_NID(name, nid, buf, length + 1)>=0)
                        sv_setpvn( ST(0), buf, length);
@@ -1930,7 +2037,7 @@ X509_NAME_get_text_by_NID(name,nid)
 
 #if OPENSSL_VERSION_NUMBER >= 0x0090500fL
 #define REM17 "requires 0.9.5+"
-       
+
 int
 X509_NAME_add_entry_by_NID(name,nid,type,bytes,loc=-1,set=0)
         X509_NAME *name
@@ -2034,7 +2141,7 @@ X509_CRL_set_version(X509_CRL *x, long version)
 int
 X509_CRL_set_issuer_name(X509_CRL *x, X509_NAME *name)
 
-int 
+int
 X509_CRL_set_lastUpdate(X509_CRL *x, ASN1_TIME *tm)
 
 int
@@ -2070,7 +2177,7 @@ int
 P_X509_CRL_set_serial(crl,crl_number)
         X509_CRL *crl
         ASN1_INTEGER * crl_number;
-    CODE:        
+    CODE:
         RETVAL = 0;
         if (crl && crl_number)
             if (X509_CRL_add1_ext_i2d(crl, NID_crl_number, crl_number, 0, 0)) RETVAL = 1;
@@ -2260,7 +2367,7 @@ P_X509_REQ_add_extensions(x,...)
                 data = SvPV_nolen(ST(i+1));
                 i+=2;
                 ex = X509V3_EXT_conf_nid(NULL, NULL, nid, data);
-                if (ex) 
+                if (ex)
                     sk_X509_EXTENSION_push(stack, ex);
                 else
                     RETVAL = 0;
@@ -2326,7 +2433,7 @@ P_X509_copy_extensions(x509_req,x509,override=1)
             obj = X509_EXTENSION_get_object(ext);
             idx = X509_get_ext_by_OBJ(x509, obj, -1);
             /* Does extension exist? */
-            if (idx != -1) {                
+            if (idx != -1) {
                 if (override) continue; /* don't override existing extension */
                 /* Delete all extensions of same type */
                 do {
@@ -2408,7 +2515,7 @@ X509_get_subjectAltNames(cert)
 		&& (subjAltNameDNs = X509V3_EXT_d2i(subjAltNameExt)))
 	{
 		num_gnames = sk_GENERAL_NAME_num(subjAltNameDNs);
-	
+
 		for (j = 0; j < num_gnames; j++)
                 {
 		     subjAltNameDN = sk_GENERAL_NAME_value(subjAltNameDNs, j);
@@ -2421,10 +2528,10 @@ X509_get_subjectAltNames(cert)
                          PUSHs(sv_2mortal(newSViv(subjAltNameDN->type)));
                          PUSHs(sv_2mortal(newSVpv((const char*)ASN1_STRING_data(subjAltNameDN->d.otherName->value->value.utf8string), ASN1_STRING_length(subjAltNameDN->d.otherName->value->value.utf8string))));
                          break;
-                     
+
                      case GEN_EMAIL:
                      case GEN_DNS:
-                     case GEN_URI:	
+                     case GEN_URI:
                          EXTEND(SP, 2);
                          count++;
                          PUSHs(sv_2mortal(newSViv(subjAltNameDN->type)));
@@ -2447,7 +2554,7 @@ X509_get_subjectAltNames(cert)
                          PUSHs(sv_2mortal(newSViv(subjAltNameDN->type)));
                          PUSHs(sv_2mortal(newSVpv((const char*)subjAltNameDN->d.ip->data, subjAltNameDN->d.ip->length)));
                          break;
-                        
+
                      }
 		}
 	}
@@ -2514,7 +2621,7 @@ P_X509_get_ext_key_usage(cert,format=0)
         ASN1_OBJECT *o;
     PPCODE:
         extusage = X509_get_ext_d2i(cert, NID_ext_key_usage, NULL, NULL);
-        for(i = 0; i < sk_ASN1_OBJECT_num(extusage); i++) {        
+        for(i = 0; i < sk_ASN1_OBJECT_num(extusage); i++) {
            o = sk_ASN1_OBJECT_value(extusage,i);
            nid = OBJ_obj2nid(o);
            OBJ_obj2txt(buffer, sizeof(buffer)-1, o, 1);
@@ -2537,7 +2644,7 @@ P_X509_get_key_usage(cert)
         ASN1_BIT_STRING * u;
     PPCODE:
         u = X509_get_ext_d2i(cert, NID_key_usage, NULL, NULL);
-        if (u) {        
+        if (u) {
             if (ASN1_BIT_STRING_get_bit(u,0)) XPUSHs(sv_2mortal(newSVpv("digitalSignature",0)));
             if (ASN1_BIT_STRING_get_bit(u,1)) XPUSHs(sv_2mortal(newSVpv("nonRepudiation",0)));
             if (ASN1_BIT_STRING_get_bit(u,2)) XPUSHs(sv_2mortal(newSVpv("keyEncipherment",0)));
@@ -2577,7 +2684,7 @@ X509_EXTENSION *
 X509_get_ext(x,loc)
 	X509* x
 	int loc
-	
+
 int
 X509_EXTENSION_get_critical(X509_EXTENSION *ex)
 
@@ -2647,53 +2754,53 @@ X509_STORE_CTX_set_cert(x509_store_ctx,x)
      X509_STORE_CTX * x509_store_ctx
      X509 * x
 
-int 
+int
 X509_STORE_add_cert(ctx, x)
     X509_STORE *ctx
     X509 *x
 
-int 
+int
 X509_STORE_add_crl(ctx, x)
     X509_STORE *ctx
     X509_CRL *x
 
 #if OPENSSL_VERSION_NUMBER >= 0x0090800fL
 
-void 
+void
 X509_STORE_set_flags(ctx, flags)
     X509_STORE *ctx
     long flags
 
-void 
+void
 X509_STORE_set_purpose(ctx, purpose)
     X509_STORE *ctx
     int purpose
 
-void 
+void
 X509_STORE_set_trust(ctx, trust)
     X509_STORE *ctx
     int trust
 
-int 
+int
 X509_STORE_set1_param(ctx, pm)
     X509_STORE *ctx
     X509_VERIFY_PARAM *pm
 
 #endif
 
-int 
+int
 X509_load_cert_file(ctx, file, type)
     X509_LOOKUP *ctx
     char *file
     int type
 
-int 
+int
 X509_load_crl_file(ctx, file, type)
     X509_LOOKUP *ctx
     char *file
     int type
 
-int 
+int
 X509_load_cert_crl_file(ctx, file, type)
     X509_LOOKUP *ctx
     char *file
@@ -2701,7 +2808,7 @@ X509_load_cert_crl_file(ctx, file, type)
 
 const char *
 X509_verify_cert_error_string(n)
-    long n   
+    long n
 
 ASN1_INTEGER *
 ASN1_INTEGER_new()
@@ -2811,14 +2918,14 @@ ASN1_TIME_free(s)
 ASN1_TIME *
 ASN1_TIME_new()
 
-void 
+void
 P_ASN1_TIME_put2string(tm)
      ASN1_TIME * tm
      PREINIT:
      BIO *bp=NULL;
      int i=0;
      char buffer[256];
-     ALIAS:     
+     ALIAS:
      P_ASN1_UTCTIME_put2string = 1
      CODE:
      ST(0) = sv_newmortal(); /* undef retval to start with */
@@ -2827,7 +2934,7 @@ P_ASN1_TIME_put2string(tm)
          if (bp) {
              ASN1_TIME_print(bp,tm);
              i = BIO_read(bp,buffer,255);
-             buffer[i] = '\0';        
+             buffer[i] = '\0';
              if (i>0)
                  sv_setpvn(ST(0), buffer, i);
              BIO_free(bp);
@@ -2882,7 +2989,7 @@ P_ASN1_TIME_set_isotime(tm,str)
      for (i=5;  i<7;  i++) if ((str[i] > '9') || (str[i] < '0')) XSRETURN_UNDEF;
      for (i=8;  i<10; i++) if ((str[i] > '9') || (str[i] < '0')) XSRETURN_UNDEF;
      for (i=11; i<13; i++) if ((str[i] > '9') || (str[i] < '0')) XSRETURN_UNDEF;
-     for (i=14; i<16; i++) if ((str[i] > '9') || (str[i] < '0')) XSRETURN_UNDEF;     
+     for (i=14; i<16; i++) if ((str[i] > '9') || (str[i] < '0')) XSRETURN_UNDEF;
      for (i=17; i<19; i++) if ((str[i] > '9') || (str[i] < '0')) XSRETURN_UNDEF;
      strncpy(buf,    str,    4);
      strncpy(buf+4,  str+5,  2);
@@ -2891,8 +2998,8 @@ P_ASN1_TIME_set_isotime(tm,str)
      strncpy(buf+10, str+14, 2);
      strncpy(buf+12, str+17, 2);
      buf[14] = '\0';
-     if (strlen(str)>19 && strlen(str)<200) strcat(buf,str+19);     
-     
+     if (strlen(str)>19 && strlen(str)<200) strcat(buf,str+19);
+
      /* WORKAROUND: ASN1_TIME_set_string() not available in 0.9.8 !!!*/
      /* in 1.0.0 we would simply: rv = ASN1_TIME_set_string(tm,buf); */
      t.length = strlen(buf);
@@ -2907,7 +3014,7 @@ P_ASN1_TIME_set_isotime(tm,str)
      tm->flags = t.flags;
      if (!ASN1_STRING_set(tm,t.data,t.length)) XSRETURN_UNDEF;
      rv = 1;
-     
+
      /* end of ASN1_TIME_set_string() reimplementation */
 
      ST(0) = sv_newmortal();
@@ -2942,7 +3049,7 @@ EVP_PKEY_id(const EVP_PKEY *pkey)
 
 #endif
 
-void 
+void
 PEM_get_string_X509(x509)
         X509 * x509
      PREINIT:
@@ -2964,7 +3071,7 @@ PEM_get_string_X509(x509)
             BIO_free(bp);
         }
 
-void 
+void
 PEM_get_string_X509_REQ(x509_req)
         X509_REQ * x509_req
     PREINIT:
@@ -2986,7 +3093,7 @@ PEM_get_string_X509_REQ(x509_req)
             BIO_free(bp);
         }
 
-void 
+void
 PEM_get_string_X509_CRL(x509_crl)
         X509_CRL * x509_crl
     PREINIT:
@@ -3008,7 +3115,7 @@ PEM_get_string_X509_CRL(x509_crl)
             BIO_free(bp);
         }
 
-void 
+void
 PEM_get_string_PrivateKey(pk,passwd=NULL,enc_alg=NULL)
         EVP_PKEY * pk
         char * passwd
@@ -3057,7 +3164,7 @@ CTX_use_PKCS12_file(ctx, file, password=NULL)
         X509 *certificate;
         FILE *fp;
     CODE:
-        RETVAL = 0;        
+        RETVAL = 0;
         if (fp = fopen (file, "rb")) {
 #if OPENSSL_VERSION_NUMBER >= 0x0090700fL
             OPENSSL_add_all_algorithms_noconf();
@@ -3078,7 +3185,7 @@ CTX_use_PKCS12_file(ctx, file, password=NULL)
                 PKCS12_free(p12);
             }
             if (!RETVAL) ERR_print_errors_fp(stderr);
-            fclose(fp);    
+            fclose(fp);
         }
     OUTPUT:
         RETVAL
@@ -3164,7 +3271,7 @@ MD4(data)
 		XSRETURN_UNDEF;
 	}
 
-void 
+void
 MD5(data)
      PREINIT:
      STRLEN len;
@@ -3180,7 +3287,7 @@ MD5(data)
 
 #if OPENSSL_VERSION_NUMBER >= 0x00905000L
 
-void 
+void
 RIPEMD160(data)
      PREINIT:
      STRLEN len;
@@ -3198,7 +3305,7 @@ RIPEMD160(data)
 
 #if !defined(OPENSSL_NO_SHA)
 
-void 
+void
 SHA1(data)
      PREINIT:
      STRLEN len;
@@ -3215,7 +3322,7 @@ SHA1(data)
 #endif
 #if !defined(OPENSSL_NO_SHA256) && OPENSSL_VERSION_NUMBER >= 0x0090800fL
 
-void 
+void
 SHA256(data)
      PREINIT:
      STRLEN len;
@@ -3232,7 +3339,7 @@ SHA256(data)
 #endif
 #if !defined(OPENSSL_NO_SHA512) && OPENSSL_VERSION_NUMBER >= 0x0090800fL
 
-void 
+void
 SHA512(data)
      PREINIT:
      STRLEN len;
@@ -3248,7 +3355,7 @@ SHA512(data)
 
 #endif
 
-#ifndef OPENSSL_NO_SSL2 
+#ifndef OPENSSL_NO_SSL2
 #if OPENSSL_VERSION_NUMBER < 0x10000000L
 
 const SSL_METHOD *
@@ -3349,16 +3456,16 @@ int
 BIO_wpending(s)
      BIO *   s
 
-int 
+int
 BIO_ssl_copy_session_id(to,from)
      BIO *	to
      BIO *	from
 
-void 
+void
 BIO_ssl_shutdown(ssl_bio)
      BIO *	ssl_bio
 
-int 
+int
 SSL_add_client_CA(ssl,x)
      SSL *	ssl
      X509 *	x
@@ -3379,13 +3486,13 @@ const char *
 SSL_alert_type_string_long(value)
      int 	value
 
-long	
+long
 SSL_callback_ctrl(ssl,i,fp)
      SSL *  ssl
      int    i
      callback_no_ret * fp
 
-int 
+int
 SSL_check_private_key(ctx)
      SSL *	ctx
 
@@ -3414,7 +3521,7 @@ SSL_CIPHER_description(cipher,buf,size)
 const char *
 SSL_CIPHER_get_name(SSL_CIPHER *c)
 
-int	
+int
 SSL_CIPHER_get_bits(c,alg_bits=NULL)
      SSL_CIPHER *	c
      int *	alg_bits
@@ -3424,30 +3531,30 @@ SSL_CIPHER_get_bits(c,alg_bits=NULL)
 const char *
 SSL_CIPHER_get_name(const SSL_CIPHER *c)
 
-int	
+int
 SSL_CIPHER_get_bits(c,alg_bits=NULL)
      const SSL_CIPHER *	c
      int *	alg_bits
 
 #endif
 
-int 
+int
 SSL_COMP_add_compression_method(id,cm)
      int 	id
      COMP_METHOD *	cm
 
-int 
+int
 SSL_CTX_add_client_CA(ctx,x)
      SSL_CTX *	ctx
      X509 *	x
 
-long	
+long
 SSL_CTX_callback_ctrl(ctx,i,fp)
      SSL_CTX *  ctx
      int        i
      callback_no_ret * fp
 
-int 
+int
 SSL_CTX_check_private_key(ctx)
      SSL_CTX *	ctx
 
@@ -3456,23 +3563,23 @@ SSL_CTX_get_ex_data(ssl,idx)
      SSL_CTX *	ssl
      int 	idx
 
-int 
+int
 SSL_CTX_get_quiet_shutdown(ctx)
      SSL_CTX *	ctx
 
-long 
+long
 SSL_CTX_get_timeout(ctx)
      SSL_CTX *	ctx
 
-int 
+int
 SSL_CTX_get_verify_depth(ctx)
      SSL_CTX *	ctx
 
-int 
+int
 SSL_CTX_get_verify_mode(ctx)
      SSL_CTX *	ctx
 
-void 
+void
 SSL_CTX_set_cert_store(ctx,store)
      SSL_CTX *     ctx
      X509_STORE *  store
@@ -3481,7 +3588,7 @@ X509_STORE *
 SSL_CTX_get_cert_store(ctx)
      SSL_CTX *     ctx
 
-void 
+void
 SSL_CTX_set_cert_verify_callback(ctx,func,data=NULL)
 	SSL_CTX* ctx
 	SV* func
@@ -3505,12 +3612,12 @@ X509_NAME_STACK *
 SSL_CTX_get_client_CA_list(ctx)
 	SSL_CTX *ctx
 
-void 
+void
 SSL_CTX_set_client_CA_list(ctx,list)
      SSL_CTX *	ctx
      X509_NAME_STACK * list
 
-void 
+void
 SSL_CTX_set_default_passwd_cb(ctx,func=NULL)
 	SSL_CTX *	ctx
 	SV * func
@@ -3527,7 +3634,7 @@ SSL_CTX_set_default_passwd_cb(ctx,func=NULL)
 		SSL_CTX_set_default_passwd_cb_userdata(ctx, (void*)cb);
 	}
 
-void 
+void
 SSL_CTX_set_default_passwd_cb_userdata(ctx,u=NULL)
 	SSL_CTX *	ctx
 	SV*	u
@@ -3538,18 +3645,18 @@ SSL_CTX_set_default_passwd_cb_userdata(ctx,u=NULL)
 		ssleay_ctx_passwd_cb_userdata_set(ctx, u);
 	}
 
-int 
+int
 SSL_CTX_set_ex_data(ssl,idx,data)
      SSL_CTX *	ssl
      int 	idx
      void *	data
 
-int 
+int
 SSL_CTX_set_purpose(s,purpose)
      SSL_CTX *	s
      int 	purpose
 
-void 
+void
 SSL_CTX_set_quiet_shutdown(ctx,mode)
      SSL_CTX *	ctx
      int 	mode
@@ -3563,49 +3670,49 @@ SSL_CTX_set_ssl_version(ctx,meth)
 
 #else
 
-int 
+int
 SSL_CTX_set_ssl_version(ctx,meth)
      SSL_CTX *	ctx
      const SSL_METHOD *	meth
 
 #endif
 
-long 
+long
 SSL_CTX_set_timeout(ctx,t)
      SSL_CTX *	ctx
      long 	t
 
-int 
+int
 SSL_CTX_set_trust(s,trust)
      SSL_CTX *	s
      int 	trust
 
-void 
+void
 SSL_CTX_set_verify_depth(ctx,depth)
      SSL_CTX *	ctx
      int 	depth
 
-int 
+int
 SSL_CTX_use_certificate(ctx,x)
      SSL_CTX *	ctx
      X509 *	x
 
-int	
+int
 SSL_CTX_use_certificate_chain_file(ctx,file)
      SSL_CTX *	ctx
      const char * file
 
-int 
+int
 SSL_CTX_use_PrivateKey(ctx,pkey)
      SSL_CTX *	ctx
      EVP_PKEY *	pkey
 
-int 
+int
 SSL_CTX_use_RSAPrivateKey(ctx,rsa)
      SSL_CTX *	ctx
      RSA *	rsa
 
-int 
+int
 SSL_do_handshake(s)
      SSL *	s
 
@@ -3617,7 +3724,7 @@ const SSL_CIPHER *
 SSL_get_current_cipher(s)
      SSL *	s
 
-long 
+long
 SSL_get_default_timeout(s)
      SSL *	s
 
@@ -3626,45 +3733,45 @@ SSL_get_ex_data(ssl,idx)
      SSL *	ssl
      int 	idx
 
-size_t 
+size_t
 SSL_get_finished(s,buf,count)
      SSL *	s
      void *	buf
      size_t 	count
 
-size_t 
+size_t
 SSL_get_peer_finished(s,buf,count)
      SSL *	s
      void *	buf
      size_t 	count
 
-int 
+int
 SSL_get_quiet_shutdown(ssl)
      SSL *	ssl
 
-int 
+int
 SSL_get_shutdown(ssl)
      SSL *	ssl
 
-int	
+int
 SSL_get_verify_depth(s)
      SSL *	s
 
-int	
+int
 SSL_get_verify_mode(s)
      SSL *	s
 
-long 
+long
 SSL_get_verify_result(ssl)
      SSL *	ssl
 
-int 
+int
 SSL_renegotiate(s)
      SSL *	s
 
 #if OPENSSL_VERSION_NUMBER < 0x10000000L
 
-int	
+int
 SSL_SESSION_cmp(a,b)
      SSL_SESSION *	a
      SSL_SESSION *	b
@@ -3676,36 +3783,36 @@ SSL_SESSION_get_ex_data(ss,idx)
      SSL_SESSION *	ss
      int 	idx
 
-long	
+long
 SSL_SESSION_get_time(s)
      SSL_SESSION *	s
 
-long	
+long
 SSL_SESSION_get_timeout(s)
      SSL_SESSION *	s
 
-int	
+int
 SSL_SESSION_print_fp(fp,ses)
      FILE *	fp
      SSL_SESSION *	ses
 
-int 
+int
 SSL_SESSION_set_ex_data(ss,idx,data)
      SSL_SESSION *	ss
      int 	idx
      void *	data
 
-long	
+long
 SSL_SESSION_set_time(s,t)
      SSL_SESSION *	s
      long 	t
 
-long	
+long
 SSL_SESSION_set_timeout(s,t)
      SSL_SESSION *	s
      long 	t
 
-void 
+void
 SSL_set_accept_state(s)
      SSL *	s
 
@@ -3726,42 +3833,42 @@ X509_NAME_STACK *
 SSL_get_client_CA_list(s)
 	SSL *	s
 
-void 
+void
 SSL_set_client_CA_list(s,list)
      SSL *	s
      X509_NAME_STACK *  list
 
-void 
+void
 SSL_set_connect_state(s)
      SSL *	s
 
-int 
+int
 SSL_set_ex_data(ssl,idx,data)
      SSL *	ssl
      int 	idx
      void *	data
 
-void 
+void
 SSL_set_info_callback(ssl,cb)
      SSL *	ssl
      cb_ssl_int_int_ret_void *  cb
 
-int 
+int
 SSL_set_purpose(s,purpose)
      SSL *	s
      int 	purpose
 
-void 
+void
 SSL_set_quiet_shutdown(ssl,mode)
      SSL *	ssl
      int 	mode
 
-void 
+void
 SSL_set_shutdown(ssl,mode)
      SSL *	ssl
      int 	mode
 
-int 
+int
 SSL_set_trust(s,trust)
      SSL *	s
      int 	trust
@@ -3771,16 +3878,16 @@ SSL_set_verify_depth(s,depth)
      SSL *	s
      int 	depth
 
-void 
+void
 SSL_set_verify_result(ssl,v)
      SSL *	ssl
      long 	v
 
-int 
+int
 SSL_shutdown(s)
      SSL *	s
 
-int 
+int
 SSL_version(ssl)
      SSL *	ssl
 
@@ -3790,7 +3897,7 @@ X509_NAME_STACK *
 SSL_load_client_CA_file(file)
      const char * file
 
-int	
+int
 SSL_add_file_cert_subjects_to_stack(stackCAs,file)
      X509_NAME_STACK * stackCAs
      const char * file
@@ -3874,7 +3981,7 @@ SSL_clear_num_renegotiations(ssl)
   OUTPUT:
   RETVAL
 
-long	
+long
 SSL_CTX_add_extra_chain_cert(ctx,x509)
      SSL_CTX *	ctx
      X509 *     x509
@@ -3891,7 +3998,7 @@ SSL_CTX_get_app_data(ctx)
   OUTPUT:
   RETVAL
 
-long	
+long
 SSL_CTX_get_mode(ctx)
      SSL_CTX *	ctx
   CODE:
@@ -3899,7 +4006,7 @@ SSL_CTX_get_mode(ctx)
   OUTPUT:
   RETVAL
 
-long	
+long
 SSL_CTX_get_read_ahead(ctx)
      SSL_CTX *	ctx
   CODE:
@@ -3907,7 +4014,7 @@ SSL_CTX_get_read_ahead(ctx)
   OUTPUT:
   RETVAL
 
-long	
+long
 SSL_CTX_get_session_cache_mode(ctx)
      SSL_CTX *	ctx
   CODE:
@@ -3915,7 +4022,7 @@ SSL_CTX_get_session_cache_mode(ctx)
   OUTPUT:
   RETVAL
 
-long	
+long
 SSL_CTX_need_tmp_RSA(ctx)
      SSL_CTX *	ctx
   CODE:
@@ -3923,7 +4030,7 @@ SSL_CTX_need_tmp_RSA(ctx)
   OUTPUT:
   RETVAL
 
-int 
+int
 SSL_CTX_set_app_data(ctx,arg)
      SSL_CTX *	ctx
      char *	arg
@@ -3932,7 +4039,7 @@ SSL_CTX_set_app_data(ctx,arg)
   OUTPUT:
   RETVAL
 
-long	
+long
 SSL_CTX_set_mode(ctx,op)
      SSL_CTX *	ctx
      long 	op
@@ -3941,7 +4048,7 @@ SSL_CTX_set_mode(ctx,op)
   OUTPUT:
   RETVAL
 
-long	
+long
 SSL_CTX_set_read_ahead(ctx,m)
      SSL_CTX *	ctx
      long 	m
@@ -3950,7 +4057,7 @@ SSL_CTX_set_read_ahead(ctx,m)
   OUTPUT:
   RETVAL
 
-long	
+long
 SSL_CTX_set_session_cache_mode(ctx,m)
      SSL_CTX *	ctx
      long 	m
@@ -3959,12 +4066,12 @@ SSL_CTX_set_session_cache_mode(ctx,m)
   OUTPUT:
   RETVAL
 
-long	
+long
 SSL_CTX_set_tmp_dh(ctx,dh)
      SSL_CTX *	ctx
      DH *	dh
 
-long	
+long
 SSL_CTX_set_tmp_rsa(ctx,rsa)
      SSL_CTX *	ctx
      RSA *	rsa
@@ -3977,7 +4084,7 @@ SSL_get_app_data(s)
   OUTPUT:
   RETVAL
 
-int	
+int
 SSL_get_cipher_bits(s,np=NULL)
      SSL *	s
      int *	np
@@ -3986,7 +4093,7 @@ SSL_get_cipher_bits(s,np=NULL)
   OUTPUT:
   RETVAL
 
-long	
+long
 SSL_get_mode(ssl)
      SSL *	ssl
   CODE:
@@ -3994,7 +4101,7 @@ SSL_get_mode(ssl)
   OUTPUT:
   RETVAL
 
-int 
+int
 SSL_get_state(ssl)
      SSL *	ssl
   CODE:
@@ -4002,7 +4109,7 @@ SSL_get_state(ssl)
   OUTPUT:
   RETVAL
 
-long	
+long
 SSL_need_tmp_RSA(ssl)
      SSL *	ssl
   CODE:
@@ -4010,7 +4117,7 @@ SSL_need_tmp_RSA(ssl)
   OUTPUT:
   RETVAL
 
-long	
+long
 SSL_num_renegotiations(ssl)
      SSL *	ssl
   CODE:
@@ -4026,7 +4133,7 @@ SSL_SESSION_get_app_data(ses)
   OUTPUT:
   RETVAL
 
-long	
+long
 SSL_session_reused(ssl)
      SSL *	ssl
   CODE:
@@ -4034,7 +4141,7 @@ SSL_session_reused(ssl)
   OUTPUT:
   RETVAL
 
-int 
+int
 SSL_SESSION_set_app_data(s,a)
      SSL_SESSION *	s
      void *	a
@@ -4043,7 +4150,7 @@ SSL_SESSION_set_app_data(s,a)
   OUTPUT:
   RETVAL
 
-int 
+int
 SSL_set_app_data(s,arg)
      SSL *	s
      void *	arg
@@ -4052,7 +4159,7 @@ SSL_set_app_data(s,arg)
   OUTPUT:
   RETVAL
 
-long	
+long
 SSL_set_mode(ssl,op)
      SSL *	ssl
      long 	op
@@ -4061,7 +4168,7 @@ SSL_set_mode(ssl,op)
   OUTPUT:
   RETVAL
 
-int	
+int
 SSL_set_pref_cipher(s,n)
      SSL *	s
      const char * n
@@ -4070,12 +4177,12 @@ SSL_set_pref_cipher(s,n)
   OUTPUT:
   RETVAL
 
-long	
+long
 SSL_set_tmp_dh(ssl,dh)
      SSL *	ssl
      DH *	dh
 
-long	
+long
 SSL_set_tmp_rsa(ssl,rsa)
      SSL *	ssl
      char *	rsa
@@ -4210,7 +4317,7 @@ SSL_get_server_random(s)
 
 int
 SSL_get_keyblock_size(s)
-     SSL *   s	
+     SSL *   s
      CODE:
      if (s == NULL ||
 	 s->enc_read_ctx == NULL ||
@@ -4257,7 +4364,7 @@ SSL_set_hello_extension(s, type, data)
 
 #if defined(SSL_F_SSL_SET_HELLO_EXTENSION) || defined(SSL_F_SSL_SET_SESSION_TICKET_EXT)
 
-void 
+void
 SSL_set_session_secret_cb(s,func,data=NULL)
 	SSL * s
 	SV* func
@@ -4315,7 +4422,7 @@ int EVP_MD_size(const EVP_MD *md)
 
 SV*
 P_EVP_MD_list_all()
-    INIT:        
+    INIT:
         AV * results;
     CODE:
         results = (AV *)sv_2mortal((SV *)newAV());
@@ -4348,7 +4455,7 @@ EVP_DigestUpdate(ctx,data)
      unsigned char *data = (unsigned char *) SvPV(ST(1), len);
      CODE:
      XSRETURN_IV(EVP_DigestUpdate(ctx,data,len));
-     
+
 void
 EVP_DigestFinal(ctx)
      EVP_MD_CTX *ctx
@@ -4426,7 +4533,7 @@ SSL_set1_param(ctx, vpm)
 X509_VERIFY_PARAM *
 X509_VERIFY_PARAM_new()
 
-void 
+void
 X509_VERIFY_PARAM_free(param)
      X509_VERIFY_PARAM *param
 
@@ -4445,7 +4552,7 @@ X509_VERIFY_PARAM_set1_name(param, name)
      X509_VERIFY_PARAM *param
      const char *name
 
-int 
+int
 X509_VERIFY_PARAM_set_flags(param, flags)
     X509_VERIFY_PARAM *param
     unsigned long flags
@@ -4453,52 +4560,52 @@ X509_VERIFY_PARAM_set_flags(param, flags)
 #if OPENSSL_VERSION_NUMBER >= 0x0090801fL
 #define REM13 "NOTE: requires 0.9.8a+"
 
-int 
+int
 X509_VERIFY_PARAM_clear_flags(param, flags)
     X509_VERIFY_PARAM *param
     unsigned long flags
 
-unsigned long 
+unsigned long
 X509_VERIFY_PARAM_get_flags(param)
      X509_VERIFY_PARAM *param
 
 #endif
 
-int 
+int
 X509_VERIFY_PARAM_set_purpose(param, purpose)
     X509_VERIFY_PARAM *param
     int purpose
 
-int 
+int
 X509_VERIFY_PARAM_set_trust(param, trust)
     X509_VERIFY_PARAM *param
     int trust
 
-void 
+void
 X509_VERIFY_PARAM_set_depth(param, depth)
     X509_VERIFY_PARAM *param
     int depth
 
-void 
+void
 X509_VERIFY_PARAM_set_time(param, t)
     X509_VERIFY_PARAM *param
     time_t t
 
-int 
+int
 X509_VERIFY_PARAM_add0_policy(param, policy)
     X509_VERIFY_PARAM *param
     ASN1_OBJECT *policy
 
-int 
+int
 X509_VERIFY_PARAM_set1_policies(param, policies)
     X509_VERIFY_PARAM *param
     STACK_OF(ASN1_OBJECT) *policies
 
-int 
+int
 X509_VERIFY_PARAM_get_depth(param)
     X509_VERIFY_PARAM *param
 
-int 
+int
 X509_VERIFY_PARAM_add0_table(param)
     X509_VERIFY_PARAM *param
 
@@ -4506,14 +4613,14 @@ const X509_VERIFY_PARAM *
 X509_VERIFY_PARAM_lookup(name)
     const char *name
 
-void 
+void
 X509_VERIFY_PARAM_table_cleanup()
 
-void 
+void
 X509_policy_tree_free(tree)
     X509_POLICY_TREE *tree
 
-int 
+int
 X509_policy_tree_level_count(tree)
     X509_POLICY_TREE *tree
 
@@ -4530,7 +4637,7 @@ STACK_OF(X509_POLICY_NODE) *
 X509_policy_tree_get0_user_policies(tree)
     X509_POLICY_TREE *tree
 
-int 
+int
 X509_policy_level_node_count(level)
     X509_POLICY_LEVEL *level
 
@@ -4553,27 +4660,27 @@ X509_policy_node_get0_parent(node)
 
 #endif
 
-ASN1_OBJECT *	
+ASN1_OBJECT *
 OBJ_dup(o)
     ASN1_OBJECT *o
 
-ASN1_OBJECT *	
+ASN1_OBJECT *
 OBJ_nid2obj(n)
     int n
 
-const char *	
+const char *
 OBJ_nid2ln(n)
     int n
 
-const char *	
+const char *
 OBJ_nid2sn(n)
     int n
 
-int		
+int
 OBJ_obj2nid(o)
     ASN1_OBJECT *o
 
-ASN1_OBJECT *	
+ASN1_OBJECT *
 OBJ_txt2obj(s, no_name=0)
     const char *s
     int no_name
@@ -4593,27 +4700,27 @@ OBJ_obj2txt(a, no_name=0)
 #if OPENSSL_VERSION_NUMBER < 0x0090700fL
 #define REM14 "NOTE: before 0.9.7"
 
-int		
+int
 OBJ_txt2nid(s)
     char *s
 
 #else
 
-int		
+int
 OBJ_txt2nid(s)
     const char *s
 
 #endif
 
-int		
+int
 OBJ_ln2nid(s)
     const char *s
 
-int		
+int
 OBJ_sn2nid(s)
     const char *s
 
-int		
+int
 OBJ_cmp(a, b)
     ASN1_OBJECT *a
     ASN1_OBJECT *b
