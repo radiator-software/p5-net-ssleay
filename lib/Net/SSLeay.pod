@@ -4117,6 +4117,18 @@ Writes a fragment of data data from the buffer $data into the specified $ssl con
  #           0 - write not successful, probably the underlying connection was closed
  #          <0 - error
 
+=item * set_tlsext_host_name
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.8f
+
+Sets TLS servername extension on SLL object $ssl to value $name.
+
+ my $rv = set_tlsext_host_name($ssl, $name);
+ # $ssl - value corresponding to openssl's SSL structure
+ # $name - (string) name to be set
+ #
+ # returns: 1 on success, 0 on failure
+
 =back
 
 =head3 Low level API: RAND_* related functions

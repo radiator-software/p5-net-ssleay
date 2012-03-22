@@ -174,6 +174,7 @@ Revision history for Perl extension Net::SSLeay.
      - Net::SSLeay::d2i_X509_CRL_bio
      - Net::SSLeay::d2i_X509_REQ_bio
      - Net::SSLeay::d2i_X509_bio
+     - Net::SSLeay::X509_verify::set_tlsext_host_name
      Fixed a problem with multiple Safefree of GLOBAL_openssl_mutex when run
      under apache2+mod_perl on recent Debain distros. Removed END and
      openssl_threads_cleanup() since they can be called during thread

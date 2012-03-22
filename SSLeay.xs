@@ -1642,6 +1642,13 @@ int
 SSL_state(s)
      SSL *              s
 
+#if OPENSSL_VERSION_NUMBER >= 0x0090806fL && !defined(OPENSSL_NO_TLSEXT)
+
+long
+SSL_set_tlsext_host_name(SSL *ssl, const char *name)
+
+#endif
+
 BIO_METHOD *
 BIO_f_ssl()
 
