@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 71;
+use Test::More tests => 78;
 use Socket;
 use File::Spec;
 use Symbol qw(gensym);
@@ -61,6 +61,7 @@ Net::SSLeay::library_init();
             ok(Net::SSLeay::accept($ssl), 'accept');
 
             ok(Net::SSLeay::get_cipher($ssl), 'get_cipher');
+            like(Net::SSLeay::get_shared_ciphers($ssl), qr/(AES|RSA|SHA|CBC|DES)/, 'get_shared_ciphers');
 
             my $got = Net::SSLeay::ssl_read_all($ssl);
             is($got, $msg, 'ssl_read_all') if $_ < 7;
@@ -331,7 +332,7 @@ waitpid $pid, 0;
 push @results, [ $? == 0, 'server exited wiht 0' ];
 
 END {
-    Test::More->builder->current_test(44);
+    Test::More->builder->current_test(51);
     for my $t (@results) {
         ok( $t->[0], $t->[1] );
     }

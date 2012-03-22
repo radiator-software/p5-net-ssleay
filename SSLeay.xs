@@ -1417,11 +1417,17 @@ const char *
 SSL_get_cipher(s)
      SSL *              s
 
-char *
-SSL_get_shared_ciphers(s,buf,len)
-     SSL *              s
-     char *             buf
-     int                len
+void
+SSL_get_shared_ciphers(s,ignored_param1=0,ignored_param2=0)
+        SSL *s
+        int ignored_param1
+        int ignored_param2
+    PREINIT:
+        char buf[8192];
+    CODE:
+        ST(0) = sv_newmortal();   /* undef to start with */
+        if(SSL_get_shared_ciphers(s, buf, sizeof(buf)))
+            sv_setpvn(ST(0), buf, strlen(buf));
 
 X509 *
 SSL_get_peer_certificate(s)

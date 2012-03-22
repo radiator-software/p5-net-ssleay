@@ -3287,14 +3287,12 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_session.html|http://
 
 =item * get_shared_ciphers
 
-??? (does this function really work?)
+Returns string with a list (colon ':' separated) of ciphers shared between client and server
+within SSL session $ssl.
 
- my $rv = Net::SSLeay::get_shared_ciphers($ssl, $buf, $len);
- # $ssl - value corresponding to openssl's SSL structure
- # $buf - (string/buffer/pointer) ???
- # $len - (integer) buffer length ???
+ my $rv = Net::SSLeay::get_shared_ciphers()
  #
- # returns: ???
+ # returns: string like 'ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES256-SHA:DHE-DSS-AES256-SHA:...'
 
 =item * get_shutdown
 
