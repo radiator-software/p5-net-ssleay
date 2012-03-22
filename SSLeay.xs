@@ -3076,6 +3076,53 @@ CTX_use_PKCS12_file(ctx, file, password=NULL)
     OUTPUT:
         RETVAL
 
+void
+P_PKCS12_load_file(file, load_chain=0, password=NULL)
+        char *file
+        int load_chain
+        char *password
+    PREINIT:
+        PKCS12 *p12;
+        EVP_PKEY *private_key = NULL;
+        X509 *certificate = NULL;
+        STACK_OF(X509) *cachain = NULL;
+        X509 *x;
+        FILE *fp;
+        int i, result;
+    PPCODE:
+        if (fp = fopen (file, "rb")) {
+#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
+            OPENSSL_add_all_algorithms_noconf();
+#else
+            OpenSSL_add_all_algorithms();
+#endif
+            if (p12 = d2i_PKCS12_fp(fp, NULL)) {
+                if(load_chain)
+                    result= PKCS12_parse(p12, password, &private_key, &certificate, &cachain);
+                else
+                    result= PKCS12_parse(p12, password, &private_key, &certificate, NULL);
+                if (result) {
+                    if (private_key)
+                        XPUSHs(sv_2mortal(newSViv(PTR2IV(private_key))));
+                    else
+                        XPUSHs(sv_2mortal(newSVpv(NULL,0))); /* undef */
+                    if (certificate)
+                        XPUSHs(sv_2mortal(newSViv(PTR2IV(certificate))));
+                    else
+                        XPUSHs(sv_2mortal(newSVpv(NULL,0))); /* undef */
+                    if (cachain) {
+                        for (i=0; i<sk_X509_num(cachain); i++) {
+                            x = sk_X509_value(cachain, i);
+                            XPUSHs(sv_2mortal(newSViv(PTR2IV(x))));
+                        }
+                        sk_X509_free(cachain);
+                    }
+                }
+                PKCS12_free(p12);
+            }
+            fclose(fp);
+        }
+
 #ifndef OPENSSL_NO_MD2
 
 void

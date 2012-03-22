@@ -109,6 +109,7 @@ Revision history for Perl extension Net::SSLeay.
      - Net::SSLeay::P_X509_get_netscape_cert_type
      - Net::SSLeay::P_X509_get_pubkey_alg
      - Net::SSLeay::P_X509_get_signature_alg
+     - Net::SSLeay::P_PKCS12_load_file
      - Net::SSLeay::X509V3_EXT_print
      - Net::SSLeay::X509_CRL_digest
      - Net::SSLeay::X509_CRL_free

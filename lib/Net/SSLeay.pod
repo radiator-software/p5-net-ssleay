@@ -1445,6 +1445,44 @@ Example:
 
 =back
 
+=head3 Low level API: PKCS12 related functions
+
+=over
+
+=item * P_PKCS12_load_file
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+
+Loads X509 certificate + private key + certificates of CA chain (if present in PKCS12 file).
+
+ my ($privkey, $cert, @cachain) = Net::SSLeay::P_PKCS12_load_file($filename, $load_chain, $password);
+ # $filename - name of PKCS12 file
+ # $load_chain - [optional] whether load (1) or not(0) CA chain (default: 0)
+ # $password - [optional] password for private key
+ #
+ # returns: triplet ($privkey, $cert, @cachain)
+ #          $privkey - value corresponding to openssl's EVP_PKEY structure
+ #          $cert - value corresponding to openssl's X509 structure
+ #          @cachain - array of values corresponding to openssl's X509 structure (empty if no CA chain in PKCS12)
+
+B<IMPORTANT NOTE:> after you do the job you need to call X509_free() on $privkey + all members
+of @cachain and EVP_PKEY_free() on $privkey.
+
+Examples:
+
+ my ($privkey, $cert) = Net::SSLeay::P_PKCS12_load_file($filename);
+ #or
+ my ($privkey, $cert) = Net::SSLeay::P_PKCS12_load_file($filename, 0, $password);
+ #or
+ my ($privkey, $cert, @cachain) = Net::SSLeay::P_PKCS12_load_file($filename, 1);
+ #or
+ my ($privkey, $cert, @cachain) = Net::SSLeay::P_PKCS12_load_file($filename, 1, $password);
+
+ #BEWARE: THIS IS WRONG - MEMORY LEAKS! (you cannot free @cachain items)
+ my ($privkey, $cert) = Net::SSLeay::P_PKCS12_load_file($filename, 1, $password);
+
+=back
+
 =head3 Low level API: SESSION_* related functions
 
 =over
