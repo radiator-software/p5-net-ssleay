@@ -394,7 +394,7 @@ named files.
 B<IMPORTANT: versions 1.42 or earlier are not thread-safe!>
 
 Net::SSLeay module implements all necessary stuff to be ready for multi-threaded
-environment. The implementation fully follows thread safety related requirements
+environment - it requires openssl-0.9.7 or newer. The implementation fully follows thread safety related requirements
 of openssl library(see L<http://www.openssl.org/docs/crypto/threads.html|http://www.openssl.org/docs/crypto/threads.html>).
 
 If you are about to use Net::SSLeay (or any other module based on Net::SSLeay) in multi-threaded

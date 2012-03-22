@@ -127,12 +127,11 @@ UV get_my_thread_id(void) /* returns threads->tid() value */
 /* IMPORTANT NOTE:
  * openssl locking was implemented according to http://www.openssl.org/docs/crypto/threads.html
  * we implement both static and dynamic locking as described on URL above
- * we do not support locking on pre-0.9.4 as CRYPTO_num_locks() was added in OpenSSL 0.9.4 
- * we do not support dynamic locking on pre-0.9.6 as necessary functions were added in OpenSSL 0.9.5b-dev
+ * locking is supported when OPENSSL_THREADS macro is defined which means openssl-0.9.7 or newer
  * we intentionally do not implement cleanup of openssl's threading as it causes troubles 
  * with apache-mpm-worker+mod_perl+mod_ssl+net-ssleay
  */
-#if defined(USE_ITHREADS) && defined(OPENSSL_THREADS) && OPENSSL_VERSION_NUMBER >= 0x00904000L
+#if defined(USE_ITHREADS) && defined(OPENSSL_THREADS)
 
 static void openssl_locking_function(int mode, int type, const char *file, int line)
 {
@@ -156,9 +155,6 @@ void openssl_threadid_func(CRYPTO_THREADID *id)
     CRYPTO_THREADID_set_numeric(id, (unsigned long)(MY_CXT.tid));
 }
 #endif
-
-#if OPENSSL_VERSION_NUMBER >= 0x00906000L
-/* dynamic locking related functions required by openssl library (0.9.6+) */
 
 struct CRYPTO_dynlock_value
 {
@@ -190,22 +186,19 @@ void openssl_dynlocking_destroy_function (struct CRYPTO_dynlock_value *l, const 
     Safefree(l);
 }
 
-#endif
-
 void openssl_threads_init(void)
 {
     int i;
  
     /* initialize static locking */
-    if ( !CRYPTO_get_locking_callback() ) {        
+    if ( !CRYPTO_get_locking_callback() ) {
 #if OPENSSL_VERSION_NUMBER < 0x10000000L
         if ( !CRYPTO_get_id_callback() ) {
 #else    
         if ( !CRYPTO_THREADID_get_callback() ) {
 #endif
-    
             New(0, GLOBAL_openssl_mutex, CRYPTO_num_locks(), perl_mutex);	
-            if (!GLOBAL_openssl_mutex) return;    
+            if (!GLOBAL_openssl_mutex) return;
             for (i=0; i<CRYPTO_num_locks(); i++) MUTEX_INIT(&GLOBAL_openssl_mutex[i]);
             CRYPTO_set_locking_callback((void (*)(int,int,const char *,int))openssl_locking_function);
 
@@ -220,16 +213,14 @@ void openssl_threads_init(void)
         }
     }
 
-    /* initialize dynamic locking (0.9.6+) */
-#if OPENSSL_VERSION_NUMBER >= 0x00906000L    
+    /* initialize dynamic locking */
     if ( !CRYPTO_get_dynlock_create_callback() &&
          !CRYPTO_get_dynlock_lock_callback() &&
-         !CRYPTO_get_dynlock_destroy_callback() ) {        
+         !CRYPTO_get_dynlock_destroy_callback() ) {
         CRYPTO_set_dynlock_create_callback(openssl_dynlocking_create_function);
         CRYPTO_set_dynlock_lock_callback(openssl_dynlocking_lock_function);
-        CRYPTO_set_dynlock_destroy_callback(openssl_dynlocking_destroy_function);        
+        CRYPTO_set_dynlock_destroy_callback(openssl_dynlocking_destroy_function);
     }
-#endif   
 }
 
 #endif
@@ -254,7 +245,7 @@ static void handler_list_md_fn(const EVP_MD *m, const char *from, const char *to
   const char *mname;  
   if (!m) return;                                           /* Skip aliases */
   mname = OBJ_nid2ln(EVP_MD_type(m));
-  if (strcmp(from, mname)) return;                          /* Skip shortnames */       
+  if (strcmp(from, mname)) return;                          /* Skip shortnames */
   if (EVP_MD_flags(m) & EVP_MD_FLAG_PKEY_DIGEST) return;    /* Skip clones */
   if (strchr(mname, ' ')) mname= EVP_MD_name(m);
   av_push(arg, newSVpv(mname,0));
@@ -949,8 +940,8 @@ BOOT:
     LIB_initialized = 0;
 #ifdef USE_ITHREADS
     MUTEX_INIT(&LIB_init_mutex);
-#if defined(OPENSSL_THREADS) && OPENSSL_VERSION_NUMBER >= 0x00904000L
-    openssl_threads_init();    
+#ifdef OPENSSL_THREADS
+    openssl_threads_init();
 #endif
 #endif
     MY_CXT.ssleay_ctx_verify_callbacks = (HV*)NULL;
