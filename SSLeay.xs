@@ -190,10 +190,7 @@ which conflicts with perls
 #define MY_CXT_KEY "Net::SSLeay::_guts" XS_VERSION
 
 typedef struct {
-    HV* ssleay_ctx_verify_callbacks;
-    HV* ssleay_ctx_passwd_cbs;
-    HV* ssleay_ctx_cert_verify_cbs;
-    HV* ssleay_session_secret_cbs;
+    HV* global_cb_data;
     UV tid;
 } my_cxt_t;
 START_MY_CXT;
@@ -359,615 +356,68 @@ static void handler_list_md_fn(const EVP_MD *m, const char *from, const char *to
 }
 #endif
 
-/* ============= callback stuff ============== */
+/* ============= callbacks - basic info =============
+ *
+ * PLEASE READ THIS BEFORE YOU ADD ANY NEW CALLBACK!!
+ *
+ * There are basically 2 types of callbacks used in SSLeay:
+ *
+ * 1/ "one-time" callbacks - these are created+used+destroyed within one perl function implemented in XS
+ *    these callbacks use a cpecial C structupe simple_cb_data_t to pass necessary data
+ *    there are 2 related helper functions: simple_cb_data_new() + simple_cb_data_free
+ *    for example see implementation of these functions:
+ *    - RSA_generate_key
+ *    - PEM_read_bio_PrivateKey
+ *
+ * 2/ "advanced" callbacks - these are setup/destroyed by one function but used by another function; these
+ *    callbacks use global hash MY_CXT.global_cb_data to store perl functions + data to be uset at callback time
+ *    there are 2 related helper functions: cb_data_advanced_put() + cb_data_advanced_get for manipulating
+ *    global hash MY_CXT.global_cb_data which work like this:
+ *        cb_data_advanced_put("cb_name", <pointer>, "data_name", dataSV)
+ *        >>>
+ *        global_cb_data->{"cb_name!!<pointer>"}->{"data_name"} = dataSV)
+ *    or
+ *        data = cb_data_advanced_get("cb_name", <pointer>, "data_name")
+ *        >>>
+ *        my $data = global_cb_data->{"cb_name!!<pointer>"}->{"data_name"}
+ *    for example see implementation of these functions:
+ *    - SSL_CTX_set_verify
+ *    - SSL_set_verify
+ *    - SSL_CTX_set_cert_verify_callback
+ *    - SSL_CTX_set_default_passwd_cb
+ *    - SSL_CTX_set_default_passwd_cb_userdata
+ *    - SSL_set_session_secret_cb
+ *
+ * If wanna add a new callback:
+ * - you vely likely need a new function "your_callback_name_invoke()"
+ * - decide whether your case fits case 1/ or 2/ (and implement likewise existing functions)
+ * - try to avoid adding a new style of callback implementation (or ask Net::SSLeay maintainers before)
+ *
+ */
 
-static int
-ssleay_verify_callback_invoke (int ok, X509_STORE_CTX* x509_store) {
-	SSL* ssl;
-	SV* key;
-	char* key_str;
-	STRLEN key_len;
-	SV** callback;
-	int count, res;
-	dSP;
-        dMY_CXT;
-
-	ssl = X509_STORE_CTX_get_ex_data( x509_store, SSL_get_ex_data_X509_STORE_CTX_idx() );
-	key = sv_2mortal(newSViv( PTR2IV(ssl) ));
-	key_str = SvPV(key, key_len);
-
-	callback = hv_fetch( MY_CXT.ssleay_ctx_verify_callbacks, key_str, key_len, 0 );
-
-	if (callback == NULL) {
-		SSL_CTX* ssl_ctx = SSL_get_SSL_CTX(ssl);
-		key = sv_2mortal(newSViv( PTR2IV(ssl_ctx) ));
-		key_str = SvPV(key, key_len);
-
-		callback = hv_fetch( MY_CXT.ssleay_ctx_verify_callbacks, key_str, key_len, 0 );
-
-		if (callback == NULL) {
-			croak ("Net::SSLeay: verify_callback called, but not "
-				"set to point to any perl function.\n");
-		}
-	}
-
-
-	ENTER;
-	SAVETMPS;
-
-	PRN("verify callback glue", ok);
-
-	PUSHMARK(sp);
-	EXTEND( sp, 2 );
-	PUSHs( sv_2mortal(newSViv(ok)) );
-	PUSHs( sv_2mortal(newSViv(PTR2IV(x509_store))) );
-	PUTBACK;
-
-	PR("About to call verify callback.\n");
-	count = call_sv(*callback, G_SCALAR);
-	PR("Returned from verify callback.\n");
-
-	SPAGAIN;
-
-	if (count != 1) {
-		croak ( "Net::SSLeay: verify_callback "
-			"perl function did not return a scalar.\n");
-	}
-
-	res = POPi;
-
-	PUTBACK;
-	FREETMPS;
-	LEAVE;
-
-	return res;
-}
+/* ============= callback stuff - generic functions============== */
 
 struct _ssleay_cb_t {
-	SV* func;
-	SV* data;
-	UV tid;
+    SV* func;
+    SV* data;
 };
-typedef struct _ssleay_cb_t ssleay_ctx_passwd_cb_t;
-typedef struct _ssleay_cb_t ssleay_ctx_cert_verify_cb_t;
-typedef struct _ssleay_cb_t ssleay_session_secret_cb_t;
-typedef struct _ssleay_cb_t ssleay_RSA_generate_key_cb_t;
-typedef struct _ssleay_cb_t ssleay_pem_password_cb_t;
+typedef struct _ssleay_cb_t simple_cb_data_t;
 
-ssleay_ctx_passwd_cb_t*
-ssleay_ctx_passwd_cb_new(SSL_CTX* ctx) {
-	ssleay_ctx_passwd_cb_t* cb;
-	SV* hash_value;
-	SV* key;
-	char* key_str;
-	STRLEN key_len;
-        dMY_CXT;
-
-	New(0, cb, 1, ssleay_ctx_passwd_cb_t);
-	cb->func = NULL;
-	cb->data = NULL;
-	cb->tid = MY_CXT.tid;
-
-	if (ctx == NULL)
-		croak( "Net::SSLeay: ctx == NULL in ssleay_ctx_passwd_cb_new" );
-
-	hash_value = sv_2mortal(newSViv( PTR2IV(cb) ));
-
-	key = sv_2mortal(newSViv( PTR2IV(ctx) ));
-	key_str = SvPV(key, key_len);
-
-	if (MY_CXT.ssleay_ctx_passwd_cbs == (HV*)NULL)
-		MY_CXT.ssleay_ctx_passwd_cbs = newHV();
-
-	SvREFCNT_inc(hash_value);
-	hv_store( MY_CXT.ssleay_ctx_passwd_cbs, key_str, key_len, hash_value, 0 );
-
-	return cb;
-}
-
-ssleay_ctx_passwd_cb_t*
-ssleay_ctx_passwd_cb_get(SSL_CTX* ctx) {
-	SV* key;
-	char* key_str;
-	STRLEN key_len;
-	SV** hash_value;
-	ssleay_ctx_passwd_cb_t* cb;
-        dMY_CXT;
-
-	key = sv_2mortal(newSViv( PTR2IV(ctx) ));
-	key_str = SvPV(key, key_len);
-
-	hash_value = hv_fetch( MY_CXT.ssleay_ctx_passwd_cbs, key_str, key_len, 0 );
-
-	if (hash_value == NULL || *hash_value == NULL) {
-		cb = ssleay_ctx_passwd_cb_new(ctx);
-	} else {
-		cb = INT2PTR(ssleay_ctx_passwd_cb_t*, SvIV( *hash_value ));
-	}
-
-	return cb;
-}
-
-void
-ssleay_ctx_passwd_cb_func_set(SSL_CTX* ctx, SV* func) {
-	ssleay_ctx_passwd_cb_t* cb;
-
-	cb = ssleay_ctx_passwd_cb_get(ctx);
-
-	if (cb->func)
-		SvREFCNT_dec(cb->func);
-
-	SvREFCNT_inc(func);
-	cb->func = func;
-}
-
-void
-ssleay_ctx_passwd_cb_userdata_set(SSL_CTX* ctx, SV* data) {
-	ssleay_ctx_passwd_cb_t* cb;
-
-	cb = ssleay_ctx_passwd_cb_get(ctx);
-
-	if (cb->data)
-		SvREFCNT_dec(cb->data);
-
-	SvREFCNT_inc(data);
-	cb->data = data;
-}
-
-void
-ssleay_ctx_passwd_cb_free_func(SSL_CTX* ctx) {
-	ssleay_ctx_passwd_cb_t* cb;
-
-	cb = ssleay_ctx_passwd_cb_get(ctx);
-
-	if (cb && cb->func) {
-		SvREFCNT_dec(cb->func);
-		cb->func = NULL;
-	}
-}
-
-void
-ssleay_ctx_passwd_cb_free_userdata(SSL_CTX* ctx) {
-	ssleay_ctx_passwd_cb_t* cb;
-
-	cb = ssleay_ctx_passwd_cb_get(ctx);
-
-	if (cb && cb->data) {
-		SvREFCNT_dec(cb->data);
-		cb->data = NULL;
-	}
-}
-
-/* pem_password_cb function */
-
-static int
-ssleay_ctx_passwd_cb_invoke(char *buf, int size, int rwflag, void *userdata) {
-	dSP;
-	dMY_CXT;
-
-	int count;
-	char *res;
-	ssleay_ctx_passwd_cb_t* cb = (ssleay_ctx_passwd_cb_t*)userdata;
-
-	if (cb->tid != MY_CXT.tid) {
-		warn ("Net::SSLeay: cross-thread callbacks not allowed!");
-		buf[0] = '\0';
-		return 0;
-	}
-
-	ENTER;
-	SAVETMPS;
-
-	PUSHMARK(sp);
-	XPUSHs( sv_2mortal( newSViv(rwflag)) );
-	if (cb->data)
-		XPUSHs( cb->data );
-	PUTBACK;
-
-	if (cb->func == NULL)
-		croak ("Net::SSLeay: ssleay_ctx_passwd_cb_invoke called, but not "
-			   "set to point to any perl function.\n");
-
-	count = call_sv( cb->func, G_SCALAR );
-
-	SPAGAIN;
-
-	if (count != 1)
-		croak ("Net::SSLeay: ssleay_ctx_passwd_cb_invoke "
-			   "perl function did not return a scalar.\n");
-
-	res = POPp;
-
-	if (res == NULL) {
-		*buf = '\0';
-	} else {
-		strncpy(buf, res, size);
-		buf[size - 1] = '\0';
-	}
-
-	PUTBACK;
-	FREETMPS;
-	LEAVE;
-
-	return strlen(buf);
-}
-
-ssleay_ctx_cert_verify_cb_t*
-ssleay_ctx_cert_verify_cb_new(SSL_CTX* ctx, SV* func, SV* data) {
-	ssleay_ctx_cert_verify_cb_t* cb;
-	SV* hash_value;
-	SV* key;
-	char* key_str;
-	STRLEN key_len;
-        dMY_CXT;
-
-	cb = New(0, cb, 1, ssleay_ctx_cert_verify_cb_t);
-
-	SvREFCNT_inc(func);
-	SvREFCNT_inc(data);
-	cb->func = func;
-	cb->data = data;
-	cb->tid = MY_CXT.tid;
-
-	if (ctx == NULL) {
-		croak( "Net::SSLeay: ctx == NULL in ssleay_ctx_cert_verify_cb_new" );
-	}
-
-	hash_value = sv_2mortal(newSViv( PTR2IV(cb) ));
-
-	key = sv_2mortal(newSViv( PTR2IV(ctx) ));
-	key_str = SvPV(key, key_len);
-
-	if (MY_CXT.ssleay_ctx_cert_verify_cbs == (HV*)NULL)
-		MY_CXT.ssleay_ctx_cert_verify_cbs = newHV();
-
-	SvREFCNT_inc(hash_value);
-	hv_store( MY_CXT.ssleay_ctx_cert_verify_cbs, key_str, key_len, hash_value, 0 );
-
-	return cb;
-}
-
-ssleay_ctx_cert_verify_cb_t*
-ssleay_ctx_cert_verify_cb_get(SSL_CTX* ctx) {
-	SV* key;
-	char* key_str;
-	STRLEN key_len;
-	SV** hash_value;
-	ssleay_ctx_cert_verify_cb_t* cb;
-        dMY_CXT;
-
-	key = sv_2mortal(newSViv( PTR2IV(ctx) ));
-	key_str = SvPV(key, key_len);
-
-	hash_value = hv_fetch( MY_CXT.ssleay_ctx_cert_verify_cbs, key_str, key_len, 0 );
-
-	if (hash_value == NULL || *hash_value == NULL) {
-		cb = NULL;
-	} else {
-		cb = INT2PTR(ssleay_ctx_cert_verify_cb_t*, SvIV( *hash_value ));
-	}
-
-	return cb;
-}
-
-void
-ssleay_ctx_cert_verify_cb_free(SSL_CTX* ctx) {
-	ssleay_ctx_passwd_cb_t* cb;
-
-	cb = ssleay_ctx_cert_verify_cb_get(ctx);
-
-	if (cb) {
-		if (cb->func) {
-			SvREFCNT_dec(cb->func);
-			cb->func = NULL;
-		}
-
-		if (cb->data) {
-			SvREFCNT_dec(cb->data);
-			cb->data = NULL;
-		}
-	}
-
-	Safefree(cb);
-}
-
-int
-ssleay_ctx_cert_verify_cb_invoke(X509_STORE_CTX* x509_store_ctx, void* data) {
-	dSP;
-	dMY_CXT;
-
-	int count;
-	int res;
-	ssleay_ctx_cert_verify_cb_t* cb = (ssleay_ctx_cert_verify_cb_t*)data;
-
-	if (cb->tid != MY_CXT.tid) {
-		warn ("Net::SSLeay: cross-thread callbacks not allowed!");
-		return -1;
-	}
-
-	ENTER;
-	SAVETMPS;
-
-	PUSHMARK(SP);
-	XPUSHs(sv_2mortal(newSViv( PTR2IV(x509_store_ctx) )));
-	if (cb->data) {
-		XPUSHs( cb->data );
-	}
-	PUTBACK;
-
-	if (cb->func == NULL) {
-		croak ("Net::SSLeay: ssleay_ctx_cert_verify_cb_invoke called, but not "
-				"set to point to any perl function.\n");
-	}
-
-	count = call_sv( cb->func, G_SCALAR );
-
-	SPAGAIN;
-
-	if (count != 1) {
-		croak ("Net::SSLeay: ssleay_ctx_cert_verify_cb_invoke "
-				"perl function did not return a scalar.\n");
-	}
-
-	res = POPi;
-
-	PUTBACK;
-	FREETMPS;
-	LEAVE;
-
-	return res;
-}
-
-#if defined(SSL_F_SSL_SET_HELLO_EXTENSION) || defined(SSL_F_SSL_SET_SESSION_TICKET_EXT)
-
-ssleay_session_secret_cb_t*
-ssleay_session_secret_cb_new(SSL* s, SV* func, SV* data) {
-	ssleay_session_secret_cb_t* cb;
-	SV* hash_value;
-	SV* key;
-	char* key_str;
-	STRLEN key_len;
-        dMY_CXT;
-
-	cb = New(0, cb, 1, ssleay_session_secret_cb_t);
-
-	SvREFCNT_inc(func);
-	SvREFCNT_inc(data);
-	cb->func = func;
-	cb->data = data;
-	cb->tid = MY_CXT.tid;
-
-	if (s == NULL) {
-		croak( "Net::SSLeay: s == NULL in ssleay_session_secret_cb_new" );
-	}
-
-	hash_value = sv_2mortal(newSViv( PTR2IV(cb) ));
-
-	key = sv_2mortal(newSViv( PTR2IV(s) ));
-	key_str = SvPV(key, key_len);
-
-	if (MY_CXT.ssleay_session_secret_cbs == (HV*)NULL)
-		MY_CXT.ssleay_session_secret_cbs = newHV();
-
-	SvREFCNT_inc(hash_value);
-	hv_store( MY_CXT.ssleay_session_secret_cbs, key_str, key_len, hash_value, 0 );
-
-	return cb;
-}
-
-ssleay_session_secret_cb_t*
-ssleay_session_secret_cb_get(SSL* s) {
-	SV* key;
-	char* key_str;
-	STRLEN key_len;
-	SV** hash_value;
-	ssleay_session_secret_cb_t* cb;
-        dMY_CXT;
-
-	key = sv_2mortal(newSViv( PTR2IV(s) ));
-	key_str = SvPV(key, key_len);
-
-	hash_value = hv_fetch( MY_CXT.ssleay_session_secret_cbs, key_str, key_len, 0 );
-
-	if (hash_value == NULL || *hash_value == NULL) {
-		cb = NULL;
-	} else {
-		cb = INT2PTR(ssleay_session_secret_cb_t*, SvIV( *hash_value ));
-	}
-
-	return cb;
-}
-
-void
-ssleay_session_secret_cb_free(SSL* s) {
-	ssleay_session_secret_cb_t* cb;
-
-	cb = ssleay_session_secret_cb_get(s);
-
-	if (cb) {
-		if (cb->func) {
-			SvREFCNT_dec(cb->func);
-			cb->func = NULL;
-		}
-
-		if (cb->data) {
-			SvREFCNT_dec(cb->data);
-			cb->data = NULL;
-		}
-	}
-
-	Safefree(cb);
-}
-
-int
-ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
-			   STACK_OF(SSL_CIPHER) *peer_ciphers,
-			   SSL_CIPHER **cipher, void *arg)
+simple_cb_data_t* simple_cb_data_new(SV* func, SV* data)
 {
-	dSP;
-	dMY_CXT;
-
-	int count;
-	int res;
-	int i;
-	AV *ciphers = newAV();
-	SV *pref_cipher = sv_newmortal();
-	ssleay_session_secret_cb_t* cb = (ssleay_session_secret_cb_t*)arg;
-
-	if (cb->tid != MY_CXT.tid) {
-		warn ("Net::SSLeay: cross-thread callbacks not allowed!");
-		return -1;
-	}
-
-	ENTER;
-	SAVETMPS;
-
-	PUSHMARK(SP);
-	XPUSHs( sv_2mortal( newSVpv(secret, *secret_len)) );
-	for (i=0; i<sk_SSL_CIPHER_num(peer_ciphers); i++)
-	{
-	    SSL_CIPHER *c = sk_SSL_CIPHER_value(peer_ciphers,i);
-	    av_store(ciphers, i, sv_2mortal(newSVpv(SSL_CIPHER_get_name(c), 0)));
-	}
-       XPUSHs(sv_2mortal(newRV_inc((SV*)ciphers)));
-       XPUSHs(sv_2mortal(newRV_inc(pref_cipher)));
-
-	if (cb->data) {
-		XPUSHs( cb->data );
-	}
-	PUTBACK;
-
-	if (cb->func == NULL) {
-		croak ("Net::SSLeay: ssleay_session_secret_cb_invoke called, but not "
-				"set to point to any perl function.\n");
-	}
-
-	count = call_sv( cb->func, G_SCALAR );
-
-	SPAGAIN;
-
-	if (count != 1) {
-		croak ("Net::SSLeay: ssleay_session_secret_cb_invoke "
-				"perl function did not return a scalar.\n");
-	}
-
-	res = POPi;
-	if (res)
-	{
-	    /* See if there is a preferred cipher selected, if so
-	       it is an index into the stack */
-	    if (SvIOK(pref_cipher))
-	    {
-		*cipher = sk_SSL_CIPHER_value(peer_ciphers, SvIV(pref_cipher));
-	    }
-	}
-
-	PUTBACK;
-	FREETMPS;
-	LEAVE;
-
-	return res;
-}
-
-#endif
-
-ssleay_RSA_generate_key_cb_t*
-ssleay_RSA_generate_key_cb_new(SV* func, SV* data) {
-	ssleay_RSA_generate_key_cb_t* cb;
-	dMY_CXT;
-
-	New(0, cb, 1, ssleay_RSA_generate_key_cb_t);
-	cb->func = NULL;
-	cb->data = NULL;
-	cb->tid = MY_CXT.tid;
-
-	if (func) {
-		SvREFCNT_inc(func);
-		cb->func = func;
-	}
-
-	if (data) {
-		SvREFCNT_inc(data);
-		cb->data = data;
-	}
-
-	return cb;
-}
-
-void
-ssleay_RSA_generate_key_cb_free(ssleay_RSA_generate_key_cb_t* cb) {
-	if (cb) {
-		if (cb->func) {
-			SvREFCNT_dec(cb->func);
-			cb->func = NULL;
-		}
-
-		if (cb->data) {
-			SvREFCNT_dec(cb->data);
-			cb->data = NULL;
-		}
-	}
-
-	Safefree(cb);
-}
-
-void
-ssleay_RSA_generate_key_cb_invoke(int i, int n, void* data) {
-	dSP;
-	dMY_CXT;
-
-	ssleay_RSA_generate_key_cb_t* cb = (ssleay_RSA_generate_key_cb_t*)data;
-
-	if (cb->tid != MY_CXT.tid) {
-		warn ("Net::SSLeay: cross-thread callbacks not allowed!");
-		return;
-	}
-
-	if (cb->func) {
-		int count;
-
-		ENTER;
-		SAVETMPS;
-
-		PUSHMARK(sp);
-
-		XPUSHs(sv_2mortal( newSViv(i) ));
-		XPUSHs(sv_2mortal( newSViv(n) ));
-
-		if (cb->data)
-			XPUSHs( cb->data );
-
-		PUTBACK;
-
-		count = call_sv( cb->func, G_VOID|G_DISCARD );
-
-		if (count != 0)
-			croak ("Net::SSLeay: ssleay_RSA_generate_key_cb_invoke "
-					"perl function did return something in void context.\n");
-
-		PUTBACK;
-		FREETMPS;
-		LEAVE;
-	}
-}
-
-ssleay_pem_password_cb_t*
-ssleay_pem_password_cb_new(SV* func, SV* data) {
-    ssleay_pem_password_cb_t* cb;
-    dMY_CXT;
-    New(0, cb, 1, ssleay_pem_password_cb_t);
+    simple_cb_data_t* cb;
+    New(0, cb, 1, simple_cb_data_t);
     if (cb) {
         SvREFCNT_inc(func);
         SvREFCNT_inc(data);
-        cb->tid = MY_CXT.tid;
         cb->func = func;
         cb->data = data;
     }
     return cb;
 }
 
-void
-ssleay_pem_password_cb_free(ssleay_pem_password_cb_t* cb) {
+void simple_cb_data_free(simple_cb_data_t* cb)
+{
     if (cb) {
         if (cb->func) {
             SvREFCNT_dec(cb->func);
@@ -981,23 +431,278 @@ ssleay_pem_password_cb_free(ssleay_pem_password_cb_t* cb) {
     Safefree(cb);
 }
 
-int
-ssleay_pem_password_cb_invoke(char *buf, int bufsize, int rwflag, void *data) {
-    dSP;
+int cb_data_advanced_put(const char* item_name, void *ptr, const char* data_name, SV* data)
+{
+    HV * L2HV;
+    SV ** svtmp;
+    int len;
+    char key_name[500];
     dMY_CXT;
-    char *str;
-    int str_len = 0;
 
-    ssleay_pem_password_cb_t* cb = (ssleay_pem_password_cb_t*)data;
+    len = snprintf(key_name, sizeof(key_name), "%s!!%p", item_name, ptr);
+    if (len == sizeof(key_name)) return 0; /* error  - key_name too short*/
 
-    if (cb->tid != MY_CXT.tid) {
-        warn ("Net::SSLeay: cross-thread callbacks not allowed!");
-        return 0;
+    /* get or create level-2 hash */
+    svtmp = hv_fetch(MY_CXT.global_cb_data, key_name, strlen(key_name), 0);
+    if (svtmp == NULL) {
+        L2HV = newHV();
+        hv_store(MY_CXT.global_cb_data, key_name, strlen(key_name), newRV_noinc((SV*)L2HV), 0);
+    }
+    else {
+        if (!SvOK(*svtmp) || !SvROK(*svtmp)) return 0;
+#if defined(MUTABLE_PTR)
+        L2HV = (HV*)MUTABLE_PTR(SvRV(*svtmp));
+#else
+        L2HV = (HV*)(SvRV(*svtmp));
+#endif
     }
 
-    if (cb->func) {
-        int count;
+    /* first delete already stored value */
+    hv_delete(L2HV, data_name, strlen(data_name), 0);
+    if (data!=NULL)
+        if (SvOK(data))
+            hv_store(L2HV, data_name, strlen(data_name), newSVsv(data), 0);
 
+    /* test if MY_CXT.global_cb_data->{key_name} is empty - if yes remove it */
+    hv_iterinit(L2HV);
+    if (!hv_iternext(L2HV))
+        hv_delete(MY_CXT.global_cb_data, key_name, strlen(key_name), G_DISCARD);
+
+    return 1;
+}
+
+SV* cb_data_advanced_get(const char* item_name, void *ptr, const char* data_name)
+{
+    HV * L2HV;
+    SV ** svtmp;
+    int len;
+    char key_name[500];
+    dMY_CXT;
+
+    len = snprintf(key_name, sizeof(key_name), "%s!!%p", item_name, ptr);
+    if (len == sizeof(key_name)) return newSVpv(NULL, 0); /* return undef on error - key_name too short*/
+
+    /* get level-2 hash */
+    svtmp = hv_fetch(MY_CXT.global_cb_data, key_name, strlen(key_name), 0);
+    if (svtmp == NULL)  return &PL_sv_undef;
+    if (!SvOK(*svtmp))  return &PL_sv_undef;
+    if (!SvROK(*svtmp)) return &PL_sv_undef;
+#if defined(MUTABLE_PTR)
+    L2HV = (HV*)MUTABLE_PTR(SvRV(*svtmp));
+#else
+    L2HV = (HV*)(SvRV(*svtmp));
+#endif
+
+    /* get stored data */
+    svtmp = hv_fetch(L2HV, data_name, strlen(data_name), 0);
+    if (svtmp == NULL) return &PL_sv_undef;
+    if (!SvOK(*svtmp)) return &PL_sv_undef;
+
+    return newSVsv(*svtmp);
+}
+
+/* ============= callback stuff - invoke functions ============== */
+
+static int ssleay_verify_callback_invoke (int ok, X509_STORE_CTX* x509_store)
+{
+    dSP;
+    SSL* ssl;
+    int count = -1, res;
+    SV *cb_func;
+
+    ssl = X509_STORE_CTX_get_ex_data(x509_store, SSL_get_ex_data_X509_STORE_CTX_idx());
+    cb_func = cb_data_advanced_get("ssleay_verify_callback", ssl, "func");
+    
+    if (!SvOK(cb_func)) {
+        SSL_CTX* ssl_ctx = SSL_get_SSL_CTX(ssl);
+        cb_func = cb_data_advanced_get("ssleay_verify_callback", ssl_ctx, "func");
+     }
+ 
+    if (!SvOK(cb_func))
+        croak("Net::SSLeay: verify_callback called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PRN("verify callback glue", ok);
+
+    PUSHMARK(sp);
+    EXTEND( sp, 2 );
+    PUSHs( sv_2mortal(newSViv(ok)) );
+    PUSHs( sv_2mortal(newSViv(PTR2IV(x509_store))) );
+    PUTBACK;
+
+    PR("About to call verify callback.\n");
+    count = call_sv(cb_func, G_SCALAR);
+    PR("Returned from verify callback.\n");
+
+    SPAGAIN;
+
+    if (count != 1)
+        croak ( "Net::SSLeay: verify_callback perl function did not return a scalar.\n");
+
+    res = POPi;
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return res;
+}
+
+static int ssleay_ctx_passwd_cb_invoke(char *buf, int size, int rwflag, void *userdata)
+{
+    dSP;
+    int count = -1;
+    char *res;
+    SV *cb_func, *cb_data;
+
+    cb_func = cb_data_advanced_get("ssleay_ctx_passwd_cb", userdata, "func");
+    cb_data = cb_data_advanced_get("ssleay_ctx_passwd_cb", userdata, "data");
+
+    if(!SvOK(cb_func))
+        croak ("Net::SSLeay: ssleay_ctx_passwd_cb_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(sp);
+    XPUSHs( sv_2mortal( newSViv(rwflag)) );
+    XPUSHs( sv_2mortal( cb_data ));
+    PUTBACK;
+
+    count = call_sv( cb_func, G_SCALAR );
+
+    SPAGAIN;
+
+    if (count != 1)
+        croak("Net::SSLeay: ssleay_ctx_passwd_cb_invoke perl function did not return a scalar.\n");
+
+    res = POPp;
+
+    if (res == NULL) {
+        *buf = '\0';
+    } else {
+        strncpy(buf, res, size);
+        buf[size - 1] = '\0';
+    }
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return strlen(buf);
+}
+
+int ssleay_ctx_cert_verify_cb_invoke(X509_STORE_CTX* x509_store_ctx, void* data)
+{
+    dSP;
+    int count = -1;
+    int res;
+    SV * cb_func, *cb_data;
+    void *ptr;
+
+#if OPENSSL_VERSION_NUMBER < 0x0090700fL
+    SSL *ssl = X509_STORE_CTX_get_ex_data(x509_store_ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
+    ptr = (void*) SSL_get_SSL_CTX(ssl);
+#else
+    ptr = (void*) data;
+#endif
+
+    cb_func = cb_data_advanced_get("ssleay_ctx_cert_verify_cb", ptr, "func");
+    cb_data = cb_data_advanced_get("ssleay_ctx_cert_verify_cb", ptr, "data");
+
+    if(!SvOK(cb_func))
+        croak ("Net::SSLeay: ssleay_ctx_cert_verify_cb_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    XPUSHs(sv_2mortal(newSViv( PTR2IV(x509_store_ctx))));
+    XPUSHs(sv_2mortal(cb_data));
+    PUTBACK;
+
+    count = call_sv(cb_func, G_SCALAR);
+
+    SPAGAIN;
+
+    if (count != 1)
+        croak("Net::SSLeay: ssleay_ctx_cert_verify_cb_invoke perl function did not return a scalar.\n");
+
+    res = POPi;
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return res;
+}
+
+#if defined(SSL_F_SSL_SET_HELLO_EXTENSION) || defined(SSL_F_SSL_SET_SESSION_TICKET_EXT)
+
+int ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
+                                    STACK_OF(SSL_CIPHER) *peer_ciphers,
+                                    SSL_CIPHER **cipher, void *arg)
+{
+    dSP;
+    int count = -1, res, i;
+    AV *ciphers = newAV();
+    SV *pref_cipher = sv_newmortal();
+    SV * cb_func, *cb_data;
+
+    cb_func = cb_data_advanced_get("ssleay_session_secret_cb", arg, "func");
+    cb_data = cb_data_advanced_get("ssleay_session_secret_cb", arg, "data");
+
+    if(!SvOK(cb_func))
+        croak ("Net::SSLeay: ssleay_ctx_passwd_cb_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+
+    XPUSHs( sv_2mortal( newSVpv(secret, *secret_len)) );
+    for (i=0; i<sk_SSL_CIPHER_num(peer_ciphers); i++) {
+        SSL_CIPHER *c = sk_SSL_CIPHER_value(peer_ciphers,i);
+        av_store(ciphers, i, sv_2mortal(newSVpv(SSL_CIPHER_get_name(c), 0)));
+    }
+    XPUSHs(sv_2mortal(newRV_inc((SV*)ciphers)));
+    XPUSHs(sv_2mortal(newRV_inc(pref_cipher)));
+    XPUSHs(sv_2mortal(cb_data));
+
+    PUTBACK;
+
+    count = call_sv( cb_func, G_SCALAR );
+
+    SPAGAIN;
+
+    if (count != 1)
+        croak ("Net::SSLeay: ssleay_session_secret_cb_invoke perl function did not return a scalar.\n");
+
+    res = POPi;
+    if (res) {
+        /* See if there is a preferred cipher selected, if so it is an index into the stack */
+        if (SvIOK(pref_cipher))
+            *cipher = sk_SSL_CIPHER_value(peer_ciphers, SvIV(pref_cipher));
+    }
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return res;
+}
+
+#endif
+
+int pem_password_cb_invoke(char *buf, int bufsize, int rwflag, void *data) {
+    dSP;
+    char *str;
+    int count = -1, str_len = 0;
+    simple_cb_data_t* cb = (simple_cb_data_t*)data;
+
+    if (cb->func && SvOK(cb->func)) {
         ENTER;
         SAVETMPS;
 
@@ -1005,7 +710,6 @@ ssleay_pem_password_cb_invoke(char *buf, int bufsize, int rwflag, void *data) {
 
         XPUSHs(sv_2mortal( newSViv(bufsize-1) ));
         XPUSHs(sv_2mortal( newSViv(rwflag) ));
-
         if (cb->data) XPUSHs( cb->data );
 
         PUTBACK;
@@ -1016,7 +720,7 @@ ssleay_pem_password_cb_invoke(char *buf, int bufsize, int rwflag, void *data) {
 
         buf[0] = 0; /* start with an empty password */
         if (count != 1) {
-            croak("Net::SSLeay: ssleay_pem_password_cb_invoke callback returned more than 1 value\n");
+            croak("Net::SSLeay: pem_password_cb_invoke perl function did not return a scalar.\n");
         }
         else {
             str = POPpx;
@@ -1026,7 +730,7 @@ ssleay_pem_password_cb_invoke(char *buf, int bufsize, int rwflag, void *data) {
             }
             else {
                 str_len = 0;
-                warn("Net::SSLeay: ssleay_pem_password_cb_invoke password too long\n");
+                warn("Net::SSLeay: pem_password_cb_invoke password too long\n");
             }
         }
 
@@ -1036,6 +740,38 @@ ssleay_pem_password_cb_invoke(char *buf, int bufsize, int rwflag, void *data) {
     }
     return str_len;
 }
+
+void ssleay_RSA_generate_key_cb_invoke(int i, int n, void* data)
+{
+    dSP;
+    int count = -1;
+    simple_cb_data_t* cb = (simple_cb_data_t*)data;
+
+    if (cb->func && SvOK(cb->func)) {
+        ENTER;
+        SAVETMPS;
+
+        PUSHMARK(sp);
+
+        XPUSHs(sv_2mortal( newSViv(i) ));
+        XPUSHs(sv_2mortal( newSViv(n) ));
+        if (cb->data) XPUSHs( cb->data );
+
+        PUTBACK;
+
+        count = call_sv( cb->func, G_VOID|G_DISCARD );
+
+        if (count != 0)
+            croak ("Net::SSLeay: ssleay_RSA_generate_key_cb_invoke "
+                   "perl function did return something in void context.\n");
+
+        PUTBACK;
+        FREETMPS;
+        LEAVE;
+    }
+}
+
+/* ============= end of callback stuff ============== */
 
 MODULE = Net::SSLeay		PACKAGE = Net::SSLeay          PREFIX = SSL_
 
@@ -1051,10 +787,8 @@ BOOT:
     openssl_threads_init();
 #endif
 #endif
-    MY_CXT.ssleay_ctx_verify_callbacks = (HV*)NULL;
-    MY_CXT.ssleay_ctx_passwd_cbs = (HV*)NULL;
-    MY_CXT.ssleay_ctx_cert_verify_cbs = (HV*)NULL;
-    MY_CXT.ssleay_session_secret_cbs = (HV*)NULL;
+    /* initialize global shared callback data hash */
+    MY_CXT.global_cb_data = newHV();
     MY_CXT.tid = get_my_thread_id();
     }
 
@@ -1062,13 +796,12 @@ void
 CLONE(...)
 CODE:
     MY_CXT_CLONE;
-    /* we are cleaning all callback related HV's as we want
-     * to prevent cross-thread callbacks
+    /* reset all callback related data as we want to prevent 
+     * cross-thread callbacks
+     * TODO: later somebody can make the global hash MY_CXT.global_cb_data
+     * somehow shared between threads
      */
-    MY_CXT.ssleay_ctx_verify_callbacks = (HV*)NULL;
-    MY_CXT.ssleay_ctx_passwd_cbs = (HV*)NULL;
-    MY_CXT.ssleay_ctx_cert_verify_cbs = (HV*)NULL;
-    MY_CXT.ssleay_session_secret_cbs = (HV*)NULL;
+    MY_CXT.global_cb_data = newHV();
     MY_CXT.tid = get_my_thread_id();
 
 double
@@ -1185,37 +918,26 @@ SSL_CTX_load_verify_locations(ctx,CAfile,CApath)
      RETVAL
 
 void
-SSL_CTX_set_verify(ctx,mode,callback=NULL)
-	SSL_CTX * ctx
-	int                mode
-	SV *               callback
-	PREINIT:
-	SV* key;
-	char* key_str;
-	STRLEN key_len;
-        dMY_CXT;
-	CODE:
+SSL_CTX_set_verify(ctx,mode,callback=&PL_sv_undef)
+        SSL_CTX * ctx
+        int mode
+        SV * callback
+    CODE:
 
-	if (MY_CXT.ssleay_ctx_verify_callbacks == (HV*)NULL)
-		MY_CXT.ssleay_ctx_verify_callbacks = newHV();
+    /* Former versions of SSLeay checked if the callback was a true boolean value
+     * and didn't call it if it was false. Therefor some people set the callback
+     * to '0' if they don't want to use it (IO::Socket::SSL for example). Therefor
+     * we don't execute the callback if it's value isn't something true to retain
+     * backwards compatibility.
+     */
 
-	key = sv_2mortal(newSViv( PTR2IV(ctx) ));
-	key_str = SvPV(key, key_len);
-
-	/* Former versions of SSLeay checked if the callback was a true boolean value
-	 * and didn't call it if it was false. Therefor some people set the callback
-	 * to '0' if they don't want to use it (IO::Socket::SSL for example). Therefor
-	 * we don't execute the callback if it's value isn't something true to retain
-	 * backwards compatibility.
-	 */
-
-	if (callback == NULL || !SvTRUE(callback)) {
-		hv_delete( MY_CXT.ssleay_ctx_verify_callbacks, key_str, key_len, G_DISCARD );
-		SSL_CTX_set_verify( ctx, mode, NULL );
-	} else {
-		hv_store( MY_CXT.ssleay_ctx_verify_callbacks, key_str, key_len, newSVsv(callback), 0 );
-		SSL_CTX_set_verify( ctx, mode, &ssleay_verify_callback_invoke );
-	}
+    if (callback==NULL || !SvOK(callback) || !SvTRUE(callback)) {
+        SSL_CTX_set_verify(ctx, mode, NULL);
+        cb_data_advanced_put("ssleay_verify_callback", ctx, "func", NULL);
+    } else {
+        cb_data_advanced_put("ssleay_verify_callback", ctx, "func", callback);
+        SSL_CTX_set_verify(ctx, mode, &ssleay_verify_callback_invoke);
+    }
 
 int
 SSL_get_error(s,ret)
@@ -1533,29 +1255,18 @@ SSL_get_peer_certificate(s)
 
 void
 SSL_set_verify(s,mode,callback)
-    SSL *              s
-    int                mode
-    SV *               callback
-	PREINIT:
-	SV* key;
-	char* key_str;
-	STRLEN key_len;
-        dMY_CXT;
+        SSL * s
+        int mode
+        SV * callback
     CODE:
-
-	if (MY_CXT.ssleay_ctx_verify_callbacks == (HV*)NULL)
-		MY_CXT.ssleay_ctx_verify_callbacks = newHV();
-
-	key = sv_2mortal(newSViv( PTR2IV(s) ));
-	key_str = SvPV(key, key_len);
-
-	if (callback == NULL) {
-		hv_delete( MY_CXT.ssleay_ctx_verify_callbacks, key_str, key_len, G_DISCARD );
-		SSL_set_verify( s, mode, NULL );
-	} else {
-		hv_store( MY_CXT.ssleay_ctx_verify_callbacks, key_str, key_len, newSVsv(callback), 0 );
-		SSL_set_verify( s, mode, &ssleay_verify_callback_invoke );
-	}
+        if (callback==NULL || !SvOK(callback)) {
+            SSL_set_verify(s, mode, NULL);
+            cb_data_advanced_put("ssleay_verify_callback", s, "func", NULL);
+        }
+        else {
+            cb_data_advanced_put("ssleay_verify_callback", s, "func", callback);
+            SSL_set_verify(s, mode, &ssleay_verify_callback_invoke);
+        }
 
 void
 SSL_set_bio(s,rbio,wbio)
@@ -3589,24 +3300,25 @@ SSL_CTX_get_cert_store(ctx)
      SSL_CTX *     ctx
 
 void
-SSL_CTX_set_cert_verify_callback(ctx,func,data=NULL)
-	SSL_CTX* ctx
-	SV* func
-	SV*	data
-	PREINIT:
-	ssleay_ctx_cert_verify_cb_t* cb;
-	CODE:
-	if (func == NULL || func == &PL_sv_undef) {
-		ssleay_ctx_cert_verify_cb_free(ctx);
-		SSL_CTX_set_cert_verify_callback(ctx, NULL, NULL);
-	} else {
-		cb = ssleay_ctx_cert_verify_cb_new(ctx, func, data);
+SSL_CTX_set_cert_verify_callback(ctx,callback,data=&PL_sv_undef)
+        SSL_CTX * ctx
+        SV * callback
+        SV * data
+    CODE: 
+        if (callback==NULL || !SvOK(callback)) {
+            SSL_CTX_set_cert_verify_callback(ctx, NULL, NULL);
+            cb_data_advanced_put("ssleay_ctx_cert_verify_cb", ctx, "func", NULL);
+            cb_data_advanced_put("ssleay_ctx_cert_verify_cb", ctx, "data", NULL);
+        }
+        else {
+            cb_data_advanced_put("ssleay_ctx_cert_verify_cb", ctx, "func", callback);
+            cb_data_advanced_put("ssleay_ctx_cert_verify_cb", ctx, "data", data);
 #if OPENSSL_VERSION_NUMBER >= 0x0090700fL
-		SSL_CTX_set_cert_verify_callback(ctx, ssleay_ctx_cert_verify_cb_invoke, cb);
+            SSL_CTX_set_cert_verify_callback(ctx, ssleay_ctx_cert_verify_cb_invoke, ctx);
 #else
-		SSL_CTX_set_cert_verify_callback(ctx, ssleay_ctx_cert_verify_cb_invoke, (char*)cb);
+            SSL_CTX_set_cert_verify_callback(ctx, ssleay_ctx_cert_verify_cb_invoke, (char*)ctx);
 #endif
-	}
+        }
 
 X509_NAME_STACK *
 SSL_CTX_get_client_CA_list(ctx)
@@ -3618,32 +3330,32 @@ SSL_CTX_set_client_CA_list(ctx,list)
      X509_NAME_STACK * list
 
 void
-SSL_CTX_set_default_passwd_cb(ctx,func=NULL)
-	SSL_CTX *	ctx
-	SV * func
-	PREINIT:
-	ssleay_ctx_passwd_cb_t* cb;
-	CODE:
-	if (func == NULL || func == &PL_sv_undef) {
-		ssleay_ctx_passwd_cb_free_func(ctx);
-		SSL_CTX_set_default_passwd_cb(ctx, NULL);
-	} else {
-		cb = ssleay_ctx_passwd_cb_get(ctx);
-		ssleay_ctx_passwd_cb_func_set(ctx, func);
-		SSL_CTX_set_default_passwd_cb(ctx, &ssleay_ctx_passwd_cb_invoke);
-		SSL_CTX_set_default_passwd_cb_userdata(ctx, (void*)cb);
-	}
+SSL_CTX_set_default_passwd_cb(ctx,callback=&PL_sv_undef)
+        SSL_CTX * ctx
+        SV * callback
+    CODE:
+        if (callback==NULL || !SvOK(callback)) {
+            SSL_CTX_set_default_passwd_cb(ctx, NULL);
+            SSL_CTX_set_default_passwd_cb_userdata(ctx, NULL);
+            cb_data_advanced_put("ssleay_ctx_passwd_cb", ctx, "func", NULL);
+            cb_data_advanced_put("ssleay_ctx_passwd_cb", ctx, "data", NULL);
+        }
+        else {
+            cb_data_advanced_put("ssleay_ctx_passwd_cb", ctx, "func", callback);
+            cb_data_advanced_put("ssleay_ctx_passwd_cb", ctx, "data", NULL);
+            SSL_CTX_set_default_passwd_cb_userdata(ctx, (void*)ctx);
+            SSL_CTX_set_default_passwd_cb(ctx, &ssleay_ctx_passwd_cb_invoke);
+        }
 
-void
-SSL_CTX_set_default_passwd_cb_userdata(ctx,u=NULL)
-	SSL_CTX *	ctx
-	SV*	u
-	CODE:
-	if (u == NULL) {
-		ssleay_ctx_passwd_cb_free_userdata(ctx);
-	} else {
-		ssleay_ctx_passwd_cb_userdata_set(ctx, u);
-	}
+void 
+SSL_CTX_set_default_passwd_cb_userdata(ctx,data=&PL_sv_undef)
+        SSL_CTX * ctx
+        SV * data
+    CODE:
+        cb_data_advanced_put("ssleay_ctx_passwd_cb", ctx, "data", data);
+        if (SvOK(data)) {
+            SSL_CTX_set_default_passwd_cb_userdata(ctx, (void*)ctx);
+        }
 
 int
 SSL_CTX_set_ex_data(ssl,idx,data)
@@ -4192,19 +3904,19 @@ SSL_set_tmp_rsa(ssl,rsa)
   RETVAL
 
 RSA *
-RSA_generate_key(bits,e,perl_cb=NULL,perl_cb_arg=NULL)
-		int bits
-		unsigned long e
-		SV* perl_cb
-		SV* perl_cb_arg
-	PREINIT:
-		ssleay_RSA_generate_key_cb_t* cb = NULL;
-	CODE:
-		cb = ssleay_RSA_generate_key_cb_new(perl_cb, perl_cb_arg);
-		RETVAL = RSA_generate_key(bits, e, ssleay_RSA_generate_key_cb_invoke, cb);
-		ssleay_RSA_generate_key_cb_free(cb);
-	OUTPUT:
-		RETVAL
+RSA_generate_key(bits,e,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
+        int bits
+        unsigned long e
+        SV* perl_cb
+        SV* perl_data
+    PREINIT:
+        simple_cb_data_t* cb = NULL;
+    CODE:
+        cb = simple_cb_data_new(perl_cb, perl_data);
+        RETVAL = RSA_generate_key(bits, e, ssleay_RSA_generate_key_cb_invoke, cb);
+        simple_cb_data_free(cb);
+    OUTPUT:
+        RETVAL
 
 void
 RSA_free(r)
@@ -4252,13 +3964,13 @@ PEM_read_bio_PrivateKey(bio,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
         SV* perl_cb
         SV* perl_data
     PREINIT:
-        ssleay_pem_password_cb_t* cb = NULL;
+        simple_cb_data_t* cb = NULL;
     CODE:
         if (SvOK(perl_cb)) {
             /* setup our callback */
-            cb = ssleay_pem_password_cb_new(perl_cb, perl_data);
-            RETVAL = PEM_read_bio_PrivateKey(bio, NULL, ssleay_pem_password_cb_invoke, (void*)cb);
-            ssleay_pem_password_cb_free(cb);
+            cb = simple_cb_data_new(perl_cb, perl_data);
+            RETVAL = PEM_read_bio_PrivateKey(bio, NULL, pem_password_cb_invoke, (void*)cb);
+            simple_cb_data_free(cb);
         }
         else if (!SvOK(perl_cb) && SvOK(perl_data) && SvPOK(perl_data)) {
             /* use perl_data as the password */
@@ -4364,23 +4076,24 @@ SSL_set_hello_extension(s, type, data)
 
 #if defined(SSL_F_SSL_SET_HELLO_EXTENSION) || defined(SSL_F_SSL_SET_SESSION_TICKET_EXT)
 
-void
-SSL_set_session_secret_cb(s,func,data=NULL)
-	SSL * s
-	SV* func
-	SV*	data
-	PREINIT:
-	ssleay_session_secret_cb_t* cb;
-	CODE:
-	if (func == NULL || func == &PL_sv_undef) {
-		ssleay_session_secret_cb_free(s);
-		SSL_set_session_secret_cb(s, NULL, NULL);
-	} else {
-		cb = ssleay_session_secret_cb_new(s, func, data);
-		SSL_set_session_secret_cb(s, (int (*)(SSL *s, void *secret, int *secret_len,
-			   STACK_OF(SSL_CIPHER) *peer_ciphers,
-			   SSL_CIPHER **cipher, void *arg))&ssleay_session_secret_cb_invoke, cb);
-	}
+void 
+SSL_set_session_secret_cb(s,callback=&PL_sv_undef,data=&PL_sv_undef)
+        SSL * s
+        SV * callback
+        SV * data
+    CODE:
+        if (callback==NULL || !SvOK(callback)) {
+            SSL_set_session_secret_cb(s, NULL, NULL);
+            cb_data_advanced_put("ssleay_session_secret_cb", s, "func", NULL);
+            cb_data_advanced_put("ssleay_session_secret_cb", s, "data", NULL);
+        }
+        else {
+            cb_data_advanced_put("ssleay_session_secret_cb", s, "func", callback);
+            cb_data_advanced_put("ssleay_session_secret_cb", s, "data", data);
+            SSL_set_session_secret_cb(s, (int (*)(SSL *s, void *secret, int *secret_len,
+                STACK_OF(SSL_CIPHER) *peer_ciphers,
+                SSL_CIPHER **cipher, void *arg))&ssleay_session_secret_cb_invoke, s);
+        }
 
 #endif
 

@@ -193,6 +193,11 @@ Revision history for Perl extension Net::SSLeay.
      Fixed calling convention for Net::SSLeay::get_shared_ciphers + test + doc update
      Added coding guidelines to SSLeay.xs
      Fix for serial number issue.
+     Major patch to refactor callback code to make it more extensible and
+     remove duplicate code. Thanks to kmx.
+     Fixed a problem in  t/local/07_sslecho.t when running on 
+     openssl-0.9.6
+
 
 1.45 2012-02-25
      Added mising doc for SESSION_cmp. Patch by paul.

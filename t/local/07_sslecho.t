@@ -19,8 +19,9 @@ my $msg = 'ssleay-test';
 my $cert_pem = File::Spec->catfile('t', 'data', 'cert.pem');
 my $key_pem = File::Spec->catfile('t', 'data', 'key.pem');
 
-my $cert_name = '/C=PL/ST=Peoples Republic of Perl/L=Net::/O=Net::SSLeay/'
-    . 'OU=Net::SSLeay developers/CN=127.0.0.1/emailAddress=rafl@debian.org';
+my $cert_name = (Net::SSLeay::SSLeay >= 0x0090700f) ?
+                '/C=PL/ST=Peoples Republic of Perl/L=Net::/O=Net::SSLeay/OU=Net::SSLeay developers/CN=127.0.0.1/emailAddress=rafl@debian.org' :
+                '/C=PL/ST=Peoples Republic of Perl/L=Net::/O=Net::SSLeay/OU=Net::SSLeay developers/CN=127.0.0.1/Email=rafl@debian.org';
 
 $ENV{RND_SEED} = '1234567890123456789012345678901234567890';
 
