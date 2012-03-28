@@ -2463,7 +2463,7 @@ The list of ciphers is inherited by all ssl objects created from $ctx.
  #
  # returns: 1 if any cipher could be selected and 0 on complete failure
 
-The format of $str is described in L<www.openssl.org/docs/apps/ciphers.html|www.openssl.org/docs/apps/ciphers.html>
+The format of $str is described in L<http://www.openssl.org/docs/apps/ciphers.html|http://www.openssl.org/docs/apps/ciphers.html>
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_cipher_list.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_cipher_list.html>
 
@@ -3005,7 +3005,7 @@ Obtain the number of secret/algorithm bits used.
  # returns: number of secret bits used by current cipher
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_current_cipher.html|http://www.openssl.org/docs/ssl/SSL_get_current_cipher.html>
-and L<www.openssl.org/docs/ssl/SSL_CIPHER_get_name.html|www.openssl.org/docs/ssl/SSL_CIPHER_get_name.html>
+and L<http://www.openssl.org/docs/ssl/SSL_CIPHER_get_name.html|http://www.openssl.org/docs/ssl/SSL_CIPHER_get_name.html>
 
 =item * get_cipher_list
 
@@ -4993,7 +4993,7 @@ Adjust th ASN1_TIME object to the timestamp (in GMT).
  #
  # returns: value corresponding to openssl's ASN1_TIME structure (0 on failure)
 
-L<BEWARE:> this function may fail for dates after 2038 as it is dependant on time_t size on your
+B<BEWARE:> this function may fail for dates after 2038 as it is dependant on time_t size on your
 system (32bit time_t does not work after 2038). Consider using L</P_ASN1_TIME_set_isotime> instead).
 
 =item * X509_load_cert_crl_file

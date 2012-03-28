@@ -790,6 +790,7 @@ BOOT:
     /* initialize global shared callback data hash */
     MY_CXT.global_cb_data = newHV();
     MY_CXT.tid = get_my_thread_id();
+    printf("BOOT %lld %d\n", MY_CXT.tid, getpid());
     }
 
 void
@@ -803,6 +804,13 @@ CODE:
      */
     MY_CXT.global_cb_data = newHV();
     MY_CXT.tid = get_my_thread_id();
+    printf("CLONE %lld %d\n", MY_CXT.tid, getpid());
+
+void
+END(...)
+CODE:
+    dMY_CXT;
+    printf("END %lld %d\n", MY_CXT.tid, getpid());
 
 double
 constant(name)
