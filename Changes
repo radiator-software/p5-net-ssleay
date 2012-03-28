@@ -198,6 +198,9 @@ Revision history for Perl extension Net::SSLeay.
      Fixed a problem in  t/local/07_sslecho.t when running on 
      openssl-0.9.6
      Fixed pod parsing errors reported by Olivier Mengué
+     Better prevention of leaking SVs in the new callback stuff
+     Debug messages in SSLeay.xs can be enabled by: perl Makefile.PL DEFINE=-DSHOW_XS_DEBUG
+     Fixing X509_NAME_oneline (calling OPENSSL_free at the right place)
 
 1.45 2012-02-25
      Added mising doc for SESSION_cmp. Patch by paul.
