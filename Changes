@@ -175,6 +175,10 @@ Revision history for Perl extension Net::SSLeay.
      - Net::SSLeay::d2i_X509_REQ_bio
      - Net::SSLeay::d2i_X509_bio
      - Net::SSLeay::set_tlsext_host_name
+     - Net::SSLeay::CTX_set_next_protos_advertised_cb
+     - Net::SSLeay::CTX_set_next_proto_select_cb
+     - Net::SSLeay::P_next_proto_negotiated
+     - Net::SSLeay::P_next_proto_last_status
      Fixed a problem with multiple Safefree of GLOBAL_openssl_mutex when run
      under apache2+mod_perl on recent Debain distros. Removed END and
      openssl_threads_cleanup() since they can be called during thread
@@ -206,6 +210,8 @@ Revision history for Perl extension Net::SSLeay.
      thread locking instead.
      Added more debg printing. Enable with
      	   perl Makefile.PL DEFINE=-DSHOW_XS_DEBUG
+     Added NPN support, thanks to kmx
+     Added t/local/40_npn_support.t tests for new NPN support
 
 1.45 2012-02-25
      Added mising doc for SESSION_cmp. Patch by paul.

@@ -12,6 +12,7 @@ const X509_REQ *    T_PTR
 const X509_NAME *   T_PTR
 const EVP_CIPHER *  T_PTR
 const EVP_PKEY *    T_PTR
+const SSL *         T_PTR
 X509 *		T_PTR
 X509_CRL *	T_PTR
 X509_LOOKUP *	T_PTR
