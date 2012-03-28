@@ -183,13 +183,11 @@ which conflicts with perls
 #define PR2(s,t) fprintf(stderr,s,t);
 #define PR3(s,t,u) fprintf(stderr,s,t,u);
 #define PR4(s,t,u,v) fprintf(stderr,s,t,u,v);
-#define SEX_DEBUG 1
 #else
 #define PR1(s)
 #define PR2(s,t)
 #define PR3(s,t,u)
 #define PR4(s,t,u,v)
-#undef  SEX_DEBUG
 #endif
 
 #include "constants.c"
@@ -303,6 +301,8 @@ void openssl_threads_init(void)
 {
     int i;
 
+    PR1("STARTED: openssl_threads_init\n");
+
     /* initialize static locking */
     if ( !CRYPTO_get_locking_callback() ) {
 #if OPENSSL_VERSION_NUMBER < 0x10000000L
@@ -310,6 +310,7 @@ void openssl_threads_init(void)
 #else
         if ( !CRYPTO_THREADID_get_callback() ) {
 #endif
+            PR1("openssl_threads_init static locking\n");
             New(0, GLOBAL_openssl_mutex, CRYPTO_num_locks(), perl_mutex);
             if (!GLOBAL_openssl_mutex) return;
             for (i=0; i<CRYPTO_num_locks(); i++) MUTEX_INIT(&GLOBAL_openssl_mutex[i]);
@@ -330,6 +331,7 @@ void openssl_threads_init(void)
     if ( !CRYPTO_get_dynlock_create_callback() &&
          !CRYPTO_get_dynlock_lock_callback() &&
          !CRYPTO_get_dynlock_destroy_callback() ) {
+        PR1("openssl_threads_init dynamic locking\n");
         CRYPTO_set_dynlock_create_callback(openssl_dynlocking_create_function);
         CRYPTO_set_dynlock_lock_callback(openssl_dynlocking_lock_function);
         CRYPTO_set_dynlock_destroy_callback(openssl_dynlocking_destroy_function);
@@ -809,7 +811,12 @@ BOOT:
 #ifdef USE_ITHREADS
     MUTEX_INIT(&LIB_init_mutex);
 #ifdef OPENSSL_THREADS
-    openssl_threads_init();
+    /* If we running under ModPerl, we dont need our own thread locking because
+     * perl threads are not supported under mod-perl, and we can fall back to the thread
+     * locking built in to mod-ssl      
+     */
+     if (!hv_fetch(get_hv("ENV", 1), "MOD_PERL", 8, 0))
+	openssl_threads_init();
 #endif
 #endif
     /* initialize global shared callback data hash */

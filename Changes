@@ -201,6 +201,11 @@ Revision history for Perl extension Net::SSLeay.
      Better prevention of leaking SVs in the new callback stuff
      Debug messages in SSLeay.xs can be enabled by: perl Makefile.PL DEFINE=-DSHOW_XS_DEBUG
      Fixing X509_NAME_oneline (calling OPENSSL_free at the right place)
+     Fixed a problem with crashing when run under apache2+modssl+modperl on
+     Debian Wheezy. Now detects if it is running under ModPerl and uses ModSSLs
+     thread locking instead.
+     Added more debg printing. Enable with
+     	   perl Makefile.PL DEFINE=-DSHOW_XS_DEBUG
 
 1.45 2012-02-25
      Added mising doc for SESSION_cmp. Patch by paul.
