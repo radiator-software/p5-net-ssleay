@@ -744,7 +744,7 @@ int next_proto_helper_AV2protodata(AV * list, unsigned char *out)
 
 int next_proto_helper_protodata2AV(AV * list, const unsigned char *in, unsigned int inlen)
 {
-    int i = 0;
+    unsigned int i = 0;
     unsigned char il;
     if (!list || inlen<2) return 0;   
     while (i<inlen) {
@@ -761,7 +761,7 @@ int next_proto_select_cb_invoke(SSL *ssl, unsigned char **out, unsigned char *ou
 {
     SV *cb_func, *cb_data;
     unsigned char *next_proto_data;
-    unsigned short next_proto_len;
+    unsigned char next_proto_len;
     int next_proto_status;
     SSL_CTX *ctx = SSL_get_SSL_CTX(ssl);
 
@@ -793,11 +793,12 @@ int next_proto_select_cb_invoke(SSL *ssl, unsigned char **out, unsigned char *ou
             croak ("Net::SSLeay: next_proto_select_cb_invoke perl function did not return 2 values.\n");
         next_proto_data = POPpx;
         next_proto_status = POPi;
-        next_proto_len = strlen(next_proto_data);
         PUTBACK;
         FREETMPS;
         LEAVE;
 
+        if (strlen(next_proto_data)>255) return SSL_TLSEXT_ERR_ALERT_FATAL;
+        next_proto_len = (unsigned char)strlen(next_proto_data);
         /* store last_status + last_negotiated into global hash */
         cb_data_advanced_put(ssl, "next_proto_select_cb!!last_status", newSViv(next_proto_status));
         tmpsv = newSVpv(next_proto_data, next_proto_len);
@@ -1893,7 +1894,7 @@ X509_NAME_oneline(name)
 	char * buf;
 	CODE:
 	ST(0) = sv_newmortal();   /* Undefined to start with */
-	if (buf = X509_NAME_oneline(name, NULL, 0)) {
+	if ((buf = X509_NAME_oneline(name, NULL, 0))) {
 		sv_setpvn( ST(0), buf, strlen(buf));
 		OPENSSL_free(buf); /* mem was allocated by openssl */
 	}
@@ -1957,7 +1958,7 @@ X509_NAME_add_entry_by_NID(name,nid,type,bytes,loc=-1,set=0)
     PREINIT:
         STRLEN len;
     INPUT:
-        unsigned char *bytes = SvPV(ST(3), len);
+        unsigned char *bytes = (unsigned char *)SvPV(ST(3), len);
     CODE:
         RETVAL = X509_NAME_add_entry_by_NID(name,nid,type,bytes,len,loc,set);
     OUTPUT:
@@ -1973,14 +1974,11 @@ X509_NAME_add_entry_by_OBJ(name,obj,type,bytes,loc=-1,set=0)
     PREINIT:
         STRLEN len;
     INPUT:
-        unsigned char *bytes = SvPV(ST(3), len);
+        unsigned char *bytes = (unsigned char *)SvPV(ST(3), len);
     CODE:
         RETVAL = X509_NAME_add_entry_by_OBJ(name,obj,type,bytes,len,loc,set);
     OUTPUT:
         RETVAL
-
-#if OPENSSL_VERSION_NUMBER < 0x0090707fL
-#define REM18 "before 0.9.7g"
 
 int
 X509_NAME_add_entry_by_txt(name,field,type,bytes,loc=-1,set=0)
@@ -1992,31 +1990,11 @@ X509_NAME_add_entry_by_txt(name,field,type,bytes,loc=-1,set=0)
     PREINIT:
         STRLEN len;
     INPUT:
-        unsigned char *bytes = SvPV(ST(3), len);
+        unsigned char *bytes = (unsigned char *)SvPV(ST(3), len);
     CODE:
         RETVAL = X509_NAME_add_entry_by_txt(name,field,type,bytes,len,loc,set);
     OUTPUT:
         RETVAL
-
-#else
-
-int
-X509_NAME_add_entry_by_txt(name,field,type,bytes,len=-1,loc=-1,set=0)
-        X509_NAME *name
-        const char *field
-        int type
-        int loc
-        int set
-    PREINIT:
-        STRLEN len;
-    INPUT:
-        const unsigned char *bytes = SvPV(ST(3), len);
-    CODE:
-        RETVAL = X509_NAME_add_entry_by_txt(name,field,type,bytes,len,loc,set);
-    OUTPUT:
-        RETVAL
-
-#endif
 
 #endif
 
@@ -2196,9 +2174,6 @@ X509_REQ_get_attr_by_NID(const X509_REQ *req, int nid, int lastpos=-1)
 int
 X509_REQ_get_attr_by_OBJ(const X509_REQ *req, ASN1_OBJECT *obj, int lastpos=-1)
 
-#if OPENSSL_VERSION_NUMBER < 0x0090700fL
-#define REM22 "NOTE: before 0.9.7"
-
 int
 X509_REQ_add1_attr_by_NID(req,nid,type,bytes)
         X509_REQ *req
@@ -2207,29 +2182,11 @@ X509_REQ_add1_attr_by_NID(req,nid,type,bytes)
     PREINIT:
         STRLEN len;
     INPUT:
-        unsigned char *bytes = SvPV(ST(3), len);
+        unsigned char *bytes = (unsigned char *)SvPV(ST(3), len);
     CODE:
         RETVAL = X509_REQ_add1_attr_by_NID(req,nid,type,bytes,len);
     OUTPUT:
         RETVAL
-
-#else
-
-int
-X509_REQ_add1_attr_by_NID(req,nid,type,bytes)
-        X509_REQ *req
-        int nid
-        int type
-    PREINIT:
-        STRLEN len;
-    INPUT:
-        const unsigned char *bytes = SvPV(ST(3), len);
-    CODE:
-        RETVAL = X509_REQ_add1_attr_by_NID(req,nid,type,bytes,len);
-    OUTPUT:
-        RETVAL
-
-#endif
 
 #if OPENSSL_VERSION_NUMBER >= 0x0090700fL
 #define REM21 "requires 0.9.7+"
@@ -2492,7 +2449,7 @@ P_X509_get_crl_distribution_points(cert)
                 gnames = p->distpoint->name.fullname;
                 for (j = 0; j < sk_GENERAL_NAME_num(gnames); j++) {
                     gn = sk_GENERAL_NAME_value(gnames, j);
-                    XPUSHs(sv_2mortal(newSVpv(ASN1_STRING_data(gn->d.ia5),ASN1_STRING_length(gn->d.ia5))));
+                    XPUSHs(sv_2mortal(newSVpv((char*)ASN1_STRING_data(gn->d.ia5),ASN1_STRING_length(gn->d.ia5))));
                 }
             }
             else {
@@ -2865,15 +2822,15 @@ P_ASN1_TIME_get_isotime(tm)
      ASN1_TIME_to_generalizedtime(tm,&tmp);
      if (tmp) {
        if (ASN1_GENERALIZEDTIME_check(tmp)) {
-         if (strlen(tmp->data)>=14 && strlen(tmp->data)<200) {
+         if (strlen((char*)tmp->data)>=14 && strlen((char*)tmp->data)<200) {
            strcpy (buf,"yyyy-mm-ddThh:mm:ss");
-           strncpy(buf,   tmp->data,   4);
-           strncpy(buf+5, tmp->data+4, 2);
-           strncpy(buf+8, tmp->data+6, 2);
-           strncpy(buf+11,tmp->data+8, 2);
-           strncpy(buf+14,tmp->data+10,2);
-           strncpy(buf+17,tmp->data+12,2);
-           if (strlen(tmp->data)>14) strcat(buf+19,tmp->data+14);
+           strncpy(buf,   (char*)tmp->data,   4);
+           strncpy(buf+5, (char*)tmp->data+4, 2);
+           strncpy(buf+8, (char*)tmp->data+6, 2);
+           strncpy(buf+11,(char*)tmp->data+8, 2);
+           strncpy(buf+14,(char*)tmp->data+10,2);
+           strncpy(buf+17,(char*)tmp->data+12,2);
+           if (strlen((char*)tmp->data)>14) strcat(buf+19,(char*)tmp->data+14);
          }
        }
        ASN1_GENERALIZEDTIME_free(tmp);
@@ -2888,7 +2845,6 @@ P_ASN1_TIME_set_isotime(tm,str)
      PREINIT:
      ASN1_TIME t;
      char buf[256];
-     int y=0,M=0,d=0,h=0,m=0,s=0;
      int i,rv;
      CODE:
      if (!tm) XSRETURN_UNDEF;
@@ -3044,13 +3000,13 @@ PEM_get_string_PrivateKey(pk,passwd=NULL,enc_alg=NULL)
             if (passwd_len>0) {
                 /* encrypted key */
                 if (!enc_alg)
-                    PEM_write_bio_PrivateKey(bp,pk,EVP_des_cbc(),passwd,passwd_len,cb,u);
+                    PEM_write_bio_PrivateKey(bp,pk,EVP_des_cbc(),(unsigned char *)passwd,passwd_len,cb,u);
                 else
-                    PEM_write_bio_PrivateKey(bp,pk,enc_alg,passwd,passwd_len,cb,u);
+                    PEM_write_bio_PrivateKey(bp,pk,enc_alg,(unsigned char *)passwd,passwd_len,cb,u);
             }
             else {
                 /* unencrypted key */
-                PEM_write_bio_PrivateKey(bp,pk,NULL,passwd,passwd_len,cb,u);
+                PEM_write_bio_PrivateKey(bp,pk,NULL,(unsigned char *)passwd,passwd_len,cb,u);
             }
             n = BIO_ctrl_pending(bp);
             New(0, buf, n, char);
@@ -3074,13 +3030,13 @@ CTX_use_PKCS12_file(ctx, file, password=NULL)
         FILE *fp;
     CODE:
         RETVAL = 0;
-        if (fp = fopen (file, "rb")) {
+        if ((fp = fopen (file, "rb"))) {
 #if OPENSSL_VERSION_NUMBER >= 0x0090700fL
             OPENSSL_add_all_algorithms_noconf();
 #else
             OpenSSL_add_all_algorithms();
 #endif
-            if (p12 = d2i_PKCS12_fp(fp, NULL)) {
+            if ((p12 = d2i_PKCS12_fp(fp, NULL))) {
                 if (PKCS12_parse(p12, password, &private_key, &certificate, NULL)) {
                     if (private_key) {
                         if (SSL_CTX_use_PrivateKey(ctx, private_key)) RETVAL = 1;
@@ -3113,13 +3069,13 @@ P_PKCS12_load_file(file, load_chain=0, password=NULL)
         FILE *fp;
         int i, result;
     PPCODE:
-        if (fp = fopen (file, "rb")) {
+        if ((fp = fopen (file, "rb"))) {
 #if OPENSSL_VERSION_NUMBER >= 0x0090700fL
             OPENSSL_add_all_algorithms_noconf();
 #else
             OpenSSL_add_all_algorithms();
 #endif
-            if (p12 = d2i_PKCS12_fp(fp, NULL)) {
+            if ((p12 = d2i_PKCS12_fp(fp, NULL))) {
                 if(load_chain)
                     result= PKCS12_parse(p12, password, &private_key, &certificate, &cachain);
                 else
@@ -4165,6 +4121,7 @@ PEM_read_bio_PrivateKey(bio,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
     PREINIT:
         simple_cb_data_t* cb = NULL;
     CODE:
+        RETVAL = 0;
         if (SvOK(perl_cb)) {
             /* setup our callback */
             cb = simple_cb_data_new(perl_cb, perl_data);
@@ -4663,7 +4620,7 @@ X509_digest(data,type)
         unsigned int md_size;
     PPCODE:
         if (X509_digest(data,type,md,&md_size))
-            XSRETURN_PVN((unsigned char *)md, md_size);
+            XSRETURN_PVN((char *)md, md_size);
         XSRETURN_UNDEF;
 
 void
@@ -4675,7 +4632,7 @@ X509_CRL_digest(data,type)
         unsigned int md_size;
     PPCODE:
         if (X509_CRL_digest(data,type,md,&md_size))
-            XSRETURN_PVN((unsigned char *)md, md_size);
+            XSRETURN_PVN((char *)md, md_size);
         XSRETURN_UNDEF;
 
 void
@@ -4687,7 +4644,7 @@ X509_REQ_digest(data,type)
         unsigned int md_size;
     PPCODE:
         if (X509_REQ_digest(data,type,md,&md_size))
-            XSRETURN_PVN((unsigned char *)md, md_size);
+            XSRETURN_PVN((char *)md, md_size);
         XSRETURN_UNDEF;
 
 void
@@ -4699,7 +4656,7 @@ X509_NAME_digest(data,type)
         unsigned int md_size;
     PPCODE:
         if (X509_NAME_digest(data,type,md,&md_size))
-            XSRETURN_PVN((unsigned char *)md, md_size);
+            XSRETURN_PVN((char *)md, md_size);
         XSRETURN_UNDEF;
 
 unsigned long

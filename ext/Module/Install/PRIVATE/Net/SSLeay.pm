@@ -60,11 +60,15 @@ sub ssleay_get_build_opts {
     my ($self, $prefix, $exec) = @_;
 
     my $opts = {
-        inc_paths  => ["$prefix/include", "$prefix/inc32", '/usr/kerberos/include'],
-        lib_paths  => [$prefix, "$prefix/lib", "$prefix/out32dll"],
         lib_links  => [],
         cccdlflags => '',
     };
+    for ("$prefix/include", "$prefix/inc32", '/usr/kerberos/include') {
+      push @{$opts->{inc_paths}}, $_ if -f "$_/openssl/ssl.h";
+    }
+    for ($prefix, "$prefix/lib", "$prefix/out32dll") {
+      push @{$opts->{lib_paths}}, $_ if -d $_;
+    }
 
     my $rsaref  = $self->ssleay_is_rsaref;
 
@@ -77,17 +81,33 @@ EOM
         print "*** RSAREF build on Windows not supported out of box" if $rsaref;
         if ($win_link_statically) {
             # Link to static libs
-            push @{ $opts->{lib_paths} }, "$prefix/lib/VC/static";
+            push @{ $opts->{lib_paths} }, "$prefix/lib/VC/static" if -d "$prefix/lib/VC/static";
         }
         else {
-            push @{ $opts->{lib_paths} }, "$prefix/lib/VC";
+            push @{ $opts->{lib_paths} }, "$prefix/lib/VC" if -d "$prefix/lib/VC";
         }
-        # Library names depend on the compiler. We expect either 
-        # libeay32MD and ssleay32MD or
-        # libeay32 and ssleay32.
-        # This construction will not complain as long as it find at least one
-        # libssl32.a is made by openssl onWin21 with the ms/minw32.bat builder
-        push @{ $opts->{lib_links} }, qw( libeay32MD ssleay32MD libeay32 ssleay32 libssl32);
+
+        my $found = 0;
+        my @pairs = ();
+        # Library names depend on the compiler
+        @pairs = (['eay32','ssl32'],['crypto.dll','ssl.dll'],['crypto','ssl']) if $Config{cc} =~ /gcc/;
+        @pairs = (['libeay32','ssleay32'],['libeay32MD','ssleay32MD'],['libeay32MT','ssleay32MT']) if $Config{cc} =~ /cl/;
+        for my $dir (@{$opts->{lib_paths}}) {
+          for my $p (@pairs) {
+            my ($s_lib_found, $s_lib_found);
+            $found = 1 if $Config{cc} =~ /gcc/ && -f "$dir/lib$p->[0].a" && -f "$dir/lib$p->[1].a";
+            $found = 1 if $Config{cc} =~ /cl/ && -f "$dir/$p->[0].lib" && -f "$dir/$p->[1].lib";
+            if ($found) {
+              $opts->{lib_links} = [$p->[0], $p->[1]];
+              $opts->{lib_paths} = [$dir];
+              last;
+            }
+          }
+        }
+        if (!$found) {
+          #fallback to the old behaviour
+          push @{ $opts->{lib_links} }, qw( libeay32MD ssleay32MD libeay32 ssleay32 libssl32);
+        }
     }
     else {
         $opts->{optimize} = '-O2 -g';
@@ -212,7 +232,7 @@ EOM
 EOM
     }
 
-    if ($major > 1.0 || ($major == 1.0 && $minor > 0)) {
+    if ($major > 1.0 || ($major == 1.0 && $minor > 1)) {
         print <<EOM;
 *** That's newer than what this module was tested with
     You should consider checking if there is a newer release of this module

@@ -212,6 +212,8 @@ Revision history for Perl extension Net::SSLeay.
      	   perl Makefile.PL DEFINE=-DSHOW_XS_DEBUG
      Added NPN support, thanks to kmx
      Added t/local/40_npn_support.t tests for new NPN support
+     Fixed some compiler warnings. Courtesy kmx.
+     Fixed a problem with Win32 detection. Courtesy kmx.
 
 1.45 2012-02-25
      Added mising doc for SESSION_cmp. Patch by paul.
