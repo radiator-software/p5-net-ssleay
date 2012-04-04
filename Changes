@@ -1,5 +1,16 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.??
+     Fixed overlong lines in pod, patch from Salvatore Bonaccorso, Debian Perl
+     Group
+     Fixed spelling errors in pod, patch from Salvatore Bonaccorso, Debian Perl
+     Group
+     Fixed extra "garbage" files in 1.46 tarball. Patch from kmx.
+     Fixed incorrect fail reports on some 64 bit platforms. Patch from paul.
+     Fix to avoid FAIL reports from cpantesters with missing openssl
+     Use my_snprintf from ppport.h to prevent link failures with perl 5.8 and
+     earlier when compiled with MSVC.
+
 1.46 2012-04-03
      Fixed a problem reported by Atoomic: 
       When bootstrapping Net::SSleay ( with DynaLoader ) if you override the SIG{DIE} signal, using 

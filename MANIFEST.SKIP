@@ -20,6 +20,14 @@
 \.base$
 \.exp$
 \.def$
+\.rej$
+\.ppm$
+\.ppd$
+\.diff$
+\.patch$
+\.exe$
+\.spec$
+\.0$
 \.sw\w$
 Makefile.old$
 Makefile$

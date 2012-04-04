@@ -384,7 +384,9 @@ named files.
     my $bio = Net::SSLeay::BIO_new_file($crlfilename, 'r');
     my $crl = Net::SSLeay::PEM_read_bio_X509_CRL($bio);
     if ($crl) {
-        Net::SSLeay::X509_STORE_add_crl(Net::SSLeay::CTX_get_cert_store($ssl, $crl);
+        Net::SSLeay::X509_STORE_add_crl(
+	     Net::SSLeay::CTX_get_cert_store($ssl, $crl)
+	);
     } else {
         error reading CRL....
     }
@@ -486,7 +488,7 @@ in multi-threaded applications. It is generally recommended to do any global ini
 of such a module in the main thread before calling C<< threads->new(..) >> or
 C<< threads->create(..) >> but it might differ module by module.
 
-To be play safe you can load and init Net::SSLeay explicitely in the main thread:
+To be play safe you can load and init Net::SSLeay explicitly in the main thread:
 
     use Net::SSLeay;
     use Other::SSLeay::Based::Module;
@@ -2576,7 +2578,7 @@ Sets the context $sid_ctx of length $sid_ctx_len within which a session can be r
  my $rv = Net::SSLeay::CTX_set_session_id_context($ctx, $sid_ctx, $sid_ctx_len);
  # $ctx - value corresponding to openssl's SSL_CTX structure
  # $sid_ctx - data buffer
- # $sid_ctx_len - lenght of data in $sid_ctx
+ # $sid_ctx_len - length of data in $sid_ctx
  #
  # returns: 1 on success, 0 on failure (the error is logged to the error stack)
 
@@ -3070,7 +3072,7 @@ Returns a result code for a preceding call to C<connect>, C<accept>, C<do_handsh
 
  my $rv = Net::SSLeay::get_error($ssl, $ret);
  # $ssl - value corresponding to openssl's SSL structure
- # $ret - return value of preceeding TLS/SSL I/O operation
+ # $ret - return value of preceding TLS/SSL I/O operation
  #
  # returns: result code, which is one of the following values:
  #  0 - SSL_ERROR_NONE
@@ -3796,7 +3798,7 @@ Sets the context $sid_ctx of length $sid_ctx_len within which a session can be r
  my $rv = Net::SSLeay::set_session_id_context($ssl, $sid_ctx, $sid_ctx_len);
  # $ssl - value corresponding to openssl's SSL structure
  # $sid_ctx - data buffer
- # $sid_ctx_len - lenght of data in $sid_ctx
+ # $sid_ctx_len - length of data in $sid_ctx
  #
  # returns: 1 on success, 0 on failure
 
@@ -4564,7 +4566,7 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
 
 B<BEWARE:> It is platform dependent how this function will handle dates after 2038.
 Although perl's integer is large enough the internal implementation of this function
-is dependant on the size of time_t structure (32bit time_t has problem with 2038).
+is dependent on the size of time_t structure (32bit time_t has problem with 2038).
 
 If you want to safely set date and time after 2038 use function L</P_ASN1_TIME_set_isotime>.
 
@@ -4993,7 +4995,7 @@ Adjust th ASN1_TIME object to the timestamp (in GMT).
  #
  # returns: value corresponding to openssl's ASN1_TIME structure (0 on failure)
 
-B<BEWARE:> this function may fail for dates after 2038 as it is dependant on time_t size on your
+B<BEWARE:> this function may fail for dates after 2038 as it is dependent on time_t size on your
 system (32bit time_t does not work after 2038). Consider using L</P_ASN1_TIME_set_isotime> instead).
 
 =item * X509_load_cert_crl_file
@@ -7057,7 +7059,7 @@ Simple approach for using NPN support looks like this:
  
  while (1) {
    my $ssl = Net::SSLeay::new($ctx);
-   warn("server:waiting for incomming connection...\n");
+   warn("server:waiting for incoming connection...\n");
    my $fd = $sock->accept();
    Net::SSLeay::set_fd($ssl, $fd->fileno);
    Net::SSLeay::accept($ssl);  
@@ -7093,7 +7095,7 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least
 
 B<NOTE:> You need CTX_set_next_proto_select_cb on B<client side> of SSL connection.
 
-Simple usage - in this case a "common" negotiation algoritm (as implemented by openssl's function SSL_select_next_proto) is used.
+Simple usage - in this case a "common" negotiation algorithm (as implemented by openssl's function SSL_select_next_proto) is used.
 
  $rv = Net::SSleay::CTX_set_next_proto_select_cb($ctx, $arrayref);
  # $ctx - value corresponding to openssl's SSL_CTX structure

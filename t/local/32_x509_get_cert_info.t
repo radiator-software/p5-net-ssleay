@@ -108,7 +108,12 @@ for my $f (keys (%$dump)) {
 
   is(Net::SSLeay::P_ASN1_INTEGER_get_hex($ai), $dump->{$f}->{serial}->{hex}, "serial P_ASN1_INTEGER_get_hex\t$f");
   is(Net::SSLeay::P_ASN1_INTEGER_get_dec($ai), $dump->{$f}->{serial}->{dec}, "serial P_ASN1_INTEGER_get_dec\t$f");
-  is(Net::SSLeay::ASN1_INTEGER_get($ai), $dump->{$f}->{serial}->{long}, "serial ASN1_INTEGER_get\t$f");
+  # On platforms with 64-bit long int returns 4294967295 rather than -1
+  my $asn1_integer = Net::SSLeay::ASN1_INTEGER_get($ai);
+  if ($asn1_integer == 4294967295) {
+    $asn1_integer = -1;
+  }
+  is($asn1_integer, $dump->{$f}->{serial}->{long}, "serial ASN1_INTEGER_get\t$f");
 
   is(Net::SSLeay::X509_get_version($x509), $dump->{$f}->{version}, "X509_get_version\t$f");
   

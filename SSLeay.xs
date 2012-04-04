@@ -131,7 +131,9 @@ extern "C" {
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
+#define NEED_newRV_noinc
 #define NEED_sv_2pv_flags
+#define NEED_my_snprintf
 #include "ppport.h"
 #ifdef __cplusplus
 }
@@ -450,7 +452,7 @@ int cb_data_advanced_put(void *ptr, const char* data_name, SV* data)
     char key_name[500];
     dMY_CXT;
 
-    len = snprintf(key_name, sizeof(key_name), "ptr_%p", ptr);
+    len = my_snprintf(key_name, sizeof(key_name), "ptr_%p", ptr);
     if (len == sizeof(key_name)) return 0; /* error  - key_name too short*/
 
     /* get or create level-2 hash */
@@ -485,7 +487,7 @@ SV* cb_data_advanced_get(void *ptr, const char* data_name)
     char key_name[500];
     dMY_CXT;
 
-    len = snprintf(key_name, sizeof(key_name), "ptr_%p", ptr);
+    len = my_snprintf(key_name, sizeof(key_name), "ptr_%p", ptr);
     if (len == sizeof(key_name)) return &PL_sv_undef; /* return undef on error - key_name too short*/
 
     /* get level-2 hash */
@@ -513,7 +515,7 @@ int cb_data_advanced_drop(void *ptr)
     char key_name[500];
     dMY_CXT;
 
-    len = snprintf(key_name, sizeof(key_name), "ptr_%p", ptr);
+    len = my_snprintf(key_name, sizeof(key_name), "ptr_%p", ptr);
     if (len == sizeof(key_name)) return 0; /* error  - key_name too short*/
 
     hv_delete(MY_CXT.global_cb_data, key_name, strlen(key_name), G_DISCARD);
@@ -885,6 +887,7 @@ int pem_password_cb_invoke(char *buf, int bufsize, int rwflag, void *data) {
     char *str;
     int count = -1, str_len = 0;
     simple_cb_data_t* cb = (simple_cb_data_t*)data;
+    STRLEN n_a;
 
     PR1("STARTED: pem_password_cb_invoke\n");
     if (cb->func && SvOK(cb->func)) {

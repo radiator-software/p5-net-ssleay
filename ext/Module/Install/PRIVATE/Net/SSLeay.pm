@@ -27,12 +27,13 @@ sub ssleay {
     my $exec   = $self->find_openssl_exec($prefix);
 
     unless (-x $exec) {
-        die <<EOM;
+        print <<EOM;
 *** Could not find OpenSSL
     If it's already installed, please set the OPENSSL_PREFIX environment
     variable accordingly. If it isn't installed yet, get the latest version
     from http://www.openssl.org/.
 EOM
+        exit 0; # according http://wiki.cpantesters.org/wiki/CPANAuthorNotes this is best-practice when "missing library"
     }
 
     $self->check_openssl_version($prefix, $exec);
@@ -226,10 +227,11 @@ EOM
     print "*** Found OpenSSL-${major}.${minor}${letter} installed in $prefix\n";
 
     if ($major < 0.9 || ($major == 0.9 && $minor < 3)) {
-        die <<EOM;
+        print <<EOM;
 *** That's too old!
     Please upgrade OpenSSL to the latest version (http://www.openssl.org/)
 EOM
+        exit 0; # according http://wiki.cpantesters.org/wiki/CPANAuthorNotes this is best-practice when "missing library"
     }
 
     if ($major > 1.0 || ($major == 1.0 && $minor > 1)) {

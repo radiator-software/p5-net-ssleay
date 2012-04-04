@@ -49,7 +49,12 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
   ##let us do some ASN1_INTEGER related testing
   #test big integer via P_ASN1_INTEGER_set_dec
   Net::SSLeay::P_ASN1_INTEGER_set_dec($sn, '123456789123456789123456789123456789123456789');
-  is(Net::SSLeay::ASN1_INTEGER_get(Net::SSLeay::X509_get_serialNumber($x509)), -1, "ASN1_INTEGER_get");
+  # On platforms with 64-bit long int returns 4294967295 rather than -1
+  my $asn1_integer = Net::SSLeay::ASN1_INTEGER_get(Net::SSLeay::X509_get_serialNumber($x509));
+  if ($asn1_integer == 4294967295) {
+    $asn1_integer = -1;
+  }
+  is($asn1_integer, -1, "ASN1_INTEGER_get");
   is(Net::SSLeay::P_ASN1_INTEGER_get_hex(Net::SSLeay::X509_get_serialNumber($x509)), '058936E53D139AFEFABB2683F150B684045F15', "P_ASN1_INTEGER_get_hex");
   #test short integer via P_ASN1_INTEGER_set_hex
   Net::SSLeay::P_ASN1_INTEGER_set_hex($sn, 'D05F14');    
