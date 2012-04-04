@@ -1,6 +1,11 @@
 Revision history for Perl extension Net::SSLeay.
 
 1.??
+     Removed unneeded Debian_CPANTS.txt from MANIFEST.
+     Fixed incorrect documentation about the best way to callsample code about
+     calling CTX_set_options.
+
+1.47 2012-04-04
      Fixed overlong lines in pod, patch from Salvatore Bonaccorso, Debian Perl
      Group
      Fixed spelling errors in pod, patch from Salvatore Bonaccorso, Debian Perl

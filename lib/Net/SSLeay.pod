@@ -7428,7 +7428,7 @@ The following is a simple SSLeay client (with too little error checking :-(
 
     $ctx = Net::SSLeay::CTX_new() or die_now("Failed to create SSL_CTX $!");
     Net::SSLeay::CTX_set_options($ctx, &Net::SSLeay::OP_ALL)
-         and die_if_ssl_error("ssl ctx set options");
+         or die_if_ssl_error("ssl ctx set options");
     $ssl = Net::SSLeay::new($ctx) or die_now("Failed to create SSL $!");
     Net::SSLeay::set_fd($ssl, fileno(S));   # Must use fileno
     $res = Net::SSLeay::connect($ssl) and die_if_ssl_error("ssl connect");
@@ -7466,7 +7466,7 @@ The following is a simple SSLeay echo server (non forking):
     listen (S, 5)                          or die "listen: $!";
     $ctx = Net::SSLeay::CTX_new ()         or die_now("CTX_new ($ctx): $!");
     Net::SSLeay::CTX_set_options($ctx, &Net::SSLeay::OP_ALL)
-         and die_if_ssl_error("ssl ctx set options");
+         or die_if_ssl_error("ssl ctx set options");
 
     # Following will ask password unless private key is not encrypted
     Net::SSLeay::CTX_use_RSAPrivateKey_file ($ctx, 'plain-rsa.pem',
@@ -7658,7 +7658,7 @@ If you are using the low level API functions to communicate with other
 SSL implementations, you would do well to call
 
     Net::SSLeay::CTX_set_options($ctx, &Net::SSLeay::OP_ALL)
-         and die_if_ssl_error("ssl ctx set options");
+         or die_if_ssl_error("ssl ctx set options");
 
 to cope with some well know bugs in some other SSL
 implementations. The high level API functions always set all known

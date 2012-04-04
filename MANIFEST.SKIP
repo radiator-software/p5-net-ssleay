@@ -29,6 +29,7 @@
 \.spec$
 \.0$
 \.sw\w$
+\.txt$
 Makefile.old$
 Makefile$
 pm_to_blib$
