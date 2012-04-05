@@ -4,7 +4,7 @@ use Config;
 use Test::More;
 
 BEGIN {
-  plan skip_all => "your perl is not compiled with ithreads" unless $Config{useithreads};
+  plan skip_all => "your perl is not compiled with ithreads or is pre-5.8" unless $Config{useithreads} && $] >= 5.008;
   require threads;
 };
 

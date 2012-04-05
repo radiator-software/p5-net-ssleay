@@ -766,6 +766,7 @@ int next_proto_select_cb_invoke(SSL *ssl, unsigned char **out, unsigned char *ou
     unsigned char next_proto_len;
     int next_proto_status;
     SSL_CTX *ctx = SSL_get_SSL_CTX(ssl);
+    STRLEN n_a;
 
     PR1("STARTED: next_proto_select_cb_invoke\n");
     cb_func = cb_data_advanced_get(ctx, "next_proto_select_cb!!func");

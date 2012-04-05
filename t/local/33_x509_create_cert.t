@@ -210,8 +210,8 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
   is(Net::SSLeay::X509_free($x509ss), undef, "X509_free");
 }
 
-{ ### X509 certificate - unicode
-
+SKIP: { ### X509 certificate - unicode
+  skip('skiiping unicode related stuff on perl 5.6', 5) if $] < 5.007;
   ok(my $x509  = Net::SSLeay::X509_new(), "X509_new");
   ok(my $name = Net::SSLeay::X509_get_subject_name($x509), "X509_get_subject_name");
   my $txt = "\x{17E}lut\xFD";
