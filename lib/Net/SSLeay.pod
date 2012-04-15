@@ -7408,7 +7408,7 @@ C<SSLeay.pm> file.
 
 The following is a simple SSLeay client (with too little error checking :-(
 
-    #!/usr/local/bin/perl
+    #!/usr/bin/perl
     use Socket;
     use Net::SSLeay qw(die_now die_if_ssl_error) ;
     Net::SSLeay::load_error_strings();
@@ -7449,7 +7449,7 @@ The following is a simple SSLeay client (with too little error checking :-(
 
 The following is a simple SSLeay echo server (non forking):
 
-    #!/usr/local/bin/perl -w
+    #!/usr/bin/perl -w
     use Socket;
     use Net::SSLeay qw(die_now die_if_ssl_error);
     Net::SSLeay::load_error_strings();
@@ -7512,7 +7512,7 @@ all the socket code overhead. Only caveat is opening an rsa key file -
 it had better be without any encryption or else it will not know where
 to ask for the password. Note how C<STDIN> and C<STDOUT> are wired to SSL.
 
-    #!/usr/local/bin/perl
+    #!/usr/bin/perl
     # /etc/inetd.conf
     #    ssltst stream tcp nowait root /path/to/server.pl server.pl
     # /etc/services

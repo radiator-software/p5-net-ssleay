@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/perl -w
 # bio.pl mikem@open.com.au
 #
 # Test and demonstrate BIO interface

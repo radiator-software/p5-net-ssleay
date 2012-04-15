@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 # cli-cert.pl
 # 8.6.1998, originally written as stdio_bulk.pl Sampo Kellomaki <sampo@iki.fi>
 # 8.12.2001, adapted to test client certificates

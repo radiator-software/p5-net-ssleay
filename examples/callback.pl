@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/perl -w
 # callback.pl - 8.6.1998, Sampo Kellomaki <sampo@iki.fi>
 # 31.7.1999, fixed callback args, --Sampo 
 # 7.4.2001,  adapted to 0.9.6a and numerous bug reports --Sampo

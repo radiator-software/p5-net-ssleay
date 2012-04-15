@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/perl -w
 # bulk.pl - 8.6.1998, Sampo Kellomaki <sampo@iki.fi>
 # Send tons of stuff over SSL (just for testing).
 # There's also an example about using the call back.

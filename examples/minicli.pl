@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 # minicli.pl - Sampo Kellomaki <sampo@iki.fi>
 
 use Socket;

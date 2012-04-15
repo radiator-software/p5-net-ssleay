@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 # passwd-cb.pl
 #
 # Check using password callbacks to decrypt private keys

@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/perl -w
 # ephemeral.pl mikem@open.com.au
 #
 # Test and demonstrate setting ephemeral RSA key

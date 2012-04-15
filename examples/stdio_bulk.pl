@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 # stdio_bulk.pl - 8.6.1998, Sampo Kellomaki <sampo@iki.fi>
 # Send tons of stuff over SSL connected by STDIO pipe.
 # This also demonstrates how you can communicate via arbitrary stream, not
