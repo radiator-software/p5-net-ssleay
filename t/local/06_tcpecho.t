@@ -12,21 +12,31 @@ my $pid;
 
 my $port = 1211;
 my $msg = 'ssleay-tcp-test';
-
+my $port_trials = 1000;;
 {
     my $ip = "\x7F\0\0\x01";
     my $serv_params = sockaddr_in($port, $ip);
     $sock = gensym();
-    socket($sock, AF_INET, SOCK_STREAM, 0) or die;
-    bind($sock, $serv_params) or die;
-    listen($sock, 2) or die;
+    socket($sock, AF_INET, SOCK_STREAM, 0) or die "socket failed: $!";
+    # Try to find an available portto bind to
+    my $i;
+    for ($i = 0; $i < $port_trials; $i++)
+    {
+	my $ip = "\x7F\0\0\x01";
+	my $serv_params = sockaddr_in($port, $ip);
+
+	last if bind($sock, $serv_params);
+	$port++;
+    }
+    die "Could not find a port to bind to" if $i >= 1000;
+    listen($sock, 2) or die "listen failed $!";
 }
 
 {
     $pid = fork();
-    die unless defined $pid;
+    die  "fork failed: $!" unless defined $pid;
     if ($pid == 0) {
-        my $addr = accept(Net::SSLeay::SSLCAT_S, $sock) or die;
+        my $addr = accept(Net::SSLeay::SSLCAT_S, $sock) or die "accept failed $!";
 
         my $old_out = select(Net::SSLeay::SSLCAT_S);
         $| = 1;

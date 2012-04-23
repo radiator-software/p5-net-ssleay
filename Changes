@@ -6,6 +6,8 @@ Revision history for Perl extension Net::SSLeay.
      Fixed problem that caused Undefined subroutine utf8::encode @
      t/local/33_x509_create_cert.t (on perl 5.6.2). Thanks to kmx.
      In examples and pod documentations, changed #!/usr/local/bin/perl to #!/usr/bin/perl.
+     t/local/06_tcpecho.t now tries a number of ports to bind to until
+     successful.
 
 1.47 2012-04-04
      Fixed overlong lines in pod, patch from Salvatore Bonaccorso, Debian Perl
