@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.??
+1.48 2012-04-25
      Removed unneeded Debian_CPANTS.txt from MANIFEST.
      Fixed incorrect documentation about the best way to call CTX_set_options.
      Fixed problem that caused Undefined subroutine utf8::encode @
