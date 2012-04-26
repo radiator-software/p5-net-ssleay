@@ -12,17 +12,16 @@ my $pid;
 
 my $port = 1211;
 my $msg = 'ssleay-tcp-test';
-my $port_trials = 1000;;
+my $port_trials = 1000;
 {
     my $ip = "\x7F\0\0\x01";
     my $serv_params = sockaddr_in($port, $ip);
     $sock = gensym();
     socket($sock, AF_INET, SOCK_STREAM, 0) or die "socket failed: $!";
-    # Try to find an available portto bind to
+    # Try to find an available port to bind to
     my $i;
     for ($i = 0; $i < $port_trials; $i++)
     {
-	my $ip = "\x7F\0\0\x01";
 	my $serv_params = sockaddr_in($port, $ip);
 
 	last if bind($sock, $serv_params);

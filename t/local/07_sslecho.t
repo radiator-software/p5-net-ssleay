@@ -14,6 +14,7 @@ my $pid;
 my $port = 1212;
 my $dest_ip = gethostbyname('localhost');
 my $dest_serv_params  = sockaddr_in($port, $dest_ip);
+my $port_trials = 1000;
 
 my $msg = 'ssleay-test';
 my $cert_pem = File::Spec->catfile('t', 'data', 'cert.pem');
@@ -35,7 +36,16 @@ Net::SSLeay::library_init();
     my $serv_params = sockaddr_in($port, $ip);
     $sock = gensym();
     socket($sock, AF_INET, SOCK_STREAM, 0) or BAIL_OUT("failed to open socket: $!");
-    bind($sock, $serv_params) or BAIL_OUT("failed to bind socket: $!");
+    # Try to find an available port to bind to
+    my $i;
+    for ($i = 0; $i < $port_trials; $i++)
+    {
+	my $serv_params = sockaddr_in($port, $ip);
+
+	last if bind($sock, $serv_params);
+	$port++;
+    }
+    BAIL_OUT("Could not find a port to bind to: $!") if $i >= 1000;
     listen($sock, 3) or BAIL_OUT("failed to listen on socket: $!");
 
 
@@ -330,7 +340,7 @@ my @results;
 }
 
 waitpid $pid, 0;
-push @results, [ $? == 0, 'server exited wiht 0' ];
+push @results, [ $? == 0, 'server exited with 0' ];
 
 END {
     Test::More->builder->current_test(51);
