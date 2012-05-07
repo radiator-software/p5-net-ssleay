@@ -806,7 +806,7 @@ int next_proto_select_cb_invoke(SSL *ssl, unsigned char **out, unsigned char *ou
         cb_data_advanced_put(ssl, "next_proto_select_cb!!last_status", newSViv(next_proto_status));
         tmpsv = newSVpv(next_proto_data, next_proto_len);
         cb_data_advanced_put(ssl, "next_proto_select_cb!!last_negotiated", tmpsv);
-        *out = SvPVX(tmpsv);
+        *out = (unsigned char *)SvPVX(tmpsv);
         *outlen = next_proto_len;
         return SSL_TLSEXT_ERR_OK;
     }
@@ -874,7 +874,7 @@ int next_protos_advertised_cb_invoke(SSL *ssl, const unsigned char **out, unsign
         tmpsv = newSVpv(protodata, protodata_len);
         Safefree(protodata);
         cb_data_advanced_put(ssl, "next_protos_advertised_cb!!last_advertised", tmpsv);
-        *out = SvPVX(tmpsv);
+        *out = (unsigned char *)SvPVX(tmpsv);
         *outlen = protodata_len;
         return SSL_TLSEXT_ERR_OK;
     }
@@ -1275,9 +1275,10 @@ SSL_write_partial(s,from,count,buf)
      int     from
      int     count
      PREINIT:
-     STRLEN len;
+     STRLEN ulen;
+     IV len;
      INPUT:
-     char *  buf = SvPV( ST(3), len);
+     char *  buf = SvPV( ST(3), ulen);
      CODE:
       /*
      if (SvROK( ST(3) )) {
@@ -1286,14 +1287,15 @@ SSL_write_partial(s,from,count,buf)
      } else
        buf = SvPV( ST(3), len);
        */
-     PR4("write_partial from=%d count=%d len=%d\n",from,count,len);
+     PR4("write_partial from=%d count=%d len=%ul\n",from,count,ulen);
      /*PR2("buf='%s'\n",&buf[from]); / * too noisy */
+     len = (IV)ulen;
      len -= from;
      if (len < 0) {
        croak("from beyound end of buffer");
        RETVAL = -1;
      } else
-       RETVAL = SSL_write (s, &(buf[from]), ((STRLEN)count<=len)?count:len);
+       RETVAL = SSL_write (s, &(buf[from]), (count<=len)?count:len);
      OUTPUT:
      RETVAL
 
@@ -4762,7 +4764,7 @@ P_next_proto_negotiated(s)
         unsigned int len;
     PPCODE:
         SSL_get0_next_proto_negotiated(s, &data, &len);
-        XPUSHs(sv_2mortal(newSVpv(data, len)));
+        XPUSHs(sv_2mortal(newSVpv((char *)data, len)));
 
 void
 P_next_proto_last_status(s)

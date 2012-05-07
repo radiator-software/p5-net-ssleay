@@ -4,6 +4,7 @@ Revision history for Perl extension Net::SSLeay.
      Fixed problem where on some platforms test t/local/07_tcpecho.t would
      bail out if it could not bind port 1212. Now now tries a number of ports to bind to until
      successful.
+     Improvements to  unsigned casting contributed by Reini Urban.
 
 1.48 2012-04-25
      Removed unneeded Debian_CPANTS.txt from MANIFEST.
