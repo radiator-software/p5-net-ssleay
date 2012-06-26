@@ -3575,11 +3575,15 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_pending.html|http://www.
 
 Tries to read $max bytes from the specified $ssl.
 
- my $rv = Net::SSLeay::read($ssl, $max);
+ my $got = Net::SSLeay::read($ssl, $max);
+ my($got, $rv) = Net::SSLeay::read($ssl, $max);
  # $ssl - value corresponding to openssl's SSL structure
  # $max - [optional] max bytes to read (integer) - default is 32768
  #
- # returns: data read from a TLS/SSL connection, undef on error
+ # returns:
+ # in scalar context: data read from the TLS/SSL connection, undef on error
+ # in list context:   two-item array consisting of data read (undef on error),
+ #                      and return code from SSL_read().
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_read.html|http://www.openssl.org/docs/ssl/SSL_read.html>
 

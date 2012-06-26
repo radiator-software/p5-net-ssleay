@@ -5,6 +5,14 @@ Revision history for Perl extension Net::SSLeay.
      bail out if it could not bind port 1212. Now now tries a number of ports to bind to until
      successful.
      Improvements to  unsigned casting contributed by Reini Urban.
+     Improvements to Net::SSLeay::read to make it easier to use with non-blocking IO:
+      contributed by James Marshall:  It modifies
+      Net::SSLeay::read() to return the result from SSL_read() as the second
+      return value, if Net::SSLeay::read() is called in list context.  Its
+      behavior should be unchanged if called in scalar or void context.  This
+      result code seems to be required for full support of non-blocking I/O,
+      since users need to handle SSL_ERR_WANT_READ, SSL_ERROR_WANT_WRITE, etc.
+
 
 1.48 2012-04-25
      Removed unneeded Debian_CPANTS.txt from MANIFEST.
