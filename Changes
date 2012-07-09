@@ -12,6 +12,9 @@ Revision history for Perl extension Net::SSLeay.
       behavior should be unchanged if called in scalar or void context.  This
       result code seems to be required for full support of non-blocking I/O,
       since users need to handle SSL_ERR_WANT_READ, SSL_ERROR_WANT_WRITE, etc.
+      Fixed a problem where t/local/kwalitee.t fails with
+       Module::CPANTS::Analyse 0.86. Patch from Paul.
+     
 
 
 1.48 2012-04-25
