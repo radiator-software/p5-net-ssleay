@@ -92,7 +92,7 @@ Net::SSLeay::library_init();
 my @results;
 {
     my ($got) = Net::SSLeay::sslcat('localhost', $port, $msg);
-    push @results, [ $got eq uc($msg), 'send and recieved correctly' ];
+    push @results, [ $got eq uc($msg), 'send and received correctly' ];
 
 }
 

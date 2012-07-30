@@ -96,7 +96,7 @@ Net::SSLeay::initialize();
 }
 
 waitpid $pid, 0;
-push @results, [$? == 0, 'server exited wiht 0'];
+push @results, [$? == 0, 'server exited with 0'];
 END {
   Test::More->builder->current_test(3);
   ok( $_->[0], $_->[1] ) for (@results);

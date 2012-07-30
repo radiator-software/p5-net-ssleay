@@ -21,7 +21,7 @@
  *
  * Function naming conventions:
  *
- * 1/ never change the aready existing function names (all calling convention) in a way
+ * 1/ never change the already existing function names (all calling convention) in a way
  *    that may cause backward incompatibility (e.g. add ALIAS with old name if necessary)
  *
  * 2/ it is recommended to keep the original openssl function names for functions that are:
@@ -53,18 +53,18 @@
  *
  * 2/ Fix all compiler warnings - we expect 100% clean build
  *
- * 3/ If you are gonna add a function which is available since certain openssl version
+ * 3/ If you add a function which is available since certain openssl version
  *    use proper #ifdefs to assure that SSLeay.xs will compile also with older versions
  *    which are missing this function
  *
  * 4/ Even warnings arising from different use of "const" in different openssl versions
  *    needs to be hanled with #ifdefs - see for example: X509_NAME_add_entry_by_txt
  *
- * 5/ avoid using global C variables (it is very likely gonna break thread-safetyness)
+ * 5/ avoid using global C variables (it is very likely to break thread-safetyness)
  *    use rather global MY_CXT structure
  *
  * 6/ avoid using any UNIX/POSIX specific functions, keep in mind that SSLeay.xs must
- *    complile also on non-UNIX platforms like MS Windows and others
+ *    compile also on non-UNIX platforms like MS Windows and others
  *
  * 7/ avoid using c++ comments "//" (or other c++ features accepted by some c compiler)
  *    even if your compiler can handle them without warnings
@@ -76,20 +76,20 @@
  * 2/ it is strongly recommended to create test(s) for newly added function(s), especially
  *    when the new function is not only a 1:1 wrapper but contains a complex code
  *
- * 3/ it is mandatory to add a dcumentation for all newly added functions into SSLeay.pod
- *    otherwise t/local/02_pod_coverage.t is gonna fail (and you will be asked to add
- *    some doc into your patch)
+ * 3/ it is mandatory to add a documentation for all newly added functions into SSLeay.pod
+ *    otherwise t/local/02_pod_coverage.t fail (and you will be asked to add some doc into
+ *    your patch)
  *
- * Prefered code layout:
+ * Preferred code layout:
  *
  * 1/ for simple 1:1 XS wrappers use:
  *
- *    a/ functions whith short "signarute" (short list of args):
+ *    a/ functions with short "signature" (short list of args):
  *
  *    long
  *    SSL_set_tmp_dh(SSL *ssl,DH *dh)
  *
- *    b/ functions whith long "signarute" (long list of args):
+ *    b/ functions with long "signature" (long list of args):
  *       simply when approach a/ does not fit to 120 columns
  *
  *    void
@@ -401,8 +401,8 @@ static void handler_list_md_fn(const EVP_MD *m, const char *from, const char *to
  *    - SSL_CTX_set_default_passwd_cb_userdata
  *    - SSL_set_session_secret_cb
  *
- * If wanna add a new callback:
- * - you vely likely need a new function "your_callback_name_invoke()"
+ * If you want to add a new callback:
+ * - you very likely need a new function "your_callback_name_invoke()"
  * - decide whether your case fits case 1/ or 2/ (and implement likewise existing functions)
  * - try to avoid adding a new style of callback implementation (or ask Net::SSLeay maintainers before)
  *
@@ -737,7 +737,7 @@ int next_proto_helper_AV2protodata(AV * list, unsigned char *out)
         if (out) {
             /* if out == NULL we only calculate the length of output */
             out[ptr] = (unsigned char)len;
-            strncpy(out+ptr+1, p, len);
+            strncpy((char*)out+ptr+1, p, len);
         }
         ptr += strlen(p) + 1;
     }

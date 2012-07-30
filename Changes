@@ -14,6 +14,8 @@ Revision history for Perl extension Net::SSLeay.
       since users need to handle SSL_ERR_WANT_READ, SSL_ERROR_WANT_WRITE, etc.
       Fixed a problem where t/local/kwalitee.t fails with
        Module::CPANTS::Analyse 0.86. Patch from Paul.
+      Fixed a number of typos patched by Giles.
+      Fixed a compiler warning from Compiling with gcc-4.4 and -Wall, patched by Giles.
      
 
 
@@ -449,7 +451,7 @@ Revision history for Perl extension Net::SSLeay.
         - Fixed a bug in SSL_set_tmp_dh
         - Doc improvements in README.Win32
     - Fixed a problem with proxy connections: open_proxy_tcp_connection
-    was stopping after the first \n from teh proxy,
+    was stopping after the first \n from the proxy,
     but instead should have looked for
     $CRLF . $CRLF to find the beginning of the SSL content
     - Fixed missing / on /usr/kerberos/include, reported by several people

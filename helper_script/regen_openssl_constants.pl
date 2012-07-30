@@ -14,7 +14,7 @@ use warnings;
 #
 # 3/ run: perl Makefile.PL & make & make test
 
-# some hints if wanna play more with this script:
+# some hints if you want to play more with this script:
 #
 # you can run this script manually from the Net::SSLeay dist dir like this:
 #      perl helper_script/regen_openssl_constants.pl -gen-c > constants.c

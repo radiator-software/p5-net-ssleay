@@ -56,7 +56,7 @@ my $port_trials = 1000;
 my @results;
 {
     my ($got) = Net::SSLeay::tcpcat('localhost', $port, $msg);
-    push @results, [ $got eq uc($msg), 'sent and recieved correctly' ];
+    push @results, [ $got eq uc($msg), 'sent and received correctly' ];
 }
 
 waitpid $pid, 0;

@@ -111,7 +111,7 @@ Please, do not send bug report before you have
     discover correct compiler and flags from `perl -V'
   - tried gcc, if your vendor cc fails
 
-If you post a question or make a bug report, please remeber to mention
+If you post a question or make a bug report, please remember to mention
 
   - Your platform and OS version (i386 Linux, Sparc Solaris, etc) (uname -a)
   - On Linux, please report glibc version as well (ls -l /lib/libc*)

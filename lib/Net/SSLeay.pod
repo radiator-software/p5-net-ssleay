@@ -4700,7 +4700,7 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
 Sort of a checksum of issuer name and serial number of X509 certificate $x.
 The result is not a full hash (e.g. sha-1), it is kind-of-a-hash truncated to the size of 'unsigned long' (32 bits).
-The resulting value might differ accross different openssl versions for the same X509 certificate.
+The resulting value might differ across different openssl versions for the same X509 certificate.
 
  my $rv = Net::SSLeay::X509_issuer_and_serial_hash($x);
  # $x - value corresponding to openssl's X509 structure
@@ -4713,7 +4713,7 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
 Sort of a checksum of issuer name of X509 certificate $x.
 The result is not a full hash (e.g. sha-1), it is kind-of-a-hash truncated to the size of 'unsigned long' (32 bits).
-The resulting value might differ accross different openssl versions for the same X509 certificate.
+The resulting value might differ across different openssl versions for the same X509 certificate.
 
  my $rv = Net::SSLeay::X509_issuer_name_hash($x);
  # $x - value corresponding to openssl's X509 structure
@@ -4726,7 +4726,7 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
 Sort of a checksum of subject name of X509 certificate $x.
 The result is not a full hash (e.g. sha-1), it is kind-of-a-hash truncated to the size of 'unsigned long' (32 bits).
-The resulting value might differ accross different openssl versions for the same X509 certificate.
+The resulting value might differ across different openssl versions for the same X509 certificate.
 
  my $rv = Net::SSLeay::X509_subject_name_hash($x);
  # $x - value corresponding to openssl's X509 structure
@@ -6117,7 +6117,7 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.
 =item * X509_STORE_CTX_get_error_depth
 
 Returns the depth of the error. This is a non-negative integer representing
-where in the certificate chain the error occurred. If it is zero it occured
+where in the certificate chain the error occurred. If it is zero it occurred
 in the end entity certificate, one if it is the certificate which signed
 the end entity certificate and so on.
 
