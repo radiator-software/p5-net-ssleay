@@ -15,8 +15,9 @@ Revision history for Perl extension Net::SSLeay.
       Fixed a problem where t/local/kwalitee.t fails with
        Module::CPANTS::Analyse 0.86. Patch from Paul.
       Fixed a number of typos patched by Giles.
-      Fixed a compiler warning from Compiling with gcc-4.4 and -Wall, patched by Giles.
-     
+      Fixed a compiler warning from Compiling with gcc-4.4 and -Wall, patched by Giles.	
+      Fixed problems with get_https4: documentation was wrong, $header_ref was
+       not correctly set and $server_cert was not returned.
 
 
 1.48 2012-04-25

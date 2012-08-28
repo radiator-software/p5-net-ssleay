@@ -170,10 +170,10 @@ to a hash.
     = get_https3('www.bacus.pt', 443, '/');
   print "$headers\n";
 
-  ($page, $response, %headers_ref, $server_cert)
+  ($page, $response, $headers_ref)
     = get_https4('www.bacus.pt', 443, '/');
-  for $k (sort keys %{headers_ref}) {
-      for $v (@{$headers_ref{$k}}) {
+  for $k (sort keys %{$headers_ref}) {
+      for $v (@{$$headers_ref{$k}}) {
 	  print "$k = $v\n";
       }
   }
@@ -186,7 +186,7 @@ a hash of arrays (see L<perlref> and L<perllol> if you are
 not familiar with complex perl data structures). To access a single value
 of such a header hash you would do something like
 
-  print $headers_ref{COOKIE}[0];
+  print $$headers_ref{COOKIE}[0];
 
 Variants 3 and 4 also allow you to discover the server certificate
 in case you would like to store or display it, e.g.

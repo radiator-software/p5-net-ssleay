@@ -1299,13 +1299,12 @@ sub do_https2 { splice(@_,1,0) = 1; do_httpx2; }  # Legacy undocumented
 
 sub do_httpx4 {
     my ($page, $response, $headers, $server_cert) = &do_httpx3;
-    X509_free($server_cert) if defined $server_cert;
     my %hr = ();
     for my $hh (split /\s?\n/, $headers) {
-	my ($h,$v)=/^(\S+)\:\s*(.*)$/;
+	my ($h,$v) = ($hh =~ /^(\S+)\:\s*(.*)$/);
 	push @{$hr{uc($h)}}, $v;
     }
-    return ($page, $response, \%hr);
+    return ($page, $response, \%hr, $server_cert);
 }
 
 sub do_https4 { splice(@_,1,0) = 1; do_httpx4; }  # Legacy undocumented
