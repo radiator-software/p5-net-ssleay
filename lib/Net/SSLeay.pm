@@ -768,7 +768,7 @@ sub ssl_read_until ($;$$) {
 		#read up to the end of the delimiter
 		$got = Net::SSLeay::read($ssl,
 					 $found + $len_delim
-					 - ((blength $match) - (blength $got)));
+					 - ((blength($match)) - (blength($got))));
 		$done = 1;
 	    } else {
 		$got = Net::SSLeay::read($ssl, $peek_length);

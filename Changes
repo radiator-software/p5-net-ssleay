@@ -18,6 +18,8 @@ Revision history for Perl extension Net::SSLeay.
       Fixed a compiler warning from Compiling with gcc-4.4 and -Wall, patched by Giles.	
       Fixed problems with get_https4: documentation was wrong, $header_ref was
        not correctly set and $server_cert was not returned.
+      Fixed a problem that could cause a Perl exception about no blength
+      method on undef. Reported by "Stephen J. Smith via RT". https://rt.cpan.org/Ticket/Display.html?id=79309 
 
 
 1.48 2012-04-25
