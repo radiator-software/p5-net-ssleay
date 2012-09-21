@@ -7,12 +7,12 @@ use warnings;
 #    of this file (helper_script/regen_openssl_constants.pl)
 #
 # 3/ take the output of the following command:
-#    perl helper_script/regen_openssl_constants.pl -pod
+#    perl helper_script/regen_openssl_constants.pl -gen-pod
 #    and paste it manually into:
 #    a/ SSLeay.pm (@EXPORT_OK - the first 3-columns part)
 #    b/ SSLeay.pod (constants section)
 #
-# 3/ run: perl Makefile.PL & make & make test
+# 3/ run: perl Makefile.PL && make && make test
 
 # some hints if you want to play more with this script:
 #
@@ -431,6 +431,10 @@ SSL_F_SSL_USE_RSAPRIVATEKEY_ASN1
 SSL_F_SSL_USE_RSAPRIVATEKEY_FILE
 SSL_F_WRITE_PENDING
 SSL_MIN_RSA_MODULUS_LENGTH_IN_BYTES
+SSL_MODE_ENABLE_PARTIAL_WRITE
+SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER
+SSL_MODE_AUTO_RETRY
+SSL_MODE_RELEASE_BUFFERS
 SSL_NOTHING
 SSL_OP_ALL
 SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION

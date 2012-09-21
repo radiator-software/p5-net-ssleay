@@ -2016,12 +2016,12 @@ constant (const char *name, size_t len) {
   case 15:
     /* Names all of length 15.  */
     /* CB_CONNECT_EXIT CB_CONNECT_LOOP ERROR_WANT_READ F_WRITE_PENDING
-       NID_cast5_cfb64 NID_cast5_ofb64 NID_client_auth NID_countryName
-       NID_des_ede_cbc NID_description NID_dnQualifier NID_dsaWithSHA1
-       NID_info_access NID_mdc2WithRSA NID_ms_code_com NID_ms_code_ind
-       NID_ms_ctl_sign NID_server_auth NID_sha1WithRSA OP_NO_QUERY_MTU
-       R_NO_PRIVATEKEY R_UNKNOWN_STATE XN_FLAG_FN_MASK XN_FLAG_FN_NONE
-       XN_FLAG_ONELINE XN_FLAG_RFC2253 */
+       MODE_AUTO_RETRY NID_cast5_cfb64 NID_cast5_ofb64 NID_client_auth
+       NID_countryName NID_des_ede_cbc NID_description NID_dnQualifier
+       NID_dsaWithSHA1 NID_info_access NID_mdc2WithRSA NID_ms_code_com
+       NID_ms_code_ind NID_ms_ctl_sign NID_server_auth NID_sha1WithRSA
+       OP_NO_QUERY_MTU R_NO_PRIVATEKEY R_UNKNOWN_STATE XN_FLAG_FN_MASK
+       XN_FLAG_FN_NONE XN_FLAG_ONELINE XN_FLAG_RFC2253 */
     /* Offset 14 gives the best switch position.  */
     switch (name[14]) {
     case '1':
@@ -2197,6 +2197,16 @@ constant (const char *name, size_t len) {
       }
       break;
     case 'Y':
+      if (!memcmp(name, "MODE_AUTO_RETR", 14)) {
+      /*                               Y      */
+        
+#ifdef SSL_MODE_AUTO_RETRY
+        return SSL_MODE_AUTO_RETRY;
+#else
+        goto not_there;
+#endif
+
+      }
       if (!memcmp(name, "R_NO_PRIVATEKE", 14)) {
       /*                               Y      */
         
@@ -3068,10 +3078,10 @@ constant (const char *name, size_t len) {
   case 20:
     /* Names all of length 20.  */
     /* ASN1_STRFLGS_ESC_MSB ASN1_STRFLGS_RFC2253 F_CLIENT_CERTIFICATE
-       F_SSL_USE_PRIVATEKEY NID_netscape_comment NID_organizationName
-       NID_ripemd160WithRSA NID_subject_alt_name NID_uniqueIdentifier
-       NID_zlib_compression R_NO_CERTIFICATE_SET SESSION_ASN1_VERSION
-       X509_TRUST_OCSP_SIGN */
+       F_SSL_USE_PRIVATEKEY MODE_RELEASE_BUFFERS NID_netscape_comment
+       NID_organizationName NID_ripemd160WithRSA NID_subject_alt_name
+       NID_uniqueIdentifier NID_zlib_compression R_NO_CERTIFICATE_SET
+       SESSION_ASN1_VERSION X509_TRUST_OCSP_SIGN */
     /* Offset 13 gives the best switch position.  */
     switch (name[13]) {
     case 'A':
@@ -3080,6 +3090,18 @@ constant (const char *name, size_t len) {
         
 #ifdef SSL_R_NO_CERTIFICATE_SET
         return SSL_R_NO_CERTIFICATE_SET;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'B':
+      if (!memcmp(name, "MODE_RELEASE_BUFFERS", 20)) {
+      /*                              ^             */
+        
+#ifdef SSL_MODE_RELEASE_BUFFERS
+        return SSL_MODE_RELEASE_BUFFERS;
 #else
         goto not_there;
 #endif
@@ -4040,11 +4062,11 @@ constant (const char *name, size_t len) {
   case 25:
     /* Names all of length 25.  */
     /* F_SSL_RSA_PRIVATE_DECRYPT F_SSL_USE_PRIVATEKEY_ASN1
-       F_SSL_USE_PRIVATEKEY_FILE NID_pbeWithSHA1AndDES_CBC
-       NID_pbeWithSHA1AndRC2_CBC NID_sha1WithRSAEncryption
-       OP_MSIE_SSLV2_RSA_PADDING OP_NETSCAPE_CHALLENGE_BUG
-       R_BAD_AUTHENTICATION_TYPE X509_V_FLAG_CRL_CHECK_ALL
-       X509_V_FLAG_NOTIFY_POLICY */
+       F_SSL_USE_PRIVATEKEY_FILE MODE_ENABLE_PARTIAL_WRITE
+       NID_pbeWithSHA1AndDES_CBC NID_pbeWithSHA1AndRC2_CBC
+       NID_sha1WithRSAEncryption OP_MSIE_SSLV2_RSA_PADDING
+       OP_NETSCAPE_CHALLENGE_BUG R_BAD_AUTHENTICATION_TYPE
+       X509_V_FLAG_CRL_CHECK_ALL X509_V_FLAG_NOTIFY_POLICY */
     /* Offset 20 gives the best switch position.  */
     switch (name[20]) {
     case '2':
@@ -4125,6 +4147,18 @@ constant (const char *name, size_t len) {
         
 #ifdef NID_pbeWithSHA1AndDES_CBC
         return NID_pbeWithSHA1AndDES_CBC;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'W':
+      if (!memcmp(name, "MODE_ENABLE_PARTIAL_WRITE", 25)) {
+      /*                                     ^           */
+        
+#ifdef SSL_MODE_ENABLE_PARTIAL_WRITE
+        return SSL_MODE_ENABLE_PARTIAL_WRITE;
 #else
         goto not_there;
 #endif
@@ -4796,12 +4830,13 @@ constant (const char *name, size_t len) {
     break;
   case 31:
     /* Names all of length 31.  */
-    /* MIN_RSA_MODULUS_LENGTH_IN_BYTES NID_pbe_WithSHA1And40BitRC2_CBC */
-    /* Offset 0 gives the best switch position.  */
-    switch (*name++) {
-    case 'M':
-      if (!memcmp(name, "IN_RSA_MODULUS_LENGTH_IN_BYTES", 30)) {
-      /*                M                                     */
+    /* MIN_RSA_MODULUS_LENGTH_IN_BYTES MODE_ACCEPT_MOVING_WRITE_BUFFER
+       NID_pbe_WithSHA1And40BitRC2_CBC */
+    /* Offset 12 gives the best switch position.  */
+    switch (name[12]) {
+    case 'L':
+      if (!memcmp(name, "MIN_RSA_MODULUS_LENGTH_IN_BYTES", 31)) {
+      /*                             ^                         */
         
 #ifdef SSL_MIN_RSA_MODULUS_LENGTH_IN_BYTES
         return SSL_MIN_RSA_MODULUS_LENGTH_IN_BYTES;
@@ -4811,9 +4846,21 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case 'N':
-      if (!memcmp(name, "ID_pbe_WithSHA1And40BitRC2_CBC", 30)) {
-      /*                N                                     */
+    case 'M':
+      if (!memcmp(name, "MODE_ACCEPT_MOVING_WRITE_BUFFER", 31)) {
+      /*                             ^                         */
+        
+#ifdef SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER
+        return SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'S':
+      if (!memcmp(name, "NID_pbe_WithSHA1And40BitRC2_CBC", 31)) {
+      /*                             ^                         */
         
 #ifdef NID_pbe_WithSHA1And40BitRC2_CBC
         return NID_pbe_WithSHA1And40BitRC2_CBC;

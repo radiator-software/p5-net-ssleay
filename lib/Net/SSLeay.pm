@@ -32,7 +32,7 @@ $Net::SSLeay::trace = 0;  # Do not change here, use
 # 10 = insist on TLSv1
 # 0 or undef = guess (v23)
 #
-$Net::SSLeay::ssl_version = 0;  # don't change here, use 
+$Net::SSLeay::ssl_version = 0;  # don't change here, use
                                 # Net::SSLeay::version=[2,3,0] in caller
 
 #define to enable the "cat /proc/$$/stat" stuff
@@ -70,140 +70,141 @@ $VERSION = '1.48';
 # if you add/remove any constant you need to update it manually
 
 @EXPORT_OK = qw(
- ASN1_STRFLGS_ESC_CTRL           NID_hmacWithSHA1                       OP_CRYPTOPRO_TLSEXT_BUG
- ASN1_STRFLGS_ESC_MSB            NID_id_ad                              OP_DONT_INSERT_EMPTY_FRAGMENTS
- ASN1_STRFLGS_ESC_QUOTE          NID_id_ce                              OP_EPHEMERAL_RSA
- ASN1_STRFLGS_RFC2253            NID_id_kp                              OP_LEGACY_SERVER_CONNECT
- CB_ACCEPT_EXIT                  NID_id_pbkdf2                          OP_MICROSOFT_BIG_SSLV3_BUFFER
- CB_ACCEPT_LOOP                  NID_id_pe                              OP_MICROSOFT_SESS_ID_BUG
- CB_CONNECT_EXIT                 NID_id_pkix                            OP_MSIE_SSLV2_RSA_PADDING
- CB_CONNECT_LOOP                 NID_id_qt_cps                          OP_NETSCAPE_CA_DN_BUG
- ERROR_NONE                      NID_id_qt_unotice                      OP_NETSCAPE_CHALLENGE_BUG
- ERROR_SSL                       NID_idea_cbc                           OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG
- ERROR_SYSCALL                   NID_idea_cfb64                         OP_NETSCAPE_REUSE_CIPHER_CHANGE_BUG
- ERROR_WANT_ACCEPT               NID_idea_ecb                           OP_NON_EXPORT_FIRST
- ERROR_WANT_CONNECT              NID_idea_ofb64                         OP_NO_COMPRESSION
- ERROR_WANT_READ                 NID_info_access                        OP_NO_QUERY_MTU
- ERROR_WANT_WRITE                NID_initials                           OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION
- ERROR_WANT_X509_LOOKUP          NID_invalidity_date                    OP_NO_SSLv2
- ERROR_ZERO_RETURN               NID_issuer_alt_name                    OP_NO_SSLv3
- EVP_PKS_DSA                     NID_keyBag                             OP_NO_TICKET
- EVP_PKS_EC                      NID_key_usage                          OP_NO_TLSv1
- EVP_PKS_RSA                     NID_localKeyID                         OP_NO_TLSv1_1
- EVP_PKT_ENC                     NID_localityName                       OP_NO_TLSv1_2
- EVP_PKT_EXCH                    NID_md2                                OP_PKCS1_CHECK_1
- EVP_PKT_EXP                     NID_md2WithRSAEncryption               OP_PKCS1_CHECK_2
- EVP_PKT_SIGN                    NID_md5                                OP_SINGLE_DH_USE
- EVP_PK_DH                       NID_md5WithRSA                         OP_SINGLE_ECDH_USE
- EVP_PK_DSA                      NID_md5WithRSAEncryption               OP_SSLEAY_080_CLIENT_DH_BUG
- EVP_PK_EC                       NID_md5_sha1                           OP_SSLREF2_REUSE_CERT_TYPE_BUG
- EVP_PK_RSA                      NID_mdc2                               OP_TLS_BLOCK_PADDING_BUG
- FILETYPE_ASN1                   NID_mdc2WithRSA                        OP_TLS_D5_BUG
- FILETYPE_PEM                    NID_ms_code_com                        OP_TLS_ROLLBACK_BUG
- F_CLIENT_CERTIFICATE            NID_ms_code_ind                        READING
- F_CLIENT_HELLO                  NID_ms_ctl_sign                        RECEIVED_SHUTDOWN
- F_CLIENT_MASTER_KEY             NID_ms_efs                             RSA_3
- F_D2I_SSL_SESSION               NID_ms_ext_req                         RSA_F4
- F_GET_CLIENT_FINISHED           NID_ms_sgc                             R_BAD_AUTHENTICATION_TYPE
- F_GET_CLIENT_HELLO              NID_name                               R_BAD_CHECKSUM
- F_GET_CLIENT_MASTER_KEY         NID_netscape                           R_BAD_MAC_DECODE
- F_GET_SERVER_FINISHED           NID_netscape_base_url                  R_BAD_RESPONSE_ARGUMENT
- F_GET_SERVER_HELLO              NID_netscape_ca_policy_url             R_BAD_SSL_FILETYPE
- F_GET_SERVER_VERIFY             NID_netscape_ca_revocation_url         R_BAD_SSL_SESSION_ID_LENGTH
- F_I2D_SSL_SESSION               NID_netscape_cert_extension            R_BAD_STATE
- F_READ_N                        NID_netscape_cert_sequence             R_BAD_WRITE_RETRY
- F_REQUEST_CERTIFICATE           NID_netscape_cert_type                 R_CHALLENGE_IS_DIFFERENT
- F_SERVER_HELLO                  NID_netscape_comment                   R_CIPHER_TABLE_SRC_ERROR
- F_SSL_CERT_NEW                  NID_netscape_data_type                 R_INVALID_CHALLENGE_LENGTH
- F_SSL_GET_NEW_SESSION           NID_netscape_renewal_url               R_NO_CERTIFICATE_SET
- F_SSL_NEW                       NID_netscape_revocation_url            R_NO_CERTIFICATE_SPECIFIED
- F_SSL_READ                      NID_netscape_ssl_server_name           R_NO_CIPHER_LIST
- F_SSL_RSA_PRIVATE_DECRYPT       NID_ns_sgc                             R_NO_CIPHER_MATCH
- F_SSL_RSA_PUBLIC_ENCRYPT        NID_organizationName                   R_NO_PRIVATEKEY
- F_SSL_SESSION_NEW               NID_organizationalUnitName             R_NO_PUBLICKEY
- F_SSL_SESSION_PRINT_FP          NID_pbeWithMD2AndDES_CBC               R_NULL_SSL_CTX
- F_SSL_SET_FD                    NID_pbeWithMD2AndRC2_CBC               R_PEER_DID_NOT_RETURN_A_CERTIFICATE
- F_SSL_SET_RFD                   NID_pbeWithMD5AndCast5_CBC             R_PEER_ERROR
- F_SSL_SET_WFD                   NID_pbeWithMD5AndDES_CBC               R_PEER_ERROR_CERTIFICATE
- F_SSL_USE_CERTIFICATE           NID_pbeWithMD5AndRC2_CBC               R_PEER_ERROR_NO_CIPHER
- F_SSL_USE_CERTIFICATE_ASN1      NID_pbeWithSHA1AndDES_CBC              R_PEER_ERROR_UNSUPPORTED_CERTIFICATE_TYPE
- F_SSL_USE_CERTIFICATE_FILE      NID_pbeWithSHA1AndRC2_CBC              R_PUBLIC_KEY_ENCRYPT_ERROR
- F_SSL_USE_PRIVATEKEY            NID_pbe_WithSHA1And128BitRC2_CBC       R_PUBLIC_KEY_IS_NOT_RSA
- F_SSL_USE_PRIVATEKEY_ASN1       NID_pbe_WithSHA1And128BitRC4           R_READ_WRONG_PACKET_TYPE
- F_SSL_USE_PRIVATEKEY_FILE       NID_pbe_WithSHA1And2_Key_TripleDES_CBC R_SHORT_READ
- F_SSL_USE_RSAPRIVATEKEY         NID_pbe_WithSHA1And3_Key_TripleDES_CBC R_SSL_SESSION_ID_IS_DIFFERENT
- F_SSL_USE_RSAPRIVATEKEY_ASN1    NID_pbe_WithSHA1And40BitRC2_CBC        R_UNABLE_TO_EXTRACT_PUBLIC_KEY
- F_SSL_USE_RSAPRIVATEKEY_FILE    NID_pbe_WithSHA1And40BitRC4            R_UNKNOWN_REMOTE_ERROR_TYPE
- F_WRITE_PENDING                 NID_pbes2                              R_UNKNOWN_STATE
- GEN_DIRNAME                     NID_pbmac1                             R_X509_LIB
- GEN_DNS                         NID_pkcs                               SENT_SHUTDOWN
- GEN_EDIPARTY                    NID_pkcs3                              SESSION_ASN1_VERSION
- GEN_EMAIL                       NID_pkcs7                              ST_ACCEPT
- GEN_IPADD                       NID_pkcs7_data                         ST_BEFORE
- GEN_OTHERNAME                   NID_pkcs7_digest                       ST_CONNECT
- GEN_RID                         NID_pkcs7_encrypted                    ST_INIT
- GEN_URI                         NID_pkcs7_enveloped                    ST_OK
- GEN_X400                        NID_pkcs7_signed                       ST_READ_BODY
- MBSTRING_ASC                    NID_pkcs7_signedAndEnveloped           ST_READ_HEADER
- MBSTRING_BMP                    NID_pkcs8ShroudedKeyBag                VERIFY_CLIENT_ONCE
- MBSTRING_FLAG                   NID_pkcs9                              VERIFY_FAIL_IF_NO_PEER_CERT
- MBSTRING_UNIV                   NID_pkcs9_challengePassword            VERIFY_NONE
- MBSTRING_UTF8                   NID_pkcs9_contentType                  VERIFY_PEER
- MIN_RSA_MODULUS_LENGTH_IN_BYTES NID_pkcs9_countersignature             WRITING
- NID_OCSP_sign                   NID_pkcs9_emailAddress                 X509_LOOKUP
- NID_SMIMECapabilities           NID_pkcs9_extCertAttributes            X509_PURPOSE_ANY
- NID_X500                        NID_pkcs9_messageDigest                X509_PURPOSE_CRL_SIGN
- NID_X509                        NID_pkcs9_signingTime                  X509_PURPOSE_NS_SSL_SERVER
- NID_ad_OCSP                     NID_pkcs9_unstructuredAddress          X509_PURPOSE_OCSP_HELPER
- NID_ad_ca_issuers               NID_pkcs9_unstructuredName             X509_PURPOSE_SMIME_ENCRYPT
- NID_algorithm                   NID_private_key_usage_period           X509_PURPOSE_SMIME_SIGN
- NID_authority_key_identifier    NID_rc2_40_cbc                         X509_PURPOSE_SSL_CLIENT
- NID_basic_constraints           NID_rc2_64_cbc                         X509_PURPOSE_SSL_SERVER
- NID_bf_cbc                      NID_rc2_cbc                            X509_PURPOSE_TIMESTAMP_SIGN
- NID_bf_cfb64                    NID_rc2_cfb64                          X509_TRUST_COMPAT
- NID_bf_ecb                      NID_rc2_ecb                            X509_TRUST_EMAIL
- NID_bf_ofb64                    NID_rc2_ofb64                          X509_TRUST_OBJECT_SIGN
- NID_cast5_cbc                   NID_rc4                                X509_TRUST_OCSP_REQUEST
- NID_cast5_cfb64                 NID_rc4_40                             X509_TRUST_OCSP_SIGN
- NID_cast5_ecb                   NID_rc5_cbc                            X509_TRUST_SSL_CLIENT
- NID_cast5_ofb64                 NID_rc5_cfb64                          X509_TRUST_SSL_SERVER
- NID_certBag                     NID_rc5_ecb                            X509_TRUST_TSA
- NID_certificate_policies        NID_rc5_ofb64                          X509_V_FLAG_ALLOW_PROXY_CERTS
- NID_client_auth                 NID_ripemd160                          X509_V_FLAG_CB_ISSUER_CHECK
- NID_code_sign                   NID_ripemd160WithRSA                   X509_V_FLAG_CHECK_SS_SIGNATURE
- NID_commonName                  NID_rle_compression                    X509_V_FLAG_CRL_CHECK
- NID_countryName                 NID_rsa                                X509_V_FLAG_CRL_CHECK_ALL
- NID_crlBag                      NID_rsaEncryption                      X509_V_FLAG_EXPLICIT_POLICY
- NID_crl_distribution_points     NID_rsadsi                             X509_V_FLAG_EXTENDED_CRL_SUPPORT
- NID_crl_number                  NID_safeContentsBag                    X509_V_FLAG_IGNORE_CRITICAL
- NID_crl_reason                  NID_sdsiCertificate                    X509_V_FLAG_INHIBIT_ANY
- NID_delta_crl                   NID_secretBag                          X509_V_FLAG_INHIBIT_MAP
- NID_des_cbc                     NID_serialNumber                       X509_V_FLAG_NOTIFY_POLICY
- NID_des_cfb64                   NID_server_auth                        X509_V_FLAG_POLICY_CHECK
- NID_des_ecb                     NID_sha                                X509_V_FLAG_POLICY_MASK
- NID_des_ede                     NID_sha1                               X509_V_FLAG_USE_CHECK_TIME
- NID_des_ede3                    NID_sha1WithRSA                        X509_V_FLAG_USE_DELTAS
- NID_des_ede3_cbc                NID_sha1WithRSAEncryption              X509_V_FLAG_X509_STRICT
- NID_des_ede3_cfb64              NID_shaWithRSAEncryption               X509_V_OK
- NID_des_ede3_ofb64              NID_stateOrProvinceName                XN_FLAG_COMPAT
- NID_des_ede_cbc                 NID_subject_alt_name                   XN_FLAG_DN_REV
- NID_des_ede_cfb64               NID_subject_key_identifier             XN_FLAG_DUMP_UNKNOWN_FIELDS
- NID_des_ede_ofb64               NID_surname                            XN_FLAG_FN_ALIGN
- NID_des_ofb64                   NID_sxnet                              XN_FLAG_FN_LN
- NID_description                 NID_time_stamp                         XN_FLAG_FN_MASK
- NID_desx_cbc                    NID_title                              XN_FLAG_FN_NONE
- NID_dhKeyAgreement              NID_undef                              XN_FLAG_FN_OID
- NID_dnQualifier                 NID_uniqueIdentifier                   XN_FLAG_FN_SN
- NID_dsa                         NID_x509Certificate                    XN_FLAG_MULTILINE
- NID_dsaWithSHA                  NID_x509Crl                            XN_FLAG_ONELINE
- NID_dsaWithSHA1                 NID_zlib_compression                   XN_FLAG_RFC2253
- NID_dsaWithSHA1_2               NOTHING                                XN_FLAG_SEP_COMMA_PLUS
- NID_dsa_2                       OPENSSL_VERSION_NUMBER                 XN_FLAG_SEP_CPLUS_SPC
- NID_email_protect               OP_ALL                                 XN_FLAG_SEP_MASK
- NID_ext_key_usage               OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION   XN_FLAG_SEP_MULTILINE
- NID_ext_req                     OP_CIPHER_SERVER_PREFERENCE            XN_FLAG_SEP_SPLUS_SPC
- NID_friendlyName                OP_CISCO_ANYCONNECT                    XN_FLAG_SPC_EQ
- NID_givenName                   OP_COOKIE_EXCHANGE
+ ASN1_STRFLGS_ESC_CTRL           NID_ext_req                            OP_CISCO_ANYCONNECT
+ ASN1_STRFLGS_ESC_MSB            NID_friendlyName                       OP_COOKIE_EXCHANGE
+ ASN1_STRFLGS_ESC_QUOTE          NID_givenName                          OP_CRYPTOPRO_TLSEXT_BUG
+ ASN1_STRFLGS_RFC2253            NID_hmacWithSHA1                       OP_DONT_INSERT_EMPTY_FRAGMENTS
+ CB_ACCEPT_EXIT                  NID_id_ad                              OP_EPHEMERAL_RSA
+ CB_ACCEPT_LOOP                  NID_id_ce                              OP_LEGACY_SERVER_CONNECT
+ CB_CONNECT_EXIT                 NID_id_kp                              OP_MICROSOFT_BIG_SSLV3_BUFFER
+ CB_CONNECT_LOOP                 NID_id_pbkdf2                          OP_MICROSOFT_SESS_ID_BUG
+ ERROR_NONE                      NID_id_pe                              OP_MSIE_SSLV2_RSA_PADDING
+ ERROR_SSL                       NID_id_pkix                            OP_NETSCAPE_CA_DN_BUG
+ ERROR_SYSCALL                   NID_id_qt_cps                          OP_NETSCAPE_CHALLENGE_BUG
+ ERROR_WANT_ACCEPT               NID_id_qt_unotice                      OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG
+ ERROR_WANT_CONNECT              NID_idea_cbc                           OP_NETSCAPE_REUSE_CIPHER_CHANGE_BUG
+ ERROR_WANT_READ                 NID_idea_cfb64                         OP_NON_EXPORT_FIRST
+ ERROR_WANT_WRITE                NID_idea_ecb                           OP_NO_COMPRESSION
+ ERROR_WANT_X509_LOOKUP          NID_idea_ofb64                         OP_NO_QUERY_MTU
+ ERROR_ZERO_RETURN               NID_info_access                        OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION
+ EVP_PKS_DSA                     NID_initials                           OP_NO_SSLv2
+ EVP_PKS_EC                      NID_invalidity_date                    OP_NO_SSLv3
+ EVP_PKS_RSA                     NID_issuer_alt_name                    OP_NO_TICKET
+ EVP_PKT_ENC                     NID_keyBag                             OP_NO_TLSv1
+ EVP_PKT_EXCH                    NID_key_usage                          OP_NO_TLSv1_1
+ EVP_PKT_EXP                     NID_localKeyID                         OP_NO_TLSv1_2
+ EVP_PKT_SIGN                    NID_localityName                       OP_PKCS1_CHECK_1
+ EVP_PK_DH                       NID_md2                                OP_PKCS1_CHECK_2
+ EVP_PK_DSA                      NID_md2WithRSAEncryption               OP_SINGLE_DH_USE
+ EVP_PK_EC                       NID_md5                                OP_SINGLE_ECDH_USE
+ EVP_PK_RSA                      NID_md5WithRSA                         OP_SSLEAY_080_CLIENT_DH_BUG
+ FILETYPE_ASN1                   NID_md5WithRSAEncryption               OP_SSLREF2_REUSE_CERT_TYPE_BUG
+ FILETYPE_PEM                    NID_md5_sha1                           OP_TLS_BLOCK_PADDING_BUG
+ F_CLIENT_CERTIFICATE            NID_mdc2                               OP_TLS_D5_BUG
+ F_CLIENT_HELLO                  NID_mdc2WithRSA                        OP_TLS_ROLLBACK_BUG
+ F_CLIENT_MASTER_KEY             NID_ms_code_com                        READING
+ F_D2I_SSL_SESSION               NID_ms_code_ind                        RECEIVED_SHUTDOWN
+ F_GET_CLIENT_FINISHED           NID_ms_ctl_sign                        RSA_3
+ F_GET_CLIENT_HELLO              NID_ms_efs                             RSA_F4
+ F_GET_CLIENT_MASTER_KEY         NID_ms_ext_req                         R_BAD_AUTHENTICATION_TYPE
+ F_GET_SERVER_FINISHED           NID_ms_sgc                             R_BAD_CHECKSUM
+ F_GET_SERVER_HELLO              NID_name                               R_BAD_MAC_DECODE
+ F_GET_SERVER_VERIFY             NID_netscape                           R_BAD_RESPONSE_ARGUMENT
+ F_I2D_SSL_SESSION               NID_netscape_base_url                  R_BAD_SSL_FILETYPE
+ F_READ_N                        NID_netscape_ca_policy_url             R_BAD_SSL_SESSION_ID_LENGTH
+ F_REQUEST_CERTIFICATE           NID_netscape_ca_revocation_url         R_BAD_STATE
+ F_SERVER_HELLO                  NID_netscape_cert_extension            R_BAD_WRITE_RETRY
+ F_SSL_CERT_NEW                  NID_netscape_cert_sequence             R_CHALLENGE_IS_DIFFERENT
+ F_SSL_GET_NEW_SESSION           NID_netscape_cert_type                 R_CIPHER_TABLE_SRC_ERROR
+ F_SSL_NEW                       NID_netscape_comment                   R_INVALID_CHALLENGE_LENGTH
+ F_SSL_READ                      NID_netscape_data_type                 R_NO_CERTIFICATE_SET
+ F_SSL_RSA_PRIVATE_DECRYPT       NID_netscape_renewal_url               R_NO_CERTIFICATE_SPECIFIED
+ F_SSL_RSA_PUBLIC_ENCRYPT        NID_netscape_revocation_url            R_NO_CIPHER_LIST
+ F_SSL_SESSION_NEW               NID_netscape_ssl_server_name           R_NO_CIPHER_MATCH
+ F_SSL_SESSION_PRINT_FP          NID_ns_sgc                             R_NO_PRIVATEKEY
+ F_SSL_SET_FD                    NID_organizationName                   R_NO_PUBLICKEY
+ F_SSL_SET_RFD                   NID_organizationalUnitName             R_NULL_SSL_CTX
+ F_SSL_SET_WFD                   NID_pbeWithMD2AndDES_CBC               R_PEER_DID_NOT_RETURN_A_CERTIFICATE
+ F_SSL_USE_CERTIFICATE           NID_pbeWithMD2AndRC2_CBC               R_PEER_ERROR
+ F_SSL_USE_CERTIFICATE_ASN1      NID_pbeWithMD5AndCast5_CBC             R_PEER_ERROR_CERTIFICATE
+ F_SSL_USE_CERTIFICATE_FILE      NID_pbeWithMD5AndDES_CBC               R_PEER_ERROR_NO_CIPHER
+ F_SSL_USE_PRIVATEKEY            NID_pbeWithMD5AndRC2_CBC               R_PEER_ERROR_UNSUPPORTED_CERTIFICATE_TYPE
+ F_SSL_USE_PRIVATEKEY_ASN1       NID_pbeWithSHA1AndDES_CBC              R_PUBLIC_KEY_ENCRYPT_ERROR
+ F_SSL_USE_PRIVATEKEY_FILE       NID_pbeWithSHA1AndRC2_CBC              R_PUBLIC_KEY_IS_NOT_RSA
+ F_SSL_USE_RSAPRIVATEKEY         NID_pbe_WithSHA1And128BitRC2_CBC       R_READ_WRONG_PACKET_TYPE
+ F_SSL_USE_RSAPRIVATEKEY_ASN1    NID_pbe_WithSHA1And128BitRC4           R_SHORT_READ
+ F_SSL_USE_RSAPRIVATEKEY_FILE    NID_pbe_WithSHA1And2_Key_TripleDES_CBC R_SSL_SESSION_ID_IS_DIFFERENT
+ F_WRITE_PENDING                 NID_pbe_WithSHA1And3_Key_TripleDES_CBC R_UNABLE_TO_EXTRACT_PUBLIC_KEY
+ GEN_DIRNAME                     NID_pbe_WithSHA1And40BitRC2_CBC        R_UNKNOWN_REMOTE_ERROR_TYPE
+ GEN_DNS                         NID_pbe_WithSHA1And40BitRC4            R_UNKNOWN_STATE
+ GEN_EDIPARTY                    NID_pbes2                              R_X509_LIB
+ GEN_EMAIL                       NID_pbmac1                             SENT_SHUTDOWN
+ GEN_IPADD                       NID_pkcs                               SESSION_ASN1_VERSION
+ GEN_OTHERNAME                   NID_pkcs3                              ST_ACCEPT
+ GEN_RID                         NID_pkcs7                              ST_BEFORE
+ GEN_URI                         NID_pkcs7_data                         ST_CONNECT
+ GEN_X400                        NID_pkcs7_digest                       ST_INIT
+ MBSTRING_ASC                    NID_pkcs7_encrypted                    ST_OK
+ MBSTRING_BMP                    NID_pkcs7_enveloped                    ST_READ_BODY
+ MBSTRING_FLAG                   NID_pkcs7_signed                       ST_READ_HEADER
+ MBSTRING_UNIV                   NID_pkcs7_signedAndEnveloped           VERIFY_CLIENT_ONCE
+ MBSTRING_UTF8                   NID_pkcs8ShroudedKeyBag                VERIFY_FAIL_IF_NO_PEER_CERT
+ MIN_RSA_MODULUS_LENGTH_IN_BYTES NID_pkcs9                              VERIFY_NONE
+ MODE_ACCEPT_MOVING_WRITE_BUFFER NID_pkcs9_challengePassword            VERIFY_PEER
+ MODE_AUTO_RETRY                 NID_pkcs9_contentType                  WRITING
+ MODE_ENABLE_PARTIAL_WRITE       NID_pkcs9_countersignature             X509_LOOKUP
+ MODE_RELEASE_BUFFERS            NID_pkcs9_emailAddress                 X509_PURPOSE_ANY
+ NID_OCSP_sign                   NID_pkcs9_extCertAttributes            X509_PURPOSE_CRL_SIGN
+ NID_SMIMECapabilities           NID_pkcs9_messageDigest                X509_PURPOSE_NS_SSL_SERVER
+ NID_X500                        NID_pkcs9_signingTime                  X509_PURPOSE_OCSP_HELPER
+ NID_X509                        NID_pkcs9_unstructuredAddress          X509_PURPOSE_SMIME_ENCRYPT
+ NID_ad_OCSP                     NID_pkcs9_unstructuredName             X509_PURPOSE_SMIME_SIGN
+ NID_ad_ca_issuers               NID_private_key_usage_period           X509_PURPOSE_SSL_CLIENT
+ NID_algorithm                   NID_rc2_40_cbc                         X509_PURPOSE_SSL_SERVER
+ NID_authority_key_identifier    NID_rc2_64_cbc                         X509_PURPOSE_TIMESTAMP_SIGN
+ NID_basic_constraints           NID_rc2_cbc                            X509_TRUST_COMPAT
+ NID_bf_cbc                      NID_rc2_cfb64                          X509_TRUST_EMAIL
+ NID_bf_cfb64                    NID_rc2_ecb                            X509_TRUST_OBJECT_SIGN
+ NID_bf_ecb                      NID_rc2_ofb64                          X509_TRUST_OCSP_REQUEST
+ NID_bf_ofb64                    NID_rc4                                X509_TRUST_OCSP_SIGN
+ NID_cast5_cbc                   NID_rc4_40                             X509_TRUST_SSL_CLIENT
+ NID_cast5_cfb64                 NID_rc5_cbc                            X509_TRUST_SSL_SERVER
+ NID_cast5_ecb                   NID_rc5_cfb64                          X509_TRUST_TSA
+ NID_cast5_ofb64                 NID_rc5_ecb                            X509_V_FLAG_ALLOW_PROXY_CERTS
+ NID_certBag                     NID_rc5_ofb64                          X509_V_FLAG_CB_ISSUER_CHECK
+ NID_certificate_policies        NID_ripemd160                          X509_V_FLAG_CHECK_SS_SIGNATURE
+ NID_client_auth                 NID_ripemd160WithRSA                   X509_V_FLAG_CRL_CHECK
+ NID_code_sign                   NID_rle_compression                    X509_V_FLAG_CRL_CHECK_ALL
+ NID_commonName                  NID_rsa                                X509_V_FLAG_EXPLICIT_POLICY
+ NID_countryName                 NID_rsaEncryption                      X509_V_FLAG_EXTENDED_CRL_SUPPORT
+ NID_crlBag                      NID_rsadsi                             X509_V_FLAG_IGNORE_CRITICAL
+ NID_crl_distribution_points     NID_safeContentsBag                    X509_V_FLAG_INHIBIT_ANY
+ NID_crl_number                  NID_sdsiCertificate                    X509_V_FLAG_INHIBIT_MAP
+ NID_crl_reason                  NID_secretBag                          X509_V_FLAG_NOTIFY_POLICY
+ NID_delta_crl                   NID_serialNumber                       X509_V_FLAG_POLICY_CHECK
+ NID_des_cbc                     NID_server_auth                        X509_V_FLAG_POLICY_MASK
+ NID_des_cfb64                   NID_sha                                X509_V_FLAG_USE_CHECK_TIME
+ NID_des_ecb                     NID_sha1                               X509_V_FLAG_USE_DELTAS
+ NID_des_ede                     NID_sha1WithRSA                        X509_V_FLAG_X509_STRICT
+ NID_des_ede3                    NID_sha1WithRSAEncryption              X509_V_OK
+ NID_des_ede3_cbc                NID_shaWithRSAEncryption               XN_FLAG_COMPAT
+ NID_des_ede3_cfb64              NID_stateOrProvinceName                XN_FLAG_DN_REV
+ NID_des_ede3_ofb64              NID_subject_alt_name                   XN_FLAG_DUMP_UNKNOWN_FIELDS
+ NID_des_ede_cbc                 NID_subject_key_identifier             XN_FLAG_FN_ALIGN
+ NID_des_ede_cfb64               NID_surname                            XN_FLAG_FN_LN
+ NID_des_ede_ofb64               NID_sxnet                              XN_FLAG_FN_MASK
+ NID_des_ofb64                   NID_time_stamp                         XN_FLAG_FN_NONE
+ NID_description                 NID_title                              XN_FLAG_FN_OID
+ NID_desx_cbc                    NID_undef                              XN_FLAG_FN_SN
+ NID_dhKeyAgreement              NID_uniqueIdentifier                   XN_FLAG_MULTILINE
+ NID_dnQualifier                 NID_x509Certificate                    XN_FLAG_ONELINE
+ NID_dsa                         NID_x509Crl                            XN_FLAG_RFC2253
+ NID_dsaWithSHA                  NID_zlib_compression                   XN_FLAG_SEP_COMMA_PLUS
+ NID_dsaWithSHA1                 NOTHING                                XN_FLAG_SEP_CPLUS_SPC
+ NID_dsaWithSHA1_2               OPENSSL_VERSION_NUMBER                 XN_FLAG_SEP_MASK
+ NID_dsa_2                       OP_ALL                                 XN_FLAG_SEP_MULTILINE
+ NID_email_protect               OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION   XN_FLAG_SEP_SPLUS_SPC
+ NID_ext_key_usage               OP_CIPHER_SERVER_PREFERENCE            XN_FLAG_SPC_EQ
 
     BIO_eof
     BIO_f_ssl
@@ -335,7 +336,7 @@ $VERSION = '1.48';
     use_certificate_ASN1
     use_certificate_file
     write
- 
+
 );
 
 sub AUTOLOAD {
@@ -392,7 +393,7 @@ sub print_errs {
 # usage: Net::SSLeay::write($ssl, "foo") or die_if_ssl_error("SSL write ($!)");
 
 sub die_if_ssl_error {
-    my ($msg) = @_;    
+    my ($msg) = @_;
     die "$$: $msg\n" if print_errs($msg);
 }
 
@@ -400,7 +401,7 @@ sub die_if_ssl_error {
 # usage: Net::SSLeay::connect($ssl) or die_now("Failed SSL connect ($!)");
 
 sub die_now {
-    my ($msg) = @_;    
+    my ($msg) = @_;
     print_errs($msg);
     die "$$: $msg\n";
 }
@@ -409,9 +410,9 @@ sub die_now {
 # reflects the byte length of a string. This eval is to fix that.
 # Thanks to Sean Burke for the snippet.
 
-BEGIN{ 
-eval 'use bytes; sub blength ($) { length $_[0] }'; 
-$@ and eval '    sub blength ($) { length $_[0] }' ; 
+BEGIN{
+eval 'use bytes; sub blength ($) { length $_[0] }';
+$@ and eval '    sub blength ($) { length $_[0] }' ;
 }
 
 # Autoload methods go after __END__, and are processed by the autosplit program.
@@ -445,10 +446,10 @@ sub open_tcp_connection {
         return wantarray ? (0, $errs) : 0;
     }
     my $sin = sockaddr_in($port, $dest_serv_ip);
-    
+
     warn "Opening connection to $dest_serv:$port (" .
 	inet_ntoa($dest_serv_ip) . ")" if $trace>2;
-    
+
     my $proto = getprotobyname('tcp');
     if (socket (SSLCAT_S, &PF_INET(), &SOCK_STREAM(), $proto)) {
         warn "next connect" if $trace>3;
@@ -470,11 +471,11 @@ sub open_tcp_connection {
 sub open_proxy_tcp_connection {
     my ($dest_serv, $port) = @_;
     return open_tcp_connection($dest_serv, $port) if !$proxyhost;
-    
+
     warn "Connect via proxy: $proxyhost:$proxyport" if $trace>2;
     my ($ret, $errs) = open_tcp_connection($proxyhost, $proxyport);
     return wantarray ? (0, $errs) : 0 if !$ret;  # Connection fail
-    
+
     warn "Asking proxy to connect to $dest_serv:$port" if $trace>2;
     #print SSLCAT_S "CONNECT $dest_serv:$port HTTP/1.0$proxyauth$CRLF$CRLF";
     #my $line = <SSLCAT_S>;   # *** bug? Mixing stdio with syscall read?
@@ -540,7 +541,7 @@ sub tcp_read_all {
 }
 
 sub ssl_write_all {
-    my $ssl = $_[0];    
+    my $ssl = $_[0];
     my ($data_ref, $errs);
     if (ref $_[1]) {
 	$data_ref = $_[1];
@@ -567,10 +568,10 @@ sub ssl_write_all {
 	      SWITCH: {
 		$sslerr == constant("ERROR_NONE") && do {
 		  # according to map page SSL_get_error(3ssl):
-		  #  The TLS/SSL I/O operation completed.  
+		  #  The TLS/SSL I/O operation completed.
 		  #  This result code is returned if and only if ret > 0
                   # so if we received it here complain...
-		  warn "ERROR_NONE unexpected with invalid return value!" 
+		  warn "ERROR_NONE unexpected with invalid return value!"
 		    if $trace;
 		  $errname = "SSL_ERROR_NONE";
 		};
@@ -617,7 +618,7 @@ sub ssl_write_all {
 		  $errname = "SSL_ERROR_WANT_CONNECT";
 		  last SWITCH;
 		};
-		$sslerr == constant("ERROR_WANT_ACCEPT") && do { 
+		$sslerr == constant("ERROR_WANT_ACCEPT") && do {
 		  # according to man page, should never happen on call to
 		  # SSL_write, so complain, but handle as known error type
 		  warn "ERROR_WANT_ACCEPT: Unexpected error for SSL_write\n"
@@ -626,7 +627,7 @@ sub ssl_write_all {
 		  last SWITCH;
 		};
 		$sslerr == constant("ERROR_WANT_X509_LOOKUP") && do {
-		  # operation did not complete: waiting on call back,  
+		  # operation did not complete: waiting on call back,
 		  # call again later, so do not set errname and empty err_que
 		  # since this is a known error that is expected but, we should
 		  # continue to try writing the rest of our data with same io
@@ -637,7 +638,7 @@ sub ssl_write_all {
 		  last SWITCH;
 		};
 		$sslerr == constant("ERROR_SYSCALL") && do {
-		  # some IO error occured. According to man page: 
+		  # some IO error occured. According to man page:
 		  # Check retval, ERR, fallback to errno
 		  if ($wrote==0) { # EOF
 		    warn "ERROR_SYSCALL($wrote): EOF violates protocol.\n"
@@ -647,7 +648,7 @@ sub ssl_write_all {
 		    # check error que for details, don't set errname since we
 		    # are directly appending to errs
 		    my $chkerrs = print_errs('SSL_write (syscall)');
-		    if ($chkerrs) { 
+		    if ($chkerrs) {
 		      warn "ERROR_SYSCALL($wrote): Have errors\n" if $trace;
 		      $errs .= "ssl_write_all $$: 1 - ERROR_SYSCALL($wrote,".
 			"$sslerr,$errstr,$!)\n$chkerrs";
@@ -666,7 +667,7 @@ sub ssl_write_all {
 	      if ($errname) { # if we had an errname set add the error
 		$errs .= "ssl_write_all $$: 1 - $errname($wrote,$sslerr,".
 		  "$errstr,$!)\n";
-	      }	      
+	      }
 	    } # endif on have SSL_get_error val
 	  } # endif on $wrote defined
 	} # endelse on $wrote > 0
@@ -718,7 +719,7 @@ sub ssl_read_until ($;$$) {
     my ($ssl,$delim, $max_length) = @_;
 
     # guess the delim string if missing
-    if ( ! defined $delim ) {           
+    if ( ! defined $delim ) {
       if ( defined $/ && length $/  ) { $delim = $/ }
       else { $delim = "\n" }      # Note: \n,$/ value depends on the platform
     }
@@ -726,7 +727,7 @@ sub ssl_read_until ($;$$) {
 
     my ($got);
     my $reply = '';
-    
+
     # If we have OpenSSL 0.9.6a or later, we can use SSL_peek to
     # speed things up.
     # N.B. 0.9.6a has security problems, so the support for
@@ -745,9 +746,9 @@ sub ssl_read_until ($;$$) {
 	    $got = Net::SSLeay::peek($ssl, $peek_length);
 	    last if print_errs('SSL_peek');
 	    $peek_length = blength($got);
-	    
+
 	    #$found = index($got, $delim);  # Old and broken
-	    
+
 	    # the delimiter may be split across two gets, so we prepend
 	    # a little from the last get onto this one before we check
 	    # for a match
@@ -773,7 +774,7 @@ sub ssl_read_until ($;$$) {
 	    } else {
 		$got = Net::SSLeay::read($ssl, $peek_length);
 		$done = 1 if ($peek_length == $max_length - blength($reply));
-	    } 
+	    }
 
 	    last if print_errs('SSL_read');
 	    debug_read(\$reply, \$got) if $trace>1;
@@ -798,7 +799,7 @@ sub tcp_read_until {
     my ($delim, $max_length) = @_;
 
     # guess the delim string if missing
-    if ( ! defined $delim ) {           
+    if ( ! defined $delim ) {
       if ( defined $/ && length $/  ) { $delim = $/ }
       else { $delim = "\n" }      # Note: \n,$/ value depends on the platform
     }
@@ -806,7 +807,7 @@ sub tcp_read_until {
 
     my ($n,$got);
     my $reply = '';
-    
+
     while (!defined $max_length || length $reply < $max_length) {
 	$n = sysread(SSLCAT_S, $got, 1);  # one by one
 	warn "tcp_read_until: $!" if !defined $n;
@@ -824,7 +825,7 @@ sub ssl_read_CRLF ($;$) { ssl_read_until($_[0], $CRLF, $_[1]) }
 sub tcp_read_CRLF { tcp_read_until($CRLF, $_[0]) }
 
 # ssl_write_CRLF($ssl, $message) writes $message and appends CRLF
-sub ssl_write_CRLF ($$) { 
+sub ssl_write_CRLF ($$) {
   # the next line uses less memory but might use more network packets
   return ssl_write_all($_[0], $_[1]) + ssl_write_all($_[0], $CRLF);
 
@@ -839,7 +840,7 @@ sub ssl_write_CRLF ($$) {
   #return ssl_write_all($_[0], \$message);
 }
 
-sub tcp_write_CRLF { 
+sub tcp_write_CRLF {
   # the next line uses less memory but might use more network packets
   return tcp_write_all($_[0]) + tcp_write_all($CRLF);
 
@@ -883,14 +884,14 @@ sub randomize (;$$$) {
 
 	$egd_path = '';
     $egd_path = $ENV{'EGD_PATH'} if $ENV{'EGD_PATH'};
-    
+
     RAND_seed(rand() + $$);  # Stir it with time and pid
-    
+
     unless ($rnsf || -r $Net::SSLeay::random_device || $seed || -S $egd_path) {
 	my $poll_retval = Net::SSLeay::RAND_poll();
 	warn "Random number generator not seeded!!!" if $trace && !$poll_retval;
     }
-    
+
     RAND_load_file($rn_seed_file, -s _) if $rnsf;
     RAND_seed($seed) if $seed;
     RAND_seed($ENV{RND_SEED}) if $ENV{RND_SEED};
@@ -939,15 +940,15 @@ sub initialize
 sub sslcat { # address, port, message, $crt, $key --> reply / (reply,errs,cert)
     my ($dest_serv, $port, $out_message, $crt_path, $key_path) = @_;
     my ($ctx, $ssl, $got, $errs, $written);
-    
+
     ($got, $errs) = open_proxy_tcp_connection($dest_serv, $port);
     return (wantarray ? (undef, $errs) : undef) unless $got;
-    
+
     ### Do SSL negotiation stuff
-	    
+
     warn "Creating SSL $ssl_version context...\n" if $trace>2;
     initialize(); # Will init at most once
-    
+
     $ctx = new_x_ctx();
     goto cleanup2 if $errs = print_errs('CTX_new') or !$ctx;
 
@@ -956,15 +957,15 @@ sub sslcat { # address, port, message, $crt, $key --> reply / (reply,errs,cert)
 
     warn "Cert `$crt_path' given without key" if $crt_path && !$key_path;
     set_cert_and_key($ctx, $crt_path, $key_path) if $crt_path;
-    
+
     warn "Creating SSL connection (context was '$ctx')...\n" if $trace>2;
     $ssl = new($ctx);
     goto cleanup if $errs = print_errs('SSL_new') or !$ssl;
-    
+
     warn "Setting fd (ctx $ctx, con $ssl)...\n" if $trace>2;
     set_fd($ssl, fileno(SSLCAT_S));
     goto cleanup if $errs = print_errs('set_fd');
-    
+
     warn "Entering SSL negotiation phase...\n" if $trace>2;
 
     if ($trace>2) {
@@ -981,72 +982,72 @@ sub sslcat { # address, port, message, $crt, $key --> reply / (reply,errs,cert)
 	$cipher_list .= '\n';
 	warn $cipher_list;
     }
-    
+
     $got = Net::SSLeay::connect($ssl);
     warn "SSLeay connect returned $got\n" if $trace>2;
     goto cleanup if $errs = print_errs('SSL_connect');
-    
+
     my $server_cert = get_peer_certificate($ssl);
     print_errs('get_peer_certificate');
-    if ($trace>1) {	    
+    if ($trace>1) {
 	warn "Cipher `" . get_cipher($ssl) . "'\n";
 	print_errs('get_ciper');
 	warn dump_peer_certificate($ssl);
     }
-    
+
     ### Connected. Exchange some data (doing repeated tries if necessary).
-        
+
     warn "sslcat $$: sending " . blength($out_message) . " bytes...\n"
 	if $trace==3;
     warn "sslcat $$: sending `$out_message' (" . blength($out_message)
 	. " bytes)...\n" if $trace>3;
     ($written, $errs) = ssl_write_all($ssl, $out_message);
     goto cleanup unless $written;
-    
+
     sleep $slowly if $slowly;  # Closing too soon can abort broken servers
     CORE::shutdown SSLCAT_S, 1;  # Half close --> No more output, send EOF to server
-    
+
     warn "waiting for reply...\n" if $trace>2;
     ($got, $errs) = ssl_read_all($ssl);
     warn "Got " . blength($got) . " bytes.\n" if $trace==3;
     warn "Got `$got' (" . blength($got) . " bytes)\n" if $trace>3;
 
-cleanup:	    
+cleanup:
     free ($ssl);
     $errs .= print_errs('SSL_free');
 cleanup2:
     CTX_free ($ctx);
     $errs .= print_errs('CTX_free');
-    close SSLCAT_S;    
+    close SSLCAT_S;
     return wantarray ? ($got, $errs, $server_cert) : $got;
 }
 
 sub tcpcat { # address, port, message, $crt, $key --> reply / (reply,errs,cert)
     my ($dest_serv, $port, $out_message) = @_;
     my ($got, $errs, $written);
-    
+
     ($got, $errs) = open_proxy_tcp_connection($dest_serv, $port);
     return (wantarray ? (undef, $errs) : undef) unless $got;
-    
+
     ### Connected. Exchange some data (doing repeated tries if necessary).
-        
+
     warn "tcpcat $$: sending " . blength($out_message) . " bytes...\n"
 	if $trace==3;
     warn "tcpcat $$: sending `$out_message' (" . blength($out_message)
 	. " bytes)...\n" if $trace>3;
     ($written, $errs) = tcp_write_all($out_message);
     goto cleanup unless $written;
-    
+
     sleep $slowly if $slowly;  # Closing too soon can abort broken servers
     CORE::shutdown SSLCAT_S, 1;  # Half close --> No more output, send EOF to server
-    
+
     warn "waiting for reply...\n" if $trace>2;
     ($got, $errs) = tcp_read_all($ssl);
     warn "Got " . blength($got) . " bytes.\n" if $trace==3;
     warn "Got `$got' (" . blength($got) . " bytes)\n" if $trace>3;
 
 cleanup:
-    close SSLCAT_S;    
+    close SSLCAT_S;
     return wantarray ? ($got, $errs) : $got;
 }
 
@@ -1067,12 +1068,12 @@ sub tcpxcat {
 sub https_cat { # address, port, message --> returns reply / (reply,errs,cert)
     my ($dest_serv, $port, $out_message, $crt_path, $key_path) = @_;
     my ($ctx, $ssl, $got, $errs, $written);
-    
+
     ($got, $errs) = open_proxy_tcp_connection($dest_serv, $port);
     return (wantarray ? (undef, $errs) : undef) unless $got;
-	    
+
     ### Do SSL negotiation stuff
-	    
+
     warn "Creating SSL $ssl_version context...\n" if $trace>2;
     initialize();
 
@@ -1081,20 +1082,20 @@ sub https_cat { # address, port, message --> returns reply / (reply,errs,cert)
 
     CTX_set_options($ctx, &OP_ALL);
     goto cleanup2 if $errs = print_errs('CTX_set_options');
-    
+
     warn "Cert `$crt_path' given without key" if $crt_path && !$key_path;
     set_cert_and_key($ctx, $crt_path, $key_path) if $crt_path;
-    
+
     warn "Creating SSL connection (context was '$ctx')...\n" if $trace>2;
     $ssl = new($ctx);
     goto cleanup if $errs = print_errs('SSL_new') or !$ssl;
-    
+
     warn "Setting fd (ctx $ctx, con $ssl)...\n" if $trace>2;
     set_fd($ssl, fileno(SSLCAT_S));
     goto cleanup if $errs = print_errs('set_fd');
-    
+
     warn "Entering SSL negotiation phase...\n" if $trace>2;
-    
+
     if ($trace>2) {
 	my $i = 0;
 	my $p = '';
@@ -1113,24 +1114,24 @@ sub https_cat { # address, port, message --> returns reply / (reply,errs,cert)
     $got = Net::SSLeay::connect($ssl);
     warn "SSLeay connect failed" if $trace>2 && $got==0;
     goto cleanup if $errs = print_errs('SSL_connect');
-    
+
     my $server_cert = get_peer_certificate($ssl);
     print_errs('get_peer_certificate');
-    if ($trace>1) {	    
+    if ($trace>1) {
 	warn "Cipher `" . get_cipher($ssl) . "'\n";
 	print_errs('get_ciper');
 	warn dump_peer_certificate($ssl);
     }
-    
+
     ### Connected. Exchange some data (doing repeated tries if necessary).
-        
+
     warn "https_cat $$: sending " . blength($out_message) . " bytes...\n"
 	if $trace==3;
     warn "https_cat $$: sending `$out_message' (" . blength($out_message)
 	. " bytes)...\n" if $trace>3;
     ($written, $errs) = ssl_write_all($ssl, $out_message);
     goto cleanup unless $written;
-    
+
     warn "waiting for reply...\n" if $trace>2;
     ($got, $errs) = ssl_read_all($ssl);
     warn "Got " . blength($got) . " bytes.\n" if $trace==3;
@@ -1142,33 +1143,33 @@ cleanup:
 cleanup2:
     CTX_free ($ctx);
     $errs .= print_errs('CTX_free');
-    close SSLCAT_S;    
+    close SSLCAT_S;
     return wantarray ? ($got, $errs, $server_cert) : $got;
 }
 
 sub http_cat { # address, port, message --> returns reply / (reply,errs,cert)
     my ($dest_serv, $port, $out_message) = @_;
     my ($got, $errs, $written);
-    
+
     ($got, $errs) = open_proxy_tcp_connection($dest_serv, $port);
     return (wantarray ? (undef, $errs) : undef) unless $got;
-	    
+
     ### Connected. Exchange some data (doing repeated tries if necessary).
-        
+
     warn "http_cat $$: sending " . blength($out_message) . " bytes...\n"
 	if $trace==3;
     warn "http_cat $$: sending `$out_message' (" . blength($out_message)
 	. " bytes)...\n" if $trace>3;
     ($written, $errs) = tcp_write_all($out_message);
     goto cleanup unless $written;
-    
+
     warn "waiting for reply...\n" if $trace>2;
     ($got, $errs) = tcp_read_all(200000);
     warn "Got " . blength($got) . " bytes.\n" if $trace==3;
     warn "Got `$got' (" . blength($got) . " bytes)\n" if $trace>3;
 
 cleanup:
-    close SSLCAT_S;    
+    close SSLCAT_S;
     return wantarray ? ($got, $errs) : $got;
 }
 
@@ -1187,7 +1188,7 @@ sub httpx_cat {
 ###
 
 sub set_cert_and_key ($$$) {
-    my ($ctx, $cert_path, $key_path) = @_;    
+    my ($ctx, $cert_path, $key_path) = @_;
     my $errs = '';
     # Following will ask password unless private key is not encrypted
     CTX_use_PrivateKey_file ($ctx, $key_path, &FILETYPE_PEM);
@@ -1263,13 +1264,13 @@ sub do_httpx3 {
         }
         $req .= $CRLF;
 	}
-    $req .= (defined $headers ? $headers : '') . "Accept: */*$CRLF$content";    
+    $req .= (defined $headers ? $headers : '') . "Accept: */*$CRLF$content";
 
     warn "do_httpx3($method,$usessl,$site:$port)" if $trace;
     my ($http, $errs, $server_cert)
 	= httpx_cat($usessl, $site, $port, $req, $crt_path, $key_path);
     return (undef, "HTTP/1.0 900 NET OR SSL ERROR$CRLF$CRLF$errs") if $errs;
-    
+
     $http = '' if !defined $http;
     ($headers, $page) = split /\s?\n\s?\n/, $http, 2;
     warn "headers >$headers< page >>$page<< http >>>$http<<<" if $trace>1;
@@ -1370,6 +1371,6 @@ sub do_https {
     do_https2($method, $site, $port, $path, $headers,
 	     $content, $mime_type, $crt_path, $key_path);
 }
- 
+
 1;
 __END__

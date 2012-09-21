@@ -20,7 +20,10 @@ Revision history for Perl extension Net::SSLeay.
        not correctly set and $server_cert was not returned.
       Fixed a problem that could cause a Perl exception about no blength
       method on undef. Reported by "Stephen J. Smith via RT". https://rt.cpan.org/Ticket/Display.html?id=79309 
-
+      Added documentation about how to mitigate various SSL/TLS
+     vulnerabilities.
+     Fixed problem reported by Mike Doherty: SSL_MODE_* are defined in ssl.h, 
+     and should be available as constants, but I do not see them listed in constants.h
 
 1.48 2012-04-25
      Removed unneeded Debian_CPANTS.txt from MANIFEST.
