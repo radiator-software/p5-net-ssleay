@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.49 ?????
+1.49 2012-09-25
      Fixed problem where on some platforms test t/local/07_tcpecho.t would
      bail out if it could not bind port 1212. Now now tries a number of ports to bind to until
      successful.
@@ -20,7 +20,7 @@ Revision history for Perl extension Net::SSLeay.
        not correctly set and $server_cert was not returned.
       Fixed a problem that could cause a Perl exception about no blength
       method on undef. Reported by "Stephen J. Smith via RT". https://rt.cpan.org/Ticket/Display.html?id=79309 
-      Added documentation about how to mitigate various SSL/TLS
+      Added documentation about how to mitigatxe various SSL/TLS
      vulnerabilities.
      Fixed problem reported by Mike Doherty: SSL_MODE_* are defined in ssl.h, 
      and should be available as constants, but I do not see them listed in constants.h
