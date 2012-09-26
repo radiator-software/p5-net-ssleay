@@ -1,4 +1,7 @@
 Revision history for Perl extension Net::SSLeay.
+1.?? 
+     Fixed a problem where t/handle/external/50_external.t would crash if any
+     of the test sites were not contactable.
 
 1.49 2012-09-25
      Fixed problem where on some platforms test t/local/07_tcpecho.t would
