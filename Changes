@@ -2,6 +2,12 @@ Revision history for Perl extension Net::SSLeay.
 1.?? 
      Fixed a problem where t/handle/external/50_external.t would crash if any
      of the test sites were not contactable.
+     Now builds on VMS. Patch kindly supplied by Craig A. Berry.
+     Fixed a few compiler warnings in SSLeay.xs.  Most of them
+     are just signed/unsigned pointer mismatches but there is one that actually
+     fixes returning what would be an arbitrary value off the stack from
+     get_my_thread_id if it happened to be called in a non-threaded build.
+     Patch kindly supplied by Craig A. Berry
 
 1.49 2012-09-25
      Fixed problem where on some platforms test t/local/07_tcpecho.t would

@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use lib 'ext';
 use inc::Module::Install;
+use Config;
+use File::Spec;
 
 name('Net-SSLeay');
 all_from('lib/Net/SSLeay.pm');
@@ -29,14 +31,17 @@ no_index( directory => qw( inc ext helper_script examples ) );
 resources( repository => 'http://svn.debian.org/wsvn/net-ssleay' );
 resources( bugtracker => 'https://rt.cpan.org/Public/Dist/Display.html?Name=net-ssleay' );
 
-postamble <<MAKE;
-constants.c : helper_script/regen_openssl_constants.pl
-	\$(ABSPERLRUN) helper_script/regen_openssl_constants.pl -gen-c constants.c
+my $regen_script = File::Spec->catfile('helper_script', 'regen_openssl_constants.pl');
+my $constants_t = File::Spec->catfile('t', 'local', '21_constants.t');
 
-t/local/21_constants.t : helper_script/regen_openssl_constants.pl
-	\$(ABSPERLRUN) helper_script/regen_openssl_constants.pl -gen-t t/local/21_constants.t
+postamble <<"MAKE";
+constants.c : $regen_script
+	\$(ABSPERLRUN) $regen_script -gen-c constants.c
 
-SSLeay.o : constants.c t/local/21_constants.t
+$constants_t : $regen_script
+	\$(ABSPERLRUN) $regen_script -gen-t $constants_t
+
+SSLeay$Config{'obj_ext'} : constants.c $constants_t
 
 MAKE
 

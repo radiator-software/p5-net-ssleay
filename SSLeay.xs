@@ -202,7 +202,7 @@ typedef struct {
     HV* global_cb_data;
     UV tid;
 } my_cxt_t;
-START_MY_CXT;
+START_MY_CXT
 
 #ifdef USE_ITHREADS
 static perl_mutex LIB_init_mutex;
@@ -213,7 +213,7 @@ static int LIB_initialized;
 UV get_my_thread_id(void) /* returns threads->tid() value */
 {
     dSP;
-    UV tid;
+    UV tid = 0;
     int count = 0;
 
 #ifdef USE_ITHREADS
@@ -752,7 +752,7 @@ int next_proto_helper_protodata2AV(AV * list, const unsigned char *in, unsigned 
     while (i<inlen) {
         il = in[i++];
         if (i+il > inlen) return 0;
-        av_push(list, newSVpv(in+i, il));
+        av_push(list, newSVpv((const char*)in+i, il));
         i += il;
     }
     return 1;
@@ -794,17 +794,17 @@ int next_proto_select_cb_invoke(SSL *ssl, unsigned char **out, unsigned char *ou
         SPAGAIN;
         if (count != 2)
             croak ("Net::SSLeay: next_proto_select_cb_invoke perl function did not return 2 values.\n");
-        next_proto_data = POPpx;
+        next_proto_data = (unsigned char*)POPpx;
         next_proto_status = POPi;
         PUTBACK;
         FREETMPS;
         LEAVE;
 
-        if (strlen(next_proto_data)>255) return SSL_TLSEXT_ERR_ALERT_FATAL;
-        next_proto_len = (unsigned char)strlen(next_proto_data);
+        if (strlen((const char*)next_proto_data)>255) return SSL_TLSEXT_ERR_ALERT_FATAL;
+        next_proto_len = strlen((const char*)next_proto_data);
         /* store last_status + last_negotiated into global hash */
         cb_data_advanced_put(ssl, "next_proto_select_cb!!last_status", newSViv(next_proto_status));
-        tmpsv = newSVpv(next_proto_data, next_proto_len);
+        tmpsv = newSVpv((const char*)next_proto_data, next_proto_len);
         cb_data_advanced_put(ssl, "next_proto_select_cb!!last_negotiated", tmpsv);
         *out = (unsigned char *)SvPVX(tmpsv);
         *outlen = next_proto_len;
@@ -820,7 +820,7 @@ int next_proto_select_cb_invoke(SSL *ssl, unsigned char **out, unsigned char *ou
 
         /* store last_status + last_negotiated into global hash */
         cb_data_advanced_put(ssl, "next_proto_select_cb!!last_status", newSViv(next_proto_status));
-        cb_data_advanced_put(ssl, "next_proto_select_cb!!last_negotiated", newSVpv(*out, *outlen));
+        cb_data_advanced_put(ssl, "next_proto_select_cb!!last_negotiated", newSVpv((const char*)*out, *outlen));
         Safefree(next_proto_data);
         return SSL_TLSEXT_ERR_OK;
     }
@@ -871,7 +871,7 @@ int next_protos_advertised_cb_invoke(SSL *ssl, const unsigned char **out, unsign
         if (protodata) next_proto_helper_AV2protodata(tmpav, protodata);
     }    
     if (protodata) {
-        tmpsv = newSVpv(protodata, protodata_len);
+        tmpsv = newSVpv((const char*)protodata, protodata_len);
         Safefree(protodata);
         cb_data_advanced_put(ssl, "next_protos_advertised_cb!!last_advertised", tmpsv);
         *out = (unsigned char *)SvPVX(tmpsv);

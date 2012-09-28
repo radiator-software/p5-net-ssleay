@@ -2,10 +2,17 @@
 
 use strict;
 use warnings;
-use Test::More tests => 4;
+use Test::More;
 use Socket;
 use Symbol qw(gensym);
 use Net::SSLeay;
+use Config;
+
+BEGIN {
+  plan skip_all => "fork() not supported on $^O" unless $Config{d_fork};
+}
+
+plan tests => 4;
 
 my $sock;
 my $pid;

@@ -7,16 +7,14 @@ use Net::SSLeay;
 use Symbol qw( gensym );
 use IO::Handle;
 use File::Spec;
+use Config;
 
-if ($^O eq 'MSWin32')
-{
-    plan skip_all => 'pipes not properly supported on Windows' if 1;
-    exit;
+BEGIN {
+  plan skip_all => "Either pipes or fork() not supported on $^O"
+      if ($^O eq 'MSWin32' || !$Config{d_fork});
 }
-else
-{
-    plan tests => 11;
-}
+
+plan tests => 11;
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();

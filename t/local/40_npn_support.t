@@ -7,9 +7,11 @@ use Socket;
 use File::Spec;
 use Symbol qw(gensym);
 use Net::SSLeay;
+use Config;
 
 BEGIN {
   plan skip_all => "openssl 1.0.1 required" unless Net::SSLeay::SSLeay >= 0x10001000;
+  plan skip_all => "fork() not supported on $^O" unless $Config{d_fork};
 }
 
 plan tests => 7; 
