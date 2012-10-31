@@ -665,6 +665,49 @@ int ssleay_ctx_cert_verify_cb_invoke(X509_STORE_CTX* x509_store_ctx, void* data)
     return res;
 }
 
+#if OPENSSL_VERSION_NUMBER >= 0x0090806fL && !defined(OPENSSL_NO_TLSEXT)
+
+int tlsext_servername_callback_invoke(SSL *ssl, int *ad, void *arg)
+{
+    dSP;
+    int count = -1;
+    int res;
+    SV * cb_func, *cb_data;
+
+    PR1("STARTED: tlsext_servername_callback_invoke\n");
+
+    cb_func = cb_data_advanced_get(arg, "tlsext_servername_callback!!func");
+    cb_data = cb_data_advanced_get(arg, "tlsext_servername_callback!!data");
+
+    if(!SvOK(cb_func))
+        croak ("Net::SSLeay: tlsext_servername_callback_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    XPUSHs(sv_2mortal(newSViv(PTR2IV(ssl))));
+    XPUSHs(sv_2mortal(newSVsv(cb_data)));
+    PUTBACK;
+
+    count = call_sv(cb_func, G_SCALAR);
+
+    SPAGAIN;
+
+    if (count != 1)
+        croak("Net::SSLeay: tlsext_servername_callback_invoke perl function did not return a scalar.\n");
+
+    res = POPi;
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return res;
+}
+
+#endif
+
 #if defined(SSL_F_SSL_SET_HELLO_EXTENSION) || defined(SSL_F_SSL_SET_SESSION_TICKET_EXT)
 
 int ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
@@ -1560,6 +1603,9 @@ SSL_CTX *
 SSL_get_SSL_CTX(s)
      SSL *              s
 
+SSL_CTX *
+SSL_set_SSL_CTX(SSL *ssl, SSL_CTX* ctx)
+
 long
 SSL_ctrl(ssl,cmd,larg,parg)
 	 SSL * ssl
@@ -1681,6 +1727,30 @@ SSL_state(s)
 
 long
 SSL_set_tlsext_host_name(SSL *ssl, const char *name)
+
+const char *
+SSL_get_servername(const SSL *s, int type=TLSEXT_NAMETYPE_host_name) 
+
+int
+SSL_get_servername_type(const SSL *s) 
+
+void
+SSL_CTX_set_tlsext_servername_callback(ctx,callback=&PL_sv_undef,data=&PL_sv_undef)
+        SSL_CTX * ctx
+        SV * callback
+        SV * data
+    CODE:
+    if (callback==NULL || !SvOK(callback)) {
+        SSL_CTX_set_tlsext_servername_callback(ctx, NULL);
+        SSL_CTX_set_tlsext_servername_arg(ctx, NULL);
+        cb_data_advanced_put(ctx, "tlsext_servername_callback!!data", NULL);
+        cb_data_advanced_put(ctx, "tlsext_servername_callback!!func", NULL);
+    } else {
+        cb_data_advanced_put(ctx, "tlsext_servername_callback!!data", newSVsv(data));
+        cb_data_advanced_put(ctx, "tlsext_servername_callback!!func", newSVsv(callback));
+        SSL_CTX_set_tlsext_servername_callback(ctx, &tlsext_servername_callback_invoke);
+        SSL_CTX_set_tlsext_servername_arg(ctx, (void*)ctx);
+    }
 
 #endif
 

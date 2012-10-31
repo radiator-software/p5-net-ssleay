@@ -2959,6 +2959,16 @@ Returns a pointer to the SSL_CTX object, from which $ssl was created with Net::S
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_SSL_CTX.html|http://www.openssl.org/docs/ssl/SSL_get_SSL_CTX.html>
 
+=item * set_SSL_CTX
+
+Sets the SSL_CTX the corresponds to an SSL session.
+
+ my $the_ssl_ctx = Net::SSLeay::set_SSL_CTX($ssl, $ssl_ctx);
+ # $ssl - value corresponding to openssl's SSL structure
+ # $ssl_ctx - Change the ssl object to the given ssl_ctx
+ #
+ # returns - the ssl_ctx
+
 =item * get_app_data
 
 Can be used to get application defined value/data.
@@ -7030,6 +7040,94 @@ SSL BIO in the chain and calling SSL_shutdown() on its internal SSL pointer.
 Check openssl doc L<http://www.openssl.org/docs/crypto/BIO_f_ssl.html|http://www.openssl.org/docs/crypto/BIO_f_ssl.html>
 
 =back
+
+=head3 Low level API: Server side Server Name Indication (SNI) support
+
+=over
+
+=item * set_tlsext_host_name
+
+TBA
+
+=item * get_servername
+
+TBA
+
+=item * get_servername_type
+
+TBA
+
+=item * CTX_set_tlsext_servername_callback
+
+B<COMPATIBILITY:> requires at least OpenSSL 0.9.8f
+
+This function is used in a server to support Server side Server Name Indication (SNI).
+
+ Net::SSLeay::CTX_set_tlsext_servername_callback($ctx, $code)
+ # $ctx - SSL context
+ # $code - reference to a subroutine that will be called when a new connection is being initiated
+ #
+ # returns: no return value
+On the client side:
+use set_tlsext_host_name($ssl, $servername) before initiating the SSL connection.
+
+On the server side:
+Set up an additional SSL_CTX() for each different certificate;
+
+Add a servername callback to each SSL_CTX() using CTX_set_tlsext_servername_callback();
+
+The callback function is required to retrieve the client-supplied servername
+with get_servername(ssl). Figure out the right
+SSL_CTX to go with that host name, then switch the SSL object to that SSL_CTX
+with set_SSL_CTX().
+
+Example:
+
+ # set callback
+ Net::SSLeay::CTX_set_tlsext_servername_callback($ctx, 
+    sub {
+      my $ssl = shift;
+      my $h = Net::SSLeay::get_servername($ssl);
+      Net::SSLeay::set_SSL_CTX($ssl, $hostnames{$h}->{ctx}) if exists $hostnames{$h};
+    } );
+
+
+More complete example:
+
+ # ... initialize Net::SSLeay
+
+ my %hostnames = (
+   'sni1' => { cert=>'sni1.pem', key=>'sni1.key' },
+   'sni2' => { cert=>'sni2.pem', key=>'sni2.key' },
+ );
+
+ # create a new context for each certificate/key pair
+ for my $name (keys %hostnames) {
+   $hostnames{$name}->{ctx} = Net::SSLeay::CTX_new or die;
+   Net::SSLeay::CTX_set_cipher_list($hostnames{$name}->{ctx}, 'ALL');
+   Net::SSLeay::set_cert_and_key($hostnames{$name}->{ctx},
+   $hostnames{$name}->{cert}, $hostnames{$name}->{key}) or die;
+ }
+
+ # create default context
+ my $ctx = Net::SSLeay::CTX_new or die;
+ Net::SSLeay::CTX_set_cipher_list($ctx, 'ALL');
+ Net::SSLeay::set_cert_and_key($ctx, 'cert.pem','key.pem') or die;
+
+ # set callback
+ Net::SSLeay::CTX_set_tlsext_servername_callback($ctx, sub {
+   my $ssl = shift;
+   my $h = Net::SSLeay::get_servername($ssl);
+   Net::SSLeay::set_SSL_CTX($ssl, $hostnames{$h}->{ctx}) if exists $hostnames{$h};
+   } );
+
+ # ... later
+
+ $s = Net::SSLeay::new($ctx);
+ Net::SSLeay::set_fd($s, fileno($accepted_socket));
+ Net::SSLeay::accept($s); 
+
+=back 
 
 =head3 Low level API: NPN (next protocol negotiation) related functions
 
