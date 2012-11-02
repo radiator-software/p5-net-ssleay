@@ -12,6 +12,7 @@ Revision history for Perl extension Net::SSLeay.
      Added SSL_set_tlsext_host_name, SSL_get_servername,
      SSL_get_servername_type, SSL_CTX_set_tlsext_servername_callback for
      server side Server Name Indication (SNI) support. Patched by kmx.
+     Further mods for VMS building supplied by Craig A. Berry.
 
 1.49 2012-09-25
      Fixed problem where on some platforms test t/local/07_tcpecho.t would

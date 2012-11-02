@@ -110,6 +110,17 @@ EOM
           push @{ $opts->{lib_links} }, qw( libeay32MD ssleay32MD libeay32 ssleay32 libssl32);
         }
     }
+    elsif ($^O eq 'VMS') {
+        if (-r 'sslroot:[000000]openssl.cnf') {      # openssl.org source install
+          @{ $opts->{lib_paths} } = 'SSLLIB';
+          @{ $opts->{lib_links} } = qw( ssl_libssl32.olb ssl_libcrypto32.olb );
+        }
+        elsif (-r 'ssl$root:[000000]openssl.cnf') {  # HP install
+            @{ $opts->{lib_paths} } = 'SYS$SHARE';
+            @{ $opts->{lib_links} } = qw( SSL$LIBSSL_SHR32 SSL$LIBCRYPTO_SHR32 );
+        }
+        @{ $opts->{lib_links} } = map { $_ =~ s/32\b//g } @{ $opts->{lib_links} } if $Config{use64bitall};
+    }
     else {
         $opts->{optimize} = '-O2 -g';
         push @{ $opts->{lib_links} },
@@ -143,8 +154,9 @@ my @nopath;
 sub check_no_path {            # On OS/2 it would be typically on default paths
     my $p;
     if (not($other_try++) and $] >= 5.008001) {
-       require ExtUtils::Liblist;              # Buggy before this
-       my ($list) = ExtUtils::Liblist->ext("-lssl");
+       use ExtUtils::MM;
+       my $mm = MM->new();
+       my ($list) = $mm->ext("-lssl");
        return unless $list =~ /-lssl\b/;
         for $p (split /\Q$Config{path_sep}/, $ENV{PATH}) {
            @nopath = ("$p/openssl$Config{_exe}",       # exe name
@@ -162,7 +174,7 @@ sub find_openssl_prefix {
         return $ENV{OPENSSL_PREFIX};
     }
 
-    my %guesses = (
+    my @guesses = (
             '/usr/bin/openssl'               => '/usr',
             '/usr/sbin/openssl'              => '/usr',
             '/opt/ssl/bin/openssl'           => '/opt/ssl',
@@ -174,9 +186,12 @@ sub find_openssl_prefix {
             'C:\OpenSSL\bin\openssl.exe'     => 'C:\OpenSSL',
             $Config{prefix} . '\bin\openssl.exe'      => $Config{prefix},           # strawberry perl
             $Config{prefix} . '\..\c\bin\openssl.exe' => $Config{prefix} . '\..\c', # strawberry perl
+            '/sslexe/openssl.exe'            => '/sslroot',  # VMS, openssl.org
+            '/ssl$exe/openssl.exe'           => '/ssl$root', # VMS, HP install
     );
 
-    while (my ($k, $v) = each %guesses) {
+    while (my $k = shift @guesses
+           and my $v = shift @guesses) {
         if ( -x $k ) {
             return $v;
         }
@@ -191,7 +206,7 @@ sub find_openssl_exec {
     my ($self, $prefix) = @_;
 
     my $exe_path;
-    for my $subdir (qw( bin sbin out32dll )) {
+    for my $subdir (qw( bin sbin out32dll ia64_exe alpha_exe )) {
         my $path = File::Spec->catfile($prefix, $subdir, "openssl$Config{_exe}");
         if ( -x $path ) {
             return $path;
