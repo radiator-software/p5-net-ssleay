@@ -1283,15 +1283,16 @@ SSL_read(s,max=32768)
 	New(0, buf, max, char);
 	got = SSL_read(s, buf, max);
 
-	// If in list context, return 2-item list:
-	//   first return value:  data gotten, or undef on error (got<0)
-	//   second return value: result from SSL_read()
+	/* If in list context, return 2-item list:
+	 *   first return value:  data gotten, or undef on error (got<0)
+	 *   second return value: result from SSL_read()
+	 */
 	if (GIMME_V==G_ARRAY) {
 	    EXTEND(SP, 2);
 	    PUSHs(sv_2mortal(got>=0 ? newSVpvn(buf, got) : newSV(0)));
 	    PUSHs(sv_2mortal(newSViv(got)));
 
-	// If in scalar or void context, return data gotten, or undef on error.
+	/* If in scalar or void context, return data gotten, or undef on error. */
 	} else {
 	    EXTEND(SP, 1);
 	    PUSHs(sv_2mortal(got>=0 ? newSVpvn(buf, got) : newSV(0)));
