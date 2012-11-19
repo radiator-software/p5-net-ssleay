@@ -15,6 +15,7 @@ Revision history for Perl extension Net::SSLeay.
      Further mods for VMS building supplied by Craig A. Berry.
      Fixed a problem with C++ comments preventing builds on AIX and
      HPUX. Patched by Gisle Aas.
+     perdition.org not available for tests, changed to www.open.com.au
 
 1.49 2012-09-25
      Fixed problem where on some platforms test t/local/07_tcpecho.t would

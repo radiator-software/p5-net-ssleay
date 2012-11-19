@@ -6,7 +6,7 @@ use Test::More;
 
 my @uris = qw(
         debianforum.de
-        perldition.org
+        www.open.com.au
 );
 @uris = split(/:/, $ENV{SSLEAY_URIS}) if exists $ENV{SSLEAY_URIS};
 if (@uris) {

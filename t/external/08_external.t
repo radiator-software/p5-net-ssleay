@@ -9,7 +9,7 @@ use Net::SSLeay;
 my @sites = qw(
         www.cdw.com
         banking.wellsfargo.com
-        perldition.org
+        www.open.com.au
         alioth.debian.org
 );
 @sites = split(/:/, $ENV{SSLEAY_SITES}) if exists $ENV{SSLEAY_SITES};
