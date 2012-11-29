@@ -171,6 +171,9 @@ which conflicts with perls
 /* requires 0.9.7+ */
 #include <openssl/engine.h>
 #endif
+#ifdef OPENSSL_FIPS
+#include <openssl/fips.h>
+#endif
 #undef BLOCK
 
 /* Debugging output - to enable use:
@@ -1792,6 +1795,30 @@ SSL_load_error_strings()
 
 void
 ERR_load_crypto_strings()
+
+int
+SSL_FIPS_mode_set(int onoff)
+       CODE:
+#ifdef USE_ITHREADS
+               MUTEX_LOCK(&LIB_init_mutex);
+#endif
+#ifdef OPENSSL_FIPS
+               RETVAL = FIPS_mode_set(onoff);
+               if (!RETVAL) 
+	       {
+		   ERR_load_crypto_strings();
+		   ERR_print_errors_fp(stderr);
+               }
+#else
+               RETVAL = 1;
+               fprintf(stderr, "SSL_FIPS_mode_set not available: OpenSSL not compiled with FIPS support\n");
+#endif
+#ifdef USE_ITHREADS
+               MUTEX_UNLOCK(&LIB_init_mutex);
+#endif
+       OUTPUT:
+       RETVAL
+
 
 int
 SSL_library_init()
