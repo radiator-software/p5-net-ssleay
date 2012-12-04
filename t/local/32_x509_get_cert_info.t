@@ -22,6 +22,17 @@ my $dump = {
   "testcert_strange.crt.pem"  => do(File::Spec->catfile('t', 'data', 'testcert_strange.crt.pem_dump')),
 };
 
+my %available_digests = map {$_=>1} qw( md5 sha1 );
+if (Net::SSLeay::SSLeay >= 0x1000000f) {
+  my $ctx = Net::SSLeay::EVP_MD_CTX_create();
+  %available_digests = map { $_=>1 } grep {
+    # P_EVP_MD_list_all() does not remove digests disabled in FIPS 
+    my $md;
+    $md = Net::SSLeay::EVP_get_digestbyname($_) and
+      Net::SSLeay::EVP_DigestInit($ctx, $md)
+  } @{Net::SSLeay::P_EVP_MD_list_all()};
+}
+
 for my $f (keys (%$dump)) {
   my $filename = File::Spec->catfile('t', 'data', $f);
   ok(my $bio = Net::SSLeay::BIO_new_file($filename, 'rb'), "BIO_new_file\t$f");
@@ -80,15 +91,21 @@ for my $f (keys (%$dump)) {
     }
   }
   
-  #BEWARE: values are not the same across different openssl versions, therefore testing just >0
+  #BEWARE: values are not the same across different openssl versions or FIPS mode, therefore testing just >0
   #is(Net::SSLeay::X509_subject_name_hash($x509), $dump->{$f}->{hash}->{subject}->{dec}, 'X509_subject_name_hash dec');
   #is(Net::SSLeay::X509_issuer_name_hash($x509), $dump->{$f}->{hash}->{issuer}->{dec}, 'X509_issuer_name_hash dec');
+  #is(Net::SSLeay::X509_issuer_and_serial_hash($x509), $dump->{$f}->{hash}->{issuer_and_serial}->{dec}, "X509_issuer_and_serial_hash dec\t$f");
   cmp_ok(Net::SSLeay::X509_subject_name_hash($x509), '>', 0, "X509_subject_name_hash dec\t$f");
   cmp_ok(Net::SSLeay::X509_issuer_name_hash($x509), '>', 0, "X509_issuer_name_hash dec\t$f");
-  
-  is(Net::SSLeay::X509_issuer_and_serial_hash($x509), $dump->{$f}->{hash}->{issuer_and_serial}->{dec}, "X509_issuer_and_serial_hash dec\t$f");
-  is(Net::SSLeay::X509_get_fingerprint($x509, "md5"), $dump->{$f}->{fingerprint}->{md5}, "X509_get_fingerprint md5\t$f");
-  is(Net::SSLeay::X509_get_fingerprint($x509, "sha1"), $dump->{$f}->{fingerprint}->{sha1}, "X509_get_fingerprint sha1\t$f");
+  cmp_ok(Net::SSLeay::X509_issuer_and_serial_hash($x509), '>', 0, "X509_issuer_and_serial_hash dec\t$f");
+
+  for my $digest (qw( md5 sha1 )) { 
+    is(Net::SSLeay::X509_get_fingerprint($x509, $digest),
+      (exists $available_digests{$digest} ?
+        $dump->{$f}->{fingerprint}->{$digest} :
+        undef),
+      "X509_get_fingerprint $digest\t$f");
+  }
   
   my $sha1_digest = Net::SSLeay::EVP_get_digestbyname("sha1");
   SKIP: {

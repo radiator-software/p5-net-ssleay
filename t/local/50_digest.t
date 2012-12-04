@@ -65,19 +65,24 @@ sub digest_file {
   is(length($data), -s $file, 'got the whole file');
 
   SKIP: {
-    skip "Net::SSLeay::MD2 not available", 1 unless exists &Net::SSLeay::MD2;
+    skip "Net::SSLeay::MD2 not available", 1
+      unless exists &Net::SSLeay::MD2 and exists $available_digests->{md2};
     is( unpack("H*", Net::SSLeay::MD2($data)), $expected_results->{md2}, "MD2 all-in-one-go [$file]");
   }
   SKIP: {
-    skip "Net::SSLeay::MD4 not available", 1 unless exists &Net::SSLeay::MD4;
+    skip "Net::SSLeay::MD4 not available", 1
+      unless exists &Net::SSLeay::MD4 and exists $available_digests->{md4};
     is( unpack("H*", Net::SSLeay::MD4($data)), $expected_results->{md4}, "MD4 all-in-one-go [$file]");
   }
   SKIP: {
-    skip "Net::SSLeay::MD5 not available", 1 unless exists &Net::SSLeay::MD5;
+    skip "Net::SSLeay::MD5 not available", 1
+      unless exists &Net::SSLeay::MD5 and exists $available_digests->{md5};
     is( unpack("H*", Net::SSLeay::MD5($data)), $expected_results->{md5}, "MD5 all-in-one-go [$file]");
   }
   SKIP: {
-    skip "Net::SSLeay::RIPEMD160 not available", 1 unless exists &Net::SSLeay::RIPEMD160;
+    skip "Net::SSLeay::RIPEMD160 not available", 1
+      unless exists &Net::SSLeay::RIPEMD160 and
+        exists $available_digests->{ripemd160};
     is( unpack("H*", Net::SSLeay::RIPEMD160($data)), $expected_results->{ripemd160}, "RIPEMD160 all-in-one-go [$file]");
   }  
 }
@@ -106,32 +111,42 @@ sub digest_strings {
       
   
     SKIP: {
-      skip "Net::SSLeay::MD2 not available", 1 unless exists &Net::SSLeay::MD2;
+      skip "Net::SSLeay::MD2 not available", 1
+        unless exists &Net::SSLeay::MD2 and exists $available_digests->{md2};
       is(unpack('H*', Net::SSLeay::MD2($data)), $fps->{$data}->{md2}, "MD2 hash for '$data'");
     }
     SKIP: {
-      skip "Net::SSLeay::MD4 not available", 1 unless exists &Net::SSLeay::MD4;
+      skip "Net::SSLeay::MD4 not available", 1
+        unless exists &Net::SSLeay::MD4 and exists $available_digests->{md4};
       is(unpack('H*', Net::SSLeay::MD4($data)), $fps->{$data}->{md4}, "MD4 hash for '$data'");
     }
     SKIP: {
-      skip "Net::SSLeay::MD5 not available", 1 unless exists &Net::SSLeay::MD5;
+      skip "Net::SSLeay::MD5 not available", 1
+        unless exists &Net::SSLeay::MD5 and exists $available_digests->{md5};
       is(unpack('H*', Net::SSLeay::MD5($data)), $fps->{$data}->{md5}, "MD5 hash for '$data'");
     }
     SKIP: {
-      skip "Net::SSLeay::RIPEMD160 not available", 1 unless exists &Net::SSLeay::RIPEMD160;
+      skip "Net::SSLeay::RIPEMD160 not available", 1
+        unless exists &Net::SSLeay::RIPEMD160 and
+          exists $available_digests->{ripemd160};
       is(unpack('H*', Net::SSLeay::RIPEMD160($data)), $fps->{$data}->{ripemd160}, "RIPEMD160 hash for '$data'");
     }
 
     SKIP: {
-      skip "Net::SSLeay::SHA1 not available", 1 unless exists &Net::SSLeay::SHA1;
+      skip "Net::SSLeay::SHA1 not available", 1
+        unless exists &Net::SSLeay::SHA1 and exists $available_digests->{sha1};
       is(unpack('H*', Net::SSLeay::SHA1($data)), $fps->{$data}->{sha1}, "SHA1 hash for '$data'");
     }
     SKIP: {
-      skip "Net::SSLeay::SHA256 not available", 1 unless exists &Net::SSLeay::SHA256;
+      skip "Net::SSLeay::SHA256 not available", 1
+        unless exists &Net::SSLeay::SHA256 and
+          exists $available_digests->{sha256};
       is(unpack('H*', Net::SSLeay::SHA256($data)), $fps->{$data}->{sha256}, "SHA256 hash for '$data'");
     }
     SKIP: {
-      skip "Net::SSLeay::SHA512 not available", 1 unless exists &Net::SSLeay::SHA512;
+      skip "Net::SSLeay::SHA512 not available", 1
+        unless exists &Net::SSLeay::SHA512 and
+          exists $available_digests->{sha512};
       is(unpack('H*', Net::SSLeay::SHA512($data)), $fps->{$data}->{sha512}, "SHA512 hash for '$data'");
     }
   }
@@ -143,7 +158,13 @@ eval {
   Net::SSLeay::initialize();
   Net::SSLeay::OpenSSL_add_all_digests();
   if (Net::SSLeay::SSLeay >= 0x1000000f) {
-    %all_digests = map { $_=>1 } @{Net::SSLeay::P_EVP_MD_list_all()};
+	my $ctx = Net::SSLeay::EVP_MD_CTX_create();
+    %all_digests = map { $_=>1 } grep {
+      # P_EVP_MD_list_all() does not remove digests disabled in FIPS 
+      my $md;
+      $md = Net::SSLeay::EVP_get_digestbyname($_) and
+        Net::SSLeay::EVP_DigestInit($ctx, $md)
+    } @{Net::SSLeay::P_EVP_MD_list_all()};
   }
   else {
     %all_digests = ();
@@ -270,7 +291,7 @@ SKIP: {
     skip "pre-0.9.7", 1 unless Net::SSLeay::SSLeay >= 0x0090700f;
     my $md = Net::SSLeay::EVP_get_digestbyname("md5");
     my $ctx = Net::SSLeay::EVP_MD_CTX_create();
-    Net::SSLeay::EVP_DigestInit($ctx, $md);
+    skip "MD5 not available", 1 unless Net::SSLeay::EVP_DigestInit($ctx, $md);
     my $md2 = Net::SSLeay::EVP_MD_CTX_md($ctx);
     is(Net::SSLeay::EVP_MD_size($md2), 16, 'EVP_MD_size via EVP_MD_CTX_md md5');
   }

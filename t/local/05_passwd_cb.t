@@ -9,6 +9,7 @@ use Net::SSLeay;
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();
 Net::SSLeay::add_ssl_algorithms();
+Net::SSLeay::OpenSSL_add_all_algorithms();
 
 my $key_pem = File::Spec->catfile('t', 'data', 'key.pem.e');
 my $key_password = 'secret';

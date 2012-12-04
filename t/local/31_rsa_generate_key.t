@@ -16,18 +16,18 @@ Net::SSLeay::ERR_load_crypto_strings();
 Net::SSLeay::SSLeay_add_ssl_algorithms();
 
 lives_ok(sub {
-        Net::SSLeay::RSA_generate_key(512, 0x10001);
+        Net::SSLeay::RSA_generate_key(2048, 0x10001);
 }, 'RSA_generate_key with valid callback');
 
 dies_ok(sub {
-        Net::SSLeay::RSA_generate_key(512, 0x10001, 1);
+        Net::SSLeay::RSA_generate_key(2048, 0x10001, 1);
 }, 'RSA_generate_key with invalid callback');
 
 {
     my $called = 0;
 
     lives_ok(sub {
-            Net::SSLeay::RSA_generate_key(512, 0x10001, \&cb);
+            Net::SSLeay::RSA_generate_key(2048, 0x10001, \&cb);
     }, 'RSA_generate_key with valid callback');
 
     cmp_ok( $called, '>', 0, 'callback has been called' );
@@ -52,7 +52,7 @@ dies_ok(sub {
     my $userdata = 'foo';
 
     lives_ok(sub {
-            Net::SSLeay::RSA_generate_key(512, 0x10001, \&cb_data, $userdata);
+            Net::SSLeay::RSA_generate_key(2048, 0x10001, \&cb_data, $userdata);
     }, 'RSA_generate_key with valid callback and userdata');
 
     cmp_ok( $called, '>', 0, 'callback has been called' );
