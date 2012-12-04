@@ -118,7 +118,8 @@ B<Case 3 (in SYNOPSIS)> invokes C<post_https()> to submit a HTML/CGI form to a s
 server. The first four arguments are equal to C<get_https()> (note that
 the empty string (C<''>) is passed as header argument).
 The fifth argument is the
-contents of the form formatted according to CGI specification. In this
+contents of the form formatted according to CGI specification. 
+Do not post UTF-8 data as content: use utf8::downgrade first. In this
 case the helper function C<make_https()> is used to do the formatting,
 but you could pass any string. C<post_https()> automatically adds
 C<Content-Type> and C<Content-Length> headers to the request.
