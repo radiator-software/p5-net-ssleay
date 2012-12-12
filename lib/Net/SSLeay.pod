@@ -7326,6 +7326,13 @@ Frees the DH structure and its components. The values are erased before the memo
 
 Check openssl doc L<http://www.openssl.org/docs/crypto/DH_new.html|http://www.openssl.org/docs/crypto/DH_new.html>
 
+=item * FIPS_mode_set
+
+Enable or disable FIPS mode in a FIPS capable OpenSSL.
+
+ Net::SSLeay:: FIPS_mode_set($enable);
+ # $enable - (integer) 1 to enable, 0 to disable
+
 =back
 
 =head2 Constants

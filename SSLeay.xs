@@ -251,6 +251,8 @@ UV get_my_thread_id(void) /* returns threads->tid() value */
 
 static void openssl_locking_function(int mode, int type, const char *file, int line)
 {
+    PR3("openssl_locking_function %d %d\n", mode, type);
+
     if (!GLOBAL_openssl_mutex) return;
     if (mode & CRYPTO_LOCK)
       MUTEX_LOCK(&GLOBAL_openssl_mutex[type]);
@@ -315,7 +317,7 @@ void openssl_threads_init(void)
 #else
         if ( !CRYPTO_THREADID_get_callback() ) {
 #endif
-            PR1("openssl_threads_init static locking\n");
+            PR2("openssl_threads_init static locking %d\n", CRYPTO_num_locks());
             New(0, GLOBAL_openssl_mutex, CRYPTO_num_locks(), perl_mutex);
             if (!GLOBAL_openssl_mutex) return;
             for (i=0; i<CRYPTO_num_locks(); i++) MUTEX_INIT(&GLOBAL_openssl_mutex[i]);

@@ -1,5 +1,5 @@
 Revision history for Perl extension Net::SSLeay.
-1.?? 
+1.50 2012-12-13 
      Fixed a problem where t/handle/external/50_external.t would crash if any
      of the test sites were not contactable.
      Now builds on VMS. Patch kindly supplied by Craig A. Berry.
@@ -19,7 +19,7 @@ Revision history for Perl extension Net::SSLeay.
      Added SSL_FIPS_mode_set
      Improvements to test suite so it succeeds with and without FIPS mode
      enabled. Patch supplied by Petr Pisar.
-     Added documenbtation, warning not to pass UTF-8 data in the contect
+     Added documentation, warning not to pass UTF-8 data in the content
      argument to post_https. Reported by Jason Terry.
 
 1.49 2012-09-25
