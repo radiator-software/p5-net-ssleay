@@ -61,7 +61,7 @@ $Net::SSLeay::slowly = 0;
 $Net::SSLeay::random_device = '/dev/urandom';
 $Net::SSLeay::how_random = 512;
 
-$VERSION = '1.51';
+$VERSION = '1.52';
 @ISA = qw(Exporter);
 
 #BEWARE:

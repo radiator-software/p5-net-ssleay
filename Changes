@@ -1,5 +1,9 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.52 2013-01-09
+     Rebuild package with gnu format tar, to prevent problems with unpacking
+     on other systems such as old Solaris,
+
 1.51 2012-12-14
      Fixed a problem where SSL_set_SSL_CTX is not available with
      OpenSSL < 0.9.8f. Reported by Paul.
