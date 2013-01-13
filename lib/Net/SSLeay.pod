@@ -3309,6 +3309,18 @@ Returns internal SSLv3 client_random value.
  #
  # returns: client_random value (binary data)
 
+=item * export_keying_material
+
+Returns a buffer of $req_len bytes of keying material based on the constant string $label using the
+masterkey and client and server random strings as described in 
+draft-ietf-pppext-eap-ttls-01.txt and See rfc2716
+If p is present, it will be concatenated before generating the keying material
+Returns undef on error
+
+    my $out = Net::SSLeay::export_keying_material($ssl, $req_len, $label, $p);
+
+
+
 =item * get_session
 
 Retrieve TLS/SSL session data used in $ssl. The reference count of the SSL_SESSION is NOT incremented.

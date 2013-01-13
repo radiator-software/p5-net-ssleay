@@ -4892,4 +4892,27 @@ P_next_proto_last_status(s)
 
 #endif
 
+#if OPENSSL_VERSION_NUMBER >= 0x10001000L
+
+void
+SSL_export_keying_material(ssl, outlen, label, p)
+        SSL * ssl
+        int outlen
+    PREINIT:
+        char *  out;
+        STRLEN labellen;
+        STRLEN plen;
+	int ret;
+    INPUT:
+        char *  label = SvPV( ST(2), labellen);
+        char *  p = SvPV( ST(3), plen);
+    PPCODE:
+	New(0, out, outlen, char);
+        ret = SSL_export_keying_material(ssl, out, outlen, label, labellen, p, plen, plen ? 1 : 0);
+        PUSHs(sv_2mortal(ret>=0 ? newSVpvn(out, outlen) : newSV(0)));
+        EXTEND(SP, 1);
+	Safefree(out);
+
+#endif
+
 #define REM_EOF "/* EOF - SSLeay.xs */"
