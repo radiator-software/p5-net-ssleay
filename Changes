@@ -3,6 +3,8 @@ Revision history for Perl extension Net::SSLeay.
 1.??? ????
      Added support for SSL_export_keying_material where present (ie in OpenSSL
      1.0.1 and later).
+     Changed t/handle/external/50_external.t to use www.open.com.au instead of
+     perldition.org, who no longer have an https server.
 
 1.52 2013-01-09
      Rebuild package with gnu format tar, to prevent problems with unpacking
