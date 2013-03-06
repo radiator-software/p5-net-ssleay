@@ -5,6 +5,13 @@ Revision history for Perl extension Net::SSLeay.
      1.0.1 and later).
      Changed t/handle/external/50_external.t to use www.open.com.au instead of
      perldition.org, who no longer have an https server.
+     Patch to fix a crash: P_X509_get_crl_distribution_points on an
+     X509 certificate with values in the CDP extension which do not have an
+     ia5 string will cause a segmentation fault when accessed. Patch from
+     Robert Duncan.
+     Change in t/local/32_x509_get_cert_info.t to not use
+     Net::SSLeay::ASN1_INTEGER_get, since it works differntly on 32 and 64 bit platforms.
+     
 
 1.52 2013-01-09
      Rebuild package with gnu format tar, to prevent problems with unpacking

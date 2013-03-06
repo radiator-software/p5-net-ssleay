@@ -2573,7 +2573,10 @@ P_X509_get_crl_distribution_points(cert)
                 gnames = p->distpoint->name.fullname;
                 for (j = 0; j < sk_GENERAL_NAME_num(gnames); j++) {
                     gn = sk_GENERAL_NAME_value(gnames, j);
-                    XPUSHs(sv_2mortal(newSVpv((char*)ASN1_STRING_data(gn->d.ia5),ASN1_STRING_length(gn->d.ia5))));
+
+                    if (gn->type == GEN_URI) {
+                        XPUSHs(sv_2mortal(newSVpv((char*)ASN1_STRING_data(gn->d.ia5),ASN1_STRING_length(gn->d.ia5))));
+                    }
                 }
             }
             else {
