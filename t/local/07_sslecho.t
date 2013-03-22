@@ -59,7 +59,8 @@ Net::SSLeay::library_init();
     my $ctx = Net::SSLeay::CTX_new();
     ok($ctx, 'CTX_new');
     ok(Net::SSLeay::CTX_set_cipher_list($ctx, 'ALL'), 'CTX_set_cipher_list');
-    ok(Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem), 'set_cert_and_key');
+    my ($dummy, $errs) = Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem);
+    ok($errs eq '', "set_cert_and_key: $errs");
 
     $pid = fork();
     BAIL_OUT("failed to fork: $!") unless defined $pid;
