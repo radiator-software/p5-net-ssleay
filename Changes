@@ -3,6 +3,7 @@ Revision history for Perl extension Net::SSLeay.
 1.?? 
      t/data/testcert_cdp.crt.pem_dump and t/data/testcert_cdp.crt.pem were
      missing from MANIFEST.
+     Added MANIFEST to svn
 
 1.53 2013-03-22
      Added support for SSL_export_keying_material where present (ie in OpenSSL
