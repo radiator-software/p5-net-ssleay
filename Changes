@@ -1,9 +1,9 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.??? ????
+1.53 2013-03-22
      Added support for SSL_export_keying_material where present (ie in OpenSSL
      1.0.1 and later).
-     Changed t/handle/external/50_external.t to use www.open.com.au instead of
+     Changed t/handle/external/50_external.t to use www.airspayce.com instead of
      perldition.org, who no longer have an https server.
      Patch to fix a crash: P_X509_get_crl_distribution_points on an
      X509 certificate with values in the CDP extension which do not have an
@@ -11,7 +11,8 @@ Revision history for Perl extension Net::SSLeay.
      Robert Duncan.
      Change in t/local/32_x509_get_cert_info.t to not use
      Net::SSLeay::ASN1_INTEGER_get, since it works differntly on 32 and 64 bit platforms.
-     
+     Updated author and distribution location details to airspayce.com
+
 
 1.52 2013-01-09
      Rebuild package with gnu format tar, to prevent problems with unpacking
@@ -37,7 +38,7 @@ Revision history for Perl extension Net::SSLeay.
      Further mods for VMS building supplied by Craig A. Berry.
      Fixed a problem with C++ comments preventing builds on AIX and
      HPUX. Patched by Gisle Aas.
-     perdition.org not available for tests, changed to www.open.com.au
+     perdition.org not available for tests, changed to www.airspayce.com
      Added SSL_FIPS_mode_set
      Improvements to test suite so it succeeds with and without FIPS mode
      enabled. Patch supplied by Petr Pisar.

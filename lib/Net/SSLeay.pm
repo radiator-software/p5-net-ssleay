@@ -2,7 +2,7 @@
 #
 # Copyright (c) 1996-2003 Sampo Kellomaki <sampo@iki.fi>, All Rights Reserved.
 # Copyright (C) 2005 Florian Ragwitz <rafl@debian.org>, All Rights Reserved.
-# Copyright (C) 2005 Mike McCauley <mikem@open.com.au>, All Rights Reserved.
+# Copyright (C) 2005 Mike McCauley <mikem@airspayce.com>, All Rights Reserved.
 #
 # $Id$
 #
@@ -61,7 +61,7 @@ $Net::SSLeay::slowly = 0;
 $Net::SSLeay::random_device = '/dev/urandom';
 $Net::SSLeay::how_random = 512;
 
-$VERSION = '1.52';
+$VERSION = '1.53';
 @ISA = qw(Exporter);
 
 #BEWARE:
