@@ -1048,7 +1048,7 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_alert_type_string.html|h
 
 =item * SSLv2_method
 
-Returns SSL_METHOD structure corresponding to SSLv2 method, the return value can be later used as a param of L</CTX_new_with_method>.
+Returns SSL_METHOD structure corresponding to SSLv2 method, the return value can be later used as a param of L</CTX_new_with_method>. Only available where suported by the underlying openssl.
 
  my $rv = Net::SSLeay::SSLv2_method();
  #
@@ -1069,6 +1069,26 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_new.html|http://www.
 Returns SSL_METHOD structure corresponding to TLSv1 method, the return value can be later used as a param of L</CTX_new_with_method>.
 
  my $rv = Net::SSLeay::TLSv1_method();
+ #
+ # returns: value corresponding to openssl's SSL_METHOD structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_new.html|http://www.openssl.org/docs/ssl/SSL_CTX_new.html>
+
+=item * TLSv1_1_method
+
+Returns SSL_METHOD structure corresponding to TLSv1_1 method, the return value can be later used as a param of L</CTX_new_with_method>. Only available where supported by the underlying openssl.
+
+ my $rv = Net::SSLeay::TLSv1__1method();
+ #
+ # returns: value corresponding to openssl's SSL_METHOD structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_new.html|http://www.openssl.org/docs/ssl/SSL_CTX_new.html>
+
+=item * TLSv1_2_method
+
+Returns SSL_METHOD structure corresponding to TLSv1_2 method, the return value can be later used as a param of L</CTX_new_with_method>. Only available where supported by the underlying openssl.
+
+ my $rv = Net::SSLeay::TLSv1_2_method();
  #
  # returns: value corresponding to openssl's SSL_METHOD structure (0 on failure)
 
@@ -2246,6 +2266,24 @@ Creates a new SSL_CTX object - based on SSLv3_method() - as framework to establi
 Creates a new SSL_CTX object - based on TLSv1_method() - as framework to establish TLS/SSL enabled connections.
 
  my $rv = Net::SSLeay::CTX_tlsv1_new();
+ #
+ # returns: value corresponding to openssl's SSL_CTX structure (0 on failure)
+
+=item * CTX_tlsv1_1_new
+
+Creates a new SSL_CTX object - based on TLSv1_1_method() - as framework to establish TLS/SSL 
+enabled connections. Only available where supported by the underlying openssl.
+
+ my $rv = Net::SSLeay::CTX_tlsv1_1_new();
+ #
+ # returns: value corresponding to openssl's SSL_CTX structure (0 on failure)
+
+=item * CTX_tlsv1_2_new
+
+Creates a new SSL_CTX object - based on TLSv1_2_method() - as framework to establish TLS/SSL 
+enabled connections. Only available where supported by the underlying openssl.
+
+ my $rv = Net::SSLeay::CTX_tlsv1_2_new();
  #
  # returns: value corresponding to openssl's SSL_CTX structure (0 on failure)
 

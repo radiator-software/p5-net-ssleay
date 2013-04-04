@@ -1118,6 +1118,28 @@ SSL_CTX_tlsv1_new()
      OUTPUT:
      RETVAL
 
+#ifdef SSL_TXT_TLSV1_1
+
+SSL_CTX *
+SSL_CTX_tlsv1_1_new()
+     CODE:
+     RETVAL = SSL_CTX_new (TLSv1_1_method());
+     OUTPUT:
+     RETVAL
+
+#endif
+
+#ifdef SSL_TXT_TLSV1_2
+
+SSL_CTX *
+SSL_CTX_tlsv1_2_new()
+     CODE:
+     RETVAL = SSL_CTX_new (TLSv1_2_method());
+     OUTPUT:
+     RETVAL
+
+#endif
+
 SSL_CTX *
 SSL_CTX_new_with_method(meth)
      SSL_METHOD * meth
@@ -3361,6 +3383,21 @@ SSLv3_method()
 
 const SSL_METHOD *
 TLSv1_method()
+
+#ifdef SSL_TXT_TLSV1_1
+
+const SSL_METHOD *
+TLSv1_1_method()
+
+#endif
+
+#ifdef SSL_TXT_TLSV1_2
+
+const SSL_METHOD *
+TLSv1_2_method()
+
+#endif
+
 
 #if OPENSSL_VERSION_NUMBER < 0x10000000L
 
