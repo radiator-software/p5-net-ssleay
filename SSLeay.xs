@@ -2712,6 +2712,20 @@ X509_EXTENSION_get_object(X509_EXTENSION *ex)
 int
 X509_get_ext_count(X509 *x)
 
+int
+X509_CRL_get_ext_count(X509_CRL *x)
+
+int
+X509_CRL_get_ext_by_NID(x,ni,loc=-1)
+        X509_CRL* x
+        int ni
+        int loc
+
+X509_EXTENSION *
+X509_CRL_get_ext(x,loc)
+   X509_CRL* x
+   int loc
+
 void
 X509V3_EXT_print(ext,flags=0,utf8_decode=0)
         X509_EXTENSION * ext

@@ -4,6 +4,8 @@ Revision history for Perl extension Net::SSLeay.
      Added support for TLSV1_1 and TLSV1_2 methods with SSL_CTX_tlsv1_1_new(),
      SSL_CTX_tlsv1_2_new(), TLSv1_1_method() and TLSv1_2_method(), where
      available in the underluying openssl.
+     Added CRL suport functions X509_CRL_get_ext(), X509_CRL_get_ext_by_NID(),
+     X509_CRL_get_ext_count(). Patch from Franck Youssef.
 
 1.54 2013-03-23
      t/data/testcert_cdp.crt.pem_dump and t/data/testcert_cdp.crt.pem were

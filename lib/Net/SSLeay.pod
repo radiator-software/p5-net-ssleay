@@ -5633,6 +5633,43 @@ Example:
  #to get printable (hex) value of digest use:
  print "digest=", unpack('H*', $digest_value), "\n";
 
+=item * X509_CRL_get_ext
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.54 and before
+
+Returns X509_EXTENSION from $x509 based on given position/index.
+
+ my $rv = Net::SSLeay::X509_CRL_get_ext($x509, $index);
+ # $x509 - value corresponding to openssl's X509_CRL structure
+ # $index - (integer) position/index of extension within $x509
+ #
+ # returns: value corresponding to openssl's X509_EXTENSION structure (0 on failure)
+
+=item * X509_CRL_get_ext_by_NID
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.54 and before
+
+Returns X509_EXTENSION from $x509 based on given NID.
+
+ my $rv = Net::SSLeay::X509_CRL_get_ext_by_NID($x509, $nid, $loc);
+ # $x509 - value corresponding to openssl's X509_CRL structure
+ # $nid - (integer) NID value
+ # $loc - (integer) position to start lookup at
+ #
+ # returns: position/index of extension, negative value on error
+ #          call Net::SSLeay::X509_CRL_get_ext($x509, $rv) to get the actual extension
+
+=item * X509_CRL_get_ext_count
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.54 and before
+
+Returns the total number of extensions in X509_CRL object $x.
+
+ my $rv = Net::SSLeay::X509_CRL_get_ext_count($x);
+ # $x - value corresponding to openssl's X509_CRL structure
+ #
+ # returns: count of extensions
+
 =item * X509_CRL_get_issuer
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
