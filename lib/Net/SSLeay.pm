@@ -1248,9 +1248,9 @@ sub do_httpx3 {
 	$content, $mime_type, $crt_path, $key_path) = @_;
     my ($response, $page, $h,$v);
 
-    if ($content) {
+    my $len = blength($content);
+    if ($len) {
 	$mime_type = "application/x-www-form-urlencoded" unless $mime_type;
-	my $len = blength($content);
 	$content = "Content-Type: $mime_type$CRLF"
 	    . "Content-Length: $len$CRLF$CRLF$content";
     } else {
