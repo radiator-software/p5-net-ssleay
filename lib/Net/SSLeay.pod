@@ -1912,6 +1912,36 @@ B<BEWARE:> openssl doc says: This function should never be called directly!
  77 - SSL_CTRL_CLEAR_OPTIONS
  78 - SSL_CTRL_CLEAR_MODE
 
+ 82 - SSL_CTRL_GET_EXTRA_CHAIN_CERTS
+ 83 - SSL_CTRL_CLEAR_EXTRA_CHAIN_CERTS
+
+ 88 - SSL_CTRL_CHAIN
+ 89 - SSL_CTRL_CHAIN_CERT
+
+ 90 - SSL_CTRL_GET_CURVES
+ 91 - SSL_CTRL_SET_CURVES
+ 92 - SSL_CTRL_SET_CURVES_LIST
+ 93 - SSL_CTRL_GET_SHARED_CURVE 
+ 94 - SSL_CTRL_SET_ECDH_AUTO
+ 97 - SSL_CTRL_SET_SIGALGS
+ 98 - SSL_CTRL_SET_SIGALGS_LIST
+ 99 - SSL_CTRL_CERT_FLAGS
+ 100 - SSL_CTRL_CLEAR_CERT_FLAGS
+ 101 - SSL_CTRL_SET_CLIENT_SIGALGS
+ 102 - SSL_CTRL_SET_CLIENT_SIGALGS_LIST
+ 103 - SSL_CTRL_GET_CLIENT_CERT_TYPES
+ 104 - SSL_CTRL_SET_CLIENT_CERT_TYPES
+ 105 - SSL_CTRL_BUILD_CERT_CHAIN
+ 106 - SSL_CTRL_SET_VERIFY_CERT_STORE
+ 107 - SSL_CTRL_SET_CHAIN_CERT_STORE
+ 108 - SSL_CTRL_GET_PEER_SIGNATURE_NID
+ 109 - SSL_CTRL_GET_SERVER_TMP_KEY
+ 110 - SSL_CTRL_GET_RAW_CIPHERLIST
+ 111 - SSL_CTRL_GET_EC_POINT_FORMATS
+ 112 - SSL_CTRL_GET_TLSA_RECORD
+ 113 - SSL_CTRL_SET_TLSA_RECORD
+ 114 - SSL_CTRL_PULL_TLSA_RECORD 
+
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_ctrl.html|http://www.openssl.org/docs/ssl/SSL_CTX_ctrl.html>
 
 =item * CTX_flush_sessions
@@ -7377,6 +7407,30 @@ Returns the result of the last negotiation for given SSL connection $ssl.
  #          0 - OPENSSL_NPN_UNSUPPORTED
  #          1 - OPENSSL_NPN_NEGOTIATED
  #          2 - OPENSSL_NPN_NO_OVERLAP
+
+=back
+
+=head3 Low level API: DANE Support
+
+OpenSSL version 1.0.2 adds preliminary support RFC6698 Domain Authentication of
+Named Entities (DANE) Transport Layer Association within OpenSSL
+
+=over 
+
+=item * SSL_get_tlsa_record_byname
+
+B<COMPATIBILITY:> Requires at least openssl-1.0.2
+
+In order to facilitate DANE there is additional interface,
+SSL_get_tlsa_record_byname, accepting hostname, port and socket type
+that returns packed TLSA record. In order to make it even easier there
+is additional SSL_ctrl function that calls SSL_get_tlsa_record_byname
+for you. Latter is recommended for programmers that wish to maintain
+broader binary compatibility, e.g. make application work with both 1.0.2
+and prior version (in which case call to SSL_ctrl with new code
+returning error would have to be ignored when running with prior version).
+
+Net::SSLeay::get_tlsa_record_byname($name, $port, $type);
 
 =back
 

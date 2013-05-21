@@ -4969,4 +4969,14 @@ SSL_export_keying_material(ssl, outlen, label, p)
 
 #endif
 
+#if OPENSSL_VERSION_NUMBER >= 0x10002000L && !defined(OPENSSL_NO_DANE)
+
+void
+SSL_get_tlsa_record_byname(name, port, type);
+        char * name
+        int    port
+        int    type
+
+#endif
+
 #define REM_EOF "/* EOF - SSLeay.xs */"
