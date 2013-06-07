@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-????
+1.55 2013-06-08
      Added support for TLSV1_1 and TLSV1_2 methods with SSL_CTX_tlsv1_1_new(),
      SSL_CTX_tlsv1_2_new(), TLSv1_1_method() and TLSv1_2_method(), where
      available in the underlying openssl.
@@ -13,6 +13,7 @@ Revision history for Perl extension Net::SSLeay.
      openssl-1.0.2 and later. SSL_get_tlsa_record_byname() was added to
      OpenSSL with the financial assistance of .SE.
      Testing with openssl-1.0.2-stable-SNAP-20130521.
+     Added X509_NAME_new and X509_NAME_hash, patched by Franck Youssef.
 
 1.54 2013-03-23
      t/data/testcert_cdp.crt.pem_dump and t/data/testcert_cdp.crt.pem were

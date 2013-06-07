@@ -2033,6 +2033,12 @@ X509_sign(X509 *x, EVP_PKEY *pkey, const EVP_MD *md)
 int
 X509_verify(X509 *x, EVP_PKEY *r)
 
+X509_NAME *
+X509_NAME_new()
+
+unsigned long
+X509_NAME_hash(X509_NAME *name)
+
 void
 X509_NAME_oneline(name)
 	X509_NAME *    name

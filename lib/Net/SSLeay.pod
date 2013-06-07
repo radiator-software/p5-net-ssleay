@@ -5975,6 +5975,30 @@ Retrieves the field name of $ne in and ASN1_OBJECT structure.
 
 Check openssl doc L<http://www.openssl.org/docs/crypto/X509_NAME_ENTRY_get_object.html|http://www.openssl.org/docs/crypto/X509_NAME_ENTRY_get_object.html>
 
+=item * X509_NAME_new
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.5
+
+Creates a new X509_NAME structure.
+Adds a field whose name is defined by a string $field. The field value to be added is in $bytes.
+
+ my $rv = Net::SSLeay::X509_NAME_new();
+ #
+ # returns: value corresponding to openssl's X509_NAME structure (0 on failure)
+
+=item * X509_NAME_hash
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.5
+
+Sort of a checksum of issuer name $name.
+The result is not a full hash (e.g. sha-1), it is kind-of-a-hash truncated to the size of 'unsigned long' (32 bits).
+The resulting value might differ across different openssl versions for the same X509 certificate.
+
+ my $rv = Net::SSLeay::X509_NAME_hash($name);
+ # $name - value corresponding to openssl's X509_NAME structure
+ #
+ # returns: number representing checksum
+
 =item * X509_NAME_add_entry_by_txt
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.5
