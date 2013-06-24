@@ -1048,7 +1048,7 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_alert_type_string.html|h
 
 =item * SSLv2_method
 
-Returns SSL_METHOD structure corresponding to SSLv2 method, the return value can be later used as a param of L</CTX_new_with_method>. Only available where suported by the underlying openssl.
+Returns SSL_METHOD structure corresponding to SSLv2 method, the return value can be later used as a param of L</CTX_new_with_method>. Only available where supported by the underlying openssl.
 
  my $rv = Net::SSLeay::SSLv2_method();
  #
@@ -1271,7 +1271,7 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/pem.html|http://www.opens
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
-Loads PEM formated X509 certificate via given BIO structure.
+Loads PEM formatted X509 certificate via given BIO structure.
 
  my $rv = Net::SSLeay::PEM_read_bio_X509($bio);
  # $bio - value corresponding to openssl's BIO structure
@@ -1288,7 +1288,7 @@ Example:
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
-Loads PEM formated X509_REQ object via given BIO structure.
+Loads PEM formatted X509_REQ object via given BIO structure.
 
  my $rv = Net::SSLeay::PEM_read_bio_X509_REQ($bio, $x=NULL, $cb=NULL, $u=NULL);
  # $bio - value corresponding to openssl's BIO structure
@@ -1323,7 +1323,7 @@ Reads X509_CRL structure from BIO.
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
-Loads PEM formated private key via given BIO structure.
+Loads PEM formatted private key via given BIO structure.
 
  my $rv = Net::SSLeay::PEM_read_bio_PrivateKey($bio, $cb, $data);
  # $bio - value corresponding to openssl's BIO structure
@@ -1371,14 +1371,14 @@ Converts/exports X509 certificate to string (PEM format).
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
-Converts public key $pk into PEM formated string (optionally protected with password).
+Converts public key $pk into PEM formatted string (optionally protected with password).
 
  my $rv = Net::SSLeay::PEM_get_string_PrivateKey($pk, $passwd, $enc_alg);
  # $pk - value corresponding to openssl's EVP_PKEY structure
  # $passwd - [optional] (string) password to use for key encryption
  # $enc_alg - [optional] algorithm to use for key encryption (default: DES_CBC) - value corresponding to openssl's EVP_CIPHER structure
  #
- # returns: PEM formated string
+ # returns: PEM formatted string
 
 Examples:
 
@@ -1390,7 +1390,7 @@ Examples:
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
-Converts X509_CRL object $x509_crl into PEM formated string.
+Converts X509_CRL object $x509_crl into PEM formatted string.
 
  Net::SSLeay::PEM_get_string_X509_CRL($x509_crl);
  # $x509_crl - value corresponding to openssl's X509_CRL structure
@@ -1401,7 +1401,7 @@ Converts X509_CRL object $x509_crl into PEM formated string.
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
-Converts X509_REQ object $x509_crl into PEM formated string.
+Converts X509_REQ object $x509_crl into PEM formatted string.
 
  Net::SSLeay::PEM_get_string_X509_REQ($x509_req);
  # $x509_req - value corresponding to openssl's X509_REQ structure
@@ -1418,7 +1418,7 @@ Converts X509_REQ object $x509_crl into PEM formated string.
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
-Loads DER formated X509 certificate via given BIO structure.
+Loads DER formatted X509 certificate via given BIO structure.
 
  my $rv = Net::SSLeay::d2i_X509_bio($bp);
  # $bp - value corresponding to openssl's BIO structure
@@ -1437,7 +1437,7 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/d2i_X509.html|http://www.
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
-Loads DER formated X509_CRL object via given BIO structure.
+Loads DER formatted X509_CRL object via given BIO structure.
 
  my $rv = Net::SSLeay::d2i_X509_CRL_bio($bp);
  # $bp - value corresponding to openssl's BIO structure
@@ -1454,7 +1454,7 @@ Example:
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
-Loads DER formated X509_REQ object via given BIO structure.
+Loads DER formatted X509_REQ object via given BIO structure.
 
  my $rv = Net::SSLeay::d2i_X509_REQ_bio($bp);
  # $bp - value corresponding to openssl's BIO structure
@@ -1514,7 +1514,7 @@ Examples:
 =item * d2i_SSL_SESSION
 
 Transforms the external ASN1 representation of an SSL/TLS session, stored as binary data
-at location pp with length length, into an SSL_SESSION object.
+at location pp with length of $length, into an SSL_SESSION object.
 
 ??? (does this function really work?)
 
@@ -1693,7 +1693,7 @@ Technically the same functionality as L</SESSION_get_timeout>.
 
 B<NOTE:> Does not exactly correspond to any low level API function
 
-Prints session details (e.g. protocol version, ciprher, session-id ...) to BIO.
+Prints session details (e.g. protocol version, cipher, session-id ...) to BIO.
 
  my $rv = Net::SSLeay::SESSION_print($fp, $ses);
  # $fp - value corresponding to openssl's BIO structure
@@ -1711,7 +1711,7 @@ You have to use necessary BIO functions like this:
 
 =item * SESSION_print_fp
 
-Prints session details (e.g. protocol version, ciprher, session-id ...) to file handle.
+Prints session details (e.g. protocol version, cipher, session-id ...) to file handle.
 
  my $rv = Net::SSLeay::SESSION_print_fp($fp, $ses);
  # $fp - perl file handle
@@ -3595,7 +3595,7 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_rbio.html|http://www
 
 =item * load_client_CA_file
 
-Load X509 certificates from file (PEM formated).
+Load X509 certificates from file (PEM formatted).
 
  my $rv = Net::SSLeay::load_client_CA_file($file);
  # $file - (string) file name
@@ -3643,7 +3643,7 @@ Executes SSL_CTRL_GET_TOTAL_RENEGOTIATIONS command on $ssl.
 =item * peek
 
 Copies $max bytes from the specified $ssl into the returned value.
-In constrast to the C<Net::SSLeay::read()> function, the data in the SSL
+In contrast to the C<Net::SSLeay::read()> function, the data in the SSL
 buffer is unmodified after the SSL_peek() operation.
 
  Net::SSLeay::peek($ssl, $max);
@@ -4203,7 +4203,7 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_write.html|http://www.op
 
 B<NOTE:> Does not exactly correspond to any low level API function
 
-Writes a fragment of data data from the buffer $data into the specified $ssl connection.
+Writes a fragment of data in $data from the buffer $data into the specified $ssl connection.
 
  my $rv = Net::SSLeay::write_partial($ssl, $from, $count, $data);
  # $ssl - value corresponding to openssl's SSL structure
@@ -4493,7 +4493,7 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/OBJ_nid2obj.html|http://w
 
 =item * OBJ_txt2nid
 
-Returns NID corresponding to text string $s which can be a long name, a short name or the numerical respresentation of an object.
+Returns NID corresponding to text string $s which can be a long name, a short name or the numerical representation of an object.
 
  my $rv = Net::SSLeay::OBJ_txt2nid($s);
  # $s - (string) e.g. 'commonName' or 'CN' or '2.5.4.3'
@@ -5836,7 +5836,7 @@ Verifies X509_CRL object $a using public key $r (pubkey of issuing CA).
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
 
-Adds given serian number $serial_hex to X509_CRL object $crl.
+Adds given serial number $serial_hex to X509_CRL object $crl.
 
  Net::SSLeay::P_X509_CRL_add_revoked_serial_hex($crl, $serial_hex, $rev_time, $reason_code, $comp_time);
  # $crl - value corresponding to openssl's X509_CRL structure
@@ -6167,7 +6167,7 @@ such entry exists -1 is returned.
 B<openssl note:> this is a legacy function which has various limitations which
 makes it of minimal use in practice. It can only find the first matching
 entry and will copy the contents of the field verbatim: this can be highly
-confusing if the target is a muticharacter string type like a BMPString or a UTF8String.
+confusing if the target is a multicharacter string type like a BMPString or a UTF8String.
 
  Net::SSLeay::X509_NAME_get_text_by_NID($name, $nid);
  # $name - value corresponding to openssl's X509_NAME structure
@@ -6303,7 +6303,7 @@ Is used to store application data at arg for idx into $x509_store_ctx.
 
 =item * X509_STORE_CTX_set_cert
 
-Sets the certificate to be vertified in $x509_store_ctx to $x.
+Sets the certificate to be verified in $x509_store_ctx to $x.
 
  Net::SSLeay::X509_STORE_CTX_set_cert($x509_store_ctx, $x);
  # $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
@@ -6638,7 +6638,7 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/EVP_EncryptInit.html|http
 
 =over
 
-=item * OpenSSL_add_all_digests
+=item * OpenSSL_add_all_digest
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
 
@@ -6659,7 +6659,7 @@ B<NOTE:> Does not exactly correspond to any low level API function
 
 The returned digest names correspond to values expected by L</EVP_get_digestbyname>.
 
-Note that some of the digets are available by default and some only after calling L</OpenSSL_add_all_digests>.
+Note that some of the digests are available by default and some only after calling L</OpenSSL_add_all_digests>.
 
 =item * EVP_get_digestbyname
 
@@ -7064,7 +7064,7 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/BIO_f_ssl.html|http://www
 
 =item * BIO_new_file
 
-Creates a new file BIO with mode mode the meaning of mode is the same
+Creates a new file BIO with mode $mode the meaning of mode is the same
 as the stdio function fopen(). The BIO_CLOSE flag is set on the returned BIO.
 
  my $rv = Net::SSLeay::BIO_new_file($filename, $mode);
@@ -8051,7 +8051,7 @@ during C<make test> to do just that).
 
 =head1 SECURITY
 
-You can mitigate some of the security vulnerabilites that might be present in your SSL/TLS application: 
+You can mitigate some of the security vulnerabilities that might be present in your SSL/TLS application: 
 
 
 =head2 BEAST Attack
