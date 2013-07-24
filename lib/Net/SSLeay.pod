@@ -8072,7 +8072,7 @@ Solutions:
 
 =item * Ensure SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS is not enabled (its not enabled by default)
 
-=item * Dont support SSLv2, SSLv3
+=item * Don't support SSLv2, SSLv3
 
 =item * Actively control the ciphers your server supports with set_cipher_list:
 
