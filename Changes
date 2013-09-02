@@ -3,6 +3,8 @@ Revision history for Perl extension Net::SSLeay.
 1.??? ????
      Fixed a typo in documentaiton of BEAST Attack, patched by gregor
      herrmann.
+     Added LICENSE file copied form OpenSSL distribution to prevent complaints
+     from various versions of kwalitee.
 
 1.55 2013-06-08
      Added support for TLSV1_1 and TLSV1_2 methods with SSL_CTX_tlsv1_1_new(),

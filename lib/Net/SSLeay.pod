@@ -8175,7 +8175,7 @@ All Rights Reserved.
 Distribution and use of this module is under the same terms as the
 OpenSSL package itself (i.e. free, but mandatory attribution; NO
 WARRANTY). Please consult LICENSE file in the root of the OpenSSL
-distribution.
+distribution, and also included in this distribution.
 
 While the source distribution of this perl module does not contain
 Eric's or OpenSSL's code, if you use this module you will use OpenSSL
