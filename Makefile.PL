@@ -8,7 +8,7 @@ use Config;
 use File::Spec;
 
 name('Net-SSLeay');
-license('SSLeay');
+license('openssl');
 all_from('lib/Net/SSLeay.pm');
 
 ssleay();

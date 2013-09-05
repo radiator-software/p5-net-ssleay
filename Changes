@@ -5,6 +5,7 @@ Revision history for Perl extension Net::SSLeay.
      herrmann.
      Added LICENSE file copied form OpenSSL distribution to prevent complaints
      from various versions of kwalitee.
+     Adjusted license: in META.yml to be 'openssl'
 
 1.55 2013-06-08
      Added support for TLSV1_1 and TLSV1_2 methods with SSL_CTX_tlsv1_1_new(),
