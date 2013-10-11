@@ -6,6 +6,8 @@ Revision history for Perl extension Net::SSLeay.
      Added LICENSE file copied form OpenSSL distribution to prevent complaints
      from various versions of kwalitee.
      Adjusted license: in META.yml to be 'openssl'
+     Adds support for the basic operations necessary to support ECDH for PFS,
+     e.g. EC_KEY_new_by_curve_name, EC_KEY_free and SSL_CTX_set_tmp_ecdh.
 
 1.55 2013-06-08
      Added support for TLSV1_1 and TLSV1_2 methods with SSL_CTX_tlsv1_1_new(),
