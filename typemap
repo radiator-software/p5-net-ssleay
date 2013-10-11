@@ -6,6 +6,7 @@ SSL_SESSION *	T_PTR
 SSL *		T_PTR
 RSA *		T_PTR
 DH *		T_PTR
+EC_KEY *        T_PTR
 const X509 *        T_PTR
 const X509_CRL *    T_PTR
 const X509_REQ *    T_PTR

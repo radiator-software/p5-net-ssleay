@@ -4127,6 +4127,23 @@ SSL_CTX_set_tmp_rsa(ctx,rsa)
      SSL_CTX *	ctx
      RSA *	rsa
 
+#if OPENSSL_VERSION_NUMBER > 0x10000000L
+
+EC_KEY *
+EC_KEY_new_by_curve_name(nid)
+    int nid
+
+void
+EC_KEY_free(key)
+    EC_KEY * key
+
+long
+SSL_CTX_set_tmp_ecdh(ctx,ecdh);
+     SSL_CTX *	ctx
+     EC_KEY  *	ecdh
+
+#endif
+
 void *
 SSL_get_app_data(s)
      SSL *	s
