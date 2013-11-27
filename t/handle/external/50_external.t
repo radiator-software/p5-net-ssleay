@@ -28,8 +28,8 @@ for my $site (@sites) {
             tie(*$ssl, 'Net::SSLeay::Handle', $site, 443);
         };
 
-        skip('could not connect', 2) if $@;
-        pass('connection');
+        skip('could not connect to '.$site, 2) if $@;
+        pass('connection to '.$site);
 
         print $ssl "GET / HTTP/1.0\r\n\r\n";
         my $resp = do { local $/ = undef; <$ssl> };
@@ -47,10 +47,13 @@ for my $site (@sites) {
                 tie(*$ssl, 'Net::SSLeay::Handle', $sites[$i], 443);
             };
 
+            $sock[$i] = undef; #so scalar @sock == scalar @sites
+
             skip('could not connect', 2) if $@;
             pass('connection');
 
             $sock[$i] = $ssl;
+
             ok( $ssl, 'got handle' );
         }
     }
@@ -70,8 +73,7 @@ for my $site (@sites) {
     for my $sock (@sock) {
         SKIP : {
             skip('not connected', 1) unless defined $sock;
-            pass('connected');
-	    close($sock); 
+            ok(close($sock), 'socket closed'); 
 	}
     }
 }
