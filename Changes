@@ -10,6 +10,9 @@ Revision history for Perl extension Net::SSLeay.
      e.g. EC_KEY_new_by_curve_name, EC_KEY_free and SSL_CTX_set_tmp_ecdh.
      Improvements to t/handle/external/50_external.t to handle the case when a
      test connection was not possible. Patched by Alexandr Ciornii.
+     Added support for ALPN TLS extension. Patch from Lubomir Rintel. Tested
+     with openssl-1.0.2-stable-SNAP-20131205.
+
 
 1.55 2013-06-08
      Added support for TLSV1_1 and TLSV1_2 methods with SSL_CTX_tlsv1_1_new(),

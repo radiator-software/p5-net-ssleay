@@ -7273,12 +7273,16 @@ More complete example:
 
 =head3 Low level API: NPN (next protocol negotiation) related functions
 
+NPN is being replaced with ALPN, a more recent TLS extension for application
+protocol negotiation that's in process of being adopted by IETF. Please look
+below for APLN API description.
+
 Simple approach for using NPN support looks like this:
 
  ### client side
  use Net::SSLeay;
  use IO::Socket::INET;
- 
+
  Net::SSLeay::initialize();
  my $sock = IO::Socket::INET->new(PeerAddr=>'encrypted.google.com:443') or die;
  my $ctx = Net::SSLeay::CTX_tlsv1_new() or die;
@@ -7431,6 +7435,147 @@ Returns the result of the last negotiation for given SSL connection $ssl.
  #          0 - OPENSSL_NPN_UNSUPPORTED
  #          1 - OPENSSL_NPN_NEGOTIATED
  #          2 - OPENSSL_NPN_NO_OVERLAP
+
+=back
+
+=head3 Low level API: ALPN (application layer protocol negotiation) related functions
+
+Application protocol can be negotiated via two different mechanisms employing
+two different TLS extensions: NPN (obsolete) and ALPN (recommended).
+
+The API is rather similar, with slight differences reflecting protocol
+specifics. In particular, with ALPN the protocol negotiation takes place on
+server, while with NPN the client implements the protocol negotiation logic.
+
+With ALPN, the most basic implementation looks like this:
+
+ ### client side
+ use Net::SSLeay;
+ use IO::Socket::INET;
+
+ Net::SSLeay::initialize();
+ my $sock = IO::Socket::INET->new(PeerAddr=>'encrypted.google.com:443') or die;
+ my $ctx = Net::SSLeay::CTX_tlsv1_new() or die;
+ Net::SSLeay::CTX_set_options($ctx, &Net::SSLeay::OP_ALL);
+ Net::SSLeay::CTX_set_alpn_protos($ctx, ['http/1.1', 'http/2.0', 'spdy/3]);
+ my $ssl = Net::SSLeay::new($ctx) or die;
+ Net::SSLeay::set_fd($ssl, fileno($sock)) or die;
+ Net::SSLeay::connect($ssl);
+
+ warn "client:selected=",Net::SSLeay::P_alpn_selected($ssl), "\n";
+
+ ### server side
+ use Net::SSLeay;
+ use IO::Socket::INET;
+
+ Net::SSLeay::initialize();
+ my $ctx = Net::SSLeay::CTX_tlsv1_new() or die;
+ Net::SSLeay::CTX_set_options($ctx, &Net::SSLeay::OP_ALL);
+ Net::SSLeay::set_cert_and_key($ctx, "t/data/cert.pem", "t/data/key.pem");
+ Net::SSLeay::CTX_set_alpn_select_cb($ctx, ['http/1.1', 'http/2.0', 'spdy/3]);
+ my $sock = IO::Socket::INET->new(LocalAddr=>'localhost', LocalPort=>5443, Proto=>'tcp', Listen=>20) or die;
+
+ while (1) {
+   my $ssl = Net::SSLeay::new($ctx);
+   warn("server:waiting for incoming connection...\n");
+   my $fd = $sock->accept();
+   Net::SSLeay::set_fd($ssl, $fd->fileno);
+   Net::SSLeay::accept($ssl);
+   warn "server:selected=",Net::SSLeay::P_alpn_selected($ssl),"\n";
+   my $got = Net::SSLeay::read($ssl);
+   Net::SSLeay::ssl_write_all($ssl, "length=".length($got));
+   Net::SSLeay::free($ssl);
+   $fd->close();
+ }
+ # check with: openssl s_client -connect localhost:5443 -alpn spdy/3,http/1.1
+
+Advanced approach allows you to implement your own negotiation algorithm.
+
+ #see below documentation for:
+ Net::SSleay::CTX_set_alpn_select_cb($ctx, $perl_callback_function, $callback_data);
+
+Detection of ALPN support (works even in older Net::SSLeay versions):
+
+ use Net::SSLeay;
+
+ if (exists &Net::SSLeay::P_alpn_selected) {
+   # do ALPN stuff
+ }
+
+=over
+
+=item * CTX_set_alpn_select_cb
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least openssl-1.0.2
+
+B<NOTE:> You need CTX_set_alpn_select_cb on B<server side> of TLS connection.
+
+Simple usage - in this case a "common" negotiation algorithm (as implemented by openssl's function SSL_select_next_proto) is used.
+
+ $rv = Net::SSleay::CTX_set_alpn_select_cb($ctx, $arrayref);
+ # $ctx - value corresponding to openssl's SSL_CTX structure
+ # $arrayref - list of accepted protocols - e.g. ['http/2.0', 'http/1.1', 'spdy/3']
+ #
+ # returns: 0 on success, 1 on failure
+
+Advanced usage (you probably do not need this):
+
+ $rv = Net::SSleay::CTX_set_alpn_select_cb($ctx, $perl_callback_function, $callback_data);
+ # $ctx - value corresponding to openssl's SSL_CTX structure
+ # $perl_callback_function - reference to perl function
+ # $callback_data - [optional] data to passed to callback function when invoked
+ #
+ # returns: 0 on success, 1 on failure
+
+ # where callback function looks like
+ sub alpn_select_cb_invoke {
+   my ($ssl, $arrayref_proto_list_advertised_by_client, $callback_data) = @_;
+   # ...
+   if ($negotiated) {
+     return 'http/2.0';
+   } else {
+     return undef;
+   }
+ }
+
+To undefine/clear this callback use:
+
+ Net::SSleay::CTX_set_alpn_select_cb($ctx, undef);
+
+=item * set_alpn_protos
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least openssl-1.0.2
+
+B<NOTE:> You need set_alpn_protos on B<client side> of TLS connection.
+
+This adds list of supported application layer protocols to ClientHello message sent by a client.
+It advertises the enumeration of supported protocols:
+
+ Net::SSLeay::set_alpn_protos($ssl, ['http/1.1', 'http/2.0', 'spdy/3]);
+ # returns 0 on success
+
+=item * CTX_set_alpn_protos
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least openssl-1.0.2
+
+B<NOTE:> You need CTX_set_alpn_protos on B<client side> of TLS connection.
+
+This adds list of supported application layer protocols to ClientHello message sent by a client.
+It advertises the enumeration of supported protocols:
+
+ Net::SSLeay::CTX_set_alpn_protos($ctx, ['http/1.1', 'http/2.0', 'spdy/3]);
+ # returns 0 on success
+
+=item * P_alpn_selected
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least openssl-1.0.2
+
+Returns the name of negotiated protocol for given TLS connection $ssl.
+
+ $rv = Net::SSLeay::P_alpn_selected($ssl)
+ # $ssl - value corresponding to openssl's SSL structure
+ #
+ # returns: (string) negotiated protocol name (or undef if no negotiation was done or failed with fatal error)
 
 =back
 
