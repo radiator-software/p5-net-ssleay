@@ -844,19 +844,22 @@ int next_proto_select_cb_invoke(SSL *ssl, unsigned char **out, unsigned char *ou
             croak ("Net::SSLeay: next_proto_select_cb_invoke perl function did not return 2 values.\n");
         next_proto_data = (unsigned char*)POPpx;
         next_proto_status = POPi;
+
+        next_proto_len = strlen((const char*)next_proto_data);
+        if (next_proto_len<=255) {
+          /* store last_status + last_negotiated into global hash */
+          cb_data_advanced_put(ssl, "next_proto_select_cb!!last_status", newSViv(next_proto_status));
+          tmpsv = newSVpv((const char*)next_proto_data, next_proto_len);
+          cb_data_advanced_put(ssl, "next_proto_select_cb!!last_negotiated", tmpsv);
+          *out = (unsigned char *)SvPVX(tmpsv);
+          *outlen = next_proto_len;
+        }
+
         PUTBACK;
         FREETMPS;
         LEAVE;
 
-        if (strlen((const char*)next_proto_data)>255) return SSL_TLSEXT_ERR_ALERT_FATAL;
-        next_proto_len = strlen((const char*)next_proto_data);
-        /* store last_status + last_negotiated into global hash */
-        cb_data_advanced_put(ssl, "next_proto_select_cb!!last_status", newSViv(next_proto_status));
-        tmpsv = newSVpv((const char*)next_proto_data, next_proto_len);
-        cb_data_advanced_put(ssl, "next_proto_select_cb!!last_negotiated", tmpsv);
-        *out = (unsigned char *)SvPVX(tmpsv);
-        *outlen = next_proto_len;
-        return SSL_TLSEXT_ERR_OK;
+        return next_proto_len>255 ? SSL_TLSEXT_ERR_ALERT_FATAL : SSL_TLSEXT_ERR_OK;
     }
     else if (SvROK(cb_data) && (SvTYPE(SvRV(cb_data)) == SVt_PVAV)) {
         next_proto_len = next_proto_helper_AV2protodata((AV*)SvRV(cb_data), NULL);
