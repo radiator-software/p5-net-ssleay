@@ -60,6 +60,6 @@ ok(Net::SSLeay::OBJ_sn2nid('MD5') == 4, 'OBJ_sn2nid'); # NID_md5
 my $asn_object2 = Net::SSLeay::OBJ_txt2obj('1.2.3.4', 0);
 ok(Net::SSLeay::OBJ_cmp($asn_object2, $asn_object) == 0, 'OBJ_cmp');
 $asn_object2 = Net::SSLeay::OBJ_txt2obj('1.2.3.5', 0);
-ok(Net::SSLeay::OBJ_cmp($asn_object2, $asn_object) == 1, 'OBJ_cmp');
+ok(Net::SSLeay::OBJ_cmp($asn_object2, $asn_object) != 0, 'OBJ_cmp');
 
 ok(1, 'Finishing up');

@@ -13,6 +13,8 @@ Revision history for Perl extension Net::SSLeay.
      Added support for ALPN TLS extension. Patch from Lubomir Rintel. Tested
      with openssl-1.0.2-stable-SNAP-20131205.
      Fix an use-after-free error. Patch from Lubomir Rintel.
+     Fixed a problem with  Invalid comparison on OBJ_cmp result in
+     t/local/36_verify.t. Contributed by paul.
 
 
 1.55 2013-06-08
