@@ -1618,6 +1618,24 @@ SSL_get_peer_certificate(s)
      SSL *              s
 
 void
+SSL_get_peer_cert_chain(s)
+     SSL *              s
+    PREINIT:
+        STACK_OF(X509) *chain = NULL;
+        X509 *x;
+	int i;
+    PPCODE:
+	chain = SSL_get_peer_cert_chain(s);
+	if( chain == NULL ) {
+		return;
+	}
+	for (i=0; i<sk_X509_num(chain); i++) {
+	    x = sk_X509_value(chain, i);
+	    XPUSHs(sv_2mortal(newSViv(PTR2IV(x))));
+	}
+	sk_X509_free(chain);
+
+void
 SSL_set_verify(s,mode,callback)
         SSL * s
         int mode

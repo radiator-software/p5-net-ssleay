@@ -3320,6 +3320,17 @@ Get the X509 certificate of the peer.
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_peer_certificate.html|http://www.openssl.org/docs/ssl/SSL_get_peer_certificate.html>
 
+=item * get_peer_cert_chain
+
+Get the certificate chain of the peer as an array of X509 structures.
+
+ my @rv = Net::SSLeay::get_peer_certificate($ssl);
+ # $ssl - value corresponding to openssl's SSL structure
+ #
+ # returns: list of X509 structures
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_peer_certificate.html|http://www.openssl.org/docs/ssl/SSL_get_peer_certificate.html>
+
 =item * get_quiet_shutdown
 
 Returns the 'quiet shutdown' setting of ssl.

@@ -273,6 +273,7 @@ $VERSION = '1.55';
     get_httpx
     get_httpx4
     get_peer_certificate
+    get_peer_cert_chain
     get_rbio
     get_read_ahead
     get_server_random
