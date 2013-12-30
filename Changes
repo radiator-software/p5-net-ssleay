@@ -15,7 +15,13 @@ Revision history for Perl extension Net::SSLeay.
      Fix an use-after-free error. Patch from Lubomir Rintel.
      Fixed a problem with  Invalid comparison on OBJ_cmp result in
      t/local/36_verify.t. Contributed by paul.
-     Added suport for get_peer_cert_chain(). Patch by Markus Benning.
+     Added support for get_peer_cert_chain(). Patch by Markus Benning.
+     Fixed a bug that could cause stack faults: mixed up PUTBACK with SPAGAIN in ssleay_RSA_generate_key_cb_invoke()
+     a final PUTBACK is needed here. A second issue is also fixed:
+     cb->data defaults to &PL_sv_undef but throught the code you do not check
+     against &PL_sv_undef, just NULL. 
+     To avoid passing the 3rd optional arg at all, do not create it. This fixes all the 
+     cb->data checks and wrong refcounts on &PL_sv_undef. Patched by Reini Urban.
 
 
 1.55 2013-06-08

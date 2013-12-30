@@ -429,7 +429,7 @@ simple_cb_data_t* simple_cb_data_new(SV* func, SV* data)
         SvREFCNT_inc(func);
         SvREFCNT_inc(data);
         cb->func = func;
-        cb->data = data;
+        cb->data = (data == &PL_sv_undef) ? NULL : data;
     }
     return cb;
 }
@@ -1079,7 +1079,7 @@ void ssleay_RSA_generate_key_cb_invoke(int i, int n, void* data)
             croak ("Net::SSLeay: ssleay_RSA_generate_key_cb_invoke "
                    "perl function did return something in void context.\n");
 
-        PUTBACK;
+        SPAGAIN;
         FREETMPS;
         LEAVE;
     }
