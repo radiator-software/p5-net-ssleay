@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.??? ????
+1.56 2014-01-08
      Fixed a typo in documentaiton of BEAST Attack, patched by gregor
      herrmann.
      Added LICENSE file copied form OpenSSL distribution to prevent complaints
