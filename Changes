@@ -22,7 +22,8 @@ Revision history for Perl extension Net::SSLeay.
      against &PL_sv_undef, just NULL. 
      To avoid passing the 3rd optional arg at all, do not create it. This fixes all the 
      cb->data checks and wrong refcounts on &PL_sv_undef. Patched by Reini Urban.
-
+     Deleted support for SSL_get_tlsa_record_byname: it is not included in
+     OpenSSL git master. 
 
 1.55 2013-06-08
      Added support for TLSV1_1 and TLSV1_2 methods with SSL_CTX_tlsv1_1_new(),

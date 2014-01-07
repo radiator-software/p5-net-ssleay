@@ -7599,7 +7599,7 @@ Named Entities (DANE) Transport Layer Association within OpenSSL
 
 =item * SSL_get_tlsa_record_byname
 
-B<COMPATIBILITY:> Requires at least openssl-1.0.2
+B<COMPATIBILITY:> DELETED from net-ssleay, since it is not supported by OpenSSL
 
 In order to facilitate DANE there is additional interface,
 SSL_get_tlsa_record_byname, accepting hostname, port and socket type
