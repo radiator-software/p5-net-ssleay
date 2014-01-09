@@ -1,10 +1,9 @@
-#!perl
+BEGIN {
+    unless ($ENV{RELEASE_TESTING})
+    {
+	use Test::More;
+	plan(skip_all => 'these tests are for only for release candidate testing. Enable with RELEASE_TESTING=1');
+    }
+}
 
-use strict;
-use warnings;
-use Test::More;
-
-eval { require Test::Kwalitee; Test::Kwalitee->import() };
-
-plan( skip_all => 'Test::Kwalitee not installed; skipping' ) if $@;
-
+use Test::Kwalitee;

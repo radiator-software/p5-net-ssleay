@@ -1,5 +1,9 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.57 2014-01-09
+     Fixed remaining problems with test suite: pod coverage and kwalitee tests
+     are only enabled with RELEASE_TESTING=1
+
 1.56 2014-01-08
      Fixed a typo in documentaiton of BEAST Attack, patched by gregor
      herrmann.

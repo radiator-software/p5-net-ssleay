@@ -6649,7 +6649,7 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/EVP_EncryptInit.html|http
 
 =over
 
-=item * OpenSSL_add_all_digest
+=item * OpenSSL_add_all_digests
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
 
@@ -7656,6 +7656,25 @@ Enable or disable FIPS mode in a FIPS capable OpenSSL.
 
 =back
 
+=head3 Low level API: EC related functions
+
+=over 
+
+=item * CTX_set_tmp_ecdh
+
+TBA
+
+=item * EC_KEY_free
+
+TBA
+
+=item * EC_KEY_new_by_curve_name
+
+TBA
+
+=back
+
+
 =head2 Constants
 
 There are many openssl constants available in L<Net::SSLeay>. You can use them like this:
@@ -8341,6 +8360,12 @@ their licenses).
 And remember, you, and nobody else but you, are responsible for
 auditing this module and OpenSSL library for security problems,
 backdoors, and general suitability for your application.
+
+=head1 LICENSE 
+
+See the LICENSE file included in this distribution
+
+(ignore this line: this is to keep kwalitee happy by saying: Not GPL)
 
 =head1 SEE ALSO
 

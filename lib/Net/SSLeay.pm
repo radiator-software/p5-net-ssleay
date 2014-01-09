@@ -61,7 +61,7 @@ $Net::SSLeay::slowly = 0;
 $Net::SSLeay::random_device = '/dev/urandom';
 $Net::SSLeay::how_random = 512;
 
-$VERSION = '1.56';
+$VERSION = '1.57';
 @ISA = qw(Exporter);
 
 #BEWARE:
@@ -1375,3 +1375,4 @@ sub do_https {
 
 1;
 __END__
+
