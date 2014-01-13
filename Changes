@@ -1,11 +1,14 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.?? 
+     Always use size_t for strlen() return value, requested by Alexander Bluhm.
+
 1.57 2014-01-09
      Fixed remaining problems with test suite: pod coverage and kwalitee tests
      are only enabled with RELEASE_TESTING=1
 
 1.56 2014-01-08
-     Fixed a typo in documentaiton of BEAST Attack, patched by gregor
+     Fixed a typo in documentation of BEAST Attack, patched by gregor
      herrmann.
      Added LICENSE file copied form OpenSSL distribution to prevent complaints
      from various versions of kwalitee.
