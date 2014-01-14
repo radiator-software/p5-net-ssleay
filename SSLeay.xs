@@ -1634,7 +1634,6 @@ SSL_get_peer_cert_chain(s)
 	    x = sk_X509_value(chain, i);
 	    XPUSHs(sv_2mortal(newSViv(PTR2IV(x))));
 	}
-	sk_X509_free(chain);
 
 void
 SSL_set_verify(s,mode,callback)

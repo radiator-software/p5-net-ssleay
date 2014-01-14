@@ -81,6 +81,7 @@ t/data/verisign.crl.der
 t/data/verisign.crl.pem
 t/external/08_external.t
 t/external/15_altnames.t
+t/external/20_cert_chain.t
 t/handle/external/10_destroy.t
 t/handle/external/50_external.t
 t/handle/local/05_use.t
