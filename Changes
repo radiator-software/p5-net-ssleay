@@ -4,6 +4,7 @@ Revision history for Perl extension Net::SSLeay.
      Always use size_t for strlen() return value, requested by Alexander Bluhm.
      t/external/20_cert_chain.t was missing from dist.
      Version number in META.yml was incorrect
+     Improvements to test t/external/20_cert_chain.t to provoke following bug:
      Fixed crash due to SSL_get_peer_cert_chain incorrectly free'ing the chain
      after use.
 

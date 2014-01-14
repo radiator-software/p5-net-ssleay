@@ -45,5 +45,7 @@ for my $site (@sites) {
 		ok(my $subject = Net::SSLeay::X509_get_subject_name($x509), "X509_get_subject_name");
 		like(Net::SSLeay::X509_NAME_oneline($subject), qr|/OU=.*?/CN=|, "X509_NAME_oneline");
 	};
+        Net::SSLeay::free($ssl);
+        Net::SSLeay::CTX_free($ctx);
     }
 }
