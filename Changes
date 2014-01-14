@@ -1,12 +1,13 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.?? 
+1.58 2014-01-15
      Always use size_t for strlen() return value, requested by Alexander Bluhm.
      t/external/20_cert_chain.t was missing from dist.
      Version number in META.yml was incorrect
      Improvements to test t/external/20_cert_chain.t to provoke following bug:
      Fixed crash due to SSL_get_peer_cert_chain incorrectly free'ing the chain
      after use.
+     Fixed a problem when compiling against openssl where OPENSSL_NO_EC is set.
 
 1.57 2014-01-09
      Fixed remaining problems with test suite: pod coverage and kwalitee tests

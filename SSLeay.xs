@@ -4221,7 +4221,7 @@ SSL_CTX_set_tmp_rsa(ctx,rsa)
      SSL_CTX *	ctx
      RSA *	rsa
 
-#if OPENSSL_VERSION_NUMBER > 0x10000000L
+#if OPENSSL_VERSION_NUMBER > 0x10000000L && !defined OPENSSL_NO_EC
 
 EC_KEY *
 EC_KEY_new_by_curve_name(nid)
