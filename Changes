@@ -1,5 +1,8 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.??
+     Fixed local/30_error.t, so that tests do not fail if diagnostics are enabled.
+
 1.58 2014-01-15
      Always use size_t for strlen() return value, requested by Alexander Bluhm.
      t/external/20_cert_chain.t was missing from dist.
