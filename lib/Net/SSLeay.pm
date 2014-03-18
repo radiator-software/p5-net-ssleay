@@ -412,8 +412,8 @@ sub die_now {
 # Thanks to Sean Burke for the snippet.
 
 BEGIN{
-eval 'use bytes; sub blength ($) { length $_[0] }';
-$@ and eval '    sub blength ($) { length $_[0] }' ;
+eval 'use bytes; sub blength ($) { defined $_[0] ? length $_[0] : 0  }';
+$@ and eval '    sub blength ($) { defined $_[0] ? length $_[0] : 0 }' ;
 }
 
 # Autoload methods go after __END__, and are processed by the autosplit program.
@@ -1287,10 +1287,10 @@ sub do_https3 { splice(@_,1,0) = 1; do_httpx3; }  # Legacy undocumented
 sub do_httpx2 {
     my ($page, $response, $headers, $server_cert) = &do_httpx3;
     X509_free($server_cert) if defined $server_cert;
-    return ($page, $response,
+    return ($page, $response, defined $headers ?
 	    map( { ($h,$v)=/^(\S+)\:\s*(.*)$/; (uc($h),$v); }
 		split(/\s?\n/, $headers)
-		)
+		) : ()
 	    );
 }
 
