@@ -5,6 +5,8 @@ Revision history for Perl extension Net::SSLeay.
      enabled.
      Fixed errore messages about undefined strings used with length or
      split. Reported and patched by Peter Heuchert.
+     Improvements to configuration of OPTIMIZE flags, to prevent overriding
+     of perls expected optimization flags. Caution: HPUX aCC optimize options are special.
 
 1.58 2014-01-15
      Always use size_t for strlen() return value, requested by Alexander Bluhm.
