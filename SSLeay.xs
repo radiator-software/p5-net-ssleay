@@ -814,7 +814,6 @@ int next_proto_select_cb_invoke(SSL *ssl, unsigned char **out, unsigned char *ou
     size_t next_proto_len;
     int next_proto_status;
     SSL_CTX *ctx = SSL_get_SSL_CTX(ssl);
-    STRLEN n_a;
 
     PR1("STARTED: next_proto_select_cb_invoke\n");
     cb_func = cb_data_advanced_get(ctx, "next_proto_select_cb!!func");
@@ -943,7 +942,6 @@ int alpn_select_cb_invoke(SSL *ssl, const unsigned char **out, unsigned char *ou
     unsigned char *alpn_data;
     size_t alpn_len;
     SSL_CTX *ctx = SSL_get_SSL_CTX(ssl);
-    STRLEN n_a;
 
     PR1("STARTED: alpn_select_cb_invoke\n");
     cb_func = cb_data_advanced_get(ctx, "alpn_select_cb!!func");
@@ -1013,7 +1011,6 @@ int pem_password_cb_invoke(char *buf, int bufsize, int rwflag, void *data) {
     int count = -1;
     size_t str_len = 0;
     simple_cb_data_t* cb = (simple_cb_data_t*)data;
-    STRLEN n_a;
 
     PR1("STARTED: pem_password_cb_invoke\n");
     if (cb->func && SvOK(cb->func)) {
@@ -1411,11 +1408,25 @@ SSL_peek(s,max=32768)
 	PREINIT:
 	char *buf;
 	int got;
-	CODE:
+	PPCODE:
 	New(0, buf, max, char);
-	ST(0) = sv_newmortal();   /* Undefined to start with */
-	if ((got = SSL_peek(s, buf, max)) >= 0)
-		sv_setpvn( ST(0), buf, got);
+
+	got = SSL_peek(s, buf, max);
+
+	/* If in list context, return 2-item list:
+	 *   first return value:  data gotten, or undef on error (got<0)
+	 *   second return value: result from SSL_peek()
+	 */
+	if (GIMME_V==G_ARRAY) {
+	    EXTEND(SP, 2);
+	    PUSHs(sv_2mortal(got>=0 ? newSVpvn(buf, got) : newSV(0)));
+	    PUSHs(sv_2mortal(newSViv(got)));
+	    
+	    /* If in scalar or void context, return data gotten, or undef on error. */
+	} else {
+	    EXTEND(SP, 1);
+	    PUSHs(sv_2mortal(got>=0 ? newSVpvn(buf, got) : newSV(0)));
+	}
 	Safefree(buf);
 
 int
@@ -5171,7 +5182,7 @@ SSL_export_keying_material(ssl, outlen, label, p)
         char *  p = SvPV( ST(3), plen);
     PPCODE:
 	New(0, out, outlen, char);
-        ret = SSL_export_keying_material(ssl, out, outlen, label, labellen, p, plen, plen ? 1 : 0);
+        ret = SSL_export_keying_material(ssl, (unsigned char*)out, outlen, label, labellen, (unsigned char*)p, plen, plen ? 1 : 0);
         PUSHs(sv_2mortal(ret>=0 ? newSVpvn(out, outlen) : newSV(0)));
         EXTEND(SP, 1);
 	Safefree(out);

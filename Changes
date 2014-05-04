@@ -7,6 +7,9 @@ Revision history for Perl extension Net::SSLeay.
      split. Reported and patched by Peter Heuchert.
      Improvements to configuration of OPTIMIZE flags, to prevent overriding
      of perls expected optimization flags. Caution: HPUX aCC optimize options are special.
+     SSL_peek() now returns openssl error code as second item wen called in
+     array context, same as SSL_read. Patch from 'and'.
+     Fixed some warnings.
 
 1.58 2014-01-15
      Always use size_t for strlen() return value, requested by Alexander Bluhm.

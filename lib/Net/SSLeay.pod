@@ -3661,7 +3661,9 @@ buffer is unmodified after the SSL_peek() operation.
  # $ssl - value corresponding to openssl's SSL structure
  # $max - [optional] max bytes to peek (integer) - default is 32768
  #
- # returns: read data, undef on error
+ # in scalar context: data read from the TLS/SSL connection, undef on error
+ # in list context:   two-item array consisting of data read (undef on error),
+ #                      and return code from SSL_read().
 
 =item * pending
 
