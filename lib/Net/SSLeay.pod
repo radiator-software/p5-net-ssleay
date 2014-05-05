@@ -490,15 +490,14 @@ in multi-threaded applications. It is generally recommended to do any global ini
 of such a module in the main thread before calling C<< threads->new(..) >> or
 C<< threads->create(..) >> but it might differ module by module.
 
-To be play safe you can load and init Net::SSLeay explicitly in the main thread:
+To be safe you can load and init Net::SSLeay explicitly in the main thread:
 
     use Net::SSLeay;
     use Other::SSLeay::Based::Module;
 
     Net::SSLeay::load_error_strings();
     Net::SSLeay::SSLeay_add_ssl_algorithms();
-    Net::SSLeay::randomize();Net::SSLeay::initialize();
-    Net::SSLeay::initialize();
+    Net::SSLeay::randomize();
 
 Or even safer:
 
@@ -508,7 +507,7 @@ Or even safer:
     BEGIN {
       Net::SSLeay::load_error_strings();
       Net::SSLeay::SSLeay_add_ssl_algorithms();
-      Net::SSLeay::randomize();Net::SSLeay::initialize();
+      Net::SSLeay::randomize();
     }
 
 =head3 Combining Net::SSLeay with other modules linked with openssl

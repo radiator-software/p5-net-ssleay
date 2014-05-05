@@ -30,6 +30,8 @@ $Net::SSLeay::trace = 0;  # Do not change here, use
 # 2 = insist on v2 SSL protocol
 # 3 = insist on v3 SSL
 # 10 = insist on TLSv1
+# 11 = insist on TLSv1.1
+# 12 = insist on TLSv1.2
 # 0 or undef = guess (v23)
 #
 $Net::SSLeay::ssl_version = 0;  # don't change here, use
@@ -911,6 +913,20 @@ sub new_x_ctx {
     }
     elsif ($ssl_version == 3)  { $ctx = CTX_v3_new(); }
     elsif ($ssl_version == 10) { $ctx = CTX_tlsv1_new(); }
+    elsif ($ssl_version == 11) {
+	unless (exists &Net::SSLeay::CTX_tlsv1_1_new) {
+	    warn "ssl_version has been set to 11, but this version of OpenSSL has been compiled without TLSv1.1 support";
+	    return undef;
+	}
+        $ctx = CTX_tlsv1_1_new;
+    }
+    elsif ($ssl_version == 12) {
+	unless (exists &Net::SSLeay::CTX_tlsv1_2_new) {
+	    warn "ssl_version has been set to 12, but this version of OpenSSL has been compiled without TLSv1.2 support";
+	    return undef;
+	}
+        $ctx = CTX_tlsv1_2_new;
+    }
     else                       { $ctx = CTX_new(); }
     return $ctx;
 }

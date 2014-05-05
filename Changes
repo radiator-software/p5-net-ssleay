@@ -3,13 +3,17 @@ Revision history for Perl extension Net::SSLeay.
 1.??
      Fixed local/30_error.t, so that tests do not fail if diagnostics are
      enabled.
-     Fixed errore messages about undefined strings used with length or
+     Fixed error messages about undefined strings used with length or
      split. Reported and patched by Peter Heuchert.
      Improvements to configuration of OPTIMIZE flags, to prevent overriding
      of perls expected optimization flags. Caution: HPUX aCC optimize options are special.
-     SSL_peek() now returns openssl error code as second item wen called in
-     array context, same as SSL_read. Patch from 'and'.
+     SSL_peek() now returns openssl error code as second item when called in
+     array context, same as SSL_read. Patch from Andreas Mohr.
      Fixed some warnings.
+     Added support for tlsv1.1 tlsv1.2 via $Net::SSLeay::ssl_version. Patch
+     from Andreas Mohr.
+     Improve examples in 'Using other perl modules based on
+     Net::SSLeay'. Patched by Andreas Mohr.
 
 1.58 2014-01-15
      Always use size_t for strlen() return value, requested by Alexander Bluhm.
