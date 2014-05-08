@@ -3487,8 +3487,9 @@ constant (const char *name, size_t len) {
     /* Names all of length 22.  */
     /* ASN1_STRFLGS_ESC_QUOTE ERROR_WANT_X509_LOOKUP F_SSL_SESSION_PRINT_FP
        NID_netscape_cert_type NID_netscape_data_type NID_pkcs9_emailAddress
-       OPENSSL_VERSION_NUMBER R_PEER_ERROR_NO_CIPHER X509_TRUST_OBJECT_SIGN
-       X509_V_FLAG_USE_DELTAS XN_FLAG_SEP_COMMA_PLUS _TEST_INVALID_CONSTANT */
+       OPENSSL_VERSION_NUMBER R_PEER_ERROR_NO_CIPHER TLSEXT_STATUSTYPE_ocsp
+       V_OCSP_CERTSTATUS_GOOD X509_TRUST_OBJECT_SIGN X509_V_FLAG_USE_DELTAS
+       XN_FLAG_SEP_COMMA_PLUS _TEST_INVALID_CONSTANT */
     /* Offset 14 gives the best switch position.  */
     switch (name[14]) {
     case '9':
@@ -3585,6 +3586,30 @@ constant (const char *name, size_t len) {
         
 #ifdef ASN1_STRFLGS_ESC_QUOTE
         return ASN1_STRFLGS_ESC_QUOTE;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'T':
+      if (!memcmp(name, "V_OCSP_CERTSTATUS_GOOD", 22)) {
+      /*                               ^              */
+        
+#ifdef V_OCSP_CERTSTATUS_GOOD
+        return V_OCSP_CERTSTATUS_GOOD;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'Y':
+      if (!memcmp(name, "TLSEXT_STATUSTYPE_ocsp", 22)) {
+      /*                               ^              */
+        
+#ifdef TLSEXT_STATUSTYPE_ocsp
+        return TLSEXT_STATUSTYPE_ocsp;
 #else
         goto not_there;
 #endif
@@ -4066,6 +4091,7 @@ constant (const char *name, size_t len) {
        NID_pbeWithSHA1AndDES_CBC NID_pbeWithSHA1AndRC2_CBC
        NID_sha1WithRSAEncryption OP_MSIE_SSLV2_RSA_PADDING
        OP_NETSCAPE_CHALLENGE_BUG R_BAD_AUTHENTICATION_TYPE
+       V_OCSP_CERTSTATUS_REVOKED V_OCSP_CERTSTATUS_UNKNOWN
        X509_V_FLAG_CRL_CHECK_ALL X509_V_FLAG_NOTIFY_POLICY */
     /* Offset 20 gives the best switch position.  */
     switch (name[20]) {
@@ -4118,6 +4144,16 @@ constant (const char *name, size_t len) {
       }
       break;
     case 'K':
+      if (!memcmp(name, "V_OCSP_CERTSTATUS_UNKNOWN", 25)) {
+      /*                                     ^           */
+        
+#ifdef V_OCSP_CERTSTATUS_UNKNOWN
+        return V_OCSP_CERTSTATUS_UNKNOWN;
+#else
+        goto not_there;
+#endif
+
+      }
       if (!memcmp(name, "X509_V_FLAG_CRL_CHECK_ALL", 25)) {
       /*                                     ^           */
         
@@ -4147,6 +4183,18 @@ constant (const char *name, size_t len) {
         
 #ifdef NID_pbeWithSHA1AndDES_CBC
         return NID_pbeWithSHA1AndDES_CBC;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'V':
+      if (!memcmp(name, "V_OCSP_CERTSTATUS_REVOKED", 25)) {
+      /*                                     ^           */
+        
+#ifdef V_OCSP_CERTSTATUS_REVOKED
+        return V_OCSP_CERTSTATUS_REVOKED;
 #else
         goto not_there;
 #endif
@@ -4705,25 +4753,26 @@ constant (const char *name, size_t len) {
     break;
   case 29:
     /* Names all of length 29.  */
-    /* NID_pkcs9_unstructuredAddress OP_MICROSOFT_BIG_SSLV3_BUFFER
-       R_SSL_SESSION_ID_IS_DIFFERENT X509_V_FLAG_ALLOW_PROXY_CERTS */
-    /* Offset 0 gives the best switch position.  */
-    switch (*name++) {
-    case 'N':
-      if (!memcmp(name, "ID_pkcs9_unstructuredAddress", 28)) {
-      /*                N                                   */
+    /* NID_pkcs9_unstructuredAddress OCSP_RESPONSE_STATUS_TRYLATER
+       OP_MICROSOFT_BIG_SSLV3_BUFFER R_SSL_SESSION_ID_IS_DIFFERENT
+       X509_V_FLAG_ALLOW_PROXY_CERTS */
+    /* Offset 6 gives the best switch position.  */
+    switch (name[6]) {
+    case 'E':
+      if (!memcmp(name, "OCSP_RESPONSE_STATUS_TRYLATER", 29)) {
+      /*                       ^                             */
         
-#ifdef NID_pkcs9_unstructuredAddress
-        return NID_pkcs9_unstructuredAddress;
+#ifdef OCSP_RESPONSE_STATUS_TRYLATER
+        return OCSP_RESPONSE_STATUS_TRYLATER;
 #else
         goto not_there;
 #endif
 
       }
       break;
-    case 'O':
-      if (!memcmp(name, "P_MICROSOFT_BIG_SSLV3_BUFFER", 28)) {
-      /*                O                                   */
+    case 'R':
+      if (!memcmp(name, "OP_MICROSOFT_BIG_SSLV3_BUFFER", 29)) {
+      /*                       ^                             */
         
 #ifdef SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER
         return SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER;
@@ -4733,9 +4782,9 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case 'R':
-      if (!memcmp(name, "_SSL_SESSION_ID_IS_DIFFERENT", 28)) {
-      /*                R                                   */
+    case 'S':
+      if (!memcmp(name, "R_SSL_SESSION_ID_IS_DIFFERENT", 29)) {
+      /*                       ^                             */
         
 #ifdef SSL_R_SSL_SESSION_ID_IS_DIFFERENT
         return SSL_R_SSL_SESSION_ID_IS_DIFFERENT;
@@ -4745,12 +4794,24 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case 'X':
-      if (!memcmp(name, "509_V_FLAG_ALLOW_PROXY_CERTS", 28)) {
-      /*                X                                   */
+    case '_':
+      if (!memcmp(name, "X509_V_FLAG_ALLOW_PROXY_CERTS", 29)) {
+      /*                       ^                             */
         
 #ifdef X509_V_FLAG_ALLOW_PROXY_CERTS
         return X509_V_FLAG_ALLOW_PROXY_CERTS;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'c':
+      if (!memcmp(name, "NID_pkcs9_unstructuredAddress", 29)) {
+      /*                       ^                             */
+        
+#ifdef NID_pkcs9_unstructuredAddress
+        return NID_pkcs9_unstructuredAddress;
 #else
         goto not_there;
 #endif
@@ -4831,9 +4892,21 @@ constant (const char *name, size_t len) {
   case 31:
     /* Names all of length 31.  */
     /* MIN_RSA_MODULUS_LENGTH_IN_BYTES MODE_ACCEPT_MOVING_WRITE_BUFFER
-       NID_pbe_WithSHA1And40BitRC2_CBC */
+       NID_pbe_WithSHA1And40BitRC2_CBC OCSP_RESPONSE_STATUS_SUCCESSFUL */
     /* Offset 12 gives the best switch position.  */
     switch (name[12]) {
+    case 'E':
+      if (!memcmp(name, "OCSP_RESPONSE_STATUS_SUCCESSFUL", 31)) {
+      /*                             ^                         */
+        
+#ifdef OCSP_RESPONSE_STATUS_SUCCESSFUL
+        return OCSP_RESPONSE_STATUS_SUCCESSFUL;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
     case 'L':
       if (!memcmp(name, "MIN_RSA_MODULUS_LENGTH_IN_BYTES", 31)) {
       /*                             ^                         */
@@ -4874,12 +4947,13 @@ constant (const char *name, size_t len) {
     break;
   case 32:
     /* Names all of length 32.  */
-    /* NID_pbe_WithSHA1And128BitRC2_CBC X509_V_FLAG_EXTENDED_CRL_SUPPORT */
-    /* Offset 25 gives the best switch position.  */
-    switch (name[25]) {
-    case 'R':
-      if (!memcmp(name, "NID_pbe_WithSHA1And128BitRC2_CBC", 32)) {
-      /*                                          ^             */
+    /* NID_pbe_WithSHA1And128BitRC2_CBC OCSP_RESPONSE_STATUS_SIGREQUIRED
+       X509_V_FLAG_EXTENDED_CRL_SUPPORT */
+    /* Offset 0 gives the best switch position.  */
+    switch (*name++) {
+    case 'N':
+      if (!memcmp(name, "ID_pbe_WithSHA1And128BitRC2_CBC", 31)) {
+      /*                N                                      */
         
 #ifdef NID_pbe_WithSHA1And128BitRC2_CBC
         return NID_pbe_WithSHA1And128BitRC2_CBC;
@@ -4889,9 +4963,21 @@ constant (const char *name, size_t len) {
 
       }
       break;
-    case 'S':
-      if (!memcmp(name, "X509_V_FLAG_EXTENDED_CRL_SUPPORT", 32)) {
-      /*                                          ^             */
+    case 'O':
+      if (!memcmp(name, "CSP_RESPONSE_STATUS_SIGREQUIRED", 31)) {
+      /*                O                                      */
+        
+#ifdef OCSP_RESPONSE_STATUS_SIGREQUIRED
+        return OCSP_RESPONSE_STATUS_SIGREQUIRED;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'X':
+      if (!memcmp(name, "509_V_FLAG_EXTENDED_CRL_SUPPORT", 31)) {
+      /*                X                                      */
         
 #ifdef X509_V_FLAG_EXTENDED_CRL_SUPPORT
         return X509_V_FLAG_EXTENDED_CRL_SUPPORT;
@@ -4903,15 +4989,46 @@ constant (const char *name, size_t len) {
       break;
     }
     break;
-  case 34:
-    if (!memcmp(name, "OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG", 34)) {
+  case 33:
+    if (!memcmp(name, "OCSP_RESPONSE_STATUS_UNAUTHORIZED", 33)) {
       
+#ifdef OCSP_RESPONSE_STATUS_UNAUTHORIZED
+        return OCSP_RESPONSE_STATUS_UNAUTHORIZED;
+#else
+        goto not_there;
+#endif
+
+    }
+    break;
+  case 34:
+    /* Names all of length 34.  */
+    /* OCSP_RESPONSE_STATUS_INTERNALERROR OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG */
+    /* Offset 9 gives the best switch position.  */
+    switch (name[9]) {
+    case 'O':
+      if (!memcmp(name, "OCSP_RESPONSE_STATUS_INTERNALERROR", 34)) {
+      /*                          ^                               */
+        
+#ifdef OCSP_RESPONSE_STATUS_INTERNALERROR
+        return OCSP_RESPONSE_STATUS_INTERNALERROR;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'P':
+      if (!memcmp(name, "OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG", 34)) {
+      /*                          ^                               */
+        
 #ifdef SSL_OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG
         return SSL_OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG;
 #else
         goto not_there;
 #endif
 
+      }
+      break;
     }
     break;
   case 35:
@@ -4951,6 +5068,17 @@ constant (const char *name, size_t len) {
       
 #ifdef SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION
         return SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION;
+#else
+        goto not_there;
+#endif
+
+    }
+    break;
+  case 37:
+    if (!memcmp(name, "OCSP_RESPONSE_STATUS_MALFORMEDREQUEST", 37)) {
+      
+#ifdef OCSP_RESPONSE_STATUS_MALFORMEDREQUEST
+        return OCSP_RESPONSE_STATUS_MALFORMEDREQUEST;
 #else
         goto not_there;
 #endif

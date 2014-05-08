@@ -339,7 +339,28 @@ $VERSION = '1.58'; # Dont foget to set verison in META.yml too
     use_certificate_ASN1
     use_certificate_file
     write
-
+    d2i_OCSP_RESPONSE
+    i2d_OCSP_RESPONSE
+    OCSP_RESPONSE_free
+    d2i_OCSP_REQUEST
+    i2d_OCSP_REQUEST
+    OCSP_REQUEST_free
+    OCSP_cert2ids
+    OCSP_ids2req
+    OCSP_response_status
+    OCSP_response_status_str
+    OCSP_response_verify
+    OCSP_response_results
+    OCSP_RESPONSE_STATUS_INTERNALERROR
+    OCSP_RESPONSE_STATUS_MALFORMEDREQUEST
+    OCSP_RESPONSE_STATUS_SIGREQUIRED
+    OCSP_RESPONSE_STATUS_SUCCESSFUL
+    OCSP_RESPONSE_STATUS_TRYLATER
+    OCSP_RESPONSE_STATUS_UNAUTHORIZED
+    TLSEXT_STATUSTYPE_ocsp
+    V_OCSP_CERTSTATUS_GOOD
+    V_OCSP_CERTSTATUS_REVOKED
+    V_OCSP_CERTSTATUS_UNKNOWN
 );
 
 sub AUTOLOAD {

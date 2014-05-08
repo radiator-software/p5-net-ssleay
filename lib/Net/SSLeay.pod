@@ -393,6 +393,190 @@ named files.
         error reading CRL....
     }
 
+Usually the URLs where you can download the CRLs is contained in the certificate
+itself and you can extract them with
+
+    my @url = Net::SSLeay::P_X509_get_crl_distribution_points($cert)
+
+But there is no automatic downloading of the CRLs and often these CRLs are too
+huge to just download them to verify a single certificate.
+Also, these CRLs are often in DER format which you need to convert to PEM before
+you can use it:
+
+    openssl crl -in crl.der -inform der -out crl.pem
+
+So as an alternative for faster and timely revocation checks you better use
+the Online Status Revocation Protocol (OCSP).
+
+=head2 Certificate verification and Online Status Revocation Protocol (OCSP)
+
+While checking for revoked certificates is possible and fast with Certificate
+Revocation Lists, you need to download the complete and often huge list before
+you can verify a single certificate.
+
+A faster way is to ask the CA to check the revocation of just a single or a few
+certificates using OCSP. Basically you generate for each certificate an
+OCSP_CERTID based on the certificate itself and its issuer, put the ids
+togetether into an OCSP_REQUEST and send the request to the URL given in the
+certificate.
+
+As a result you get back an OCSP_RESPONSE and need to check the status of the
+response, check that it is valid (e.g. signed by the CA) and finally extract the
+information about each OCSP_CERTID to find out if the certificate is still valid
+or got revoked.
+
+With Net::SSLeay this can be done like this:
+
+    # get id(s) for given certs, like from get_peer_certificate
+    # or get_peer_cert_chain. This will croak if
+    # - one tries to make an OCSP_CERTID for a self-signed certificate
+    # - the issuer of the certificate cannot be found in the SSL objects
+    #   store, nor in the current certificate chain
+    my $cert = Net::SSLeay::get_peer_certificate($ssl);
+    my $id = eval { Net::SSLeay::OCSP_cert2ids($ssl,$cert) };
+    die "failed to make OCSP_CERTID: $@" if $@;
+
+    # create OCSP_REQUEST from id(s)
+    # Multiple can be put into the same request, if the same OCSP responder
+    # is responsible for them.
+    my $req = Net::SSLeay::OCSP_ids2req($id);
+
+    # determine URI of OCSP responder
+    my $uri = Net::SSLeay::P_X509_get_ocsp_uri($cert);
+
+    # Send stringified OCSP_REQUEST with POST to $uri.
+    # We can ignore certificate verification for https, because the OCSP
+    # response itself is signed.
+    my $ua = HTTP::Tiny->new(verify_SSL => 0);
+    my $res = $ua->request( 'POST',$uri, {
+	headers => { 'Content-type' => 'application/ocsp-request' },
+	content => Net::SSLeay::i2d_OCSP_REQUEST($req)
+    });
+    my $content = $res && $res->{success} && $res->{content}
+	or die "query failed";
+
+    # Extract OCSP_RESPONSE.
+    # this will croak if the string is not an OCSP_RESPONSE
+    my $resp = eval { Net::SSLeay::d2i_OCSP_RESPONSE($content) };
+
+    # Check status of response.
+    my $status = Net::SSLeay::OCSP_response_status($resp);
+    if ($status != Net::SSLeay::OCSP_RESPONSE_STATUS_SUCCESSFUL())
+	die "OCSP response failed: ".
+	    Net::SSLeay::OCSP_response_status_str($status);
+    }
+
+    # Verify signature of response and if nonce matches request.
+    # This will croak if there is a nonce in the response, but it does not match
+    # the request. It will return false if the signature could not be verified,
+    # in which case details can be retrieved with Net::SSLeay::ERR_get_error.
+    # It will not complain if the response does not contain a nonce, which is
+    # usually the case with pre-signed responses.
+    if ( ! eval { Net::SSLeay::OCSP_response_verify($ssl,$resp,$req) }) {
+	die "OCSP response verification failed";
+    }
+
+    # Extract information from OCSP_RESPONSE for each of the ids.
+
+    # If called in scalar context it will return the time (as time_t), when the
+    # next update is due (minimum of all successful responses inside $resp). It
+    # will croak on the following problems:
+    # - response is expired or not yet valid
+    # - no response for given OCSP_CERTID
+    # - certificate status is not good (e.g. revoked or unknown)
+    if ( my $nextupd = eval { Net::SSLeay::OCSP_response_results($resp,$id) }) {
+	warn "certificate is valid, next update in ".
+	    ($nextupd-time())." seconds\n";
+    } else {
+	die "certificate is not valid: $@";
+    }
+
+    # But in array context it will return detailled information about each given
+    # OCSP_CERTID instead croaking on errors:
+    # if no @ids are given it will return information about all single responses
+    # in the OCSP_RESPONSE
+    my @results = Net::SSLeay::OCSP_response_results($resp,@ids);
+    for my $r (@results) {
+	print Dumper($r);
+	# @results are in the same order as the @ids and contain:
+	# $r->[0] - OCSP_CERTID
+	# $r->[1] - undef if no error (certificate good) OR error message as string
+	# $r->[2] - hash with details:
+	#   thisUpdate - time_t of this single response
+	#   nextUpdate - time_t when update is expected
+	#   statusType - integer:
+	#      V_OCSP_CERTSTATUS_GOOD(0)
+	#      V_OCSP_CERTSTATUS_REVOKED(1)
+	#      V_OCSP_CERTSTATUS_UNKNOWN(2)
+	#   revocationTime - time_t (only if revoked)
+	#   revocationReason - integer (only if revoked)
+	#   revocationReason_str - reason as string (only if revoked)
+    }
+
+To further speed up certificate revocation checking one can use a TLS extension
+to instruct the server to staple the OCSP response:
+
+    # set TLS extension before doing SSL_connect
+    Net::SSLeay::set_tlsext_status_type($ssl,
+	Net::SSLeay::TLSEXT_STATUSTYPE_ocsp());
+
+    # setup callback to verify OCSP response
+    my $cert_valid = undef;
+    Net::SSLeay::CTX_set_tlsext_status_cb($context,sub {
+	my ($ssl,$resp) = @_;
+	if (!$resp) {
+	    # Lots of servers don't return an OCSP response.
+	    # In this case we must check the OCSP status outside the SSL
+	    # handshake.
+	    warn "server did not return stapled OCSP response\n";
+	    return 1;
+	}
+	# verify status
+	my $status = Net::SSLeay::OCSP_response_status($resp);
+	if ($status != Net::SSLeay::OCSP_RESPONSE_STATUS_SUCCESSFUL()) {
+	    warn "OCSP response failure: $status\n";
+	    return 1;
+	}
+	# verify signature - we have no OCSP_REQUEST here to check nonce
+	if (!eval { Net::SSLeay::OCSP_response_verify($ssl,$resp) }) {
+	    warn "OCSP response verify failed\n";
+	    return 1;
+	}
+	# check if the certificate is valid
+	# we should check here against the peer_certificate
+	my $cert = Net::SSLeay::get_peer_certificate();
+	my $certid = eval { Net::SSLeay::OCSP_cert2ids($ssl,$cert) } or do {
+	    warn "cannot get certid from cert: $@";
+	    $cert_valid = -1;
+	    return 1;
+	};
+
+	if ( $nextupd = eval {
+	    Net::SSLeay::OCSP_response_results($resp,$certid) }) {
+	    warn "certificate not revoked\n";
+	    $cert_valid = 1;
+	} else {
+	    warn "certificate not valid: $@";
+	    $cert_valid = 0;
+	}
+    });
+
+    # do SSL handshake here
+    ....
+    # check if certificate revocation was checked already
+    if ( ! defined $cert_valid) {
+	# check revocation outside of SSL handshake by asking OCSP responder
+	...
+    } elsif ( ! $cert_valid ) {
+	die "certificate not valid - closing SSL connection";
+    } elsif ( $cert_valid<0 ) {
+	die "cannot verify certificate revocation - self-signed ?";
+    } else {
+	# everything fine
+	...
+    }
+
+
 =head2 Using Net::SSLeay in multi-threaded applications
 
 B<IMPORTANT: versions 1.42 or earlier are not thread-safe!>

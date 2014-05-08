@@ -64,6 +64,8 @@ ASN1_OBJECT *       T_PTR
 const ASN1_OBJECT *       T_PTR
 STACK_OF(ASN1_OBJECT) * T_PTR
 ENGINE *         T_PTR
+OCSP_RESPONSE *	T_PTR
+OCSP_REQUEST *	T_PTR
 pem_password_cb *  T_PTR
 generate_key_cb *  T_PTR
 callback_ret_int * T_PTR

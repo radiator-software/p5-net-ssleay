@@ -115,6 +115,15 @@
  *        OUTPUT:
  *            RETVAL
  *
+ *
+ * Runtime debugging:
+ *
+ * with TRACE(level,fmt,...) you can output debug messages.
+ * it behaves the same as
+ *   warn sprintf($msg,...) if $Net::SSLeay::trace>=$level
+ * would do in Perl (e.g. it is using also the $Net::SSLeay::trace variable)
+ *
+ *
  * THE LAST RULE:
  *
  * The fact that some parts of SSLeay.xs do not follow the rules above is not 
@@ -131,6 +140,7 @@ extern "C" {
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
+#include <stdarg.h>
 #define NEED_newRV_noinc
 #define NEED_sv_2pv_flags
 #define NEED_my_snprintf
@@ -174,6 +184,9 @@ which conflicts with perls
 #ifdef OPENSSL_FIPS
 #include <openssl/fips.h>
 #endif
+#if OPENSSL_VERSION_NUMBER >= 0x10000000L
+#include <openssl/ocsp.h>
+#endif
 #undef BLOCK
 
 /* Debugging output - to enable use:
@@ -194,6 +207,17 @@ which conflicts with perls
 #define PR3(s,t,u)
 #define PR4(s,t,u,v)
 #endif
+
+static void TRACE(int level,char *msg,...) {
+    va_list args;
+    SV *trace = get_sv("Net::SSLeay::trace",0);
+    if (trace && SvIOK(trace) && SvIV(trace)>=level) {
+	char buf[4096];
+	va_start(args,msg);
+	vsnprintf(buf,4095,msg,args);
+	warn("%s",buf);
+    }
+}
 
 #include "constants.c"
 
@@ -713,6 +737,54 @@ int tlsext_servername_callback_invoke(SSL *ssl, int *ad, void *arg)
 
 #endif
 
+#if OPENSSL_VERSION_NUMBER >= 0x10000000L && !defined(OPENSSL_NO_TLSEXT)
+
+int tlsext_status_cb_invoke(SSL *ssl, void *arg)
+{
+    dSP;
+    SV *cb_func, *cb_data;
+    SSL_CTX *ctx = SSL_get_SSL_CTX(ssl);
+    int len,res,nres = -1;
+    const unsigned char *p = NULL;
+    OCSP_RESPONSE *ocsp_response = NULL;
+
+    cb_func = cb_data_advanced_get(ctx, "tlsext_status_cb!!func");
+    cb_data = cb_data_advanced_get(ctx, "tlsext_status_cb!!data");
+
+    if ( ! SvROK(cb_func) || (SvTYPE(SvRV(cb_func)) != SVt_PVCV))
+	croak ("Net::SSLeay: tlsext_status_cb_invoke called, but not set to point to any perl function.\n");
+
+    len = SSL_get_tlsext_status_ocsp_resp(ssl, &p);
+    if (p) ocsp_response = d2i_OCSP_RESPONSE(NULL, &p, len);
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    XPUSHs(sv_2mortal(newSViv(PTR2IV(ssl))));
+    PUSHs( sv_2mortal(newSViv(PTR2IV(ocsp_response))) );
+    XPUSHs(sv_2mortal(newSVsv(cb_data)));
+    PUTBACK;
+
+    nres = call_sv(cb_func, G_SCALAR);
+    OCSP_RESPONSE_free(ocsp_response);
+
+    SPAGAIN;
+
+    if (nres != 1)
+	croak("Net::SSLeay: tlsext_status_cb_invoke perl function did not return a scalar.\n");
+
+    res = POPi;
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return res;
+}
+
+#endif
+
 #if defined(SSL_F_SSL_SET_HELLO_EXTENSION) || defined(SSL_F_SSL_SET_SESSION_TICKET_EXT)
 
 int ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
@@ -1083,7 +1155,114 @@ void ssleay_RSA_generate_key_cb_invoke(int i, int n, void* data)
     }
 }
 
-/* ============= end of callback stuff ============== */
+/* ============= end of callback stuff, begin helper functions ============== */
+
+time_t ASN1_TIME_timet(ASN1_TIME *asn1t) {
+    struct tm t;
+    const char *p = (const char*) asn1t->data;
+    size_t msec = 0, tz = 0, i, l;
+    time_t result;
+    int adj = 0;
+
+    if (asn1t->type == V_ASN1_UTCTIME) {
+	if (asn1t->length<12 || asn1t->length>17) return 0;
+	if (asn1t->length>12) tz = 12;
+    } else {
+	if (asn1t->length<14) return 0;
+	if (asn1t->length>14) {
+	    if (p[14] == '.') {
+		msec = 14;
+		for(i=msec+1;i<asn1t->length && p[i]>='0' && p[i]<='9';i++) ;
+		if (i<asn1t->length) tz = i;
+	    } else {
+		tz = 14;
+	    }
+	}
+    }
+
+    l = msec ? msec : tz ? tz : asn1t->length;
+    for(i=0;i<l;i++) {
+	if (p[i]<'0' || p[i]>'9') return 0;
+    }
+
+    /* extract data and time */
+    memset(&t,0,sizeof(t));
+    if (asn1t->type == V_ASN1_UTCTIME) { /* YY - two digit year */
+	t.tm_year = (p[0]-'0')*10 + (p[1]-'0');
+	if (t.tm_year < 70) t.tm_year += 100;
+	i=2;
+    } else { /* YYYY */
+	t.tm_year = (p[0]-'0')*1000 + (p[1]-'0')*100 + (p[2]-'0')*10 + p[3]-'0';
+	t.tm_year -= 1900;
+	i=4;
+    }
+    t.tm_mon  = (p[i+0]-'0')*10 + (p[i+1]-'0') -1; /* MM, starts with 0 in tm */
+    t.tm_mday = (p[i+2]-'0')*10 + (p[i+3]-'0');    /* DD */
+    t.tm_hour = (p[i+4]-'0')*10 + (p[i+5]-'0');    /* hh */
+    t.tm_min  = (p[i+6]-'0')*10 + (p[i+7]-'0');    /* mm */
+    t.tm_sec  = (p[i+8]-'0')*10 + (p[i+9]-'0');    /* ss */
+
+    /* skip msec, because time_t does not support it */
+
+    if (tz) {
+	/* TZ is 'Z' or [+-]DDDD and after TZ the string must stop*/
+	if (p[tz] == 'Z') {
+	    if (asn1t->length>tz+1 ) return 0;
+	} else if (asn1t->length<tz+5 || (p[tz]!='-' && p[tz]!='+')) {
+	    return 0;
+	} else {
+	    if (asn1t->length>tz+5 ) return 0;
+	    for(i=tz+1;i<tz+5;i++) {
+		if (p[i]<'0' || p[i]>'9') return 0;
+	    }
+	    adj = ((p[tz+1]-'0')*10 + (p[tz+2]-'0'))*3600
+		+ ((p[tz+3]-'0')*10 + (p[tz+4]-'0'))*60;
+	    if (p[tz]=='+') adj*= -1; /* +0500: subtract 5 hours to get UTC */
+	}
+    }
+
+    result = mktime(&t);
+    if (result == -1) return 0; /* broken time */
+    return result + adj + ( t.tm_isdst ? 3600:0 );
+}
+
+X509 * find_issuer(X509 *cert,X509_STORE *store, STACK_OF(X509) *chain) {
+    int i;
+    X509 *issuer = NULL;
+
+    /* search first in the chain */
+    if (chain) {
+	for(i=0;i<sk_X509_num(chain);i++) {
+	    if ( X509_check_issued(sk_X509_value(chain,i),cert) == X509_V_OK ) {
+		TRACE(2,"found issuer in chain");
+		issuer = sk_X509_value(chain,i);
+	    }
+	}
+    }
+    /* if not in the chain it might be in the store */
+    if ( !issuer && store ) {
+	X509_STORE_CTX *stx = X509_STORE_CTX_new();
+	if (stx && X509_STORE_CTX_init(stx,store,cert,NULL)) {
+	    int ok = X509_STORE_CTX_get1_issuer(&issuer,stx,cert);
+	    if (ok<0) {
+		int err = ERR_get_error();
+		if(err) {
+		    TRACE(2,"failed to get issuer: %s",ERR_error_string(err,NULL));
+		} else {
+		    TRACE(2,"failed to get issuer: unknown error");
+		}
+	    } else if (ok == 0 ) {
+		TRACE(2,"failed to get issuer(0)");
+	    } else {
+		TRACE(2,"got issuer");
+	    }
+	}
+	if (stx) X509_STORE_CTX_free(stx);
+    }
+    return issuer;
+}
+
+/* ============= end of helper functions ============== */
 
 MODULE = Net::SSLeay		PACKAGE = Net::SSLeay          PREFIX = SSL_
 
@@ -2737,6 +2916,28 @@ P_X509_get_crl_distribution_points(cert)
         }
 
 void
+P_X509_get_ocsp_uri(cert)
+	X509 * cert
+    PPCODE:
+	AUTHORITY_INFO_ACCESS *info;
+	int i;
+	info = X509_get_ext_d2i(cert, NID_info_access, NULL, NULL);
+	if (!info) XSRETURN_UNDEF;
+
+	for (i = 0; i < sk_ACCESS_DESCRIPTION_num(info); i++) {
+	    ACCESS_DESCRIPTION *ad = sk_ACCESS_DESCRIPTION_value(info, i);
+	    if (OBJ_obj2nid(ad->method) == NID_ad_OCSP
+		&& ad->location->type == GEN_URI) {
+		XPUSHs(sv_2mortal(newSVpv(
+		    (char*)ASN1_STRING_data(ad->location->d.uniformResourceIdentifier),
+		    ASN1_STRING_length(ad->location->d.uniformResourceIdentifier)
+		)));
+		if (GIMME == G_SCALAR) break; /* get only first */
+	    }
+	}
+
+
+void
 P_X509_get_ext_key_usage(cert,format=0)
         X509 * cert
         int format
@@ -3053,6 +3254,10 @@ ASN1_TIME_set(s,t)
 
 void
 ASN1_TIME_free(s)
+     ASN1_TIME *s
+
+time_t
+ASN1_TIME_timet(s)
      ASN1_TIME *s
 
 ASN1_TIME *
@@ -5071,6 +5276,336 @@ P_next_proto_last_status(s)
         const SSL *s
     PPCODE:
         XPUSHs(sv_2mortal(newSVsv(cb_data_advanced_get((void*)s, "next_proto_select_cb!!last_status"))));
+
+#endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x10000000L
+
+#if !defined(OPENSSL_NO_TLSEXT)
+
+int
+SSL_set_tlsext_status_type(SSL *ssl,int cmd)
+
+int
+SSL_CTX_set_tlsext_status_cb(ctx,callback,data=&PL_sv_undef)
+	SSL_CTX * ctx
+	SV * callback
+	SV * data
+    CODE:
+	RETVAL = 1;
+	if (callback==NULL || !SvOK(callback)) {
+	    SSL_CTX_set_tlsext_status_cb(ctx, NULL);
+	    cb_data_advanced_put(ctx, "tlsext_status_cb!!func", NULL);
+	    cb_data_advanced_put(ctx, "tlsext_status_cb!!data", NULL);
+	} else if (SvROK(callback) && (SvTYPE(SvRV(callback)) == SVt_PVCV)) {
+	    cb_data_advanced_put(ctx, "tlsext_status_cb!!func", newSVsv(callback));
+	    cb_data_advanced_put(ctx, "tlsext_status_cb!!data", newSVsv(data));
+	    SSL_CTX_set_tlsext_status_cb(ctx, tlsext_status_cb_invoke);
+	} else {
+	    croak("argument must be code reference");
+	}
+    OUTPUT:
+	RETVAL
+
+#endif
+
+OCSP_RESPONSE *
+d2i_OCSP_RESPONSE(pv)
+	SV *pv
+    CODE:
+	if (SvPOK(pv)) {
+	    const unsigned char *p;
+	    STRLEN len;
+	    p = SvPV(pv,len);
+	    RETVAL = d2i_OCSP_RESPONSE(NULL,&p,len);
+	}
+    OUTPUT:
+	RETVAL
+
+void
+i2d_OCSP_RESPONSE(r)
+	OCSP_RESPONSE * r
+    PPCODE:
+	STRLEN len;
+	unsigned char *pc,*pi;
+	if (!(len = i2d_OCSP_RESPONSE(r,NULL))) croak("invalid OCSP response");
+	pi = pc = calloc(len,sizeof(char));
+	if (!pc) croak("out of memory");
+	i2d_OCSP_RESPONSE(r,&pi);
+	XPUSHs(sv_2mortal(newSVpv(pc,len)));
+	free(pc);
+
+void
+OCSP_RESPONSE_free(r)
+    OCSP_RESPONSE * r
+
+
+OCSP_REQUEST *
+d2i_OCSP_REQUEST(pv)
+	SV *pv
+    CODE:
+	if (SvPOK(pv)) {
+	    const unsigned char *p;
+	    STRLEN len;
+	    p = SvPV(pv,len);
+	    RETVAL = d2i_OCSP_REQUEST(NULL,&p,len);
+	}
+    OUTPUT:
+	RETVAL
+
+void
+i2d_OCSP_REQUEST(r)
+	OCSP_REQUEST * r
+    PPCODE:
+	STRLEN len;
+	unsigned char *pc,*pi;
+	if (!(len = i2d_OCSP_REQUEST(r,NULL))) croak("invalid OCSP request");
+	pi = pc = calloc(len,sizeof(char));
+	if (!pc) croak("out of memory");
+	i2d_OCSP_REQUEST(r,&pi);
+	XPUSHs(sv_2mortal(newSVpv(pc,len)));
+	free(pc);
+
+
+void
+OCSP_REQUEST_free(r)
+    OCSP_REQUEST * r
+
+
+const char *
+OCSP_response_status_str(long status)
+
+long
+OCSP_response_status(OCSP_RESPONSE *r)
+
+void
+SSL_OCSP_cert2ids(ssl,...)
+	SSL *ssl
+    PPCODE:
+	SSL_CTX *ctx;
+	X509_STORE *store;
+	STACK_OF(X509) *chain;
+	X509 *cert,*issuer;
+	OCSP_CERTID *id;
+	int i;
+	STRLEN len;
+	unsigned char *pc,*pi;
+
+	if (!ssl) croak("not a SSL object");
+	ctx = SSL_get_SSL_CTX(ssl);
+	if (!ctx) croak("invalid SSL object - no context");
+	store = SSL_CTX_get_cert_store(ctx);
+	chain = SSL_get_peer_cert_chain(ssl);
+
+	for(i=0;i<items-1;i++) {
+	    cert = INT2PTR(X509*,SvIV(ST(i+1)));
+	    if (X509_check_issued(cert,cert) == X509_V_OK)
+		croak("no OCSP request for self-signed certificate");
+	    if (!(issuer = find_issuer(cert,store,chain)))
+		croak("cannot find issuer to certificate");
+	    if (!(id = OCSP_cert_to_id(EVP_sha1(),cert,issuer)))
+		croak("out of memory for generating OCSO certid");
+	    if (!(len = i2d_OCSP_CERTID(id,NULL)))
+		croak("OCSP certid has no length");
+	    pi = pc = calloc(len+1,sizeof(char));
+	    if (!pc) croak("out of memory");
+	    i2d_OCSP_CERTID(id,&pi);
+	    XPUSHs(sv_2mortal(newSVpv(pc,len)));
+	    free(pc);
+	}
+
+
+OCSP_REQUEST *
+OCSP_ids2req(...)
+    CODE:
+	OCSP_REQUEST *req;
+	OCSP_CERTID *id;
+	int i;
+
+	req = OCSP_REQUEST_new();
+	if (!req) croak("out of memory");
+	OCSP_request_add1_nonce(req,NULL,-1);
+
+	for(i=0;i<items;i++) {
+	    STRLEN len;
+	    const unsigned char *p = SvPV(ST(i),len);
+	    id = d2i_OCSP_CERTID(NULL,&p,len);
+	    if (!id) {
+		OCSP_REQUEST_free(req);
+		croak("failed to get OCSP certid from string");
+	    }
+	    OCSP_request_add0_id(req,id);
+	}
+	RETVAL = req;
+    OUTPUT:
+	RETVAL
+
+
+
+int
+SSL_OCSP_response_verify(ssl,rsp,svreq=NULL,flags=0)
+	SSL *ssl
+	OCSP_RESPONSE *rsp
+	SV *svreq
+	unsigned long flags
+    CODE:
+	SSL_CTX *ctx;
+	X509_STORE *store;
+	OCSP_BASICRESP *bsr;
+	OCSP_REQUEST *req = NULL;
+	int i;
+
+	if (!ssl) croak("not a SSL object");
+	ctx = SSL_get_SSL_CTX(ssl);
+	if (!ctx) croak("invalid SSL object - no context");
+
+	bsr = OCSP_response_get1_basic(rsp);
+	if (!bsr) croak("invalid OCSP response");
+
+	/* if we get a nonce it should match our nonce, if we get no nonce
+	 * it was probably pre-signed */
+	if (svreq && SvOK(svreq) &&
+	    (req = INT2PTR(OCSP_REQUEST*,SvIV(svreq)))) {
+	    i = OCSP_check_nonce(req,bsr);
+	    if ( i <= 0 ) {
+		if (i == -1) {
+		    TRACE(2,"SSL_OCSP_response_verify: no nonce in response");
+		} else {
+		    OCSP_BASICRESP_free(bsr);
+		    croak("nonce in OCSP response does not match request");
+		}
+	    }
+	}
+
+	if ((store = SSL_CTX_get_cert_store(ctx))) {
+	    /* add the SSL uchain to the uchain of the OCSP basic response, this
+	     * looks like the easiest way to handle the case where the OCSP
+	     * response does not contain the chain up to the trusted root */
+	    STACK_OF(X509) *chain = SSL_get_peer_cert_chain(ssl);
+	    for(i=0;i<sk_X509_num(chain);i++) {
+		if (!bsr->certs) bsr->certs = sk_X509_new_null();
+		sk_X509_push(bsr->certs,X509_dup(sk_X509_value(chain,i)));
+	    }
+	    TRACE(1,"run basic verify");
+	    RETVAL = OCSP_basic_verify(bsr, NULL, store, flags);
+	}
+	end:
+	OCSP_BASICRESP_free(bsr);
+    OUTPUT:
+	RETVAL
+
+
+void
+OCSP_response_results(rsp,...)
+	OCSP_RESPONSE *rsp
+    PPCODE:
+	OCSP_BASICRESP *bsr;
+	int i,want_array;
+	time_t nextupd = 0;
+	STACK_OF(OCSP_SINGLERESP) *sks;
+	int getall,sksn;
+
+	bsr = OCSP_response_get1_basic(rsp);
+	if (!bsr) croak("invalid OCSP response");
+
+	want_array = (GIMME == G_ARRAY);
+	getall = (items <= 1);
+	sks = bsr->tbsResponseData->responses;
+	sksn = sk_OCSP_SINGLERESP_num(sks);
+
+	for(i=0; i < (getall ? sksn : items-1); i++) {
+	    const char *error = NULL;
+	    OCSP_SINGLERESP *sir = NULL;
+	    OCSP_CERTID *certid = NULL;
+	    SV *idsv = NULL;
+
+	    if(getall) {
+		sir = sk_OCSP_SINGLERESP_value(sks,i);
+	    } else {
+		int k;
+		STRLEN len;
+		const unsigned char *p;
+
+		idsv = ST(i+1);
+		if (!SvOK(idsv)) croak("undefined certid in arguments");
+		p = SvPV(idsv,len);
+		if (!(certid = d2i_OCSP_CERTID(NULL,&p,len))) {
+		    error = "failed to get OCSP certid from string";
+		    goto end;
+		}
+		for(k=0;k<sksn;k++) {
+		    if (!OCSP_id_cmp(certid,sk_OCSP_SINGLERESP_value(sks,k)->certId)) {
+			sir = sk_OCSP_SINGLERESP_value(sks,k);
+			break;
+		    }
+		}
+	    }
+
+	    if (!sir) {
+		error = "cannot find entry for certificate in OCSP response";
+	    } else if (!OCSP_check_validity(sir->thisUpdate,sir->nextUpdate,0,-1)) {
+		error = "response not yet valid or expired";
+	    } else if (sir->certStatus->type == V_OCSP_CERTSTATUS_REVOKED) {
+		error = "certificate status is revoked";
+	    } else if (sir->certStatus->type != V_OCSP_CERTSTATUS_GOOD) {
+		error = "certificate status is unkown";
+	    }
+
+	    end:
+	    if (want_array) {
+		AV *idav = newAV();
+		if (!idsv) {
+		    /* getall: create new SV with OCSP_CERTID */
+		    unsigned char *pi,*pc;
+		    int len = i2d_OCSP_CERTID(sir->certId,NULL);
+		    if(!len) continue;
+		    pi = pc = calloc(len+1,sizeof(char));
+		    if (!pc) croak("out of memory");
+		    i2d_OCSP_CERTID(sir->certId,&pi);
+		    idsv = newSVpv(pc,len);
+		} else {
+		    /* reuse idsv from ST(..), but increment refcount */
+		    idsv = SvREFCNT_inc(idsv);
+		}
+		av_push(idav, idsv);
+		av_push(idav, error ? newSVpv(error,0) : newSV(0));
+		if (sir) {
+		    HV *details = newHV();
+		    av_push(idav,newRV_noinc((SV*)details));
+		    hv_store(details,"statusType",10,
+			newSViv(sir->certStatus->type),0);
+		    if (sir->nextUpdate) hv_store(details,"nextUpdate",10,
+			newSViv(ASN1_TIME_timet(sir->nextUpdate)),0);
+		    if (sir->thisUpdate) hv_store(details,"thisUpdate",10,
+			newSViv(ASN1_TIME_timet(sir->thisUpdate)),0);
+		    if (sir->certStatus->type == V_OCSP_CERTSTATUS_REVOKED) {
+			OCSP_REVOKEDINFO *rev = sir->certStatus->value.revoked;
+			hv_store(details,"revocationTime",14,newSViv(
+			    ASN1_TIME_timet(rev->revocationTime)),0);
+			hv_store(details,"revocationReason",16,newSViv(
+			    ASN1_ENUMERATED_get(rev->revocationReason)),0);
+			hv_store(details,"revocationReason_str",20,newSVpv(
+			    OCSP_crl_reason_str(ASN1_ENUMERATED_get(
+			    rev->revocationReason)),0),0);
+		    }
+		}
+		XPUSHs(sv_2mortal(newRV_noinc((SV*)idav)));
+	    } else if (!error) {
+		/* compute lowest nextUpdate */
+		time_t nu = ASN1_TIME_timet(sir->nextUpdate);
+		if (!nextupd || nextupd>nu) nextupd = nu;
+	    }
+
+	    if (certid) OCSP_CERTID_free(certid);
+	    if (error && !want_array) {
+		OCSP_BASICRESP_free(bsr);
+		croak(error);
+	    }
+	}
+	if (!want_array)
+	    XPUSHs(sv_2mortal(newSViv(nextupd)));
+
+
 
 #endif
 
