@@ -15,6 +15,7 @@ Revision history for Perl extension Net::SSLeay.
      Improve examples in 'Using other perl modules based on
      Net::SSLeay'. Patched by Andreas Mohr.
      Added support for OCSP. Patched by Steffen Ullrich. Thanks!
+     Added missing t/external/ocsp.t
 
 1.58 2014-01-15
      Always use size_t for strlen() return value, requested by Alexander Bluhm.
