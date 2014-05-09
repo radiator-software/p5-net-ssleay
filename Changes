@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.??
+1.59 2014-05-10
      Fixed local/30_error.t, so that tests do not fail if diagnostics are
      enabled.
      Fixed error messages about undefined strings used with length or
