@@ -1,5 +1,16 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.60 2014-05-10
+     Fixed a typo in an error message. Patch from gregor herrmann. Thanks.
+     Fixed a problem with building with openssl that does not support
+     OCSP. Also fixed some newly introduced warnings
+     if compiled with -Wall. Patch from Steffen Ullrich. Thanks.
+     fix build-failure on most Debian architectures:
+     SSLeay.xs: In function 'XS_Net__SSLeay_OCSP_response_results':
+     SSLeay.xs:5602:3: error: format not a string literal and no format
+     arguments. Patch from  gregor herrmann.
+     
+
 1.59 2014-05-10
      Fixed local/30_error.t, so that tests do not fail if diagnostics are
      enabled.

@@ -6,6 +6,9 @@ use Test::More;
 use IO::Socket::INET;
 use Net::SSLeay;
 
+plan skip_all => "no OCSP support" 
+    if ! defined &Net::SSLeay::OCSP_response_status;
+
 #$Net::SSLeay::trace=3;
 
 my @tests = (

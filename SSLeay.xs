@@ -5313,10 +5313,11 @@ OCSP_RESPONSE *
 d2i_OCSP_RESPONSE(pv)
 	SV *pv
     CODE:
+	RETVAL = NULL;
 	if (SvPOK(pv)) {
 	    const unsigned char *p;
 	    STRLEN len;
-	    p = SvPV(pv,len);
+	    p = (unsigned char*)SvPV(pv,len);
 	    RETVAL = d2i_OCSP_RESPONSE(NULL,&p,len);
 	}
     OUTPUT:
@@ -5332,7 +5333,7 @@ i2d_OCSP_RESPONSE(r)
 	pi = pc = calloc(len,sizeof(char));
 	if (!pc) croak("out of memory");
 	i2d_OCSP_RESPONSE(r,&pi);
-	XPUSHs(sv_2mortal(newSVpv(pc,len)));
+	XPUSHs(sv_2mortal(newSVpv((char*)pc,len)));
 	free(pc);
 
 void
@@ -5344,10 +5345,11 @@ OCSP_REQUEST *
 d2i_OCSP_REQUEST(pv)
 	SV *pv
     CODE:
+	RETVAL = NULL;
 	if (SvPOK(pv)) {
 	    const unsigned char *p;
 	    STRLEN len;
-	    p = SvPV(pv,len);
+	    p = (unsigned char*)SvPV(pv,len);
 	    RETVAL = d2i_OCSP_REQUEST(NULL,&p,len);
 	}
     OUTPUT:
@@ -5363,7 +5365,7 @@ i2d_OCSP_REQUEST(r)
 	pi = pc = calloc(len,sizeof(char));
 	if (!pc) croak("out of memory");
 	i2d_OCSP_REQUEST(r,&pi);
-	XPUSHs(sv_2mortal(newSVpv(pc,len)));
+	XPUSHs(sv_2mortal(newSVpv((char*)pc,len)));
 	free(pc);
 
 
@@ -5410,7 +5412,7 @@ SSL_OCSP_cert2ids(ssl,...)
 	    pi = pc = calloc(len+1,sizeof(char));
 	    if (!pc) croak("out of memory");
 	    i2d_OCSP_CERTID(id,&pi);
-	    XPUSHs(sv_2mortal(newSVpv(pc,len)));
+	    XPUSHs(sv_2mortal(newSVpv((char*)pc,len)));
 	    free(pc);
 	}
 
@@ -5428,7 +5430,7 @@ OCSP_ids2req(...)
 
 	for(i=0;i<items;i++) {
 	    STRLEN len;
-	    const unsigned char *p = SvPV(ST(i),len);
+	    const unsigned char *p = (unsigned char*)SvPV(ST(i),len);
 	    id = d2i_OCSP_CERTID(NULL,&p,len);
 	    if (!id) {
 		OCSP_REQUEST_free(req);
@@ -5477,6 +5479,7 @@ SSL_OCSP_response_verify(ssl,rsp,svreq=NULL,flags=0)
 	    }
 	}
 
+	RETVAL = 0;
 	if ((store = SSL_CTX_get_cert_store(ctx))) {
 	    /* add the SSL uchain to the uchain of the OCSP basic response, this
 	     * looks like the easiest way to handle the case where the OCSP
@@ -5489,7 +5492,6 @@ SSL_OCSP_response_verify(ssl,rsp,svreq=NULL,flags=0)
 	    TRACE(1,"run basic verify");
 	    RETVAL = OCSP_basic_verify(bsr, NULL, store, flags);
 	}
-	end:
 	OCSP_BASICRESP_free(bsr);
     OUTPUT:
 	RETVAL
@@ -5528,7 +5530,7 @@ OCSP_response_results(rsp,...)
 
 		idsv = ST(i+1);
 		if (!SvOK(idsv)) croak("undefined certid in arguments");
-		p = SvPV(idsv,len);
+		p = (unsigned char*)SvPV(idsv,len);
 		if (!(certid = d2i_OCSP_CERTID(NULL,&p,len))) {
 		    error = "failed to get OCSP certid from string";
 		    goto end;
@@ -5548,7 +5550,7 @@ OCSP_response_results(rsp,...)
 	    } else if (sir->certStatus->type == V_OCSP_CERTSTATUS_REVOKED) {
 		error = "certificate status is revoked";
 	    } else if (sir->certStatus->type != V_OCSP_CERTSTATUS_GOOD) {
-		error = "certificate status is unkown";
+		error = "certificate status is unknown";
 	    }
 
 	    end:
@@ -5562,7 +5564,7 @@ OCSP_response_results(rsp,...)
 		    pi = pc = calloc(len+1,sizeof(char));
 		    if (!pc) croak("out of memory");
 		    i2d_OCSP_CERTID(sir->certId,&pi);
-		    idsv = newSVpv(pc,len);
+		    idsv = newSVpv((char*)pc,len);
 		} else {
 		    /* reuse idsv from ST(..), but increment refcount */
 		    idsv = SvREFCNT_inc(idsv);
@@ -5599,7 +5601,7 @@ OCSP_response_results(rsp,...)
 	    if (certid) OCSP_CERTID_free(certid);
 	    if (error && !want_array) {
 		OCSP_BASICRESP_free(bsr);
-		croak(error);
+		croak("%s", error);
 	    }
 	}
 	if (!want_array)
