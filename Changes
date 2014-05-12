@@ -1,5 +1,12 @@
 Revision history for Perl extension Net::SSLeay.
 
+????
+     Changes calloc to Newx and free to Safefree, otherwise there might be
+     problems because calloc is done from a different memory pool than free (depends
+     on the build options for perl, but seen on Windows). Patch from Steffen
+     Ullrich. Thanks.
+
+
 1.60 2014-05-10
      Fixed a typo in an error message. Patch from gregor herrmann. Thanks.
      Fixed a problem with building with openssl that does not support

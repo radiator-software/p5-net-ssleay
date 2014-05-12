@@ -2,7 +2,7 @@
  *
  * Copyright (c) 1996-2002 Sampo Kellomaki <sampo@iki.fi>
  * Copyright (C) 2005 Florian Ragwitz <rafl@debian.org>
- * Copyright (C) 2005 Mike McCauley <mikem@open.com.au>
+ * Copyright (C) 2005 Mike McCauley <mikem@airspayce.com>
  * 
  * All Rights Reserved.
  *
@@ -5330,11 +5330,12 @@ i2d_OCSP_RESPONSE(r)
 	STRLEN len;
 	unsigned char *pc,*pi;
 	if (!(len = i2d_OCSP_RESPONSE(r,NULL))) croak("invalid OCSP response");
-	pi = pc = calloc(len,sizeof(char));
+	Newx(pc,len,char);
 	if (!pc) croak("out of memory");
+	pi = pc;
 	i2d_OCSP_RESPONSE(r,&pi);
 	XPUSHs(sv_2mortal(newSVpv((char*)pc,len)));
-	free(pc);
+	Safefree(pc);
 
 void
 OCSP_RESPONSE_free(r)
@@ -5362,11 +5363,12 @@ i2d_OCSP_REQUEST(r)
 	STRLEN len;
 	unsigned char *pc,*pi;
 	if (!(len = i2d_OCSP_REQUEST(r,NULL))) croak("invalid OCSP request");
-	pi = pc = calloc(len,sizeof(char));
+	pc = Newx(pc,len,char);
 	if (!pc) croak("out of memory");
+	pi = pc;
 	i2d_OCSP_REQUEST(r,&pi);
 	XPUSHs(sv_2mortal(newSVpv((char*)pc,len)));
-	free(pc);
+	Safefree(pc);
 
 
 void
@@ -5409,11 +5411,12 @@ SSL_OCSP_cert2ids(ssl,...)
 		croak("out of memory for generating OCSO certid");
 	    if (!(len = i2d_OCSP_CERTID(id,NULL)))
 		croak("OCSP certid has no length");
-	    pi = pc = calloc(len+1,sizeof(char));
+	    Newx(pc,len,char);
 	    if (!pc) croak("out of memory");
+	    pi = pc;
 	    i2d_OCSP_CERTID(id,&pi);
 	    XPUSHs(sv_2mortal(newSVpv((char*)pc,len)));
-	    free(pc);
+	    Safefree(pc);
 	}
 
 
@@ -5561,10 +5564,12 @@ OCSP_response_results(rsp,...)
 		    unsigned char *pi,*pc;
 		    int len = i2d_OCSP_CERTID(sir->certId,NULL);
 		    if(!len) continue;
-		    pi = pc = calloc(len+1,sizeof(char));
+		    Newx(pc,len,char);
 		    if (!pc) croak("out of memory");
+		    pi = pc;
 		    i2d_OCSP_CERTID(sir->certId,&pi);
 		    idsv = newSVpv((char*)pc,len);
+		    Safefree(pc);
 		} else {
 		    /* reuse idsv from ST(..), but increment refcount */
 		    idsv = SvREFCNT_inc(idsv);
