@@ -5494,6 +5494,19 @@ SSL_OCSP_response_verify(ssl,rsp,svreq=NULL,flags=0)
 	    }
 	    TRACE(1,"run basic verify");
 	    RETVAL = OCSP_basic_verify(bsr, NULL, store, flags);
+	    if (!RETVAL) {
+		# some CAs don't add a certificate to their OCSP responses and
+		# openssl does not include the trusted CA which signed the
+		# lowest chain certificate when looking for the signer.
+		# So find this CA ourself and retry verification.
+		X509 *issuer;
+		X509 *last = sk_X509_value(chain,sk_X509_num(chain)-1);
+		if ( issuer = find_issuer(last,store,chain)) {
+		    sk_X509_push(bsr->certs,X509_dup(issuer));
+		    TRACE(1,"run OCSP_basic_verify with issuer for last chain element");
+		    RETVAL = OCSP_basic_verify(bsr, NULL, store, flags);
+		}
+	    }
 	}
 	OCSP_BASICRESP_free(bsr);
     OUTPUT:

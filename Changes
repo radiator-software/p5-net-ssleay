@@ -1,6 +1,17 @@
 Revision history for Perl extension Net::SSLeay.
 
-????
+????  
+     Improvements to OCSP support: It turns out that some CA (like Verisign)
+     sign the OCSP response with the CA we have in the trust store and don't
+     attach this certifcate in the response.  But OpenSSL by itself only
+     considers the certificates included in the response and
+     SSL_OCSP_response_verify added the certificates in the chain too.
+     Now, we also add the trusted CA from the store which
+     signed the lowest chain certificate, at least if we could not verify the
+     OCSP response without doing it. Patch from Steffen
+     Ullrich. Thanks.
+
+1.61 2014-05-12
      Changes calloc to Newx and free to Safefree, otherwise there might be
      problems because calloc is done from a different memory pool than free (depends
      on the build options for perl, but seen on Windows). Patch from Steffen
