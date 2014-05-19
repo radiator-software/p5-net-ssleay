@@ -49,9 +49,13 @@ Net::SSLeay::SSLeay_add_ssl_algorithms();
 my $sha1 = Net::SSLeay::EVP_get_digestbyname('sha1');
 
 TEST:
+
 for my $test (@tests) {
     my $cleanup = __cleanup__->new;
     SKIP: {
+	skip 'HTTP::Tiny required but not installed', 1
+	    unless $http_ua;
+
 	my $cl = IO::Socket::INET->new(
 	    PeerAddr => $test->{host},
 	    PeerPort => $test->{port},
