@@ -1818,7 +1818,7 @@ SSL_get_peer_cert_chain(s)
     PPCODE:
 	chain = SSL_get_peer_cert_chain(s);
 	if( chain == NULL ) {
-		return;
+	    XSRETURN_EMPTY;
 	}
 	for (i=0; i<sk_X509_num(chain); i++) {
 	    x = sk_X509_value(chain, i);
