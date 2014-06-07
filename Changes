@@ -8,6 +8,9 @@ Revision history for Perl extension Net::SSLeay.
      get_peer_cert_chain will not return an empty list, but instead return the
      SSL object. Reported and fixed by Steffen
      Ullrich. Thanks.
+     Fixed a problem where patch
+     https://git.openssl.org/gitweb/?p=openssl.git;a=commit;h=3009244da47b989c4cc59ba02cf81a4e9d8f8431
+     caused a failed test in t/local/33_x509_create_cert.t.
 
 1.63 2014-05-19
      Fixed error in version number in META.yml
