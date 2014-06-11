@@ -1,5 +1,5 @@
 Revision history for Perl extension Net::SSLeay.
-???
+1.64 2014-06-11
      Fixes for test ocsp.t. Test now does not fail if HTTP::Tiny is not
      installed.
      Fixed repository in META.yml.
