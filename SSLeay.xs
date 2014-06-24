@@ -5453,13 +5453,13 @@ SSL_OCSP_response_verify(ssl,rsp,svreq=NULL,flags=0)
 	OCSP_RESPONSE *rsp
 	SV *svreq
 	unsigned long flags
-    CODE:
+    PREINIT:
 	SSL_CTX *ctx;
 	X509_STORE *store;
 	OCSP_BASICRESP *bsr;
 	OCSP_REQUEST *req = NULL;
 	int i;
-
+    CODE:
 	if (!ssl) croak("not a SSL object");
 	ctx = SSL_get_SSL_CTX(ssl);
 	if (!ctx) croak("invalid SSL object - no context");

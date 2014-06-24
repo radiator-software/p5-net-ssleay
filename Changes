@@ -1,4 +1,11 @@
 Revision history for Perl extension Net::SSLeay.
+
+1.?? 
+     Added note to doc to make it clear that X509_get_subjectAltNames returns a
+     packed binary IP address for type 7 - GEN_IPADD.
+     Improvements to SSL_OCSP_response_verify to compile under non c99
+     compilers. Requested by MERIJNB.
+
 1.64 2014-06-11
      Fixes for test ocsp.t. Test now does not fail if HTTP::Tiny is not
      installed.

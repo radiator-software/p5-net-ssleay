@@ -5268,6 +5268,8 @@ Returns the list of alternative subject names from X509 certificate $cert.
  #          7 - GEN_IPADD
  #          8 - GEN_RID
 
+Note: type 7 - GEN_IPADD contains the IP address as a packed binary address.
+
 =item * X509_get_subject_name
 
 Returns the subject of the certificate $cert.
