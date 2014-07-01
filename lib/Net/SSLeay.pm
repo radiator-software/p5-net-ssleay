@@ -474,7 +474,7 @@ sub open_tcp_connection {
     warn "Opening connection to $dest_serv:$port (" .
 	inet_ntoa($dest_serv_ip) . ")" if $trace>2;
 
-    my $proto = getprotobyname('tcp');
+    my $proto = Socket::IPPROTO_TCP; # getprotobyname('tcp') not available on android
     if (socket (SSLCAT_S, &PF_INET(), &SOCK_STREAM(), $proto)) {
         warn "next connect" if $trace>3;
         if (CORE::connect (SSLCAT_S, $sin)) {

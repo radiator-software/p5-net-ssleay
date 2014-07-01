@@ -4569,6 +4569,43 @@ SSL_set_tmp_rsa(ssl,rsa)
   OUTPUT:
   RETVAL
 
+
+#ifdef __ANDROID__
+
+RSA *
+RSA_generate_key(bits,ee,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
+        int bits
+        unsigned long ee
+        SV* perl_cb
+        SV* perl_data
+    PREINIT:
+        simple_cb_data_t* cb_data = NULL;
+    CODE:
+       /* Android does not have RSA_generate_key. This equivalent is contributed by Brian Fraser for Android */
+       /* but is not portable to old OpenSSLs where RSA_generate_key_ex is not available */
+       int rc;
+       RSA * ret;
+       BIGNUM *e;
+       e = BN_new();
+       BN_set_word(e, ee);
+       cb_data = simple_cb_data_new(perl_cb, perl_data);
+       BN_GENCB new_cb;
+       BN_GENCB_set_old(&new_cb, ssleay_RSA_generate_key_cb_invoke, cb_data);
+
+       ret = RSA_new();
+       rc = RSA_generate_key_ex(ret, bits, e, &new_cb);
+       
+       if (rc == -1 || ret == NULL)
+           croak("Couldn't generate RSA key");
+       simple_cb_data_free(cb_data);
+       BN_free(e);
+       e = NULL;
+       RETVAL = ret;
+    OUTPUT:
+        RETVAL
+
+#else
+
 RSA *
 RSA_generate_key(bits,e,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
         int bits
@@ -4583,6 +4620,8 @@ RSA_generate_key(bits,e,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
         simple_cb_data_free(cb);
     OUTPUT:
         RETVAL
+
+#endif
 
 void
 RSA_free(r)
