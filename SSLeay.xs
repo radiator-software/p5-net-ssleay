@@ -374,7 +374,6 @@ void openssl_threads_init(void)
 /* ============= typedefs to agument TYPEMAP ============== */
 
 typedef void callback_no_ret(void);
-typedef void cb_ssl_int_int_ret_void(const SSL *ssl,int,int);
 typedef RSA * cb_ssl_int_int_ret_RSA(SSL * ssl,int is_export, int keylength);
 typedef DH * cb_ssl_int_int_ret_DH(SSL * ssl,int is_export, int keylength);
 
@@ -1154,6 +1153,66 @@ void ssleay_RSA_generate_key_cb_invoke(int i, int n, void* data)
         LEAVE;
     }
 }
+
+void ssleay_info_cb_invoke(const SSL *ssl, int where, int ret)
+{
+    dSP;
+    SV *cb_func, *cb_data;
+
+    cb_func = cb_data_advanced_get((void*)ssl, "ssleay_info_cb!!func");
+    cb_data = cb_data_advanced_get((void*)ssl, "ssleay_info_cb!!data");
+
+    if ( ! SvROK(cb_func) || (SvTYPE(SvRV(cb_func)) != SVt_PVCV))
+	croak ("Net::SSLeay: ssleay_info_cb_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    XPUSHs(sv_2mortal(newSViv(PTR2IV(ssl))));
+    XPUSHs(sv_2mortal(newSViv(where)) );
+    XPUSHs(sv_2mortal(newSViv(ret)) );
+    XPUSHs(sv_2mortal(newSVsv(cb_data)));
+    PUTBACK;
+
+    call_sv(cb_func, G_VOID);
+
+    SPAGAIN;
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+}
+
+void ssleay_ctx_info_cb_invoke(const SSL *ssl, int where, int ret)
+{
+    dSP;
+    SV *cb_func, *cb_data;
+    SSL_CTX *ctx = SSL_get_SSL_CTX(ssl);
+
+    cb_func = cb_data_advanced_get(ctx, "ssleay_ctx_info_cb!!func");
+    cb_data = cb_data_advanced_get(ctx, "ssleay_ctx_info_cb!!data");
+
+    if ( ! SvROK(cb_func) || (SvTYPE(SvRV(cb_func)) != SVt_PVCV))
+	croak ("Net::SSLeay: ssleay_ctx_info_cb_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    XPUSHs(sv_2mortal(newSViv(PTR2IV(ssl))));
+    XPUSHs(sv_2mortal(newSViv(where)) );
+    XPUSHs(sv_2mortal(newSViv(ret)) );
+    XPUSHs(sv_2mortal(newSVsv(cb_data)));
+    PUTBACK;
+
+    call_sv(cb_func, G_VOID);
+
+    SPAGAIN;
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+}
+
 
 /* ============= end of callback stuff, begin helper functions ============== */
 
@@ -2228,11 +2287,6 @@ RAND_poll()
 int
 RAND_status()
 
-int
-RAND_egd_bytes(path, bytes)
-    const char *path
-    int bytes
-
 SV *
 RAND_file_name(num)
     size_t num
@@ -2269,10 +2323,6 @@ RAND_load_file(file_name, how_much)
 int
 RAND_write_file(file_name)
      char *  file_name
-
-int
-RAND_egd(path)
-     char *  path
 
 #define REM40 "Minimal X509 stuff..., this is a bit ugly and should be put in its own modules Net::SSLeay::X509.pm"
 
@@ -4209,10 +4259,38 @@ SSL_set_ex_data(ssl,idx,data)
      int 	idx
      void *	data
 
+
 void
-SSL_set_info_callback(ssl,cb)
-     SSL *	ssl
-     cb_ssl_int_int_ret_void *  cb
+SSL_set_info_callback(ssl,callback,data=&PL_sv_undef)
+        SSL * ssl
+        SV  * callback
+	SV  * data
+    CODE: 
+        if (callback==NULL || !SvOK(callback)) {
+            SSL_set_info_callback(ssl, NULL);
+            cb_data_advanced_put(ssl, "ssleay_info_cb!!func", NULL);
+            cb_data_advanced_put(ssl, "ssleay_info_cb!!data", NULL);
+        } else {
+            cb_data_advanced_put(ssl, "ssleay_info_cb!!func", newSVsv(callback));
+            cb_data_advanced_put(ssl, "ssleay_info_cb!!data", newSVsv(data));
+            SSL_set_info_callback(ssl, ssleay_info_cb_invoke);
+        }
+
+void
+SSL_CTX_set_info_callback(ctx,callback,data=&PL_sv_undef)
+        SSL_CTX * ctx
+        SV * callback
+	SV * data
+    CODE: 
+        if (callback==NULL || !SvOK(callback)) {
+            SSL_CTX_set_info_callback(ctx, NULL);
+            cb_data_advanced_put(ctx, "ssleay_ctx_info_cb!!func", NULL);
+            cb_data_advanced_put(ctx, "ssleay_ctx_info_cb!!data", NULL);
+        } else {
+            cb_data_advanced_put(ctx, "ssleay_ctx_info_cb!!func", newSVsv(callback));
+            cb_data_advanced_put(ctx, "ssleay_ctx_info_cb!!data", newSVsv(data));
+            SSL_CTX_set_info_callback(ctx, ssleay_ctx_info_cb_invoke);
+        }
 
 int
 SSL_set_purpose(s,purpose)
@@ -4486,6 +4564,13 @@ SSL_get_state(ssl)
   RETVAL = SSL_state(ssl);
   OUTPUT:
   RETVAL
+
+void
+SSL_set_state(ssl,state)
+     SSL *	ssl
+     int        state
+  CODE:
+  SSL_set_state(ssl,state);
 
 long
 SSL_need_tmp_RSA(ssl)
@@ -5668,7 +5753,7 @@ OCSP_response_results(rsp,...)
 
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x10002000L && !defined(OPENSSL_NO_TLSEXT)
+#if OPENSSL_VERSION_NUMBER >= 0x10002000L && !defined(OPENSSL_NO_TLSEXT) && !defined(LIBRESSL_VERSION_NUMBER)
 
 int
 SSL_CTX_set_alpn_select_cb(ctx,callback,data=&PL_sv_undef)

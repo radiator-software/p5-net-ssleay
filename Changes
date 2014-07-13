@@ -7,6 +7,11 @@ Revision history for Perl extension Net::SSLeay.
      compilers. Requested by MERIJNB.
      Port to Android, contributed by Brian Fraser. Includes Android specific
      version of RSA_generate_key.
+     Added LibreSSL support, patch provided by Alexander Bluhm. Thanks!
+     Patch that fixes the support for SSL_set_info_callback and adds
+     SSL_CTX_set_info_callback and SSL_set_state. Support for these functions is
+     necessary to either detect renegotiation or to enforce
+     renegotiation. Contributed by Steffen Ullrich. Thanks!
 
 1.64 2014-06-11
      Fixes for test ocsp.t. Test now does not fail if HTTP::Tiny is not
