@@ -4570,7 +4570,11 @@ SSL_set_state(ssl,state)
      SSL *	ssl
      int        state
   CODE:
-  SSL_set_state(ssl,state);
+#ifdef OPENSSL_NO_SSL_INTERN
+   SSL_set_state(ssl,state);
+#else
+  ssl->state = state;
+#endif
 
 long
 SSL_need_tmp_RSA(ssl)
