@@ -4518,17 +4518,6 @@ Erase the PRNG state.
 
 Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_cleanup.html|http://www.openssl.org/docs/crypto/RAND_cleanup.html>
 
-=item * RAND_egd
-
-Queries the entropy gathering daemon EGD on socket $path for 255 bytes.
-
- my $rv = Net::SSLeay::RAND_egd($path);
- # $path - path to a socket of entropy gathering daemon EGD
- #
- # returns: the number of bytes read from the daemon on success, and -1 on failure
-
-Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_egd.html|http://www.openssl.org/docs/crypto/RAND_egd.html>
-
 =item * RAND_egd_bytes
 
 Queries the entropy gathering daemon EGD on socket $path for $bytes bytes.

@@ -229,7 +229,11 @@ sub check_openssl_version {
         chomp $output;
         close $pipe;
 
-        unless ( ($major, $minor, $letter) = $output =~ /^OpenSSL\s+(\d+\.\d+)\.(\d+)([a-z]?)/ ) {
+	if ( ($major, $minor, $letter) = $output =~ /^OpenSSL\s+(\d+\.\d+)\.(\d+)([a-z]?)/ ) {
+	    print "*** Found OpenSSL-${major}.${minor}${letter} installed in $prefix\n";
+	} elsif ( ($major, $minor) = $output =~ /^LibreSSL\s+(\d+\.\d+)/ ) {
+	    print "*** Found LibreSSL-${major}.${minor} installed in $prefix\n";
+	} else {
             die <<EOM
 *** OpenSSL version test failed
     (`$output' has been returned)
@@ -238,8 +242,6 @@ sub check_openssl_version {
 EOM
         }
     }
-
-    print "*** Found OpenSSL-${major}.${minor}${letter} installed in $prefix\n";
 
     if ($major < 0.9 || ($major == 0.9 && $minor < 3)) {
         print <<EOM;
