@@ -14,7 +14,9 @@ Revision history for Perl extension Net::SSLeay.
      renegotiation. Contributed by Steffen Ullrich. Thanks!
      Fixed a problem with SSL_set_state not available on some early OpenSSLs,
      patched by Steffen Ullrich. Thanks!
-     Removed arbitrary size limits from calls to tcp_read_all in tcpcat() and http_cat().
+     Removed arbitrary size limits from calls to tcp_read_all in tcpcat() and
+     http_cat().
+     Removed unnecessary Debian_SPANTS.txt from MANIFEST. Again.
 
 1.64 2014-06-11
      Fixes for test ocsp.t. Test now does not fail if HTTP::Tiny is not
