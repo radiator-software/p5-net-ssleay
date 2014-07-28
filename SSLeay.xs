@@ -885,6 +885,8 @@ int next_proto_select_cb_invoke(SSL *ssl, unsigned char **out, unsigned char *ou
     size_t next_proto_len;
     int next_proto_status;
     SSL_CTX *ctx = SSL_get_SSL_CTX(ssl);
+    /* this n_a is required for building with old perls: */
+    STRLEN n_a;
 
     PR1("STARTED: next_proto_select_cb_invoke\n");
     cb_func = cb_data_advanced_get(ctx, "next_proto_select_cb!!func");
@@ -1082,6 +1084,8 @@ int pem_password_cb_invoke(char *buf, int bufsize, int rwflag, void *data) {
     int count = -1;
     size_t str_len = 0;
     simple_cb_data_t* cb = (simple_cb_data_t*)data;
+    /* this n_a is required for building with old perls: */
+    STRLEN n_a;
 
     PR1("STARTED: pem_password_cb_invoke\n");
     if (cb->func && SvOK(cb->func)) {

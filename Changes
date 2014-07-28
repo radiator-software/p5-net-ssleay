@@ -1,5 +1,8 @@
 Revision history for Perl extension Net::SSLeay.
 
+     Fixed compile problem with perl prior to 5.8.8, similar to
+     RT#76267. Reported by Graham Knop.
+
 1.65  2014-07-14
      Added note to doc to make it clear that X509_get_subjectAltNames returns a
      packed binary IP address for type 7 - GEN_IPADD.
