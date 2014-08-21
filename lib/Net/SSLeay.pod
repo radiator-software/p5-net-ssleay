@@ -8552,13 +8552,11 @@ All Rights Reserved.
 
 Distribution and use of this module is under the same terms as the
 OpenSSL package itself (i.e. free, but mandatory attribution; NO
-WARRANTY). Please consult LICENSE file in the root of the OpenSSL
+WARRANTY). Please consult LICENSE file in the root of the Net-SSLeay
 distribution, and also included in this distribution.
 
-While the source distribution of this perl module does not contain
-Eric's or OpenSSL's code, if you use this module you will use OpenSSL
-library. Please give Eric and OpenSSL team credit (as required by
-their licenses).
+The Authors credit Eric Young and the OpenSSL team with the development of the
+excellent OpenSSL library, which this Perl package uses.
 
 And remember, you, and nobody else but you, are responsible for
 auditing this module and OpenSSL library for security problems,
@@ -8566,7 +8564,9 @@ backdoors, and general suitability for your application.
 
 =head1 LICENSE 
 
-See the LICENSE file included in this distribution
+From version
+1.66 onwards, this Net-SSLeay library is issued under the "Perl Artistic
+License 2.0", the same license as Perl itself.
 
 (ignore this line: this is to keep kwalitee happy by saying: Not GPL)
 

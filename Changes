@@ -1,7 +1,13 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.66 2014-08-21
      Fixed compile problem with perl prior to 5.8.8, similar to
      RT#76267. Reported by Graham Knop.
+     Fixed a problem with Socket::IPPROTO_TCP on early perls.
+     After discussions with the community and the original author Sampo
+     Kellomaki, the license conditions have been changed to "Perl Artisitic
+     License 2.0".
+
 
 1.65  2014-07-14
      Added note to doc to make it clear that X509_get_subjectAltNames returns a

@@ -11,8 +11,8 @@
  * $Id$
  * 
  * The distribution and use of this module are subject to the conditions
- * listed in LICENSE file at the root of OpenSSL-0.9.6b
- * distribution (i.e. free, but mandatory attribution and NO WARRANTY).
+ * listed in LICENSE file at the root of the Net-SSLeay
+ * distribution (i.e. same license as Perl itself).
  */
 
 /* ####

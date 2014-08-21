@@ -8,8 +8,8 @@
 #
 # Change data removed from here. See Changes
 # The distribution and use of this module are subject to the conditions
-# listed in LICENSE file at the root of OpenSSL-0.9.7b
-# distribution (i.e. free, but mandatory attribution and NO WARRANTY).
+# listed in LICENSE file at the root of the Net-SSLeay
+# distribution (i.e. same license as Perl itself).
 
 package Net::SSLeay;
 
@@ -63,7 +63,7 @@ $Net::SSLeay::slowly = 0;
 $Net::SSLeay::random_device = '/dev/urandom';
 $Net::SSLeay::how_random = 512;
 
-$VERSION = '1.65'; # Dont forget to set version in META.yml too
+$VERSION = '1.66'; # Dont forget to set version in META.yml too
 @ISA = qw(Exporter);
 
 #BEWARE:
