@@ -1,5 +1,9 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.??
+     Improvments to inc/Module/Install/PRIVATE/Net/SSLeay.pm to handle the
+     case whe there are muliple OPENSSLs installed. Patch from HBRAND
+
 1.66 2014-08-21
      Fixed compile problem with perl prior to 5.8.8, similar to
      RT#76267. Reported by Graham Knop.
