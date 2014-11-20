@@ -3510,7 +3510,7 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_peer_certificate.htm
 
 Get the certificate chain of the peer as an array of X509 structures.
 
- my @rv = Net::SSLeay::get_peer_certificate($ssl);
+ my @rv = Net::SSLeay::get_peer_cert_chain($ssl);
  # $ssl - value corresponding to openssl's SSL structure
  #
  # returns: list of X509 structures
