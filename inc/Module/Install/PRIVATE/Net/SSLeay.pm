@@ -96,11 +96,10 @@ EOM
         @pairs = (['libeay32','ssleay32'],['libeay32MD','ssleay32MD'],['libeay32MT','ssleay32MT']) if $Config{cc} =~ /cl/;
         for my $dir (@{$opts->{lib_paths}}) {
           for my $p (@pairs) {
-            my ($s_lib_found, $s_lib_found);
-            $found = 1 if $Config{cc} =~ /gcc/ && -f "$dir/lib$p->[0].a" && -f "$dir/lib$p->[1].a";
-            $found = 1 if $Config{cc} =~ /cl/ && -f "$dir/$p->[0].lib" && -f "$dir/$p->[1].lib";
+            $found = 1 if ($Config{cc} =~ /gcc/ && -f "$dir/lib$p->[0].a" && -f "$dir/lib$p->[1].a");
+            $found = 1 if ($Config{cc} =~ /cl/ && -f "$dir/$p->[0].lib" && -f "$dir/p->[1].lib");
             if ($found) {
-              $opts->{lib_links} = [$p->[0], $p->[1]];
+              $opts->{lib_links} = [$p->[0], $p->[1], 'crypt32']; # Some systems need this system lib crypt32 too
               $opts->{lib_paths} = [$dir];
               last;
             }
@@ -108,7 +107,7 @@ EOM
         }
         if (!$found) {
           #fallback to the old behaviour
-          push @{ $opts->{lib_links} }, qw( libeay32MD ssleay32MD libeay32 ssleay32 libssl32);
+          push @{ $opts->{lib_links} }, qw( libeay32MD ssleay32MD libeay32 ssleay32 libssl32 crypt32);
         }
     }
     elsif ($^O eq 'VMS') {
@@ -189,6 +188,7 @@ sub find_openssl_prefix {
             '/apps/openssl/std/bin/openssl'  => '/apps/openssl/std',
             '/usr/sfw/bin/openssl'           => '/usr/sfw', # Open Solaris
             'C:\OpenSSL\bin\openssl.exe'     => 'C:\OpenSSL',
+            'C:\OpenSSL-Win32\bin\openssl.exe'        => 'C:\OpenSSL-Win32',
             $Config{prefix} . '\bin\openssl.exe'      => $Config{prefix},           # strawberry perl
             $Config{prefix} . '\..\c\bin\openssl.exe' => $Config{prefix} . '\..\c', # strawberry perl
             '/sslexe/openssl.exe'            => '/sslroot',  # VMS, openssl.org

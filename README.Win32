@@ -179,3 +179,35 @@ Now build Net-SSLeay
    copy c:\OpenSSL\bin\*.dll blib\arch\auto\Net\SSLeay
    nmake test
    nmake install
+
+7. Windows XP Professional SP3
+  ActivePerl 5.16.1
+  OpenSSL 1.0.1j binary from http://slproweb.com/download/Win32OpenSSL-1_0_1j.exe
+  Visual C++ 2008 Redistributables from http://www.microsoft.com/downloads/details.aspx?familyid=9B2DA534-3E03-4391-8A4D-074B9F2BC1BF
+  Microsoft Visual Studio 2010 Express
+   with Visual Studio Command Prompt shell:
+   R:
+   cd \net-ssleay\trunk
+   perl Makefile.PL
+   nmake
+   nmake test (some warnings will be reported)
+
+8. Windows XP Professional SP3 on VMWare
+  ActivePerl 5.16.1
+  OpenSSL 1.0.1 source code
+  Microsoft Visual Studio 2010 Express
+   with Visual Studio Command Prompt shell:
+Build OpenSSL
+   S:
+   cd \openssl-1.0.1e
+   perl Configure VC-WIN32 no-asm --prefix=c:/OpenSSL 
+   ms\do_ms
+   nmake -f ms\ntdll.mak
+   nmake -f ms\ntdll.mak install
+Now build Net-SSLeay
+   R:
+   cd \net-ssleay\trunk
+   nmake clean
+   perl Makefile.PL
+   nmake
+   nmake test (some warnings will be reported)

@@ -4,6 +4,13 @@ Revision history for Perl extension Net::SSLeay.
      Improvements to inc/Module/Install/PRIVATE/Net/SSLeay.pm to handle the
      case whe there are muliple OPENSSLs installed. Patch from HBRAND
      Fixed a documentation error in get_peer_cert_chain, reported by tejas.
+     Fixed a problem with building on Windows that prevented correct OpenSSL
+     directory detection with version 1.0.1j as delivered with Shining Light OpenSSL.
+     Fixed a problem with building on Windows that prevented finding MT or MD
+     versions of SSL libraries.
+     Updated doc in README.Win32 to build with Microsoft Visual Studio 2010 Express.
+     Added Windows crypt32 library to Windows linking as some compilers/platforms seem to
+     require it and it is innocuous otherwise. For Steve Hay.
 
 1.66 2014-08-21
      Fixed compile problem with perl prior to 5.8.8, similar to
