@@ -11,6 +11,8 @@ Revision history for Perl extension Net::SSLeay.
      Updated doc in README.Win32 to build with Microsoft Visual Studio 2010 Express.
      Added Windows crypt32 library to Windows linking as some compilers/platforms seem to
      require it and it is innocuous otherwise. For Steve Hay.
+     Fixed a failure in t/external/20_cert_chain.t where some platforms do not
+     have HTTPS in /etc/services. Reported and patched by Gisle Aas.
 
 1.66 2014-08-21
      Fixed compile problem with perl prior to 5.8.8, similar to

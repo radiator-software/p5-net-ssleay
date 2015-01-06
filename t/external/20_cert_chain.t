@@ -22,7 +22,7 @@ else {
 
 for my $site (@sites) {
     SKIP: {
-	my $port = getservbyname  ('https', 'tcp');
+	my $port = getservbyname  ('https', 'tcp') || 443;
 	my $dest_ip = gethostbyname ( $site );
 
 	socket  (S, &AF_INET, &SOCK_STREAM, 0)  or die "socket: $!";
