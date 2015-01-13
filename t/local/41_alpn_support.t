@@ -11,7 +11,7 @@ use Config;
 
 BEGIN {
   plan skip_all => "openssl 1.0.2 required" unless Net::SSLeay::SSLeay >= 0x10002000;
-  plan skip_all => "libressl not supported" if &Net::SSLeay::LIBRESSL_VERSION_NUMBER;
+  plan skip_all => "libressl not supported" if defined &Net::SSLeay::LIBRESSL_VERSION_NUMBER;
   plan skip_all => "fork() not supported on $^O" unless $Config{d_fork};
 }
 
