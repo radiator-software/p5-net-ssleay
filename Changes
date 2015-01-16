@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.??
+1.67 2015-01-17
      Improvements to inc/Module/Install/PRIVATE/Net/SSLeay.pm to handle the
      case whe there are muliple OPENSSLs installed. Patch from HBRAND
      Fixed a documentation error in get_peer_cert_chain, reported by tejas.
