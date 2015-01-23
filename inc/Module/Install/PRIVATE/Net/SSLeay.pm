@@ -179,6 +179,7 @@ sub find_openssl_prefix {
     }
 
     my @guesses = (
+            '/opt/local/bin/openssl'         => '/opt/local', # Macports openssl
             '/usr/bin/openssl'               => '/usr',
             '/usr/sbin/openssl'              => '/usr',
             '/opt/ssl/bin/openssl'           => '/opt/ssl',
