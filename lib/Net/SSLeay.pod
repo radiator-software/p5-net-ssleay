@@ -1691,6 +1691,10 @@ Examples:
  #BEWARE: THIS IS WRONG - MEMORY LEAKS! (you cannot free @cachain items)
  my ($privkey, $cert) = Net::SSLeay::P_PKCS12_load_file($filename, 1, $password);
 
+B<NOTE> With some combinations of Windows, perl, compiler and compiler options, you
+may see a runtime error "no OPENSSL_Applink", when calling
+Net::SSLeay::P_PKCS12_load_file. See README.Win32 for more details.
+
 =back
 
 =head3 Low level API: SESSION_* related functions

@@ -1,9 +1,11 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.??
+1.68 2015-01-24
      Fixed a problem on OSX when macports openssl 1.x is installed: headers from
      macport were found but older OSX openssl libraries were linked, resulting
      in "Symbol not found: _EVP_MD_do_all_sorted".
+     Added notes about runtime error "no OPENSSL_Applink", when calling
+     Net::SSLeay::P_PKCS12_load_file.
 
 
 1.67 2015-01-17
