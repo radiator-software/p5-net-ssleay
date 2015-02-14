@@ -9,14 +9,14 @@ By popular demand...
 Prerequisites
 -------------
 
-perl-5.6.1
-                though anything starting from perl5.003 probably works.
-OpenSSL-0.9.6j or OpenSSL-0.9.7b
-                (try http://www.openssl.org/) - 
-                This release has been tested with 0.9.6d and
-		in historical light it seems likely that future versions
-	  	will work as well (if major version number changes all bets
-		are off, though)
+perl-5.6.1     though anything starting from perl5.003 probably works.
+
+OpenSSL-0.9.6j through to at least OpenSSL-1.0.2 and probably later
+	       http://www.openssl.org/ - On Linux, you can either build and
+	       install OpenSSL from scratch (its very portable) or you can
+	       install the appropriate OpenSSL 'devel' package for your Linux
+	       distribution: (rpm openssl-devel, deb libssl-dev).
+
 
 Note: SSLeay is no longer supported. If you want to use Net::SSLeay with
       SSLeay or early versions of OpenSSL, use version 1.03. The support
@@ -38,7 +38,7 @@ Installing
 ----------
 
 Unix:
-	# build OpenSSL as per instructions in that package
+	# build or install OpenSSL as per instructions in that package
 
 	gunzip <Net-SSLeay.pm-1.35.tar.gz | tar xvf -
 	cd Net-SSLeay.pm-1.35
@@ -120,6 +120,8 @@ If you post a question or make a bug report, please remember to mention
   - ANSI C compiler brand and version (e.g. gcc -v)
 
 If build fails,
+  - Dop you have OpenSSL headers installed? Perhaps you need the OpenSSL Devel
+    package for your Linux distribution.
   - three compiler warnings are known to be emitted (due to lack of const
     in some places), one of them indicates a fatal bug in callback handling,
     but as I have not yet sorted it out, you'll simply have to ignore it

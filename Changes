@@ -1,5 +1,8 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.?? 2015-??-??
+     Testing with OpenSSL 1.0.2. OK.
+
 1.68 2015-01-24
      Fixed a problem on OSX when macports openssl 1.x is installed: headers from
      macport were found but older OSX openssl libraries were linked, resulting
