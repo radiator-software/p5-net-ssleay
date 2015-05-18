@@ -5773,7 +5773,7 @@ OCSP_response_results(rsp,...)
 
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x10002000L && !defined(OPENSSL_NO_TLSEXT) && !defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER >= 0x10002000L && !defined(OPENSSL_NO_TLSEXT)
 
 int
 SSL_CTX_set_alpn_select_cb(ctx,callback,data=&PL_sv_undef)

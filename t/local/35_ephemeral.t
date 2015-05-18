@@ -2,8 +2,14 @@
 
 use strict;
 use warnings;
-use Test::More tests => 3;
+use Test::More;
 use Net::SSLeay;
+
+BEGIN {
+  plan skip_all => "libressl removed support for ephemeral/temporary RSA private keys" if Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER");
+}
+
+plan tests => 3;
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();
