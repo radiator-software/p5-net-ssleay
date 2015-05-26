@@ -8338,6 +8338,10 @@ Or alternatively you can just use the following convenience functions:
 
 =head1 KNOWN BUGS AND CAVEATS
 
+An OpenSSL bug CVE-2015-0290 "OpenSSL Multiblock Corrupted Pointer Issue" 
+can cause POST requests of over 90kB to fail or crash. This bug is reported to be fixed in
+OpenSSL 1.0.2a.
+
 Autoloader emits a
 
     Argument "xxx" isn't numeric in entersub at blib/lib/Net/SSLeay.pm'
