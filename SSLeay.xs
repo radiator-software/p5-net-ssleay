@@ -2332,6 +2332,41 @@ RAND_write_file(file_name)
 
 #define REM40 "Minimal X509 stuff..., this is a bit ugly and should be put in its own modules Net::SSLeay::X509.pm"
 
+#if OPENSSL_VERSION_NUMBER >= 0x1000200fL
+
+int
+X509_check_host(X509 *cert, const char *name, unsigned int flags = 0, SV *peername = &PL_sv_undef)
+    INIT:
+        char *c_peername = NULL;
+    CODE:
+        RETVAL = X509_check_host(cert, name, 0, flags, (items == 4) ? &c_peername : NULL);
+        if (items == 4)
+            sv_setpv(peername, c_peername);
+    OUTPUT:
+        RETVAL
+    CLEANUP:
+        if (c_peername)
+            OPENSSL_free(c_peername);
+
+int
+X509_check_email(X509 *cert, const char *address, unsigned int flags = 0)
+    CODE:
+        RETVAL = X509_check_email(cert, address, 0, flags);
+    OUTPUT:
+        RETVAL
+
+int
+X509_check_ip(X509 *cert, const unsigned char *address, unsigned int flags = 0)
+    CODE:
+        RETVAL = X509_check_ip(cert, address, 0, flags);
+    OUTPUT:
+        RETVAL
+
+int
+X509_check_ip_asc(X509 *cert, const char *address, unsigned int flags = 0)
+
+#endif
+
 X509_NAME*
 X509_get_issuer_name(cert)
      X509 *      cert

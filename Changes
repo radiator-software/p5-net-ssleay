@@ -4,7 +4,9 @@ Revision history for Perl extension Net::SSLeay.
      Testing with OpenSSL 1.0.2, 1.0.2a. OK.
      Completed LibreSSL compatibility with the kind assistance of Alexander
      Bluhm.
-     Improved compatibilty with OpenSSL 1.0.2a as suggested by Petr Pisar.
+     Improved compatibility with OpenSSL 1.0.2a as suggested by Petr Pisar.
+     Added the X509_check_* functions introduced in OpenSSL 1.0.2, contributed
+     by Carsten Gaebler.
 
 1.68 2015-01-24
      Fixed a problem on OSX when macports openssl 1.x is installed: headers from
