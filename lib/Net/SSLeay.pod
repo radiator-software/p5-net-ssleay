@@ -4957,7 +4957,7 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/X509_new.html|http://www.
 
 =item * X509_check_host
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.xx and before; requires at
+B<COMPATIBILITY:> not available in Net-SSLeay-1.68 and before; requires at
 least OpenSSL 1.0.2.
 
 Checks f the certificate Subject Alternative Name (SAN) or Subject CommonName
@@ -4986,7 +4986,7 @@ Check openssl doc L<https://www.openssl.org/docs/crypto/X509_check_host.html>.
 
 =item * X509_check_email
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.xx and before; requires at least OpenSSL 1.0.2.
+B<COMPATIBILITY:> not available in Net-SSLeay-1.68 and before; requires at least OpenSSL 1.0.2.
 
 Checks if the certificate matches the specified email address.
 
@@ -5001,7 +5001,7 @@ Check openssl doc L<https://www.openssl.org/docs/crypto/X509_check_email.html>.
 
 =item * X509_check_ip
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.xx and before; requires at least OpenSSL 1.0.2.
+B<COMPATIBILITY:> not available in Net-SSLeay-1.68 and before; requires at least OpenSSL 1.0.2.
 
 Checks if the certificate matches the specified IPv4 or IPv6 address.
 
@@ -5016,7 +5016,7 @@ Check openssl doc L<https://www.openssl.org/docs/crypto/X509_check_ip.html>.
 
 =item * X509_check_ip_asc
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.xx and before; requires at least OpenSSL 1.0.2.
+B<COMPATIBILITY:> not available in Net-SSLeay-1.68 and before; requires at least OpenSSL 1.0.2.
 
 Checks if the certificate matches the specified IPv4 or IPv6 address.
 
