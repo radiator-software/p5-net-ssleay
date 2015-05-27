@@ -2356,9 +2356,13 @@ X509_check_email(X509 *cert, const char *address, unsigned int flags = 0)
         RETVAL
 
 int
-X509_check_ip(X509 *cert, const unsigned char *address, unsigned int flags = 0)
+X509_check_ip(X509 *cert, SV *address, unsigned int flags = 0)
+    INIT:
+        unsigned char *c_address;
+        size_t addresslen;
     CODE:
-        RETVAL = X509_check_ip(cert, address, 0, flags);
+        c_address = SvPV(address, addresslen);
+        RETVAL = X509_check_ip(cert, c_address, addresslen, flags);
     OUTPUT:
         RETVAL
 
