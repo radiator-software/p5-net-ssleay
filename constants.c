@@ -4211,7 +4211,8 @@ constant (const char *name, size_t len) {
        NID_sha1WithRSAEncryption OP_MSIE_SSLV2_RSA_PADDING
        OP_NETSCAPE_CHALLENGE_BUG R_BAD_AUTHENTICATION_TYPE
        V_OCSP_CERTSTATUS_REVOKED V_OCSP_CERTSTATUS_UNKNOWN
-       X509_V_FLAG_CRL_CHECK_ALL X509_V_FLAG_NOTIFY_POLICY */
+       X509_V_FLAG_CRL_CHECK_ALL X509_V_FLAG_NOTIFY_POLICY
+       X509_V_FLAG_TRUSTED_FIRST */
     /* Offset 20 gives the best switch position.  */
     switch (name[20]) {
     case '2':
@@ -4256,6 +4257,18 @@ constant (const char *name, size_t len) {
         
 #ifdef SSL_OP_NETSCAPE_CHALLENGE_BUG
         return SSL_OP_NETSCAPE_CHALLENGE_BUG;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'F':
+      if (!memcmp(name, "X509_V_FLAG_TRUSTED_FIRST", 25)) {
+      /*                                     ^           */
+        
+#ifdef X509_V_FLAG_TRUSTED_FIRST
+        return X509_V_FLAG_TRUSTED_FIRST;
 #else
         goto not_there;
 #endif

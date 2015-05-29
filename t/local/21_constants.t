@@ -13,7 +13,7 @@ if ($@)
 }
 else
 {
-    eval 'use Test::More tests => 431;';
+    eval 'use Test::More tests => 432;';
 }
 
 my @c = (qw/
@@ -137,29 +137,29 @@ my @c = (qw/
  NID_crlBag                      NID_sha1WithRSAEncryption              X509_V_FLAG_NOTIFY_POLICY
  NID_crl_distribution_points     NID_shaWithRSAEncryption               X509_V_FLAG_POLICY_CHECK
  NID_crl_number                  NID_stateOrProvinceName                X509_V_FLAG_POLICY_MASK
- NID_crl_reason                  NID_subject_alt_name                   X509_V_FLAG_USE_CHECK_TIME
- NID_delta_crl                   NID_subject_key_identifier             X509_V_FLAG_USE_DELTAS
- NID_des_cbc                     NID_surname                            X509_V_FLAG_X509_STRICT
- NID_des_cfb64                   NID_sxnet                              X509_V_OK
- NID_des_ecb                     NID_time_stamp                         XN_FLAG_COMPAT
- NID_des_ede                     NID_title                              XN_FLAG_DN_REV
- NID_des_ede3                    NID_undef                              XN_FLAG_DUMP_UNKNOWN_FIELDS
- NID_des_ede3_cbc                NID_uniqueIdentifier                   XN_FLAG_FN_ALIGN
- NID_des_ede3_cfb64              NID_x509Certificate                    XN_FLAG_FN_LN
- NID_des_ede3_ofb64              NID_x509Crl                            XN_FLAG_FN_MASK
- NID_des_ede_cbc                 NID_zlib_compression                   XN_FLAG_FN_NONE
- NID_des_ede_cfb64               NOTHING                                XN_FLAG_FN_OID
- NID_des_ede_ofb64               OCSP_RESPONSE_STATUS_INTERNALERROR     XN_FLAG_FN_SN
- NID_des_ofb64                   OCSP_RESPONSE_STATUS_MALFORMEDREQUEST  XN_FLAG_MULTILINE
- NID_description                 OCSP_RESPONSE_STATUS_SIGREQUIRED       XN_FLAG_ONELINE
- NID_desx_cbc                    OCSP_RESPONSE_STATUS_SUCCESSFUL        XN_FLAG_RFC2253
- NID_dhKeyAgreement              OCSP_RESPONSE_STATUS_TRYLATER          XN_FLAG_SEP_COMMA_PLUS
- NID_dnQualifier                 OCSP_RESPONSE_STATUS_UNAUTHORIZED      XN_FLAG_SEP_CPLUS_SPC
- NID_dsa                         OPENSSL_VERSION_NUMBER                 XN_FLAG_SEP_MASK
- NID_dsaWithSHA                  OP_ALL                                 XN_FLAG_SEP_MULTILINE
- NID_dsaWithSHA1                 OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION   XN_FLAG_SEP_SPLUS_SPC
- NID_dsaWithSHA1_2               OP_CIPHER_SERVER_PREFERENCE            XN_FLAG_SPC_EQ
- NID_dsa_2                       OP_CISCO_ANYCONNECT                    
+ NID_crl_reason                  NID_subject_alt_name                   X509_V_FLAG_TRUSTED_FIRST
+ NID_delta_crl                   NID_subject_key_identifier             X509_V_FLAG_USE_CHECK_TIME
+ NID_des_cbc                     NID_surname                            X509_V_FLAG_USE_DELTAS
+ NID_des_cfb64                   NID_sxnet                              X509_V_FLAG_X509_STRICT
+ NID_des_ecb                     NID_time_stamp                         X509_V_OK
+ NID_des_ede                     NID_title                              XN_FLAG_COMPAT
+ NID_des_ede3                    NID_undef                              XN_FLAG_DN_REV
+ NID_des_ede3_cbc                NID_uniqueIdentifier                   XN_FLAG_DUMP_UNKNOWN_FIELDS
+ NID_des_ede3_cfb64              NID_x509Certificate                    XN_FLAG_FN_ALIGN
+ NID_des_ede3_ofb64              NID_x509Crl                            XN_FLAG_FN_LN
+ NID_des_ede_cbc                 NID_zlib_compression                   XN_FLAG_FN_MASK
+ NID_des_ede_cfb64               NOTHING                                XN_FLAG_FN_NONE
+ NID_des_ede_ofb64               OCSP_RESPONSE_STATUS_INTERNALERROR     XN_FLAG_FN_OID
+ NID_des_ofb64                   OCSP_RESPONSE_STATUS_MALFORMEDREQUEST  XN_FLAG_FN_SN
+ NID_description                 OCSP_RESPONSE_STATUS_SIGREQUIRED       XN_FLAG_MULTILINE
+ NID_desx_cbc                    OCSP_RESPONSE_STATUS_SUCCESSFUL        XN_FLAG_ONELINE
+ NID_dhKeyAgreement              OCSP_RESPONSE_STATUS_TRYLATER          XN_FLAG_RFC2253
+ NID_dnQualifier                 OCSP_RESPONSE_STATUS_UNAUTHORIZED      XN_FLAG_SEP_COMMA_PLUS
+ NID_dsa                         OPENSSL_VERSION_NUMBER                 XN_FLAG_SEP_CPLUS_SPC
+ NID_dsaWithSHA                  OP_ALL                                 XN_FLAG_SEP_MASK
+ NID_dsaWithSHA1                 OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION   XN_FLAG_SEP_MULTILINE
+ NID_dsaWithSHA1_2               OP_CIPHER_SERVER_PREFERENCE            XN_FLAG_SEP_SPLUS_SPC
+ NID_dsa_2                       OP_CISCO_ANYCONNECT                    XN_FLAG_SPC_EQ
  NID_email_protect               OP_COOKIE_EXCHANGE                     
 
 /);

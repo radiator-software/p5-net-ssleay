@@ -7,6 +7,7 @@ Revision history for Perl extension Net::SSLeay.
      Improved compatibility with OpenSSL 1.0.2a as suggested by Petr Pisar.
      Added the X509_check_* functions introduced in OpenSSL 1.0.2, contributed
      by Carsten Gaebler.
+     Added support for X509_V_FLAG_TRUSTED_FIRST constant, patch from Gisle Aas.
 
 1.68 2015-01-24
      Fixed a problem on OSX when macports openssl 1.x is installed: headers from
