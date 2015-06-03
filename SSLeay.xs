@@ -4888,16 +4888,22 @@ SSL_get_keyblock_size(s)
      {
 	const EVP_CIPHER *c;
 	const EVP_MD *h;
+	int md_size = -1;
 	c = s->enc_read_ctx->cipher;
-#if OPENSSL_VERSION_NUMBER >= 0x00909000L
+#if OPENSSL_VERSION_NUMBER >= 0x10001000L
+	if (s->s3)
+	    md_size = s->s3->tmp.new_mac_secret_size;
+#elif OPENSSL_VERSION_NUMBER >= 0x00909000L
 	h = EVP_MD_CTX_md(s->read_hash);
+	md_size = EVP_MD_size(h);
 #else
 	h = s->read_hash;
+	md_size = EVP_MD_size(h);
 #endif
-
-	RETVAL = 2 * (EVP_CIPHER_key_length(c) +
-		    EVP_MD_size(h) +
-		    EVP_CIPHER_iv_length(c));
+	RETVAL = (md_size > 0) ? (2 * (EVP_CIPHER_key_length(c) +
+				       md_size +
+				       EVP_CIPHER_iv_length(c)))
+			       : -1;
      }
      OUTPUT:
      RETVAL
