@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.?? 2015-??-??
+1.69 2015-06-04
      Testing with OpenSSL 1.0.2, 1.0.2a. OK.
      Completed LibreSSL compatibility with the kind assistance of Alexander
      Bluhm.
