@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.?? ??????????
+1.70 2015-06-26
      Patch from Alexander Bluhm: The new OpenSSL 1.0.2 X509_check_* functions are not available in
      current LibreSSL.  So disable them in SSLeay.xs.
      Fixed a problem with building against OSX homebrew's openssl. Patch from
