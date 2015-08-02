@@ -2,6 +2,8 @@ Revision history for Perl extension Net::SSLeay.
 
 ?????
      Patch from Ben Kaduk: Conditionalise support for MD4, MD5.
+     Added support for linking libraries in /usr/local/lib64 for some flavours
+     of Linux like RH Tikanga. 
 
 1.70 2015-06-26
      Patch from Alexander Bluhm: The new OpenSSL 1.0.2 X509_check_* functions are not available in
