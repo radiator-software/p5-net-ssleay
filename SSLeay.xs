@@ -170,8 +170,12 @@ which conflicts with perls
 #ifndef OPENSSL_NO_MD2
 #include <openssl/md2.h>
 #endif
+#ifndef OPENSSL_NO_MD4
 #include <openssl/md4.h>
+#endif
+#ifndef OPENSSL_NO_MD5
 #include <openssl/md5.h>     /* openssl-SNAP-20020227 does not automatically include this */
+#endif
 #if OPENSSL_VERSION_NUMBER >= 0x00905000L
 #include <openssl/ripemd.h>
 #endif
@@ -2864,9 +2868,11 @@ X509_get_fingerprint(cert,type)
 		unsigned int dsz, k = 0;
 		char text[EVP_MAX_MD_SIZE * 3 + 1];
 	CODE:
+#ifndef OPENSSL_NO_MD5
 		if (!k && !strcmp(type,"md5")) {
 		 	k = 1; digest_tp = EVP_md5();
 		}
+#endif
 		if (!k && !strcmp(type,"sha1")) {
 			k = 1; digest_tp = EVP_sha1();
 		}
@@ -3696,6 +3702,8 @@ MD2(data)
 
 #endif
 
+#ifndef OPENSSL_NO_MD4
+
 void
 MD4(data)
 	PREINIT:
@@ -3710,6 +3718,10 @@ MD4(data)
 		XSRETURN_UNDEF;
 	}
 
+#endif
+
+#ifndef OPENSSL_NO_MD5
+
 void
 MD5(data)
      PREINIT:
@@ -3723,6 +3735,8 @@ MD5(data)
      } else {
 	  XSRETURN_UNDEF;
      }
+
+#endif
 
 #if OPENSSL_VERSION_NUMBER >= 0x00905000L
 
