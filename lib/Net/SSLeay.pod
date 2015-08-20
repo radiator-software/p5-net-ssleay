@@ -6262,7 +6262,7 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/X509_NAME_ENTRY_get_objec
 
 =item * X509_NAME_new
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.5
+B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least openssl-0.9.5
 
 Creates a new X509_NAME structure.
 Adds a field whose name is defined by a string $field. The field value to be added is in $bytes.
@@ -6273,7 +6273,7 @@ Adds a field whose name is defined by a string $field. The field value to be add
 
 =item * X509_NAME_hash
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.5
+B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least openssl-0.9.5
 
 Sort of a checksum of issuer name $name.
 The result is not a full hash (e.g. sha-1), it is kind-of-a-hash truncated to the size of 'unsigned long' (32 bits).

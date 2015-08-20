@@ -5,7 +5,10 @@ Revision history for Perl extension Net::SSLeay.
      Added support for linking libraries in /usr/local/lib64 for some flavours
      of Linux like RH Tikanga. 
      Fixes to X509_check_host, X509_check_ip, SSL_CTX_set_alpn_protos, and
-     SSL_set_alpn_protos so they will compile on MSVC and AIX cc. Thanks to AGRUNDMA.
+     SSL_set_alpn_protos so they will compile on MSVC and AIX cc. Thanks to
+     AGRUNDMA.
+     Fixed typos in documentation for X509_NAME_new and X509_NAME_hash
+     incorrect version 1.45 instead of 1.55 given.
      
 
 1.70 2015-06-26
