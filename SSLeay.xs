@@ -2340,7 +2340,7 @@ RAND_write_file(file_name)
 
 int
 X509_check_host(X509 *cert, const char *name, unsigned int flags = 0, SV *peername = &PL_sv_undef)
-    INIT:
+    PREINIT:
         char *c_peername = NULL;
     CODE:
         RETVAL = X509_check_host(cert, name, 0, flags, (items == 4) ? &c_peername : NULL);
@@ -2361,7 +2361,7 @@ X509_check_email(X509 *cert, const char *address, unsigned int flags = 0)
 
 int
 X509_check_ip(X509 *cert, SV *address, unsigned int flags = 0)
-    INIT:
+    PREINIT:
         unsigned char *c_address;
         size_t addresslen;
     CODE:
@@ -5866,10 +5866,11 @@ int
 SSL_CTX_set_alpn_protos(ctx,data=&PL_sv_undef)
         SSL_CTX * ctx
         SV * data
-    CODE:
+    PREINIT:
         unsigned char *alpn_data;
         unsigned char alpn_len;
 
+    CODE:
         RETVAL = -1;
 
         if (!SvROK(data) || (SvTYPE(SvRV(data)) != SVt_PVAV))
@@ -5889,10 +5890,11 @@ int
 SSL_set_alpn_protos(ssl,data=&PL_sv_undef)
         SSL * ssl
         SV * data
-    CODE:
+    PREINIT:
         unsigned char *alpn_data;
         unsigned char alpn_len;
 
+    CODE:
         RETVAL = -1;
 
         if (!SvROK(data) || (SvTYPE(SvRV(data)) != SVt_PVAV))
