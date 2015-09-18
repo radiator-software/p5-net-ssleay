@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-?????
+1.71 2015-09-18
      Patch from Ben Kaduk: Conditionalise support for MD4, MD5.
      Added support for linking libraries in /usr/local/lib64 for some flavours
      of Linux like RH Tikanga. 
@@ -9,6 +9,7 @@ Revision history for Perl extension Net::SSLeay.
      AGRUNDMA.
      Fixed typos in documentation for X509_NAME_new and X509_NAME_hash
      incorrect version 1.45 instead of 1.55 given.
+     Version number in META.yml is now quoted per request from Satoshi Yagi.
      
 
 1.70 2015-06-26

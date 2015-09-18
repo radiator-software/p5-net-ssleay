@@ -63,7 +63,7 @@ $Net::SSLeay::slowly = 0;
 $Net::SSLeay::random_device = '/dev/urandom';
 $Net::SSLeay::how_random = 512;
 
-$VERSION = '1.70'; # Dont forget to set version in META.yml too
+$VERSION = '1.71'; # Dont forget to set version in META.yml too
 @ISA = qw(Exporter);
 
 #BEWARE:
