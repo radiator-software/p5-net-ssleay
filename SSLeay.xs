@@ -1046,7 +1046,7 @@ int alpn_select_cb_invoke(SSL *ssl, const unsigned char **out, unsigned char *ou
             croak ("Net::SSLeay: alpn_select_cb perl function did not return exactly 1 value.\n");
         alpn_data_sv = POPs;
         if (SvOK(alpn_data_sv)) {
-          alpn_data = (unsigned char*)SvPVx_nolen(alpn_data_sv);
+          alpn_data = (unsigned char*)SvPV_nolen(alpn_data_sv);
           alpn_len = strlen((const char*)alpn_data);
           if (alpn_len <= 255) {
             tmpsv = newSVpv((const char*)alpn_data, alpn_len);

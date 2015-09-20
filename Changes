@@ -1,5 +1,9 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.??
+     Fixed a problem where SvPVx_nolen was undefined in some versions of
+     perl. Repored by Karen Etheridge.
+
 1.71 2015-09-18
      Patch from Ben Kaduk: Conditionalise support for MD4, MD5.
      Added support for linking libraries in /usr/local/lib64 for some flavours
