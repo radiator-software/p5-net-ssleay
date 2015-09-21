@@ -2365,7 +2365,7 @@ X509_check_ip(X509 *cert, SV *address, unsigned int flags = 0)
         unsigned char *c_address;
         size_t addresslen;
     CODE:
-        c_address = SvPV(address, addresslen);
+        c_address = (unsigned char *)SvPV(address, addresslen);
         RETVAL = X509_check_ip(cert, c_address, addresslen, flags);
     OUTPUT:
         RETVAL

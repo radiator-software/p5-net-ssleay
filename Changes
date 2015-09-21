@@ -1,8 +1,9 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.??
+1.72 2015-09-22
      Fixed a problem where SvPVx_nolen was undefined in some versions of
-     perl. Repored by Karen Etheridge.
+     perl. Reported by Karen Etheridge. Replaced with SvPV_nolen.
+     Fixed a cast warning on Darwin reported by Karen Etheridge. 
 
 1.71 2015-09-18
      Patch from Ben Kaduk: Conditionalise support for MD4, MD5.
