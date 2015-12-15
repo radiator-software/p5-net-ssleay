@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 121;
+use Test::More tests => 122;
 use Net::SSLeay qw/MBSTRING_ASC MBSTRING_UTF8 EVP_PK_RSA EVP_PKT_SIGN EVP_PKT_ENC/;
 use File::Spec;
 use utf8;
@@ -46,6 +46,9 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
   ok(Net::SSLeay::X509_set_version($x509, 3), "X509_set_version");
   ok(my $sn = Net::SSLeay::X509_get_serialNumber($x509), "X509_get_serialNumber");
   
+  my $pubkey = Net::SSLeay::X509_get_X509_PUBKEY($x509);
+  ok($pubkey ne '', "X509_get_X509_PUBKEY");
+
   ##let us do some ASN1_INTEGER related testing
   #test big integer via P_ASN1_INTEGER_set_dec
   Net::SSLeay::P_ASN1_INTEGER_set_dec($sn, '123456789123456789123456789123456789123456789');
