@@ -5234,6 +5234,21 @@ Returns public key corresponding to given X509 object $x.
  #
  # returns: value corresponding to openssl's EVP_PKEY structure (0 on failure)
 
+B<NOTE:> This method returns only the public key's key bits, without the
+algorithm or parameters.  Use C<X509_get_X509_PUBKEY()> to return the full
+public key (SPKI) instead.
+
+=item * X509_get_X509_PUBKEY
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.72 and before
+
+Returns the full public key (SPKI) of given X509 certificate $x.
+
+ Net::SSLeay::X509_get_X509_PUBKEY($x);
+ # $x - value corresponding to openssl's X509 structure
+ #
+ # returns: public key data in DER format (binary)
+
 =item * X509_get_serialNumber
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
