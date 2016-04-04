@@ -8322,6 +8322,10 @@ There are also a number of example/test programs in the examples directory:
                           it gets back (very educative :-)
     makecert.pl  -  Creates a self signed cert (does not use this module)
 
+=head1 INSTALLATION
+
+See README and README.* in the distribution directory for installation guidance on a variety of platforms.
+
 =head1 LIMITATIONS
 
 C<Net::SSLeay::read()> uses an internal buffer of 32KB, thus no single read
