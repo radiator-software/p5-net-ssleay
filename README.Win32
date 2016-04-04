@@ -20,6 +20,14 @@ library does not work, since applink.c need to be in the .exe file, not the
 .dll for this to work. Best workaround is to build and install OpenSSL for
 windows yourself.
 
+2. If your OpenSSL is installed in an unusual place, you can tell
+Net-SSLeay where to find it with the OPENSSL_PREFIX environment
+variable:
+set OPENSSL_PREFIX=c:\OpenSSL-1.0.1c
+perl Makefile.PL
+make
+.....
+
 $Id$
 
 1. Windows Server 2003
