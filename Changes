@@ -2,7 +2,7 @@ Revision history for Perl extension Net::SSLeay.
 
 ????
      Added X509_get_X509_PUBKEY. Patch supplied by GUILHEM. Thanks.
-
+     Added README.OSX with instructions on how to build for recent OS X.
 
 1.72 2015-09-22
      Fixed a problem where SvPVx_nolen was undefined in some versions of

@@ -1,0 +1,66 @@
+As of 15 Jun 2015, Apply no longer ships OpenSSL with OS X:
+(http://lists.apple.com/archives/macnetworkprog/2015/Jun/msg00025.html)
+
+Some OS X packages and bundles install OpenSSL, typically in /opt/local
+if that is the case it is sufficient for you to unpack and build
+Net-SSLeay in the usual way:
+
+#cd to a working directory
+cd /Users/mikem/tmp/
+# unpack net-ssleay from wherever you got it:
+tar zxvf /Volumes/projects/net-ssleay/trunk/Net-SSLeay-1.72.tar.gz
+cd Net-SSLeay-1.72
+# Build it for 64 bits (default)
+perl Makefile.PL
+make
+make test
+# as root, install the compiled Net-SSLeay:
+make install
+
+If a working openssl is not installed already the above will fail, 
+but you can still build your own OpenSSL to link against:
+(https://wiki.openssl.org/index.php/Compilation_and_Installation), and build Net-SSLeay against it:
+Test compilation etc in a private directory eg:
+
+#cd to a working directory
+cd /Users/mikem/tmp/
+wd=`pwd`
+# unpack openssl from wherever you got it:
+tar zxvf /Volumes/src/openssl-1.0.2c.tar.gz
+cd openssl-1.0.2c
+# Build for 64 bits and install it in a local directory
+darwin64-x86_64-cc shared enable-ec_nistp_64_gcc_128 no-ssl2 no-ssl3 no-comp --prefix=$wd/openssl
+make
+make install_sw
+cd $wd
+# unpack net-ssleay from wherever you got it:
+tar zxvf /Volumes/projects/net-ssleay/trunk/Net-SSLeay-1.72.tar.gz
+cd Net-SSLeay-1.72
+# Build it for 64 bits (default)
+OPENSSL_PREFIX=$wd/openssl perl Makefile.PL
+make test
+# You should see successful test run data and "Result: PASS"
+
+Real installation of OpenSSL and Net-SSLeay to public areas eg:
+
+#cd to a working directory
+cd /Users/mikem/tmp/
+wd=`pwd`
+# unpack openssl from wherever you got it:
+tar zxvf /Volumes/src/openssl-1.0.2c.tar.gz
+cd openssl-1.0.2c
+# Build for 64 bits and install it in a local directory
+darwin64-x86_64-cc shared enable-ec_nistp_64_gcc_128 no-ssl2 no-ssl3 no-comp
+make
+sudo make install_sw
+cd $wd
+# unpack net-ssleay from wherever you got it:
+tar zxvf /Volumes/projects/net-ssleay/trunk/Net-SSLeay-1.72.tar.gz
+cd Net-SSLeay-1.72
+# Build it for 64 bits (default)
+perl Makefile.PL
+make test
+# You should see successful test run data and "Result: PASS"
+# Install it, typically to /Library/Perl/5.18 or whereever
+sudo make install
+     

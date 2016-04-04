@@ -71,6 +71,9 @@ Windows:
 	Supported on 32 and 64 bit platforms
 	See README.Win32 for details
 
+OS X:
+	See README.OSX
+---------------------------------	
 You should also be able to use CPAN.pm to install this module if you like.
 
 Linking with RSAref is no longer supported (the patent issue is moot
