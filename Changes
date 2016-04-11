@@ -1,5 +1,8 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.74 2016-04-12
+     README.OSX was missing from the distribution
+
 1.73 2016-04-11
      Added X509_get_X509_PUBKEY. Patch supplied by GUILHEM. Thanks.
      Added README.OSX with instructions on how to build for recent OS X.
