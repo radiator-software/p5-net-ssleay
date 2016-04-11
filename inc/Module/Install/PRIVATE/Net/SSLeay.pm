@@ -179,22 +179,23 @@ sub find_openssl_prefix {
     }
 
     my @guesses = (
-	    '/usr/local/bin/openssl'         => '/usr/local', # OSX homebrew openssl
-            '/opt/local/bin/openssl'         => '/opt/local', # Macports openssl
-            '/usr/bin/openssl'               => '/usr',
-            '/usr/sbin/openssl'              => '/usr',
-            '/opt/ssl/bin/openssl'           => '/opt/ssl',
-            '/opt/ssl/sbin/openssl'          => '/opt/ssl',
-            '/usr/local/ssl/bin/openssl'     => '/usr/local/ssl',
-            '/usr/local/openssl/bin/openssl' => '/usr/local/openssl',
-            '/apps/openssl/std/bin/openssl'  => '/apps/openssl/std',
-            '/usr/sfw/bin/openssl'           => '/usr/sfw', # Open Solaris
-            'C:\OpenSSL\bin\openssl.exe'     => 'C:\OpenSSL',
-            'C:\OpenSSL-Win32\bin\openssl.exe'        => 'C:\OpenSSL-Win32',
-            $Config{prefix} . '\bin\openssl.exe'      => $Config{prefix},           # strawberry perl
-            $Config{prefix} . '\..\c\bin\openssl.exe' => $Config{prefix} . '\..\c', # strawberry perl
-            '/sslexe/openssl.exe'            => '/sslroot',  # VMS, openssl.org
-            '/ssl$exe/openssl.exe'           => '/ssl$root', # VMS, HP install
+	'/usr/local/opt/openssl/bin/openssl' => '/usr/local/opt/openssl', # OSX homebrew openssl
+	'/usr/local/bin/openssl'         => '/usr/local', # OSX homebrew openssl
+	'/opt/local/bin/openssl'         => '/opt/local', # Macports openssl
+	'/usr/bin/openssl'               => '/usr',
+	'/usr/sbin/openssl'              => '/usr',
+	'/opt/ssl/bin/openssl'           => '/opt/ssl',
+	'/opt/ssl/sbin/openssl'          => '/opt/ssl',
+	'/usr/local/ssl/bin/openssl'     => '/usr/local/ssl',
+	'/usr/local/openssl/bin/openssl' => '/usr/local/openssl',
+	'/apps/openssl/std/bin/openssl'  => '/apps/openssl/std',
+	'/usr/sfw/bin/openssl'           => '/usr/sfw', # Open Solaris
+	'C:\OpenSSL\bin\openssl.exe'     => 'C:\OpenSSL',
+	'C:\OpenSSL-Win32\bin\openssl.exe'        => 'C:\OpenSSL-Win32',
+	$Config{prefix} . '\bin\openssl.exe'      => $Config{prefix},           # strawberry perl
+	$Config{prefix} . '\..\c\bin\openssl.exe' => $Config{prefix} . '\..\c', # strawberry perl
+	'/sslexe/openssl.exe'            => '/sslroot',  # VMS, openssl.org
+	'/ssl$exe/openssl.exe'           => '/ssl$root', # VMS, HP install
     );
 
     while (my $k = shift @guesses

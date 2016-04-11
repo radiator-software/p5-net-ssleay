@@ -5,6 +5,8 @@ Revision history for Perl extension Net::SSLeay.
      Added README.OSX with instructions on how to build for recent OS X.
      Added info about using OPENSSL_PREFIX to README.Win32.
      Added comments in POD about installation documentation.
+     Added '/usr/local/opt/openssl/bin/openssl' to Openssl search path for
+     latest version of  OSX homebrew openssl. Patch from Shoichi Kaji.
 
 1.72 2015-09-22
      Fixed a problem where SvPVx_nolen was undefined in some versions of
