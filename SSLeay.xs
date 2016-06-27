@@ -237,7 +237,9 @@ START_MY_CXT
 
 #ifdef USE_ITHREADS
 static perl_mutex LIB_init_mutex;
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 static perl_mutex *GLOBAL_openssl_mutex = NULL;
+#endif
 #endif
 static int LIB_initialized;
 
@@ -277,6 +279,8 @@ UV get_my_thread_id(void) /* returns threads->tid() value */
  */
 #if defined(USE_ITHREADS) && defined(OPENSSL_THREADS)
 
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 static void openssl_locking_function(int mode, int type, const char *file, int line)
 {
     PR3("openssl_locking_function %d %d\n", mode, type);
@@ -331,6 +335,7 @@ void openssl_dynlocking_destroy_function (struct CRYPTO_dynlock_value *l, const 
     MUTEX_DESTROY(&l->mutex);
     Safefree(l);
 }
+#endif
 
 void openssl_threads_init(void)
 {
@@ -338,6 +343,7 @@ void openssl_threads_init(void)
 
     PR1("STARTED: openssl_threads_init\n");
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     /* initialize static locking */
     if ( !CRYPTO_get_locking_callback() ) {
 #if OPENSSL_VERSION_NUMBER < 0x10000000L
@@ -371,6 +377,7 @@ void openssl_threads_init(void)
         CRYPTO_set_dynlock_lock_callback(openssl_dynlocking_lock_function);
         CRYPTO_set_dynlock_destroy_callback(openssl_dynlocking_destroy_function);
     }
+#endif 
 }
 
 #endif
@@ -395,7 +402,9 @@ static void handler_list_md_fn(const EVP_MD *m, const char *from, const char *to
   if (!m) return;                                           /* Skip aliases */
   mname = OBJ_nid2ln(EVP_MD_type(m));
   if (strcmp(from, mname)) return;                          /* Skip shortnames */
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
   if (EVP_MD_flags(m) & EVP_MD_FLAG_PKEY_DIGEST) return;    /* Skip clones */
+#endif
   if (strchr(mname, ' ')) mname= EVP_MD_name(m);
   av_push(arg, newSVpv(mname,0));
 }
@@ -799,6 +808,7 @@ int ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
     AV *ciphers = newAV();
     SV *pref_cipher = sv_newmortal();
     SV * cb_func, *cb_data;
+    SV * secretsv;
 
     PR1("STARTED: ssleay_session_secret_cb_invoke\n");
     cb_func = cb_data_advanced_get(arg, "ssleay_session_secret_cb!!func");
@@ -811,8 +821,8 @@ int ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
     SAVETMPS;
 
     PUSHMARK(SP);
-
-    XPUSHs( sv_2mortal( newSVpv(secret, *secret_len)) );
+    secretsv = sv_2mortal( newSVpv(secret, *secret_len));
+    XPUSHs(secretsv);
     for (i=0; i<sk_SSL_CIPHER_num(peer_ciphers); i++) {
         SSL_CIPHER *c = sk_SSL_CIPHER_value(peer_ciphers,i);
         av_store(ciphers, i, sv_2mortal(newSVpv(SSL_CIPHER_get_name(c), 0)));
@@ -835,6 +845,13 @@ int ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
         /* See if there is a preferred cipher selected, if so it is an index into the stack */
         if (SvIOK(pref_cipher))
             *cipher = sk_SSL_CIPHER_value(peer_ciphers, SvIV(pref_cipher));
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+	/* Use any new master secret set by the callback function in secret */
+	STRLEN newsecretlen;
+	char* newsecretdata = SvPV(secretsv, newsecretlen);
+	memcpy(secret, newsecretdata, newsecretlen);
+#endif
     }
 
     PUTBACK;
@@ -1404,7 +1421,9 @@ SSL_CTX_new()
      OUTPUT:
      RETVAL
 
-#ifndef OPENSSL_NO_SSL2
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#ifndef OPENSSL_NO_SSL2 
 
 SSL_CTX *
 SSL_CTX_v2_new()
@@ -1414,7 +1433,7 @@ SSL_CTX_v2_new()
      RETVAL
 
 #endif
-
+#endif
 #ifndef OPENSSL_NO_SSL3
 
 SSL_CTX *
@@ -2105,10 +2124,35 @@ int
 SSL_want(s)
      SSL *              s
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 int
 SSL_state(s)
      SSL *              s
 
+int
+SSL_get_state(ssl)
+     SSL *	ssl
+  CODE:
+  RETVAL = SSL_state(ssl);
+  OUTPUT:
+  RETVAL
+
+
+#else
+int
+SSL_state(s)
+     SSL *              s
+     CODE:
+     RETVAL = SSL_get_state(s);
+     OUTPUT:
+     RETVAL
+
+
+int
+SSL_get_state(s)
+     SSL *              s
+
+#endif
 #if OPENSSL_VERSION_NUMBER >= 0x0090806fL && !defined(OPENSSL_NO_TLSEXT)
 
 long
@@ -2734,19 +2778,15 @@ P_X509_REQ_get_attr(req,n)
         X509_ATTRIBUTE * att;
         int count, i;
         ASN1_STRING * s;
+	ASN1_TYPE * t;
     PPCODE:
         att = X509_REQ_get_attr(req,n);
-        if (att->single) {
-            s = (att->value.single->value.asn1_string);
+	count = X509_ATTRIBUTE_count(att);
+	for (i=0; i<count; i++) {
+	    t = X509_ATTRIBUTE_get0_type(att, i);
+	    s = t->value.asn1_string;
             XPUSHs(sv_2mortal(newSViv(PTR2IV(s))));
-        }
-        else {
-            count = sk_ASN1_TYPE_num(att->value.set);
-            for (i=0; i<count; i++) {
-                s = (sk_ASN1_TYPE_value(att->value.set, i)->value.asn1_string);
-                XPUSHs(sv_2mortal(newSViv(PTR2IV(s))));
-            }
-        }
+	}
 
 #endif
 
@@ -4439,6 +4479,7 @@ SSL_set_session_id_context(ssl,sid_ctx,sid_ctx_len)
      const unsigned char *   sid_ctx
      unsigned int sid_ctx_len
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 void
 SSL_CTX_set_tmp_rsa_callback(ctx, cb)
      SSL_CTX *   ctx
@@ -4448,6 +4489,8 @@ void
 SSL_set_tmp_rsa_callback(ssl, cb)
      SSL *   ssl
      cb_ssl_int_int_ret_RSA *  cb
+
+#endif
 
 void
 SSL_CTX_set_tmp_dh_callback(ctx, dh)
@@ -4526,6 +4569,7 @@ SSL_CTX_get_session_cache_mode(ctx)
   OUTPUT:
   RETVAL
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 long
 SSL_CTX_need_tmp_RSA(ctx)
      SSL_CTX *	ctx
@@ -4533,6 +4577,8 @@ SSL_CTX_need_tmp_RSA(ctx)
   RETVAL = SSL_CTX_ctrl(ctx,SSL_CTRL_NEED_TMP_RSA,0,NULL);
   OUTPUT:
   RETVAL
+
+#endif
 
 int
 SSL_CTX_set_app_data(ctx,arg)
@@ -4575,10 +4621,13 @@ SSL_CTX_set_tmp_dh(ctx,dh)
      SSL_CTX *	ctx
      DH *	dh
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 long
 SSL_CTX_set_tmp_rsa(ctx,rsa)
      SSL_CTX *	ctx
      RSA *	rsa
+
+#endif
 
 #if OPENSSL_VERSION_NUMBER > 0x10000000L && !defined OPENSSL_NO_EC
 
@@ -4622,25 +4671,20 @@ SSL_get_mode(ssl)
   OUTPUT:
   RETVAL
 
-int
-SSL_get_state(ssl)
-     SSL *	ssl
-  CODE:
-  RETVAL = SSL_state(ssl);
-  OUTPUT:
-  RETVAL
-
 void
 SSL_set_state(ssl,state)
      SSL *	ssl
      int        state
   CODE:
-#ifdef OPENSSL_NO_SSL_INTERN
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+      /* not available */
+#elif defined(OPENSSL_NO_SSL_INTERN)
    SSL_set_state(ssl,state);
 #else
   ssl->state = state;
 #endif
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 long
 SSL_need_tmp_RSA(ssl)
      SSL *	ssl
@@ -4648,6 +4692,9 @@ SSL_need_tmp_RSA(ssl)
   RETVAL = SSL_ctrl(ssl,SSL_CTRL_NEED_TMP_RSA,0,NULL);
   OUTPUT:
   RETVAL
+
+
+#endif
 
 long
 SSL_num_renegotiations(ssl)
@@ -4668,10 +4715,6 @@ SSL_SESSION_get_app_data(ses)
 long
 SSL_session_reused(ssl)
      SSL *	ssl
-  CODE:
-  RETVAL = SSL_ctrl(ssl,SSL_CTRL_GET_SESSION_REUSED,0,NULL);
-  OUTPUT:
-  RETVAL
 
 int
 SSL_SESSION_set_app_data(s,a)
@@ -4714,6 +4757,7 @@ SSL_set_tmp_dh(ssl,dh)
      SSL *	ssl
      DH *	dh
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 long
 SSL_set_tmp_rsa(ssl,rsa)
      SSL *	ssl
@@ -4723,6 +4767,7 @@ SSL_set_tmp_rsa(ssl,rsa)
   OUTPUT:
   RETVAL
 
+#endif
 
 #ifdef __ANDROID__
 
@@ -4855,12 +4900,32 @@ SSL_total_renegotiations(ssl)
   OUTPUT:
   RETVAL
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+void
+SSL_SESSION_get_master_key(s)
+     SSL_SESSION *   s
+     PREINIT:
+     size_t master_key_length;
+     unsigned char* master_key;
+     CODE:
+     ST(0) = sv_newmortal();   /* Undefined to start with */
+     master_key_length = SSL_SESSION_get_master_key(s, 0, 0); /* get the length */
+     New(0, master_key, master_key_length, unsigned char);
+     SSL_SESSION_get_master_key(s, master_key, master_key_length);
+     sv_setpvn(ST(0), (const char*)master_key, master_key_length);
+     Safefree(master_key);
+
+#else
 void
 SSL_SESSION_get_master_key(s)
      SSL_SESSION *   s
      CODE:
      ST(0) = sv_newmortal();   /* Undefined to start with */
      sv_setpvn(ST(0), (const char*)s->master_key, s->master_key_length);
+
+#endif
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 
 void
 SSL_SESSION_set_master_key(s,key)
@@ -4873,12 +4938,52 @@ SSL_SESSION_set_master_key(s,key)
      memcpy(s->master_key, key, len);
      s->master_key_length = len;
 
+#endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+
+void
+SSL_get_client_random(s)
+     SSL *   s
+     PREINIT:
+     size_t random_length;
+     unsigned char* random_data;
+     CODE:
+     ST(0) = sv_newmortal();   /* Undefined to start with */
+     random_length = SSL_get_client_random(s, 0, 0); /* get the length */
+     New(0, random_data, random_length, unsigned char);
+     SSL_get_client_random(s, random_data, random_length);
+     sv_setpvn(ST(0), (const char*)random_data, random_length);
+     Safefree(random_data);
+
+#else
+
 void
 SSL_get_client_random(s)
      SSL *   s
      CODE:
      ST(0) = sv_newmortal();   /* Undefined to start with */
      sv_setpvn(ST(0), (const char*)s->s3->client_random, SSL3_RANDOM_SIZE);
+
+#endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+
+void
+SSL_get_server_random(s)
+     SSL *   s
+     PREINIT:
+     size_t random_length;
+     unsigned char* random_data;
+     CODE:
+     ST(0) = sv_newmortal();   /* Undefined to start with */
+     random_length = SSL_get_server_random(s, 0, 0); /* get the length */
+     New(0, random_data, random_length, unsigned char);
+     SSL_get_server_random(s, random_data, random_length);
+     sv_setpvn(ST(0), (const char*)random_data, random_length);
+     Safefree(random_data);
+
+#else
 
 void
 SSL_get_server_random(s)
@@ -4887,10 +4992,26 @@ SSL_get_server_random(s)
      ST(0) = sv_newmortal();   /* Undefined to start with */
      sv_setpvn(ST(0), (const char*)s->s3->server_random, SSL3_RANDOM_SIZE);
 
+#endif
+
 int
 SSL_get_keyblock_size(s)
      SSL *   s
      CODE:
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+        const SSL_CIPHER *ssl_cipher;
+	int cipher, digest;
+	const EVP_CIPHER *c;
+	const EVP_MD *h;
+
+	ssl_cipher = SSL_get_current_cipher(s);
+	cipher = SSL_CIPHER_get_cipher_nid(ssl_cipher);
+	digest = SSL_CIPHER_get_digest_nid(ssl_cipher);
+	c = EVP_get_cipherbynid(cipher);
+	h = EVP_get_digestbynid(digest);
+	RETVAL = 2 * (EVP_CIPHER_key_length(c) + EVP_MD_size(h) +
+		    EVP_CIPHER_iv_length(c));
+#else
      if (s == NULL ||
 	 s->enc_read_ctx == NULL ||
 	 s->enc_read_ctx->cipher == NULL ||
@@ -4919,6 +5040,8 @@ SSL_get_keyblock_size(s)
 				       EVP_CIPHER_iv_length(c)))
 			       : -1;
      }
+#endif
+
      OUTPUT:
      RETVAL
 
@@ -4956,9 +5079,7 @@ SSL_set_session_secret_cb(s,callback=&PL_sv_undef,data=&PL_sv_undef)
         else {
             cb_data_advanced_put(s, "ssleay_session_secret_cb!!func", newSVsv(callback));
             cb_data_advanced_put(s, "ssleay_session_secret_cb!!data", newSVsv(data));
-            SSL_set_session_secret_cb(s, (int (*)(SSL *s, void *secret, int *secret_len,
-                STACK_OF(SSL_CIPHER) *peer_ciphers,
-                SSL_CIPHER **cipher, void *arg))&ssleay_session_secret_cb_invoke, s);
+            SSL_set_session_secret_cb(s, (tls_session_secret_cb_fn)&ssleay_session_secret_cb_invoke, s);
         }
 
 #endif
@@ -5382,15 +5503,28 @@ ASN1_OBJECT *
 P_X509_get_signature_alg(x)
         X509 * x
     CODE:
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+        RETVAL = (X509_get0_tbs_sigalg(x)->algorithm);
+#else
         RETVAL = (x->cert_info->signature->algorithm);
+#endif
     OUTPUT:
         RETVAL
 
 ASN1_OBJECT *
 P_X509_get_pubkey_alg(x)
         X509 * x
+    PREINIT:
     CODE:
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    {
+	X509_ALGOR * algor;
+        X509_PUBKEY_get0_param(0, 0, 0, &algor, X509_get_X509_PUBKEY(x));
+        RETVAL = (algor->algorithm);
+    }
+#else
         RETVAL = (x->cert_info->key->algor->algorithm);
+#endif
     OUTPUT:
         RETVAL
 
@@ -5705,8 +5839,7 @@ SSL_OCSP_response_verify(ssl,rsp,svreq=NULL,flags=0)
 	     * response does not contain the chain up to the trusted root */
 	    STACK_OF(X509) *chain = SSL_get_peer_cert_chain(ssl);
 	    for(i=0;i<sk_X509_num(chain);i++) {
-		if (!bsr->certs) bsr->certs = sk_X509_new_null();
-		sk_X509_push(bsr->certs,X509_dup(sk_X509_value(chain,i)));
+		OCSP_basic_add1_cert(bsr, sk_X509_value(chain,i));
 	    }
 	    TRACE(1,"run basic verify");
 	    RETVAL = OCSP_basic_verify(bsr, NULL, store, flags);
@@ -5718,7 +5851,7 @@ SSL_OCSP_response_verify(ssl,rsp,svreq=NULL,flags=0)
 		X509 *issuer;
 		X509 *last = sk_X509_value(chain,sk_X509_num(chain)-1);
 		if ( (issuer = find_issuer(last,store,chain))) {
-		    sk_X509_push(bsr->certs,X509_dup(issuer));
+		    OCSP_basic_add1_cert(bsr, X509_dup(issuer));
 		    TRACE(1,"run OCSP_basic_verify with issuer for last chain element");
 		    RETVAL = OCSP_basic_verify(bsr, NULL, store, flags);
 		}
@@ -5736,7 +5869,6 @@ OCSP_response_results(rsp,...)
 	OCSP_BASICRESP *bsr;
 	int i,want_array;
 	time_t nextupd = 0;
-	STACK_OF(OCSP_SINGLERESP) *sks;
 	int getall,sksn;
 
 	bsr = OCSP_response_get1_basic(rsp);
@@ -5744,8 +5876,7 @@ OCSP_response_results(rsp,...)
 
 	want_array = (GIMME == G_ARRAY);
 	getall = (items <= 1);
-	sks = bsr->tbsResponseData->responses;
-	sksn = sk_OCSP_SINGLERESP_num(sks);
+	sksn = OCSP_resp_count(bsr);
 
 	for(i=0; i < (getall ? sksn : items-1); i++) {
 	    const char *error = NULL;
@@ -5754,9 +5885,8 @@ OCSP_response_results(rsp,...)
 	    SV *idsv = NULL;
 
 	    if(getall) {
-		sir = sk_OCSP_SINGLERESP_value(sks,i);
+		sir = OCSP_resp_get0(bsr,i);
 	    } else {
-		int k;
 		STRLEN len;
 		const unsigned char *p;
 
@@ -5767,22 +5897,36 @@ OCSP_response_results(rsp,...)
 		    error = "failed to get OCSP certid from string";
 		    goto end;
 		}
-		for(k=0;k<sksn;k++) {
-		    if (!OCSP_id_cmp(certid,sk_OCSP_SINGLERESP_value(sks,k)->certId)) {
-			sir = sk_OCSP_SINGLERESP_value(sks,k);
-			break;
-		    }
+                int first = OCSP_resp_find(bsr, certid, -1); /* Find the first matching */
+		if (first >= 0)
+		{
+		    sir = OCSP_resp_get0(bsr,first);
+		    break;
 		}
 	    }
 
-	    if (!sir) {
-		error = "cannot find entry for certificate in OCSP response";
-	    } else if (!OCSP_check_validity(sir->thisUpdate,sir->nextUpdate,0,-1)) {
-		error = "response not yet valid or expired";
-	    } else if (sir->certStatus->type == V_OCSP_CERTSTATUS_REVOKED) {
-		error = "certificate status is revoked";
-	    } else if (sir->certStatus->type != V_OCSP_CERTSTATUS_GOOD) {
-		error = "certificate status is unknown";
+	    int status, revocationReason;   
+	    ASN1_GENERALIZEDTIME *revocationTime, *thisupdate, *nextupdate;
+	    if (sir)
+	    {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+		status = OCSP_single_get0_status(sir, &revocationReason, &revocationTime, &thisupdate, &nextupdate);
+#else
+		status = sir->certStatus->type;
+		revocationTime = sir->certStatus->value.revoked->revocationTime;
+		thisupdate = sir->thisUpdate;
+		nextupdate = sir->nextUpdate;
+#endif
+		if (status == V_OCSP_CERTSTATUS_REVOKED) {
+		    error = "certificate status is revoked";
+		} else if (status != V_OCSP_CERTSTATUS_GOOD) {
+		    error = "certificate status is unknown";
+		}
+		else if (!OCSP_check_validity(thisupdate, nextupdate, 0, -1)) {
+		    error = "response not yet valid or expired";
+		}
+	    } else {
+	        error = "cannot find entry for certificate in OCSP response";
 	    }
 
 	    end:
@@ -5791,12 +5935,20 @@ OCSP_response_results(rsp,...)
 		if (!idsv) {
 		    /* getall: create new SV with OCSP_CERTID */
 		    unsigned char *pi,*pc;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+		    int len = i2d_OCSP_CERTID(OCSP_SINGLERESP_get0_id(sir),NULL);
+#else
 		    int len = i2d_OCSP_CERTID(sir->certId,NULL);
+#endif
 		    if(!len) continue;
 		    Newx(pc,len,unsigned char);
 		    if (!pc) croak("out of memory");
 		    pi = pc;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+		    i2d_OCSP_CERTID(OCSP_SINGLERESP_get0_id(sir),&pi);
+#else
 		    i2d_OCSP_CERTID(sir->certId,&pi);
+#endif
 		    idsv = newSVpv((char*)pc,len);
 		    Safefree(pc);
 		} else {
@@ -5809,26 +5961,26 @@ OCSP_response_results(rsp,...)
 		    HV *details = newHV();
 		    av_push(idav,newRV_noinc((SV*)details));
 		    hv_store(details,"statusType",10,
-			newSViv(sir->certStatus->type),0);
-		    if (sir->nextUpdate) hv_store(details,"nextUpdate",10,
-			newSViv(ASN1_TIME_timet(sir->nextUpdate)),0);
-		    if (sir->thisUpdate) hv_store(details,"thisUpdate",10,
-			newSViv(ASN1_TIME_timet(sir->thisUpdate)),0);
-		    if (sir->certStatus->type == V_OCSP_CERTSTATUS_REVOKED) {
+			newSViv(status),0);
+		    if (nextupdate) hv_store(details,"nextUpdate",10,
+			newSViv(ASN1_TIME_timet(nextupdate)),0);
+		    if (thisupdate) hv_store(details,"thisUpdate",10,
+			newSViv(ASN1_TIME_timet(thisupdate)),0);
+		    if (status == V_OCSP_CERTSTATUS_REVOKED) {
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 			OCSP_REVOKEDINFO *rev = sir->certStatus->value.revoked;
-			hv_store(details,"revocationTime",14,newSViv(
-			    ASN1_TIME_timet(rev->revocationTime)),0);
-			hv_store(details,"revocationReason",16,newSViv(
-			    ASN1_ENUMERATED_get(rev->revocationReason)),0);
+			revocationReason = ASN1_ENUMERATED_get(rev->revocationReason);
+#endif
+			hv_store(details,"revocationTime",14,newSViv(ASN1_TIME_timet(revocationTime)),0);
+			hv_store(details,"revocationReason",16,newSViv(revocationReason),0);
 			hv_store(details,"revocationReason_str",20,newSVpv(
-			    OCSP_crl_reason_str(ASN1_ENUMERATED_get(
-			    rev->revocationReason)),0),0);
+		            OCSP_crl_reason_str(revocationReason),0),0);
 		    }
 		}
 		XPUSHs(sv_2mortal(newRV_noinc((SV*)idav)));
 	    } else if (!error) {
 		/* compute lowest nextUpdate */
-		time_t nu = ASN1_TIME_timet(sir->nextUpdate);
+		time_t nu = ASN1_TIME_timet(nextupdate);
 		if (!nextupd || nextupd>nu) nextupd = nu;
 	    }
 

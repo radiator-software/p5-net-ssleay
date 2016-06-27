@@ -175,7 +175,7 @@ for my $f (keys (%$dump)) {
   }
     
   SKIP: {
-    skip('crl_distribution_points requires 0.9.7+', scalar(@{$dump->{$f}->{cdp}})+1) unless Net::SSLeay::SSLeay >= 0x0090700f;
+    skip('crl_distribution_points requires 0.9.7+', int(@{$dump->{$f}->{cdp}})+1) unless Net::SSLeay::SSLeay >= 0x0090700f;
     my @cdp = Net::SSLeay::P_X509_get_crl_distribution_points($x509);
     is(scalar(@cdp), scalar(@{$dump->{$f}->{cdp}}), "cdp size\t$f");
     for my $i (0..$#cdp) {

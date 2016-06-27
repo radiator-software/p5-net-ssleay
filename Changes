@@ -1,5 +1,26 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.75 ?????
+     Compatibility with OpenSSL 1.1, tested with openssl-1.1.0-pre5:
+     - Conditionally remove threading locking code, not needed in 1.1
+     - Rewrite code that accesses inside X509_ATTRIBUTE struct.
+     - SSL_CTX_need_tmp_RSA, SSL_CTX_set_tmp_rsa,
+       SSL_CTX_set_tmp_rsa_callback, SSL_set_tmp_rsa_callback support
+       not available in 1.1.
+     - SSL_session_reused is now native
+     - SSL_get_keyblock_size modifed to use new API
+     - OCSP functions modified to use new API under 1.1
+     - SSL_set_state removed with 1.1
+     - SSL_get_state and SSL_state are now equivalent and available in all
+       versions
+     - SSL_CTX_v2_new removed
+     - SESSION_set_master_key removed with 1.1. Code that previously used
+       SESSION_set_master_key must now set $secret in the session_secret
+       callback set with SSL_set_session_secret_cb
+     - With 1.1, $secret in the session_secret
+       callback set with SSL_set_session_secret_cb can be changed to alter
+       the master key (required by EAP-FAST).
+
 1.74 2016-04-12
      README.OSX was missing from the distribution
 

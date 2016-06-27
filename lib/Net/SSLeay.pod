@@ -44,6 +44,8 @@ B<COMPATIBILITY NOTE:> L<Net::SSLeay> cannot be built with pre-0.9.3 openssl. It
 to use at least 0.9.7 (as older versions are not tested during development). Some low level API functions
 may be available with certain openssl versions.
 
+It is compatible with OpenSSL 1.0 and 1.1. Some functions are not available under OpenSSL 1.1.
+
 L<Net::SSLeay> module basically comprise of:
 
 =over
@@ -1844,6 +1846,11 @@ Sets 'master_key' value for SSL_SESSION structure $s
  #
  # returns: no return value
 
+Not available with OpenSSL 1.1 and later.
+Code that previously used
+       SESSION_set_master_key must now set $secret in the session_secret
+       callback set with SSL_set_session_secret_cb.
+
 =item * SESSION_get_time
 
 Returns the time at which the session s was established.
@@ -2447,6 +2454,8 @@ Return the result of C<SSL_CTX_ctrl(ctx,SSL_CTRL_NEED_TMP_RSA,0,NULL)>
  #
  # returns: result of SSL_CTRL_NEED_TMP_RSA command
 
+Not available with OpenSSL 1.1 and later.
+
 =item * CTX_new
 
 The same as L</CTX_v23_new>
@@ -2456,6 +2465,8 @@ The same as L</CTX_v23_new>
  # returns: value corresponding to openssl's SSL_CTX structure (0 on failure)
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_new.html|http://www.openssl.org/docs/ssl/SSL_CTX_new.html>
+
+Not available with OpenSSL 1.1 and later.
 
 =item * CTX_v2_new
 
@@ -2906,6 +2917,8 @@ Sets the temporary/ephemeral RSA key to be used to be $rsa.
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_rsa_callback.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_rsa_callback.html>
 
+Not available with OpenSSL 1.1 and later.
+
 =item * CTX_set_tmp_rsa_callback
 
 Sets the callback function for ctx to be used when a temporary/ephemeral RSA key is required to $tmp_rsa_callback.
@@ -2919,6 +2932,8 @@ Sets the callback function for ctx to be used when a temporary/ephemeral RSA key
  # returns: no return value
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_rsa_callback.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_tmp_rsa_callback.html>
+
+Not available with OpenSSL 1.1 and later.
 
 =item * CTX_set_trust
 
@@ -3436,9 +3451,9 @@ Obtains the latest 'Finished' message expected from the peer.
 
 =item * get_keyblock_size
 
-B<NOTE:> Does not exactly correspond to any low level API function.
+Gets the length of the TLS keyblock.
 
-??? (more info needed)
+B<NOTE:> Does not exactly correspond to any low level API function.
 
  my $rv = Net::SSLeay::get_keyblock_size($ssl);
  # $ssl - value corresponding to openssl's SSL structure
@@ -3680,6 +3695,8 @@ Sets the SSL connection state.
 
  Net::SSLeay::set_state($ssl,Net::SSLeay::SSL_ST_ACCEPT());
 
+Not available with OpenSSL 1.1 and later.
+
 =item * get_verify_depth
 
 Returns the verification depth limit currently set in $ssl.
@@ -3828,6 +3845,8 @@ Executes SSL_CTRL_NEED_TMP_RSA command on $ssl.
  # $ssl - value corresponding to openssl's SSL structure
  #
  # returns: command result
+
+Not available with OpenSSL 1.1 and later.
 
 =item * num_renegotiations
 
@@ -4130,6 +4149,21 @@ Setup pre-shared secret session resumption function.
  # $data - [optional] data that will be passed to callback function when invoked
  #
  # returns: no return value
+
+The callback function will be called like:
+callback_function($secret, $ciphers, $pref_cipher, $data);
+
+# $secret is the current master session key, usually all 0s at the beginning of a session
+# $ciphers is ref to an array of peer cipher names
+# $pref_cipher is a ref to an index into the list of cipher names of 
+#  the preferred cipher. Set it if you want to specify a preferred cipher
+# $data is the data passed to set_session_secret_cb
+
+The callback function should return 1 if it likes the suggested cipher (or has selected an alternative 
+by setting pref_cipher), else it should return 0 (in which case OpenSSL will select its own preferred cipher).
+
+With OpenSSL 1.1 and later, callback_function can change the master key for the session by 
+altering $secret and returning 1.
 
 =item * set_shutdown
 
