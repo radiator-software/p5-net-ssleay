@@ -113,5 +113,6 @@ t/local/42_info_callback.t
 t/local/50_digest.t
 t/local/61_threads-cb-crash.t
 t/local/62_threads-ctx_new-deadlock.t
+t/local/63_ec_key_generate_key.t
 t/local/kwalitee.t
 typemap

@@ -20,6 +20,10 @@ Revision history for Perl extension Net::SSLeay.
      - With 1.1, $secret in the session_secret
        callback set with SSL_set_session_secret_cb can be changed to alter
        the master key (required by EAP-FAST).
+     Added a function EC_KEY_generate_key similar to RSA_generate_key and a
+     function EVP_PKEY_assign_EC_KEY similar to EVP_PKEY_assign_RSA. Using
+     these functions it is easy to create and use EC keys in the same way as
+     RSA keys. Patch provided by Steffen Ullrich. Thanks Steffen.
 
 1.74 2016-04-12
      README.OSX was missing from the distribution

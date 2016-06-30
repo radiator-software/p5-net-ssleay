@@ -1395,8 +1395,8 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
 Set the key referenced by $pkey to $key
 
-B<NOTE:> In accordance with the OpenSSL naming convention the $key assigned
-to the $pkey using the "1" functions must be freed as well as $pkey.
+B<NOTE:> No reference counter will be increased, i.e. $key will be freed if
+$pkey is freed.
 
  my $rv = Net::SSLeay::EVP_PKEY_assign_RSA($pkey, $key);
  # $pkey - value corresponding to openssl's EVP_PKEY structure
@@ -1404,7 +1404,24 @@ to the $pkey using the "1" functions must be freed as well as $pkey.
  #
  # returns: 1 on success, 0 on failure
 
-Check openssl doc L<http://www.openssl.org/docs/crypto/EVP_PKEY_set1_RSA.html|http://www.openssl.org/docs/crypto/EVP_PKEY_set1_RSA.html>
+Check openssl doc L<http://www.openssl.org/docs/crypto/EVP_PKEY_assign_RSA.html|http://www.openssl.org/docs/crypto/EVP_PKEY_assign_RSA.html>
+ 
+=item * EVP_PKEY_assign_EC_KEY
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.74 and before
+
+Set the key referenced by $pkey to $key
+
+B<NOTE:> No reference counter will be increased, i.e. $key will be freed if
+$pkey is freed.
+
+ my $rv = Net::SSLeay::EVP_PKEY_assign_EC_KEY($pkey, $key);
+ # $pkey - value corresponding to openssl's EVP_PKEY structure
+ # $key - value corresponding to openssl's EC_KEY structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<http://www.openssl.org/docs/crypto/EVP_PKEY_assign_EC_KEY.html|http://www.openssl.org/docs/crypto/EVP_PKEY_assign_EC_KEY.html>
 
 =item * EVP_PKEY_bits
 
@@ -7994,6 +8011,23 @@ TBA
 =item * EC_KEY_new_by_curve_name
 
 TBA
+
+=item * EC_KEY_generate_key
+
+Generates a EC key and returns it in a newly allocated EC_KEY structure.
+The EC key then can be used to create a PKEY which can be used in calls
+like X509_set_pubkey.
+
+ my $key = Net::SSLeay::EVP_PKEY_new();
+ my $ec  = Net::SSLeay::EC_KEY_generate_key($curve);
+ Net::SSLeay::EVP_PKEY_assign_EC_KEY($key,$ec);
+
+ # $curve - curve name like 'secp521r1' or the matching Id (integer) of the curve
+ #
+ # returns: value corresponding to openssl's EC_KEY structure (0 on failure)
+
+This function has no equivalent in OpenSSL but combines multiple OpenSSL
+functions for an easier interface.
 
 =back
 

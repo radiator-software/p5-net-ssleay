@@ -4640,9 +4640,52 @@ EC_KEY_free(key)
     EC_KEY * key
 
 long
-SSL_CTX_set_tmp_ecdh(ctx,ecdh);
+SSL_CTX_set_tmp_ecdh(ctx,ecdh)
      SSL_CTX *	ctx
      EC_KEY  *	ecdh
+
+int
+EVP_PKEY_assign_EC_KEY(pkey,key)
+    EVP_PKEY *  pkey
+    EC_KEY *    key
+
+
+EC_KEY *
+EC_KEY_generate_key(curve)
+	SV *curve;
+    CODE:
+	EC_GROUP *group = NULL;
+	EC_KEY *eckey = NULL;
+	int nid;
+
+	RETVAL = 0;
+	if (SvIOK(curve)) {
+	    nid = SvIV(curve);
+	} else {
+	    nid = OBJ_sn2nid(SvPV_nolen(curve));
+#if OPENSSL_VERSION_NUMBER > 0x10002000L
+	    if (!nid) nid = EC_curve_nist2nid(SvPV_nolen(curve));
+#endif
+	    if (!nid) croak("unknown curve %s",SvPV_nolen(curve));
+	}
+
+	group = EC_GROUP_new_by_curve_name(nid);
+	if (!group) croak("unknown curve nid=%d",nid);
+	EC_GROUP_set_asn1_flag(group,OPENSSL_EC_NAMED_CURVE);
+
+	eckey = EC_KEY_new();
+	if ( eckey
+	    && EC_KEY_set_group(eckey, group)
+	    && EC_KEY_generate_key(eckey)) {
+	    RETVAL = eckey;
+	} else {
+	    if (eckey) EC_KEY_free(eckey);
+	}
+	if (group) EC_GROUP_free(group);
+
+    OUTPUT:
+	RETVAL
+
 
 #endif
 
