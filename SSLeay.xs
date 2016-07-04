@@ -4943,7 +4943,7 @@ SSL_total_renegotiations(ssl)
   OUTPUT:
   RETVAL
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
 void
 SSL_SESSION_get_master_key(s)
      SSL_SESSION *   s
@@ -4983,7 +4983,7 @@ SSL_SESSION_set_master_key(s,key)
 
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
 
 void
 SSL_get_client_random(s)
@@ -5010,7 +5010,7 @@ SSL_get_client_random(s)
 
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
 
 void
 SSL_get_server_random(s)
@@ -5041,7 +5041,7 @@ int
 SSL_get_keyblock_size(s)
      SSL *   s
      CODE:
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
         const SSL_CIPHER *ssl_cipher;
 	int cipher, digest;
 	const EVP_CIPHER *c;
@@ -5546,7 +5546,7 @@ ASN1_OBJECT *
 P_X509_get_signature_alg(x)
         X509 * x
     CODE:
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
         RETVAL = (X509_get0_tbs_sigalg(x)->algorithm);
 #else
         RETVAL = (x->cert_info->signature->algorithm);
@@ -5978,7 +5978,7 @@ OCSP_response_results(rsp,...)
 		if (!idsv) {
 		    /* getall: create new SV with OCSP_CERTID */
 		    unsigned char *pi,*pc;
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
 		    int len = i2d_OCSP_CERTID(OCSP_SINGLERESP_get0_id(sir),NULL);
 #else
 		    int len = i2d_OCSP_CERTID(sir->certId,NULL);
@@ -5987,7 +5987,7 @@ OCSP_response_results(rsp,...)
 		    Newx(pc,len,unsigned char);
 		    if (!pc) croak("out of memory");
 		    pi = pc;
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
 		    i2d_OCSP_CERTID(OCSP_SINGLERESP_get0_id(sir),&pi);
 #else
 		    i2d_OCSP_CERTID(sir->certId,&pi);
