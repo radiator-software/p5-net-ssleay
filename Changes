@@ -24,6 +24,8 @@ Revision history for Perl extension Net::SSLeay.
      function EVP_PKEY_assign_EC_KEY similar to EVP_PKEY_assign_RSA. Using
      these functions it is easy to create and use EC keys in the same way as
      RSA keys. Patch provided by Steffen Ullrich. Thanks Steffen.
+     Testing with LibreSSL 2.4.1, with compatibility patch from Steffen
+     Ullrich. Thanks Steffen.
 
 1.74 2016-04-12
      README.OSX was missing from the distribution
