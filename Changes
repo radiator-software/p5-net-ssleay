@@ -26,6 +26,15 @@ Revision history for Perl extension Net::SSLeay.
      RSA keys. Patch provided by Steffen Ullrich. Thanks Steffen.
      Testing with LibreSSL 2.4.1, with compatibility patch from Steffen
      Ullrich. Thanks Steffen.
+     Patch from Steffen Ulrich provides  support for cross context (and cross process)
+     session sharing using the stateless TLS session tickets. It uses the
+     SSL_CTX_set_tlsext_ticket_key_cb function to manage the encryption and
+     decryption of the tickets but provides a more simplified
+     interface. Includes new function CTX_set_tlsext_ticket_getkey_cb.
+     To not conflict with the OpenSSL name in case the more complex interface
+     will be implemented ever the current simplified interface is called
+     slightly different: CTX_set_tlsext_ticket_*get*key_cb. 
+
 
 1.74 2016-04-12
      README.OSX was missing from the distribution

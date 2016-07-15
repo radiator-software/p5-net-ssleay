@@ -1238,6 +1238,100 @@ void ssleay_ctx_info_cb_invoke(const SSL *ssl, int where, int ret)
     LEAVE;
 }
 
+/* 
+ * Support for tlsext_ticket_key_cb_invoke was already in 0.9.8 but it was
+ * broken in various ways during the various 1.0.0* versions.
+ * Better enable it only starting with 1.0.1.
+*/
+#if defined(SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB) && OPENSSL_VERSION_NUMBER >= 0x10001000L && !defined(OPENSSL_NO_TLSEXT)
+#define NET_SSLEAY_CAN_TICKET_KEY_CB
+
+int tlsext_ticket_key_cb_invoke(
+    SSL *ssl,
+    unsigned char *key_name,
+    unsigned char *iv,
+    EVP_CIPHER_CTX *ectx,
+    HMAC_CTX *hctx,
+    int enc
+){
+
+    dSP;
+    int count;
+    SV *cb_func, *cb_data;
+    SV *sv_name, *sv_key;
+    STRLEN svlen;
+    unsigned char *key;  /* key[0..15] aes, key[16..32] hmac */
+    unsigned char *name;
+    SSL_CTX *ctx = SSL_get_SSL_CTX(ssl);
+
+    PR1("STARTED: tlsext_ticket_key_cb_invoke\n");
+    cb_func = cb_data_advanced_get(ctx, "tlsext_ticket_key_cb!!func");
+    cb_data = cb_data_advanced_get(ctx, "tlsext_ticket_key_cb!!data");
+
+    if (!SvROK(cb_func) || (SvTYPE(SvRV(cb_func)) != SVt_PVCV))
+	croak("callback must be a code reference");
+
+    ENTER;
+    SAVETMPS;
+    PUSHMARK(SP);
+    XPUSHs(sv_2mortal(newSVsv(cb_data)));
+
+    if (!enc) {
+	/* call as getkey(data,this_name) -> (key,current_name) */
+	XPUSHs(sv_2mortal(newSVpv(key_name,16)));
+    } else {
+	/* call as getkey(data) -> (key,current_name) */
+    }
+
+
+    PUTBACK;
+    count = call_sv( cb_func, G_ARRAY );
+
+    SPAGAIN;
+    if (count>0) sv_name = POPs;
+    if (count>1) sv_key = POPs;
+
+    if (!enc && ( !count || !SvOK(sv_key) )) {
+	TRACE(2,"no key returned for ticket");
+	return 0;
+    }
+
+    if (count != 2)
+	croak("key functions needs to return (key,name)");
+    key = SvPV(sv_key,svlen);
+    if (svlen < 32)
+	croak("key must be at least 32 random bytes, got %d",svlen);
+    name = SvPV(sv_name,svlen);
+    if (svlen != 16)
+	croak("name should be exactly 16 characters, got %d",svlen);
+    if (svlen == 0)
+	croak("name should not be empty");
+
+    if (enc) {
+	/* encrypt ticket information with given key */
+	RAND_bytes(iv, 16);
+	EVP_EncryptInit_ex(ectx, EVP_aes_128_cbc(), NULL, key, iv);
+	HMAC_Init_ex(hctx,key+16,16,EVP_sha256(),NULL);
+	bzero(key_name,16);
+	memcpy(key_name,name,svlen);
+	return 1;
+    } else {
+	unsigned char new_name[16];
+	bzero(new_name,16);
+	memcpy(new_name,name,svlen);
+
+	HMAC_Init_ex(hctx,key+16,16,EVP_sha256(),NULL);
+	EVP_DecryptInit_ex(ectx, EVP_aes_128_cbc(), NULL, key, iv);
+
+	if (memcmp(new_name,key_name,16) == 0)
+	    return 1;  /* current key was used */
+	else 
+	    return 2;  /* different key was used, need to be renewed */
+    }
+}
+
+#endif
+
 
 /* ============= end of callback stuff, begin helper functions ============== */
 
@@ -5126,6 +5220,29 @@ SSL_set_session_secret_cb(s,callback=&PL_sv_undef,data=&PL_sv_undef)
         }
 
 #endif
+
+#ifdef NET_SSLEAY_CAN_TICKET_KEY_CB
+
+void
+SSL_CTX_set_tlsext_ticket_getkey_cb(ctx,callback=&PL_sv_undef,data=&PL_sv_undef)
+        SSL_CTX * ctx 
+        SV * callback
+        SV * data
+    CODE:
+        if (callback==NULL || !SvOK(callback)) {
+            SSL_CTX_set_tlsext_ticket_key_cb(ctx, NULL);
+	    cb_data_advanced_put(ctx, "tlsext_ticket_key_cb!!func", NULL);
+	    cb_data_advanced_put(ctx, "tlsext_ticket_key_cb!!data", NULL);
+        }
+        else {
+	    cb_data_advanced_put(ctx, "tlsext_ticket_key_cb!!func", newSVsv(callback));
+	    cb_data_advanced_put(ctx, "tlsext_ticket_key_cb!!data", newSVsv(data));
+            SSL_CTX_set_tlsext_ticket_key_cb(ctx, &tlsext_ticket_key_cb_invoke);
+        }
+
+
+#endif
+
 
 #if OPENSSL_VERSION_NUMBER < 0x0090700fL
 #define REM11 "NOTE: before 0.9.7"
