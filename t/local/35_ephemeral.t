@@ -6,7 +6,7 @@ use Test::More;
 use Net::SSLeay;
 
 BEGIN {
-  plan skip_all => "libressl and OpenSSL 1.1 removed support for ephemeral/temporary RSA private keys" if Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER") || $Net::SSLeay::VERSION > 1.74;
+  plan skip_all => "libressl and OpenSSL 1.1 removed support for ephemeral/temporary RSA private keys" if Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER") || Net::SSLeay::constant("OPENSSL_VERSION_NUMBER") >= 0x10100000;
 }
 
 plan tests => 3;
