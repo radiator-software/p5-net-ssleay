@@ -34,7 +34,7 @@ Revision history for Perl extension Net::SSLeay.
      To not conflict with the OpenSSL name in case the more complex interface
      will be implemented ever the current simplified interface is called
      slightly different: CTX_set_tlsext_ticket_*get*key_cb. 
-
+     Added documentation about downloading latest version from SVN.
 
 1.74 2016-04-12
      README.OSX was missing from the distribution
