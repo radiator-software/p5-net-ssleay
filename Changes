@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.75 ?????
+1.75  2016-07-31
      Compatibility with OpenSSL 1.1, tested with openssl-1.1.0-pre5:
      - Conditionally remove threading locking code, not needed in 1.1
      - Rewrite code that accesses inside X509_ATTRIBUTE struct.
@@ -35,6 +35,7 @@ Revision history for Perl extension Net::SSLeay.
      will be implemented ever the current simplified interface is called
      slightly different: CTX_set_tlsext_ticket_*get*key_cb. 
      Added documentation about downloading latest version from SVN.
+     Added missing Module/install files to SVN.
 
 1.74 2016-04-12
      README.OSX was missing from the distribution
