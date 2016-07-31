@@ -1312,12 +1312,12 @@ int tlsext_ticket_key_cb_invoke(
 	RAND_bytes(iv, 16);
 	EVP_EncryptInit_ex(ectx, EVP_aes_128_cbc(), NULL, key, iv);
 	HMAC_Init_ex(hctx,key+16,16,EVP_sha256(),NULL);
-	bzero(key_name,16);
+	memset(key_name, 0, sizeof(key_name));
 	memcpy(key_name,name,svlen);
 	return 1;
     } else {
 	unsigned char new_name[16];
-	bzero(new_name,16);
+	memset(new_name, 0, sizeof(new_name));
 	memcpy(new_name,name,svlen);
 
 	HMAC_Init_ex(hctx,key+16,16,EVP_sha256(),NULL);

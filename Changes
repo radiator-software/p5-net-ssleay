@@ -1,5 +1,8 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.76	 2016-07-31
+	 Replaced bzero with memset. Bzero not present on windows.
+
 1.75  2016-07-31
      Compatibility with OpenSSL 1.1, tested with openssl-1.1.0-pre5:
      - Conditionally remove threading locking code, not needed in 1.1
