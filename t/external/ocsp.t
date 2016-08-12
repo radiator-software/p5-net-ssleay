@@ -14,29 +14,30 @@ plan skip_all => "no OCSP support"
 my @tests = (
     {
 	# this should give us OCSP stapling
-	host => 'www.live.com',
+	host => 'www.microsoft.com',
 	port => 443,
-	fingerprint => '10c56ee9e2acaf2e77caeb7072bf6522dd7422b8',
+	fingerprint => '5f0b37e633840ca02468552ea3b1197e5e118f7b',
 	ocsp_staple => 1,
 	expect_status => Net::SSLeay::V_OCSP_CERTSTATUS_GOOD(),
     },
     {
-	# no OCSP stapling yet
-	host => 'www.google.com',
+	# no OCSP stapling 
+	host => 'www.heise.de',
 	port => 443,
-	fingerprint => '007a5ab302f14446e2ea24d3a829de22ba1bf950',
+	fingerprint => '36a7d7bfc59db65c040bccd291ae563d9ef7bafc',
 	expect_status => Net::SSLeay::V_OCSP_CERTSTATUS_GOOD(),
     },
     {
 	# this is revoked
 	host => 'revoked.grc.com',
 	port => 443,
-	fingerprint => '34703c40093461ad3ce087e161c7b7f42abe770c',
+	fingerprint => '310665f4c8e78db761c764e798dca66047341264',
 	expect_status => Net::SSLeay::V_OCSP_CERTSTATUS_REVOKED(),
     },
 );
 
-plan tests => 0+@tests;
+my $release_tests = $ENV{RELEASE_TESTING} ? 1:0;
+plan tests => $release_tests + @tests;
 
 
 my $timeout = 10; # used to TCP connect and SSL connect
@@ -48,8 +49,9 @@ Net::SSLeay::ERR_load_crypto_strings();
 Net::SSLeay::SSLeay_add_ssl_algorithms();
 my $sha1 = Net::SSLeay::EVP_get_digestbyname('sha1');
 
-TEST:
 
+my @fp_mismatch;
+TEST:
 for my $test (@tests) {
     my $cleanup = __cleanup__->new;
     SKIP: {
@@ -66,7 +68,6 @@ for my $test (@tests) {
 	diag("tcp connect to $test->{host}:$test->{port} ok");
 
 	my $ctx = Net::SSLeay::CTX_new() or die "failed to create CTX";
-	my $ssl = Net::SSLeay::new($ctx) or die "failed to create SSL";
 
 	# enable verification with hopefully usable CAs
 	Net::SSLeay::CTX_set_default_verify_paths($ctx);
@@ -75,10 +76,8 @@ for my $test (@tests) {
 	    if eval { require Mozilla::CA };
 	Net::SSLeay::CTX_set_verify($ctx,Net::SSLeay::VERIFY_PEER(),undef);
 
-	# setup TLS extension and callback to catch stapled OCSP response
+	# setup TLS extension callback to catch stapled OCSP response
 	my $stapled_response;
-	Net::SSLeay::set_tlsext_status_type($ssl,
-	    Net::SSLeay::TLSEXT_STATUSTYPE_ocsp());
 	Net::SSLeay::CTX_set_tlsext_status_cb($ctx,sub {
 	    my ($ssl,$resp) = @_;
 	    diag("got ".($resp ? '':'no ')."stapled OCSP response");
@@ -87,11 +86,21 @@ for my $test (@tests) {
 	    return 1;
 	});
 
+	# create SSL object only after we have the context fully done since
+	# some parts of the context (like verification mode) will be copied
+	# to the SSL object and thus later changes to the CTX don't affect
+	# the SSL object
+	my $ssl = Net::SSLeay::new($ctx) or die "failed to create SSL";
+
+	# setup TLS extension to request stapled OCSP response
+	Net::SSLeay::set_tlsext_status_type($ssl,
+	    Net::SSLeay::TLSEXT_STATUSTYPE_ocsp());
+
 	# non-blocking SSL_connect with timeout
 	$cl->blocking(0);
 	Net::SSLeay::set_fd($ssl,fileno($cl));
 	my $end = time() + $timeout;
-	my $rv;
+	my ($rv,@err);
 	while (($rv = Net::SSLeay::connect($ssl)) < 0) {
 	    my $to = $end-time();
 	    $to<=0 and last;
@@ -101,10 +110,14 @@ for my $test (@tests) {
 		select($vec,undef,undef,$to);
 	    } elsif ( $err == Net::SSLeay::ERROR_WANT_WRITE()) {
 		select(undef,$vec,undef,$to);
+	    } else {
+		while ( my $err = Net::SSLeay::ERR_get_error()) {
+		    push @err, Net::SSLeay::ERR_error_string($err);
+		}
+		last
 	    }
 	}
-	skip "SSL_connect with $test->{host}:$test->{port} failed: ".
-	    Net::SSLeay::print_errs(''),1
+	skip "SSL_connect with $test->{host}:$test->{port} failed: @err",1
 	    if $rv<=0;
 	diag("SSL_connect ok");
 
@@ -114,8 +127,11 @@ for my $test (@tests) {
 	my $fp = $leaf_cert
 	    && unpack("H*",Net::SSLeay::X509_digest($leaf_cert,$sha1));
 	skip "could not get fingerprint",1 if !$fp;
-	skip "bad fingerprint $fp for $test->{host}:$test->{port}",1
-	    if $fp ne $test->{fingerprint};
+	if ($fp ne $test->{fingerprint}) {
+	    push @fp_mismatch, [ $fp,$test ];
+	    skip("bad fingerprint for $test->{host}:$test->{port} -".
+		" expected $test->{fingerprint}, got $fp",1) 
+	}
 	diag("fingerprint matches");
 
 	if ( $test->{ocsp_staple} && ! $stapled_response ) {
@@ -222,6 +238,19 @@ for my $test (@tests) {
 	}
 
 	pass("OCSP test $test->{host}:$test->{port} ok");
+    }
+}
+
+if ($release_tests) {
+    if (!@fp_mismatch) {
+	pass("all fingerprints matched");
+    } else {
+	for(@fp_mismatch) {
+	    my ($fp,$test) = @$_;
+	    diag("fingerprint mismatch for $test->{host}:$test->{port} -".
+		" expected $test->{fingerprint}, got $fp") 
+	}
+	fail("some fingerprints did not matched - please adjust test");
     }
 }
 

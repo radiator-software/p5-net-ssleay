@@ -5916,7 +5916,7 @@ SSL_OCSP_cert2ids(ssl,...)
 	    if (X509_check_issued(cert,cert) == X509_V_OK)
 		croak("no OCSP request for self-signed certificate");
 	    if (!(issuer = find_issuer(cert,store,chain)))
-		croak("cannot find issuer to certificate");
+		croak("cannot find issuer certificate");
 	    if (!(id = OCSP_cert_to_id(EVP_sha1(),cert,issuer)))
 		croak("out of memory for generating OCSO certid");
 	    if (!(len = i2d_OCSP_CERTID(id,NULL)))
@@ -6011,7 +6011,7 @@ SSL_OCSP_response_verify(ssl,rsp,svreq=NULL,flags=0)
 		X509 *issuer;
 		X509 *last = sk_X509_value(chain,sk_X509_num(chain)-1);
 		if ( (issuer = find_issuer(last,store,chain))) {
-		    OCSP_basic_add1_cert(bsr, X509_dup(issuer));
+		    OCSP_basic_add1_cert(bsr, issuer);
 		    TRACE(1,"run OCSP_basic_verify with issuer for last chain element");
 		    RETVAL = OCSP_basic_verify(bsr, NULL, store, flags);
 		}
@@ -6058,11 +6058,8 @@ OCSP_response_results(rsp,...)
 		    goto end;
 		}
                 int first = OCSP_resp_find(bsr, certid, -1); /* Find the first matching */
-		if (first >= 0)
-		{
-		    sir = OCSP_resp_get0(bsr,first);
-		    break;
-		}
+                if (first >= 0)
+                    sir = OCSP_resp_get0(bsr,first);
 	    }
 
 	    int status, revocationReason;   
@@ -6073,7 +6070,8 @@ OCSP_response_results(rsp,...)
 		status = OCSP_single_get0_status(sir, &revocationReason, &revocationTime, &thisupdate, &nextupdate);
 #else
 		status = sir->certStatus->type;
-		revocationTime = sir->certStatus->value.revoked->revocationTime;
+		if (status == V_OCSP_CERTSTATUS_REVOKED)
+		    revocationTime = sir->certStatus->value.revoked->revocationTime;
 		thisupdate = sir->thisUpdate;
 		nextupdate = sir->nextUpdate;
 #endif

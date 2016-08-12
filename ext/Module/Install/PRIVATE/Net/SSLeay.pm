@@ -257,7 +257,7 @@ EOM
         exit 0; # according http://wiki.cpantesters.org/wiki/CPANAuthorNotes this is best-practice when "missing library"
     }
 
-    if ($major > 1.0 || ($major == 1.0 && $minor > 2)) {
+    if ($major == 1.1 && $minor > 0) {
         print <<EOM;
 *** That's newer than what this module was tested with
     You should consider checking if there is a newer release of this module

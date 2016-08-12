@@ -1,5 +1,9 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.78	 2016-08-13
+	 Fixed broken OCSP code and tests. Broken since 1.75. Patched by
+	 Steffen Ullrich. Thanks.
+
 1.77	 2016-08-01
 	 Fixed incorrect size to memset in tlsext_ticket_key_cb_invoke.
 
