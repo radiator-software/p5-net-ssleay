@@ -6043,6 +6043,8 @@ OCSP_response_results(rsp,...)
 	    OCSP_SINGLERESP *sir = NULL;
 	    OCSP_CERTID *certid = NULL;
 	    SV *idsv = NULL;
+	    int first, status, revocationReason;
+	    ASN1_GENERALIZEDTIME *revocationTime, *thisupdate, *nextupdate;
 
 	    if(getall) {
 		sir = OCSP_resp_get0(bsr,i);
@@ -6057,13 +6059,11 @@ OCSP_response_results(rsp,...)
 		    error = "failed to get OCSP certid from string";
 		    goto end;
 		}
-                int first = OCSP_resp_find(bsr, certid, -1); /* Find the first matching */
+                first = OCSP_resp_find(bsr, certid, -1); /* Find the first matching */
                 if (first >= 0)
                     sir = OCSP_resp_get0(bsr,first);
 	    }
 
-	    int status, revocationReason;   
-	    ASN1_GENERALIZEDTIME *revocationTime, *thisupdate, *nextupdate;
 	    if (sir)
 	    {
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L

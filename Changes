@@ -1,5 +1,12 @@
 Revision history for Perl extension Net::SSLeay.
 
+????
+	Patch to fix a few inline variable declarations that cause errors for
+	older compilers. From Andy Grundman. Thanks.
+	Patch: Generated C code is not compatible with MSVC, AIX cc,
+	probably others. Added some PREINIT blocks and replaced 2 cases of INIT with
+	PREINIT. From Andy Grundman. Thanks.
+
 1.78	 2016-08-13
 	 Fixed broken OCSP code and tests. Broken since 1.75. Patched by
 	 Steffen Ullrich. Thanks.
