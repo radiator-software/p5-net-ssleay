@@ -7422,6 +7422,15 @@ Frees the RSA structure and its components. The key is erased before the memory 
 
 Check openssl doc L<http://www.openssl.org/docs/crypto/RSA_new.html|http://www.openssl.org/docs/crypto/RSA_new.html>
 
+=item * RSA_get_key_parameters
+
+Returns a list of pointers to BIGNUMs representing the parameters of the key in
+this order:
+(n, e, d, p, q, dmp1, dmq1, iqmp)
+Caution: returned list consists of SV pointers to BIGNUMs, which would need to be blessed as Crypt::OpenSSL::Bignum for further use
+
+my (@params) = RSA_get_key_parameters($r);
+
 =back
 
 =head3 Low level API: BIO_* related functions

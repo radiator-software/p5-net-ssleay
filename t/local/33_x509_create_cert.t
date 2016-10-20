@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 122;
+use Test::More tests => 123;
 use Net::SSLeay qw/MBSTRING_ASC MBSTRING_UTF8 EVP_PK_RSA EVP_PKT_SIGN EVP_PKT_ENC/;
 use File::Spec;
 use utf8;
@@ -31,6 +31,9 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
   ok(my $pk  = Net::SSLeay::EVP_PKEY_new(), "EVP_PKEY_new");
   ok(my $rsa = Net::SSLeay::RSA_generate_key(2048, &Net::SSLeay::RSA_F4), "RSA_generate_key");
   ok(Net::SSLeay::EVP_PKEY_assign_RSA($pk,$rsa), "EVP_PKEY_assign_RSA");
+
+  my @params = Net::SSLeay::RSA_get_key_parameters($rsa);
+  ok(@params == 8, "RSA_get_key_parameters");
 
   ok(my $x509  = Net::SSLeay::X509_new(), "X509_new");
   ok(Net::SSLeay::X509_set_pubkey($x509,$pk), "X509_set_pubkey");

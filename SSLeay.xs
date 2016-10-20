@@ -1442,6 +1442,13 @@ X509 * find_issuer(X509 *cert,X509_STORE *store, STACK_OF(X509) *chain) {
     return issuer;
 }
 
+SV* bn2sv(BIGNUM* p_bn)
+{
+    return p_bn != NULL
+        ? sv_2mortal(newSViv((IV) BN_dup(p_bn)))
+        : &PL_sv_undef;
+}
+
 /* ============= end of helper functions ============== */
 
 MODULE = Net::SSLeay		PACKAGE = Net::SSLeay          PREFIX = SSL_
@@ -4964,6 +4971,23 @@ RSA_generate_key(bits,e,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
         RETVAL
 
 #endif
+
+
+void
+RSA_get_key_parameters(rsa)
+	    RSA * rsa
+PPCODE:
+{
+    /* Caution: returned list consists of SV pointers to BIGNUMs, which would need to be blessed as Crypt::OpenSSL::Bignum for further use */
+    XPUSHs(bn2sv(rsa->n));
+    XPUSHs(bn2sv(rsa->e));
+    XPUSHs(bn2sv(rsa->d));
+    XPUSHs(bn2sv(rsa->p));
+    XPUSHs(bn2sv(rsa->q));
+    XPUSHs(bn2sv(rsa->dmp1));
+    XPUSHs(bn2sv(rsa->dmq1));
+    XPUSHs(bn2sv(rsa->iqmp));
+}
 
 void
 RSA_free(r)
