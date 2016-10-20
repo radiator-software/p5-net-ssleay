@@ -166,7 +166,9 @@ which conflicts with perls
 #include <openssl/buffer.h>
 #include <openssl/ssl.h>
 #include <openssl/pkcs12.h>
+#ifndef OPENSSL_NO_COMP
 #include <openssl/comp.h>    /* openssl-0.9.6a forgets to include this */
+#endif
 #ifndef OPENSSL_NO_MD2
 #include <openssl/md2.h>
 #endif
@@ -4146,10 +4148,14 @@ SSL_CIPHER_get_bits(c,alg_bits=NULL)
 
 #endif
 
+#ifndef OPENSSL_NO_COMP
+
 int
 SSL_COMP_add_compression_method(id,cm)
      int 	id
      COMP_METHOD *	cm
+
+#endif
 
 int
 SSL_CTX_add_client_CA(ctx,x)
