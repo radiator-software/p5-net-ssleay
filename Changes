@@ -9,7 +9,9 @@ Revision history for Perl extension Net::SSLeay.
 	Patch to fix: Fails to compile if the OpenSSL library it's built
 	against has compression support compiled out. From Stephan
 	Wall. Thanks.
-	Added RSA_get_key_parameters() to return a list of pointers to RSA key internals.
+	Added RSA_get_key_parameters() to return a list of pointers to RSA key
+	internals.
+	Patch to fix some documentation typos courtesy gregor herrmann.
 
 1.78	 2016-08-13
 	 Fixed broken OCSP code and tests. Broken since 1.75. Patched by

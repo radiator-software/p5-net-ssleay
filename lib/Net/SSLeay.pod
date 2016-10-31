@@ -493,7 +493,7 @@ With Net::SSLeay this can be done like this:
 	die "certificate is not valid: $@";
     }
 
-    # But in array context it will return detailled information about each given
+    # But in array context it will return detailed information about each given
     # OCSP_CERTID instead croaking on errors:
     # if no @ids are given it will return information about all single responses
     # in the OCSP_RESPONSE
@@ -626,7 +626,7 @@ should work without trouble.
 =head3 Using callbacks
 
 Do not use callbacks across threads (the module blocks cross-thread callback operations
-and throws a warning). Allways do the callback setup, callback use and callback destruction
+and throws a warning). Always do the callback setup, callback use and callback destruction
 within the same thread.
 
 =head3 Using openssl elements
@@ -3114,7 +3114,7 @@ channel must already have been set and assigned to the ssl by setting an underly
  my $rv = Net::SSLeay::accept($ssl);
  # $ssl - value corresponding to openssl's SSL structure
  #
- # returns: 1 = success, 0 = handshake not successfull, <0 = fatal error during handshake
+ # returns: 1 = success, 0 = handshake not successful, <0 = fatal error during handshake
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_accept.html|http://www.openssl.org/docs/ssl/SSL_accept.html>
 
@@ -3174,7 +3174,7 @@ Initiate the TLS/SSL handshake with an TLS/SSL server.
  my $rv = Net::SSLeay::connect($ssl);
  # $ssl - value corresponding to openssl's SSL structure
  #
- # returns: 1 = success, 0 = handshake not successfull, <0 = fatal error during handshake
+ # returns: 1 = success, 0 = handshake not successful, <0 = fatal error during handshake
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_connect.html|http://www.openssl.org/docs/ssl/SSL_connect.html>
 
@@ -3215,7 +3215,7 @@ explicitly set in advance using either SSL_set_connect_state or SSL_set_accept_s
  my $rv = Net::SSLeay::do_handshake($ssl);
  # $ssl - value corresponding to openssl's SSL structure
  #
- # returns: 1 = success, 0 = handshake not successfull, <0 = fatal error during handshake
+ # returns: 1 = success, 0 = handshake not successful, <0 = fatal error during handshake
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_do_handshake.html|http://www.openssl.org/docs/ssl/SSL_do_handshake.html>
 
