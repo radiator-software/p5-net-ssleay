@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-????
+1.79	 2017-01-03
 	Patch to fix a few inline variable declarations that cause errors for
 	older compilers. From Andy Grundman. Thanks.
 	Patch: Generated C code is not compatible with MSVC, AIX cc,
@@ -12,6 +12,8 @@ Revision history for Perl extension Net::SSLeay.
 	Added RSA_get_key_parameters() to return a list of pointers to RSA key
 	internals.
 	Patch to fix some documentation typos courtesy gregor herrmann.
+	RSA_get_key_parameters() is now only available prior OpenSSL 1.1.
+	Testing with openssl-1.1.0b.
 
 1.78	 2016-08-13
 	 Fixed broken OCSP code and tests. Broken since 1.75. Patched by

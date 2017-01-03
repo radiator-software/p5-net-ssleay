@@ -4972,6 +4972,7 @@ RSA_generate_key(bits,e,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
 
 #endif
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 
 void
 RSA_get_key_parameters(rsa)
@@ -4988,6 +4989,8 @@ PPCODE:
     XPUSHs(bn2sv(rsa->dmq1));
     XPUSHs(bn2sv(rsa->iqmp));
 }
+
+#endif
 
 void
 RSA_free(r)
