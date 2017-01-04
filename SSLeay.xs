@@ -1258,12 +1258,11 @@ int tlsext_ticket_key_cb_invoke(
 ){
 
     dSP;
-    int count;
+    int count,usable_rv_count;
     SV *cb_func, *cb_data;
-    SV *sv_name, *sv_key;
     STRLEN svlen;
-    unsigned char *key;  /* key[0..15] aes, key[16..32] hmac */
-    unsigned char *name;
+    unsigned char key[32];  /* key[0..15] aes, key[16..32] hmac */
+    unsigned char name[16];
     SSL_CTX *ctx = SSL_get_SSL_CTX(ssl);
 
     PR1("STARTED: tlsext_ticket_key_cb_invoke\n");
@@ -1276,6 +1275,7 @@ int tlsext_ticket_key_cb_invoke(
     ENTER;
     SAVETMPS;
     PUSHMARK(SP);
+
     XPUSHs(sv_2mortal(newSVsv(cb_data)));
 
     if (!enc) {
@@ -1285,47 +1285,64 @@ int tlsext_ticket_key_cb_invoke(
 	/* call as getkey(data) -> (key,current_name) */
     }
 
-
     PUTBACK;
+
     count = call_sv( cb_func, G_ARRAY );
 
     SPAGAIN;
-    if (count>0) sv_name = POPs;
-    if (count>1) sv_key = POPs;
 
-    if (!enc && ( !count || !SvOK(sv_key) )) {
+    if (count>2)
+	croak("too much return values - only (name,key) should be returned");
+
+    usable_rv_count = 0;
+    if (count>0) {
+	SV *sname = POPs;
+	if (SvOK(sname)) {
+	    unsigned char *pname = SvPV(sname,svlen);
+	    if (svlen > 16)
+		croak("name must be at at most 16 bytes, got %d",svlen);
+	    if (svlen == 0)
+		croak("name should not be empty");
+	    memset(name, 0, 16);
+	    memcpy(name,pname,svlen);
+	    usable_rv_count++;
+	}
+    }
+    if (count>1) {
+	SV *skey = POPs;
+	if (SvOK(skey)) {
+	    unsigned char *pkey = SvPV(skey,svlen);
+	    if (svlen != 32)
+		croak("key must be exactly 32 random bytes, got %d",svlen);
+	    memcpy(key,pkey,32);
+	    usable_rv_count++;
+	}
+    }
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    if (!enc && usable_rv_count == 0) {
 	TRACE(2,"no key returned for ticket");
 	return 0;
     }
-
-    if (count != 2)
+    if (usable_rv_count != 2)
 	croak("key functions needs to return (key,name)");
-    key = SvPV(sv_key,svlen);
-    if (svlen < 32)
-	croak("key must be at least 32 random bytes, got %d",svlen);
-    name = SvPV(sv_name,svlen);
-    if (svlen != 16)
-	croak("name should be exactly 16 characters, got %d",svlen);
-    if (svlen == 0)
-	croak("name should not be empty");
 
     if (enc) {
 	/* encrypt ticket information with given key */
 	RAND_bytes(iv, 16);
 	EVP_EncryptInit_ex(ectx, EVP_aes_128_cbc(), NULL, key, iv);
 	HMAC_Init_ex(hctx,key+16,16,EVP_sha256(),NULL);
-	memset(key_name, 0, 16);
-	memcpy(key_name,name,svlen);
+	memcpy(key_name,name,16);
 	return 1;
-    } else {
-	unsigned char new_name[16];
-	memset(new_name, 0, sizeof(new_name));
-	memcpy(new_name,name,svlen);
 
+    } else {
 	HMAC_Init_ex(hctx,key+16,16,EVP_sha256(),NULL);
 	EVP_DecryptInit_ex(ectx, EVP_aes_128_cbc(), NULL, key, iv);
 
-	if (memcmp(new_name,key_name,16) == 0)
+	if (memcmp(name,key_name,16) == 0)
 	    return 1;  /* current key was used */
 	else 
 	    return 2;  /* different key was used, need to be renewed */
