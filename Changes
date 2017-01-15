@@ -2,12 +2,13 @@ Revision history for Perl extension Net::SSLeay.
 
 ???
 	Patch from Alexander Bluhm to enable RSA_get_key_parameters with
-	LibreSSL.
+	LibreSSL. Again.
 
 1.80	 2017-01-05
 	 Patch from Steffen Ulrich that fixed unexpected changes in the
 	 control flow of the Perl program which seemed to be triggered by the
 	 ticket key callback. Thanks Steffen.
+
 1.79	 2017-01-03
 	Patch to fix a few inline variable declarations that cause errors for
 	older compilers. From Andy Grundman. Thanks.
