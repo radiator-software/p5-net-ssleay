@@ -6,6 +6,7 @@ Revision history for Perl extension Net::SSLeay.
 	Fixed memory leak in X509_get_subjectAltNames. Reported and patched by Jim Westfall.
 	Added . to lib path in Makefile.PL to accommodate people who are using a perl with -Ddefault_inc_excludes_dot.
 	Fixed build failure if engine support not present. Patch from Paul Green.
+	Improvements to  get_my_thread_id to work around possibility of ERRSV not being defined eg on OpenWRT.
 	
 1.80	 2017-01-05
 	 Patch from Steffen Ulrich that fixed unexpected changes in the

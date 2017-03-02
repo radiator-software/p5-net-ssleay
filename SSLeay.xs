@@ -261,11 +261,15 @@ UV get_my_thread_id(void) /* returns threads->tid() value */
     PUTBACK;
     count = call_method("tid", G_SCALAR|G_EVAL);
     SPAGAIN;
-    if (SvTRUE(ERRSV) || count != 1)
-       /* if threads not loaded or an error occurs return 0 */
-       tid = 0;
+    /* Attempt to work around possibility of ERRSV not being defined eg on OpenWRT */
+    /* Caution: recent perls do not appear support threads->tid() */
+    if (!ERRSV || SvTRUE(ERRSV) || count != 1)
+    {
+      /* if compatible threads not loaded or an error occurs return 0 */
+      tid = 0;
+    }
     else
-       tid = (UV)POPi;
+      tid = (UV)POPi;
     PUTBACK;
     FREETMPS;
     LEAVE;
