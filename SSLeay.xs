@@ -185,7 +185,9 @@ which conflicts with perls
 #include <openssl/x509v3.h>
 #if OPENSSL_VERSION_NUMBER >= 0x0090700fL
 /* requires 0.9.7+ */
+#ifndef OPENSSL_NO_ENGINE
 #include <openssl/engine.h>
+#endif
 #endif
 #ifdef OPENSSL_FIPS
 #include <openssl/fips.h>
