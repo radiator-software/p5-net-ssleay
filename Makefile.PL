@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 use lib 'ext';
+use lib '.';
 use inc::Module::Install;
 use Config;
 use File::Spec;

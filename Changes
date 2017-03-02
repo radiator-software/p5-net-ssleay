@@ -4,7 +4,8 @@ Revision history for Perl extension Net::SSLeay.
 	Patch from Alexander Bluhm to enable RSA_get_key_parameters with
 	LibreSSL. Again.
 	Fixed memory leak in X509_get_subjectAltNames. Reported and patched by Jim Westfall.
-
+	Added . to lib path in Makefile.PL to accommodate people who are using a perl with -Ddefault_inc_excludes_dot.
+	
 1.80	 2017-01-05
 	 Patch from Steffen Ulrich that fixed unexpected changes in the
 	 control flow of the Perl program which seemed to be triggered by the
