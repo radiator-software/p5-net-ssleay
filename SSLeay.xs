@@ -257,6 +257,7 @@ UV get_my_thread_id(void) /* returns threads->tid() value */
     ENTER;
     SAVETMPS;
     PUSHMARK(SP);
+    CLEAR_ERRSV(); /* Some platforms dont seem to correctly init ERRSV */
     XPUSHs(sv_2mortal(newSVpv("threads", 0)));
     PUTBACK;
     count = call_method("tid", G_SCALAR|G_EVAL);
