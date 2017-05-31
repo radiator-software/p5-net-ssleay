@@ -7,6 +7,7 @@ Revision history for Perl extension Net::SSLeay.
 	Added . to lib path in Makefile.PL to accommodate people who are using a perl with -Ddefault_inc_excludes_dot.
 	Fixed build failure if engine support not present. Patch from Paul Green.
 	Improvements to  get_my_thread_id to work around possibility of ERRSV not being defined eg on OpenWRT.
+	Patch from ETJ permitting configure and build in places with a space in the name.
 	
 1.80	 2017-01-05
 	 Patch from Steffen Ulrich that fixed unexpected changes in the
