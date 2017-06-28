@@ -178,6 +178,7 @@ sub find_openssl_prefix {
     }
 
     my @guesses = (
+	'/home/linuxbrew/.linuxbrew/opt/openssl/bin/openssl' => '/home/linuxbrew/.linuxbrew/opt/openssl', # LinuxBrew openssl
 	'/usr/local/opt/openssl/bin/openssl' => '/usr/local/opt/openssl', # OSX homebrew openssl
 	'/usr/local/bin/openssl'         => '/usr/local', # OSX homebrew openssl
 	'/opt/local/bin/openssl'         => '/opt/local', # Macports openssl
