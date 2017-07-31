@@ -870,6 +870,124 @@ int ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
 
 #endif
 
+#if OPENSSL_VERSION_NUMBER >= 0x10000000L && !defined(OPENSSL_NO_PSK)
+#define NET_SSLEAY_CAN_PSK_CLIENT_CALLBACK
+
+unsigned int ssleay_set_psk_client_callback_invoke(SSL *ssl, const char *hint,
+                                                   char *identity, unsigned int max_identity_len,
+                                                   unsigned char *psk, unsigned int max_psk_len)
+{
+    dSP;
+    int count = -1;
+    char *identity_val, *psk_val;
+    unsigned int psk_len = 0;
+    BIGNUM *psk_bn = NULL;
+    SV * cb_func;
+    SV * hintsv;
+
+    PR1("STARTED: ssleay_set_psk_client_callback_invoke\n");
+    cb_func = cb_data_advanced_get(ssl, "ssleay_set_psk_client_callback!!func");
+
+    if(!SvOK(cb_func))
+        croak ("Net::SSLeay: ssleay_set_psk_client_callback_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    if (hint != NULL) {
+      hintsv = sv_2mortal( newSVpv(hint, strlen(hint)));
+      XPUSHs(hintsv);
+    }
+
+    PUTBACK;
+
+    count = call_sv( cb_func, G_ARRAY );
+
+    SPAGAIN;
+
+    if (count != 2)
+        croak ("Net::SSLeay: ssleay_set_psk_client_callback_invoke perl function did not return 2 values.\n");
+
+    psk_val = POPpx;
+    identity_val = POPpx;
+
+    my_snprintf(identity, max_identity_len, "%s", identity_val);
+
+    if (BN_hex2bn(&psk_bn, psk_val) > 0) {
+        if (BN_num_bytes(psk_bn) <= max_psk_len) {
+            psk_len = BN_bn2bin(psk_bn, psk);
+        }
+        BN_free(psk_bn);
+    }
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return psk_len;
+}
+
+unsigned int ssleay_ctx_set_psk_client_callback_invoke(SSL *ssl, const char *hint,
+                                                       char *identity, unsigned int max_identity_len,
+                                                       unsigned char *psk, unsigned int max_psk_len)
+{
+    dSP;
+    SSL_CTX *ctx;
+    int count = -1;
+    char *identity_val, *psk_val;
+    unsigned int psk_len = 0;
+    BIGNUM *psk_bn = NULL;
+    SV * cb_func;
+    SV * hintsv;
+
+    ctx = SSL_get_SSL_CTX(ssl);
+
+    PR1("STARTED: ssleay_ctx_set_psk_client_callback_invoke\n");
+    cb_func = cb_data_advanced_get(ctx, "ssleay_ctx_set_psk_client_callback!!func");
+
+    if(!SvOK(cb_func))
+        croak ("Net::SSLeay: ssleay_ctx_set_psk_client_callback_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    if (hint != NULL) {
+      hintsv = sv_2mortal( newSVpv(hint, strlen(hint)));
+      XPUSHs(hintsv);
+    }
+
+    PUTBACK;
+
+    count = call_sv( cb_func, G_ARRAY );
+
+    SPAGAIN;
+
+    if (count != 2)
+        croak ("Net::SSLeay: ssleay_ctx_set_psk_client_callback_invoke perl function did not return 2 values.\n");
+
+    psk_val = POPpx;
+    identity_val = POPpx;
+
+    my_snprintf(identity, max_identity_len, "%s", identity_val);
+
+    if (BN_hex2bn(&psk_bn, psk_val) > 0) {
+        if (BN_num_bytes(psk_bn) <= max_psk_len) {
+            psk_len = BN_bn2bin(psk_bn, psk);
+        }
+        BN_free(psk_bn);
+    }
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return psk_len;
+}
+
+#endif
+
 #if OPENSSL_VERSION_NUMBER >= 0x10001000L && !defined(OPENSSL_NO_NEXTPROTONEG)
 
 int next_proto_helper_AV2protodata(AV * list, unsigned char *out)
@@ -5273,6 +5391,38 @@ SSL_set_session_secret_cb(s,callback=&PL_sv_undef,data=&PL_sv_undef)
             cb_data_advanced_put(s, "ssleay_session_secret_cb!!func", newSVsv(callback));
             cb_data_advanced_put(s, "ssleay_session_secret_cb!!data", newSVsv(data));
             SSL_set_session_secret_cb(s, (tls_session_secret_cb_fn)&ssleay_session_secret_cb_invoke, s);
+        }
+
+#endif
+
+#ifdef NET_SSLEAY_CAN_PSK_CLIENT_CALLBACK
+
+void
+SSL_set_psk_client_callback(s,callback=&PL_sv_undef)
+        SSL * s
+        SV * callback
+    CODE:
+        if (callback==NULL || !SvOK(callback)) {
+            SSL_set_psk_client_callback(s, NULL);
+            cb_data_advanced_put(s, "ssleay_set_psk_client_callback!!func", NULL);
+        }
+        else {
+            cb_data_advanced_put(s, "ssleay_set_psk_client_callback!!func", newSVsv(callback));
+            SSL_set_psk_client_callback(s, ssleay_set_psk_client_callback_invoke);
+        }
+
+void
+SSL_CTX_set_psk_client_callback(ctx,callback=&PL_sv_undef)
+        SSL_CTX * ctx
+        SV * callback
+    CODE:
+        if (callback==NULL || !SvOK(callback)) {
+            SSL_CTX_set_psk_client_callback(ctx, NULL);
+            cb_data_advanced_put(ctx, "ssleay_ctx_set_psk_client_callback!!func", NULL);
+        }
+        else {
+            cb_data_advanced_put(ctx, "ssleay_ctx_set_psk_client_callback!!func", newSVsv(callback));
+            SSL_CTX_set_psk_client_callback(ctx, ssleay_ctx_set_psk_client_callback_invoke);
         }
 
 #endif

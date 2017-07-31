@@ -55,7 +55,7 @@ $Net::SSLeay::slowly = 0;
 # /dev/random would block and /dev/urandom starts to return predictable
 # numbers).
 #
-# N.B. /dev/urandom does not exit on all systems, such as Solaris 2.6. In that
+# N.B. /dev/urandom does not exist on all systems, such as Solaris 2.6. In that
 #      case you should get a third party package that emulates /dev/urandom
 #      (e.g. via named pipe) or supply a random number file. Some such
 #      packages are documented in Caveat section of the POD documentation.

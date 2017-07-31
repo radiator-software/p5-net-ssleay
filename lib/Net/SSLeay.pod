@@ -4049,6 +4049,20 @@ side of $ssl, $fd will typically be the socket file descriptor of a network conn
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_set_fd.html|http://www.openssl.org/docs/ssl/SSL_set_fd.html>
 
+=item * set_psk_client_callback
+
+Sets the psk client callback.
+
+ Net::SSLeay::set_psk_client_callback($ssl, sub { my $hint = shift; return ($identity, $key) } );
+ # $ssl - value corresponding to openssl's SSL structure
+ # $hint - PSK identity hint send by the server
+ # $identity - PSK identity
+ # $key - PSK key, hex string without the leading '0x', e.g. 'deadbeef'
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_set_psk_client_callback.html|http://www.openssl.org/docs/ssl/SSL_set_psk_client_callback.html>
+
 =item * set_rfd
 
 Sets the file descriptor $fd as the input (read) facility for the TLS/SSL (encrypted) side of $ssl.
@@ -4108,6 +4122,20 @@ Sets the list of available ciphers for $ssl using the control string $str.
  # returns: 1 if any cipher could be selected and 0 on complete failure
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_cipher_list.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_cipher_list.html>
+
+=item * CTX_set_psk_client_callback
+
+Sets the psk client callback.
+
+ Net::SSLeay::CTX_set_psk_client_callback($ssl, sub { my $hint = shift; return ($identity, $key) } );
+ # $ssl - value corresponding to openssl's SSL structure
+ # $hint - PSK identity hint send by the server
+ # $identity - PSK identity
+ # $key - PSK key, hex string without the leading '0x', e.g. 'deadbeef'
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_psk_client_callback.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_psk_client_callback.html>
 
 =item * set_purpose
 
