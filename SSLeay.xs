@@ -988,7 +988,7 @@ unsigned int ssleay_ctx_set_psk_client_callback_invoke(SSL *ssl, const char *hin
 
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x10001000L && !defined(OPENSSL_NO_NEXTPROTONEG)
+#if (OPENSSL_VERSION_NUMBER >= 0x10001000L && !defined(OPENSSL_NO_NEXTPROTONEG)) || (OPENSSL_VERSION_NUMBER >= 0x10002000L && !defined(OPENSSL_NO_TLSEXT))
 
 int next_proto_helper_AV2protodata(AV * list, unsigned char *out)
 {
@@ -1022,6 +1022,10 @@ int next_proto_helper_protodata2AV(AV * list, const unsigned char *in, unsigned 
     }
     return 1;
 }
+
+#endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x10001000L && !defined(OPENSSL_NO_NEXTPROTONEG)
 
 int next_proto_select_cb_invoke(SSL *ssl, unsigned char **out, unsigned char *outlen,
                                 const unsigned char *in, unsigned int inlen, void *arg)
