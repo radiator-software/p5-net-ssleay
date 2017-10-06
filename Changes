@@ -2,8 +2,9 @@ Revision history for Perl extension Net::SSLeay.
 ???
 	Added support for building under Linuxbrew (a linuxbrew version of MacOS Homebrew)
 	Patch from Matthew Altus, that implements SSL_CTX_set_psk_client_callback() and SSL_set_psk_client_callback().
-	Patch to build with LibreSSL has no suport for NPN
+	Patch to build with LibreSSL has no support for NPN
 	Also skip the NPN test if the SSL library is LibreSSL.
+	Fixed a problem with a variable declaration in ssleay_session_secret_cb_invoke reported by Graham Ollis.
 	
 1.81	 2017-03-28
 	Patch from Alexander Bluhm to enable RSA_get_key_parameters with

@@ -854,10 +854,12 @@ int ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
             *cipher = sk_SSL_CIPHER_value(peer_ciphers, SvIV(pref_cipher));
 
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
-	/* Use any new master secret set by the callback function in secret */
-	STRLEN newsecretlen;
-	char* newsecretdata = SvPV(secretsv, newsecretlen);
-	memcpy(secret, newsecretdata, newsecretlen);
+	{
+	    /* Use any new master secret set by the callback function in secret */
+	    STRLEN newsecretlen;
+	    char* newsecretdata = SvPV(secretsv, newsecretlen);
+	    memcpy(secret, newsecretdata, newsecretlen);
+	}
 #endif
     }
 
