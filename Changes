@@ -5,7 +5,39 @@ Revision history for Perl extension Net::SSLeay.
 	Patch to build with LibreSSL has no support for NPN
 	Also skip the NPN test if the SSL library is LibreSSL.
 	Fixed a problem with a variable declaration in ssleay_session_secret_cb_invoke reported by Graham Ollis.
-	
+	Significant patch set from Open System Consultants:
+	- Bugfix: tlsext_status_cb_invoke(...): free ocsp_response only when allocated.
+ 	- The same callback is used on a server side for OCSP stapling and in that 
+  	 case ocsp_response is NULL and not used.
+	 - New feature: Added a binding SSL_set_session_ticket_ext_cb(ssl,callback,data)
+	 - A callback used by EAP-FAST/EAP-TEAT to parse and process TLS session ticket.
+	 - Tests are in t/local/65_ticket_sharing_2.t
+	 - New feature: Added a binding SSL_set_session_ticket_ext(ssl,ticket)
+	 - Used by EAP-FAST/EAP-TEAP to define TLS session ticket value.
+	 - Tests are in t/local/65_ticket_sharing_2.t
+	 - Bugfix: tlsext_ticket_key_cb_invoke(...): allow SHA256 HMAC key to be 32 bytes 
+	 instead of 16 bytes (which OpenSSL will pad with zeros up to 32 bytes).
+	 - New feature: Added following bindings:
+	 - X509_get_ex_data(cert,idx)
+	 - X509_get_ex_new_index(argl,argp,new_func,dup_funL,free_func)
+	 - X509_get_app_data(cert)
+	 - X509_set_ex_data(cert,idx,data)
+	 - X509_set_app_data(cert,arg)
+	 - X509_STORE_CTX_get_ex_new_index(argl,argp,new_func,dup_func,free_func)
+	 - X509_STORE_CTX_get_app_data(x509_store_ctx)
+	 - X509_STORE_CTX_set_app_data(x509_store_ctx,arg)
+	 - New feature: Added an implementation for SSL_get_finished(ssl,buf,count=2*EVP_MAX_MD_SIZE)
+	 - Tests are in t/local/43_misc_functions.t
+	 - New feature: Added an implementation for SSL_get_peer_finished(ssl,buf,count=2*EVP_MAX_MD_SIZE)
+	 - Tests are in t/local/43_misc_functions.t
+	 - Bugfix: SSL_get_keyblock_size(s): Calculate key block size correctly also with AEAD ciphers
+	 which don’t use digest functions.
+	 - New feature: Added a binding SSL_set_tlsext_status_ocsp_resp(ssl,staple)
+	 - Used by a server side to include OCSP staple in ServerHello.
+	 - Bugfix: SSL_OCSP_response_verify(ssl,rsp,svreq,flags): check that chain and last are not NULL 
+	 before trying to use them.
+	 - Bugfix: inc/Module/Install/PRIVATE/Net/SSLeay.pm: Don’t quote include and lib paths.
+
 1.81	 2017-03-28
 	Patch from Alexander Bluhm to enable RSA_get_key_parameters with
 	LibreSSL. Again.

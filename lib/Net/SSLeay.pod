@@ -3442,29 +3442,30 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_fd.html|http://www.o
 
 =item * get_finished
 
-Obtains the latest 'Finished' message sent to the peer.
-
-??? (does this function really work?)
+Obtains the latest 'Finished' message sent to the peer. Return value
+is zero if there's been no Finished message yet. Default count is
+2*EVP_MAX_MD_SIZE that is long enough for all possible Finish
+messages. If you supply a non-default count, the resulting return
+value may be longer than returned buf's length.
 
  my $rv = Net::SSLeay::get_finished($ssl, $buf, $count);
  # $ssl - value corresponding to openssl's SSL structure
- # $buf - buffer where the returned data will be stored (pointer ???, pre-allocated ???)
- # $count - max. size of return data
+ # $buf - buffer where the returned data will be stored
+ # $count - [optional] max size of return data - default is 2*EVP_MAX_MD_SIZE
  #
- # returns: actual size of the returned data in $buf
+ # returns: length of latest Finished message
 
 =item * get_peer_finished
 
-Obtains the latest 'Finished' message expected from the peer.
-
-??? (does this function really work?)
+Obtains the latest 'Finished' message expected from the
+peer. Parameters and return value are similar to get_finished().
 
  my $rv = Net::SSLeay::get_peer_finished($ssl, $buf, $count);
  # $ssl - value corresponding to openssl's SSL structure
- # $buf - buffer where the returned data will be stored (pointer ???, pre-allocated ???)
- # $count - max. size of the return data
+ # $buf - buffer where the returned data will be stored
+ # $count - [optional] max size of return data - default is 2*EVP_MAX_MD_SIZE
  #
- # returns: actual size of the returned data in $buf
+ # returns: length of latest Finished message
 
 =item * get_keyblock_size
 
@@ -4279,6 +4280,47 @@ Example:
 This function is based on the OpenSSL function SSL_CTX_set_tlsext_ticket_key_cb
 but provides a simpler to use interface. For more information see
 L<http://www.openssl.org/docs/ssl/SSL_CTX_set_tlsext_ticket_key_cb.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_tlsext_ticket_key_cb.html>
+
+=item * set_session_ticket_ext_cb
+
+Setup callback for TLS session tickets (stateless session reuse).
+
+ Net::SSLeay::set_session_ticket_ext_cb($ssl, $func, $data);
+ # $ssl  - value corresponding to openssl's SSL structure
+ # $func - perl reference to callback function
+ # $data - [optional] data that will be passed to callback function when invoked
+ #
+ # returns: no return value
+
+The callback function will be called like:
+getticket($ssl,$ticket,$data) -> $return_value
+
+# $ssl is a value corresponding to openssl's SSL structure
+# $ticket is a value of received TLS session ticket (can also be empty)
+# $data is the data passed to set_session_ticket_ext_cb
+# $return_value is either 0 (failure) or 1 (success)
+
+This function is based on the OpenSSL function SSL_set_session_ticket_ext_cb.
+
+=item * set_session_ticket_ext
+
+Set TLS session ticket (stateless session reuse).
+
+ Net::SSLeay::set_session_ticket_ext($ssl, $ticket);
+ # $ssl    - value corresponding to openssl's SSL structure
+ # $ticket - is a value of TLS session ticket which client will send (can also be empty string)
+ #
+ # returns: no return value
+
+The callback function will be called like:
+getticket($ssl,$ticket,$data) -> $return_value
+
+# $ssl is a value corresponding to openssl's SSL structure
+# $ticket is a value of received TLS session ticket (can also be empty)
+# $data is the data passed to set_session_ticket_ext_cb
+# $return_value is either 0 (failure) or 1 (success)
+
+This function is based on the OpenSSL function SSL_set_session_ticket_ext_cb.
 
 =item * set_shutdown
 
