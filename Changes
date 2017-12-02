@@ -3,6 +3,13 @@ Revision history for Perl extension Net::SSLeay.
 1.??
 	Fixed a problem with exporting OPENSSL_NO_NEXTPROTONEG even though they are not availble on LibreSSL.
 	Patch patch-SSLeay_xs-NO_NPN from Alexander Bluhm.
+	Patch from Heikke Vatiainen adds support for SSL_set_default_passwd_cb* for 
+	OpenSSL 1.1.0f and later. LibreSSL does not support these functions, at 
+	least yet.
+
+The patch also adds new tests for the new functions and updates some of 
+the current tests for CTX_set_default_passwd_cb* functions.
+
 
 1.82 2017-10-31
 	Added support for building under Linuxbrew (a linuxbrew version of MacOS Homebrew)

@@ -4453,6 +4453,34 @@ Returns a string indicating the current state of the SSL object $ssl.
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_state_string.html|http://www.openssl.org/docs/ssl/SSL_state_string.html>
 
+=item * set_default_passwd_cb
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.1.0f. Not needed with LibreSSL.
+
+Sets the default password callback called when loading/storing a PEM certificate with encryption for $ssl.
+
+ Net::SSLeay::set_default_passwd_cb($ssl, $func);
+ # $ssl - value corresponding to openssl's SSL structure
+ # $func - perl reference to callback function
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_default_passwd_cb.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_default_passwd_cb.html>
+
+=item * set_default_passwd_cb_userdata
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.1.0f. Not needed with LibreSSL.
+
+Sets a pointer to userdata which will be provided to the password callback of $ssl on invocation.
+
+ Net::SSLeay::set_default_passwd_cb_userdata($ssl, $userdata);
+ # $ssl - value corresponding to openssl's SSL structure
+ # $userdata - data that will be passed to callback function when invoked
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_default_passwd_cb.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_default_passwd_cb.html>
+
 =item * use_PrivateKey
 
 Adds $pkey as private key to $ssl.

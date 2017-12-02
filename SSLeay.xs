@@ -665,6 +665,57 @@ static int ssleay_ctx_passwd_cb_invoke(char *buf, int size, int rwflag, void *us
     return strlen(buf);
 }
 
+#if OPENSSL_VERSION_NUMBER >= 0x1010006fL /* In OpenSSL 1.1.0 but actually called for $ssl from 1.1.0f */
+#ifndef LIBRESSL_VERSION_NUMBER
+#ifndef OPENSSL_IS_BORINGSSL
+static int ssleay_ssl_passwd_cb_invoke(char *buf, int size, int rwflag, void *userdata)
+{
+    dSP;
+    int count = -1;
+    char *res;
+    SV *cb_func, *cb_data;
+
+    PR1("STARTED: ssleay_ssl_passwd_cb_invoke\n");
+    cb_func = cb_data_advanced_get(userdata, "ssleay_ssl_passwd_cb!!func");
+    cb_data = cb_data_advanced_get(userdata, "ssleay_ssl_passwd_cb!!data");
+
+    if(!SvOK(cb_func))
+        croak ("Net::SSLeay: ssleay_ssl_passwd_cb_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(sp);
+    XPUSHs(sv_2mortal(newSViv(rwflag)));
+    XPUSHs(sv_2mortal(newSVsv(cb_data)));
+    PUTBACK;
+
+    count = call_sv( cb_func, G_SCALAR );
+
+    SPAGAIN;
+
+    if (count != 1)
+        croak("Net::SSLeay: ssleay_ssl_passwd_cb_invoke perl function did not return a scalar.\n");
+
+    res = POPp;
+
+    if (res == NULL) {
+        *buf = '\0';
+    } else {
+        strncpy(buf, res, size);
+        buf[size - 1] = '\0';
+    }
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return strlen(buf);
+}
+#endif /* !BoringSSL */
+#endif /* !LibreSSL */
+#endif /* >= 1.1.0f */
+
 int ssleay_ctx_cert_verify_cb_invoke(X509_STORE_CTX* x509_store_ctx, void* data)
 {
     dSP;
@@ -2470,6 +2521,42 @@ SSL_CTX_set_tlsext_servername_callback(ctx,callback=&PL_sv_undef,data=&PL_sv_und
     }
 
 #endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x1010006fL /* In OpenSSL 1.1.0 but actually called for $ssl starting from 1.1.0f */
+#ifndef LIBRESSL_VERSION_NUMBER
+#ifndef OPENSSL_IS_BORINGSSL
+void
+SSL_set_default_passwd_cb(ssl,callback=&PL_sv_undef)
+        SSL * ssl
+        SV * callback
+    CODE:
+        if (callback==NULL || !SvOK(callback)) {
+            SSL_set_default_passwd_cb(ssl, NULL);
+            SSL_set_default_passwd_cb_userdata(ssl, NULL);
+            cb_data_advanced_put(ssl, "ssleay_ssl_passwd_cb!!func", NULL);
+        }
+        else {
+            cb_data_advanced_put(ssl, "ssleay_ssl_passwd_cb!!func", newSVsv(callback));
+            SSL_set_default_passwd_cb_userdata(ssl, (void*)ssl);
+            SSL_set_default_passwd_cb(ssl, &ssleay_ssl_passwd_cb_invoke);
+        }
+
+void
+SSL_set_default_passwd_cb_userdata(ssl,data=&PL_sv_undef)
+        SSL * ssl
+        SV * data
+    CODE:
+        /* SSL_set_default_passwd_cb_userdata is set in SSL_set_default_passwd_cb */
+        if (data==NULL || !SvOK(data)) {
+            cb_data_advanced_put(ssl, "ssleay_ssl_passwd_cb!!data", NULL);
+        }
+        else {
+            cb_data_advanced_put(ssl, "ssleay_ssl_passwd_cb!!data", newSVsv(data));
+        }
+
+#endif /* !BoringSSL */
+#endif /* !LibreSSL */
+#endif /* >= 1.1.0f */
 
 BIO_METHOD *
 BIO_f_ssl()
