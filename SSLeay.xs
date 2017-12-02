@@ -4303,12 +4303,33 @@ SSLv3_method()
 #endif
 
 const SSL_METHOD *
+SSLv23_method()
+
+const SSL_METHOD *
+SSLv23_server_method()
+
+const SSL_METHOD *
+SSLv23_client_method()
+
+const SSL_METHOD *
 TLSv1_method()
+
+const SSL_METHOD *
+TLSv1_server_method()
+
+const SSL_METHOD *
+TLSv1_client_method()
 
 #ifdef SSL_TXT_TLSV1_1
 
 const SSL_METHOD *
 TLSv1_1_method()
+
+const SSL_METHOD *
+TLSv1_1_server_method()
+
+const SSL_METHOD *
+TLSv1_1_client_method()
 
 #endif
 
@@ -4317,7 +4338,73 @@ TLSv1_1_method()
 const SSL_METHOD *
 TLSv1_2_method()
 
+const SSL_METHOD *
+TLSv1_2_server_method()
+
+const SSL_METHOD *
+TLSv1_2_client_method()
+
 #endif
+
+
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x20020002L)
+
+const SSL_METHOD *
+TLS_method()
+
+const SSL_METHOD *
+TLS_server_method()
+
+const SSL_METHOD *
+TLS_client_method()
+
+#endif /* OpenSSL 1.1.0 or LibreSSL 2.2.2 */
+
+
+#if  (OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2060000fL)
+
+int
+SSL_CTX_set_min_proto_version(ctx, version)
+     SSL_CTX *  ctx
+     int        version
+
+int
+SSL_CTX_set_max_proto_version(ctx, version)
+     SSL_CTX *  ctx
+     int        version
+
+int
+SSL_set_min_proto_version(ssl, version)
+     SSL *  ssl
+     int    version
+
+int
+SSL_set_max_proto_version(ssl, version)
+     SSL *  ssl
+     int    version
+
+#endif /* OpenSSL 1.1.0 or LibreSSL 2.6.0 */
+
+
+#if OPENSSL_VERSION_NUMBER >= 0x1010007fL && !defined(LIBRESSL_VERSION_NUMBER)
+
+int
+SSL_CTX_get_min_proto_version(ctx)
+     SSL_CTX *  ctx
+
+int
+SSL_CTX_get_max_proto_version(ctx)
+     SSL_CTX *  ctx
+
+int
+SSL_get_min_proto_version(ssl)
+     SSL *  ssl
+
+int
+SSL_get_max_proto_version(ssl)
+     SSL *  ssl
+
+#endif /* OpenSSL 1.1.0g */
 
 
 #if OPENSSL_VERSION_NUMBER < 0x10000000L

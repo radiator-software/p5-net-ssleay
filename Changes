@@ -6,7 +6,8 @@ Revision history for Perl extension Net::SSLeay.
 	Patch from Heikke Vatiainen adds support for SSL_set_default_passwd_cb* for 
 	OpenSSL 1.1.0f and later. LibreSSL does not support these functions, at 
 	least yet.
-
+	Patch from Heikke Vatiainen adds new functions related to SSL_CTX_new.
+	
 The patch also adds new tests for the new functions and updates some of 
 the current tests for CTX_set_default_passwd_cb* functions.
 

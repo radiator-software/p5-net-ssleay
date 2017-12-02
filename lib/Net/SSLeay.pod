@@ -1234,6 +1234,18 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_alert_type_string.html|h
 
 =over
 
+=item * SSLv23_method, SSLv23_server_method and SSLv23_client_method
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before.
+
+Returns SSL_METHOD structure corresponding to general-purpose version-flexible TLS method, the return value can be later used as a param of L</CTX_new_with_method>.
+
+B<NOTE:> Consider using TLS_method, TLS_server_method or TLS_client_method with new code.
+
+ my $rv = Net::SSLeay::SSLv2_method();
+ #
+ # returns: value corresponding to openssl's SSL_METHOD structure (0 on failure)
+
 =item * SSLv2_method
 
 Returns SSL_METHOD structure corresponding to SSLv2 method, the return value can be later used as a param of L</CTX_new_with_method>. Only available where supported by the underlying openssl.
@@ -1252,7 +1264,9 @@ Returns SSL_METHOD structure corresponding to SSLv3 method, the return value can
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_new.html|http://www.openssl.org/docs/ssl/SSL_CTX_new.html>
 
-=item * TLSv1_method
+=item * TLSv1_method, TLSv1_server_method and TLSv1_client_method
+
+B<COMPATIBILITY:> Server and client methods not available in Net-SSLeay-1.82 and before.
 
 Returns SSL_METHOD structure corresponding to TLSv1 method, the return value can be later used as a param of L</CTX_new_with_method>.
 
@@ -1262,21 +1276,37 @@ Returns SSL_METHOD structure corresponding to TLSv1 method, the return value can
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_new.html|http://www.openssl.org/docs/ssl/SSL_CTX_new.html>
 
-=item * TLSv1_1_method
+=item * TLSv1_1_method, TLSv1_1_server_method and TLSv1_1_client_method
+
+B<COMPATIBILITY:> Server and client methods not available in Net-SSLeay-1.82 and before.
 
 Returns SSL_METHOD structure corresponding to TLSv1_1 method, the return value can be later used as a param of L</CTX_new_with_method>. Only available where supported by the underlying openssl.
 
- my $rv = Net::SSLeay::TLSv1__1method();
+ my $rv = Net::SSLeay::TLSv1_1_method();
  #
  # returns: value corresponding to openssl's SSL_METHOD structure (0 on failure)
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_new.html|http://www.openssl.org/docs/ssl/SSL_CTX_new.html>
 
-=item * TLSv1_2_method
+=item * TLSv1_2_method, TLSv1_2_server_method and TLSv1_2_client_method
+
+B<COMPATIBILITY:> Server and client methods not available in Net-SSLeay-1.82 and before.
 
 Returns SSL_METHOD structure corresponding to TLSv1_2 method, the return value can be later used as a param of L</CTX_new_with_method>. Only available where supported by the underlying openssl.
 
  my $rv = Net::SSLeay::TLSv1_2_method();
+ #
+ # returns: value corresponding to openssl's SSL_METHOD structure (0 on failure)
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_new.html|http://www.openssl.org/docs/ssl/SSL_CTX_new.html>
+
+=item * TLS_method, TLS_server_method and TLS_client_method
+
+B<COMPATIBILITY:> Not available in Net-SSLeay-1.82 and before.
+
+Returns SSL_METHOD structure corresponding to general-purpose version-flexible TLS method, the return value can be later used as a param of L</CTX_new_with_method>. Only available where supported by the underlying openssl.
+
+ my $rv = Net::SSLeay::TLS_method();
  #
  # returns: value corresponding to openssl's SSL_METHOD structure (0 on failure)
 
@@ -2548,6 +2578,41 @@ Creates a new SSL_CTX object based on $meth method
  my $ctx = Net::SSLeay::CTX_new_with_method(&Net::SSLeay::TLSv1_method);
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_new.html|http://www.openssl.org/docs/ssl/SSL_CTX_new.html>
+
+=item * CTX_set_min_proto_version, CTX_set_max_proto_version, set_min_proto_version and set_max_proto_version,
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.1.0 or LibreSSL 2.6.0
+
+Set the minimum and maximum supported protocol for $ctx or $ssl.
+
+ my $rv = Net::SSLeay::CTX_set_min_proto_version($ctx, $version)
+ # $ctx - value corresponding to openssl's SSL_CTX structure
+ # $version - (integer) constat version value or 0 for automatic lowest or highest value
+ #
+ # returns: 1 on success, 0 on failure
+
+ #example: allow only TLS 1.2 for a SSL_CTX
+ my $rv_min = Net::SSLeay::CTX_set_min_proto_version($ctx, Net::SSLeay::TLS1_2_VERSION());
+ my $rv_max = Net::SSLeay::CTX_set_max_proto_version($ctx, Net::SSLeay::TLS1_2_VERSION());
+
+ #example: allow only TLS 1.1 for a SSL
+ my $rv_min = Net::SSLeay::set_min_proto_version($ssl, Net::SSLeay::TLS1_1_VERSION());
+ my $rv_max = Net::SSLeay::set_max_proto_version($ssl, Net::SSLeay::TLS1_1_VERSION());
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_min_proto_version.html|https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_min_proto_version.html>
+
+=item * CTX_get_min_proto_version, CTX_get_max_proto_version, get_min_proto_version and get_max_proto_version,
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.1.0g
+
+Get the minimum and maximum supported protocol for $ctx or $ssl.
+
+ my $version = Net::SSLeay::CTX_get_min_proto_version($ctx)
+ # $ctx - value corresponding to openssl's SSL_CTX structure
+ #
+ # returns: 0 automatic lowest or highest value, configured value otherwise
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_min_proto_version.html|https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_min_proto_version.html>
 
 =item * CTX_remove_session
 

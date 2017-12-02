@@ -1140,7 +1140,8 @@ constant (const char *name, size_t len) {
     /* EVP_PKT_EXCH EVP_PKT_SIGN FILETYPE_PEM F_SSL_SET_FD GEN_EDIPARTY
        MBSTRING_ASC MBSTRING_BMP NID_bf_cfb64 NID_bf_ofb64 NID_des_ede3
        NID_desx_cbc NID_idea_cbc NID_idea_ecb NID_initials NID_md5_sha1
-       NID_netscape OP_NO_TICKET R_PEER_ERROR R_SHORT_READ ST_READ_BODY */
+       NID_netscape OP_NO_TICKET R_PEER_ERROR R_SHORT_READ SSL3_VERSION
+       ST_READ_BODY TLS1_VERSION */
     /* Offset 10 gives the best switch position.  */
     switch (name[10]) {
     case '6':
@@ -1270,6 +1271,26 @@ constant (const char *name, size_t len) {
 #endif
 
       }
+      if (!memcmp(name, "SSL3_VERSION", 12)) {
+      /*                           ^        */
+        
+#ifdef SSL3_VERSION
+        return SSL3_VERSION;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "TLS1_VERSION", 12)) {
+      /*                           ^        */
+        
+#ifdef TLS1_VERSION
+        return TLS1_VERSION;
+#else
+        goto not_there;
+#endif
+
+      }
       break;
     case 'S':
       if (!memcmp(name, "MBSTRING_ASC", 12)) {
@@ -1386,8 +1407,8 @@ constant (const char *name, size_t len) {
        NID_algorithm NID_cast5_cbc NID_cast5_ecb NID_code_sign NID_delta_crl
        NID_des_cfb64 NID_des_ofb64 NID_givenName NID_id_pbkdf2 NID_id_qt_cps
        NID_key_usage NID_rc2_cfb64 NID_rc2_ofb64 NID_rc5_cfb64 NID_rc5_ofb64
-       NID_ripemd160 NID_secretBag OP_NO_TLSv1_1 OP_NO_TLSv1_2 OP_TLS_D5_BUG
-       SENT_SHUTDOWN XN_FLAG_FN_LN XN_FLAG_FN_SN */
+       NID_ripemd160 NID_secretBag OP_NO_TLSv1_1 OP_NO_TLSv1_2 OP_NO_TLSv1_3
+       OP_TLS_D5_BUG SENT_SHUTDOWN XN_FLAG_FN_LN XN_FLAG_FN_SN */
     /* Offset 12 gives the best switch position.  */
     switch (name[12]) {
     case '0':
@@ -1440,6 +1461,18 @@ constant (const char *name, size_t len) {
         
 #ifdef SSL_OP_NO_TLSv1_2
         return SSL_OP_NO_TLSv1_2;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case '3':
+      if (!memcmp(name, "OP_NO_TLSv1_", 12)) {
+      /*                             3      */
+        
+#ifdef SSL_OP_NO_TLSv1_3
+        return SSL_OP_NO_TLSv1_3;
 #else
         goto not_there;
 #endif
@@ -1769,8 +1802,9 @@ constant (const char *name, size_t len) {
        NID_crl_reason NID_dsaWithSHA NID_idea_cfb64 NID_idea_ofb64
        NID_localKeyID NID_md5WithRSA NID_ms_ext_req NID_pkcs7_data
        NID_rc2_40_cbc NID_rc2_64_cbc NID_time_stamp R_BAD_CHECKSUM
-       R_NO_PUBLICKEY R_NULL_SSL_CTX ST_READ_HEADER X509_TRUST_TSA
-       XN_FLAG_COMPAT XN_FLAG_DN_REV XN_FLAG_FN_OID XN_FLAG_SPC_EQ */
+       R_NO_PUBLICKEY R_NULL_SSL_CTX ST_READ_HEADER TLS1_1_VERSION
+       TLS1_2_VERSION TLS1_3_VERSION X509_TRUST_TSA XN_FLAG_COMPAT
+       XN_FLAG_DN_REV XN_FLAG_FN_OID XN_FLAG_SPC_EQ */
     /* Offset 9 gives the best switch position.  */
     switch (name[9]) {
     case '0':
@@ -1931,6 +1965,38 @@ constant (const char *name, size_t len) {
         
 #ifdef XN_FLAG_SPC_EQ
         return XN_FLAG_SPC_EQ;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'R':
+      if (!memcmp(name, "TLS1_1_VERSION", 14)) {
+      /*                          ^           */
+        
+#ifdef TLS1_1_VERSION
+        return TLS1_1_VERSION;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "TLS1_2_VERSION", 14)) {
+      /*                          ^           */
+        
+#ifdef TLS1_2_VERSION
+        return TLS1_2_VERSION;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "TLS1_3_VERSION", 14)) {
+      /*                          ^           */
+        
+#ifdef TLS1_3_VERSION
+        return TLS1_3_VERSION;
 #else
         goto not_there;
 #endif

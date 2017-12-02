@@ -94,6 +94,7 @@ t/local/05_passwd_cb.t
 t/local/06_tcpecho.t
 t/local/07_sslecho.t
 t/local/08_pipe.t
+t/local/09_ctx_new.t
 t/local/15_bio.t
 t/local/20_autoload.t
 t/local/21_constants.t
