@@ -1064,7 +1064,7 @@ int next_proto_helper_protodata2AV(AV * list, const unsigned char *in, unsigned 
 
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x10001000L && !defined(OPENSSL_NO_NEXTPROTONEG)
+#if OPENSSL_VERSION_NUMBER >= 0x10001000L && !defined(OPENSSL_NO_NEXTPROTONEG) && !defined(LIBRESSL_VERSION_NUMBER)
 
 int next_proto_select_cb_invoke(SSL *ssl, unsigned char **out, unsigned char *outlen,
                                 const unsigned char *in, unsigned int inlen, void *arg)
@@ -6053,7 +6053,7 @@ X509_get_X509_PUBKEY(x)
    XPUSHs(sv_2mortal(newSVpv((char*)pc,len)));
    Safefree(pc);
 
-#if OPENSSL_VERSION_NUMBER >= 0x10001000L && !defined(OPENSSL_NO_NEXTPROTONEG)
+#if OPENSSL_VERSION_NUMBER >= 0x10001000L && !defined(OPENSSL_NO_NEXTPROTONEG) && !defined(LIBRESSL_VERSION_NUMBER)
 
 int
 SSL_CTX_set_next_protos_advertised_cb(ctx,callback,data=&PL_sv_undef)

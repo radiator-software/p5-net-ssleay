@@ -1,4 +1,9 @@
 Revision history for Perl extension Net::SSLeay.
+
+1.??
+	Fixed a problem with exporting OPENSSL_NO_NEXTPROTONEG even though they are not availble on LibreSSL.
+	Patch patch-SSLeay_xs-NO_NPN from Alexander Bluhm.
+
 1.82 2017-10-31
 	Added support for building under Linuxbrew (a linuxbrew version of MacOS Homebrew)
 	Patch from Matthew Altus, that implements SSL_CTX_set_psk_client_callback() and SSL_set_psk_client_callback().
