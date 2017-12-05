@@ -7,7 +7,10 @@ Revision history for Perl extension Net::SSLeay.
 	OpenSSL 1.1.0f and later. LibreSSL does not support these functions, at 
 	least yet.
 	Patch from Heikke Vatiainen adds new functions related to SSL_CTX_new.
-	
+	Patch from Heikke Vatiainen adds two new functions introduced in OpenSSL 1.1.0, a number 
+	of constants and a couple of const qualifiers to SSLeay.xs. Tests and 
+	documentation .pod were also updated.
+
 The patch also adds new tests for the new functions and updates some of 
 the current tests for CTX_set_default_passwd_cb* functions.
 

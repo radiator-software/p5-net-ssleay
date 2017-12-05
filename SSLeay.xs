@@ -896,7 +896,7 @@ int session_ticket_ext_cb_invoke(SSL *ssl, const unsigned char *data, int len, v
 
 int ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
                                     STACK_OF(SSL_CIPHER) *peer_ciphers,
-                                    SSL_CIPHER **cipher, void *arg)
+                                    const SSL_CIPHER **cipher, void *arg)
 {
     dSP;
     int count = -1, res, i;
@@ -919,7 +919,7 @@ int ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
     secretsv = sv_2mortal( newSVpv(secret, *secret_len));
     XPUSHs(secretsv);
     for (i=0; i<sk_SSL_CIPHER_num(peer_ciphers); i++) {
-        SSL_CIPHER *c = sk_SSL_CIPHER_value(peer_ciphers,i);
+        const SSL_CIPHER *c = sk_SSL_CIPHER_value(peer_ciphers,i);
         av_store(ciphers, i, sv_2mortal(newSVpv(SSL_CIPHER_get_name(c), 0)));
     }
     XPUSHs(sv_2mortal(newRV_inc((SV*)ciphers)));
@@ -1747,8 +1747,20 @@ unsigned long
 SSLeay()
 
 const char *
-SSLeay_version(type=0)
+SSLeay_version(type=SSLEAY_VERSION)
         int type
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+
+unsigned long
+OpenSSL_version_num()
+
+const char *
+OpenSSL_version(t=OPENSSL_VERSION)
+        int t
+
+#endif /* OpenSSL 1.1.0 */
+
 
 #define REM1 "============= SSL CONTEXT functions =============="
 
@@ -2558,10 +2570,10 @@ SSL_set_default_passwd_cb_userdata(ssl,data=&PL_sv_undef)
 #endif /* !LibreSSL */
 #endif /* >= 1.1.0f */
 
-BIO_METHOD *
+const BIO_METHOD *
 BIO_f_ssl()
 
-BIO_METHOD *
+const BIO_METHOD *
 BIO_s_mem()
 
 unsigned long

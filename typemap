@@ -24,6 +24,7 @@ X509_REQ *      T_PTR
 X509_PUBKEY *   T_PTR
 BIGNUM *        T_PTR
 BIO *           T_PTR
+const BIO_METHOD *    T_PTR
 BIO_METHOD *    T_PTR
 EVP_PKEY *      T_PTR
 const EVP_MD *  T_PTR
