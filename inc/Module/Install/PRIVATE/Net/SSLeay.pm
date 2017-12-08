@@ -239,7 +239,7 @@ sub check_openssl_version {
 
 	if ( ($major, $minor, $letter) = $output =~ /^OpenSSL\s+(\d+\.\d+)\.(\d+)([a-z]?)/ ) {
 	    print "*** Found OpenSSL-${major}.${minor}${letter} installed in $prefix\n";
-	} elsif ( ($major, $minor) = $output =~ /^LibreSSL\s+(\d+\.\d+)/ ) {
+	} elsif ( ($major, $minor) = $output =~ /^LibreSSL\s+(\d+\.\d+)\.(\d+)/ ) {
 	    print "*** Found LibreSSL-${major}.${minor} installed in $prefix\n";
 	} else {
             die <<EOM

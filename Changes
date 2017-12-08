@@ -10,6 +10,13 @@ Revision history for Perl extension Net::SSLeay.
 	Patch from Heikke Vatiainen adds two new functions introduced in OpenSSL 1.1.0, a number 
 	of constants and a couple of const qualifiers to SSLeay.xs. Tests and 
 	documentation .pod were also updated.
+	Patch from Heikke Vatiainen adds one new OpenSSL 1.1.0 function and has a minor fix for 
+	LibreSSL version detection:	    
+	*   Added support for SSL_use_certificate_chain_file
+     	function introduced in OpenSSL 1.1.0.
+	*   Fixed LibreSSL version detection to correctly parse
+     	LibreSSL minor version.
+
 
 The patch also adds new tests for the new functions and updates some of 
 the current tests for CTX_set_default_passwd_cb* functions.

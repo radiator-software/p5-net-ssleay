@@ -4757,6 +4757,16 @@ SSL_CTX_use_certificate_chain_file(ctx,file)
      SSL_CTX *	ctx
      const char * file
 
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+
+int
+SSL_use_certificate_chain_file(ssl,file)
+     SSL * ssl
+     const char * file
+
+#endif /* OpenSSL 1.1.0 */
+
 int
 SSL_CTX_use_PrivateKey(ctx,pkey)
      SSL_CTX *	ctx

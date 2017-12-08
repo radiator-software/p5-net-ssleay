@@ -4670,6 +4670,22 @@ Loads the ASN1 encoded certificate from $data to $ssl.
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
 
+=item * use_certificate_chain_file
+
+B<COMPATIBILITY>: not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.1.0
+
+Loads a certificate chain from $file into $ssl. The certificates must be in PEM format and must be sorted
+starting with the subject's certificate (actual client or server certificate), followed by intermediate
+CA certificates if applicable, and ending at the highest level (root) CA.
+
+ my $rv = Net::SSLeay::use_certificate_chain_file($ssl, $file);
+ # $ssl - value corresponding to openssl's SSL structure
+ # $file - (string) file name
+ #
+ # returns: 1 on success, otherwise check out the error stack to find out the reason
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
+
 =item * use_certificate_file
 
 Loads the first certificate stored in $file into $ssl.
