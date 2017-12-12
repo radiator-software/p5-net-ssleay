@@ -16,6 +16,8 @@ Revision history for Perl extension Net::SSLeay.
      	function introduced in OpenSSL 1.1.0.
 	*   Fixed LibreSSL version detection to correctly parse
      	LibreSSL minor version.
+	Patch from Steffen Ulrich to fix memory leaks in OCSP handling. Thanks.
+	
 
 
 The patch also adds new tests for the new functions and updates some of 

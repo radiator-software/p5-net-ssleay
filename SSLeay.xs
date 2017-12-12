@@ -6505,7 +6505,7 @@ SSL_OCSP_cert2ids(ssl,...)
 	OCSP_CERTID *id;
 	int i;
 	STRLEN len;
-	unsigned char *pc,*pi;
+	unsigned char *pi;
 
 	if (!ssl) croak("not a SSL object");
 	ctx = SSL_get_SSL_CTX(ssl);
@@ -6520,15 +6520,15 @@ SSL_OCSP_cert2ids(ssl,...)
 	    if (!(issuer = find_issuer(cert,store,chain)))
 		croak("cannot find issuer certificate");
 	    if (!(id = OCSP_cert_to_id(EVP_sha1(),cert,issuer)))
-		croak("out of memory for generating OCSO certid");
-	    if (!(len = i2d_OCSP_CERTID(id,NULL)))
+		croak("out of memory for generating OCSP certid");
+
+	    pi = NULL;
+	    if (!(len = i2d_OCSP_CERTID(id,&pi)))
 		croak("OCSP certid has no length");
-	    Newx(pc,len,unsigned char);
-	    if (!pc) croak("out of memory");
-	    pi = pc;
-	    i2d_OCSP_CERTID(id,&pi);
-	    XPUSHs(sv_2mortal(newSVpv((char*)pc,len)));
-	    Safefree(pc);
+	    XPUSHs(sv_2mortal(newSVpvn((char *)pi, len)));
+
+	    free(pi);
+	    OCSP_CERTID_free(id);
 	}
 
 
@@ -6750,6 +6750,7 @@ OCSP_response_results(rsp,...)
 		croak("%s", error);
 	    }
 	}
+	OCSP_BASICRESP_free(bsr);
 	if (!want_array)
 	    XPUSHs(sv_2mortal(newSViv(nextupd)));
 
