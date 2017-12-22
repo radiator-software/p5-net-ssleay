@@ -6893,6 +6893,16 @@ Add a directory of certs to a stack. All certs in $dir that are not already in t
 
 =over
 
+=item * X509_STORE_CTX_new
+
+returns a newly initialised X509_STORE_CTX structure. 
+
+=item * X509_verify_cert
+
+The X509_verify_cert() function attempts to discover and validate a
+certificate chain based on parameters in ctx. A complete description
+of the process is contained in the verify(1) manual page.
+
 =item * X509_STORE_CTX_get_current_cert
 
 Returns the certificate in ctx which caused the error or 0 if no certificate is relevant.

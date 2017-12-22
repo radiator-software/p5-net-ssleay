@@ -3651,6 +3651,13 @@ void *
 X509V3_EXT_d2i(ext)
 	X509_EXTENSION *ext
 
+X509_STORE_CTX *
+X509_STORE_CTX_new()
+
+int
+X509_verify_cert(x509_store_ctx)
+     X509_STORE_CTX * 	x509_store_ctx
+    
 int
 X509_STORE_CTX_get_error(x509_store_ctx)
      X509_STORE_CTX * 	x509_store_ctx

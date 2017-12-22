@@ -20,6 +20,7 @@ Revision history for Perl extension Net::SSLeay.
 	Patch from Heikke Vatiainen adds new functions for certificate verification introduced in 
 	OpenSSL 1.02, a number of constants, new test data files, new tests and 
 	updates to .pod documentation.
+	Added X509_STORE_CTX_new and X509_verify_cert.
 
 The new functions provide access to the built-in wildcard check 
 functionality available in OpenSSL 1.0.2 and later.
