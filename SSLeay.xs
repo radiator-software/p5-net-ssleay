@@ -6020,6 +6020,80 @@ X509_VERIFY_PARAM_lookup(name)
 void
 X509_VERIFY_PARAM_table_cleanup()
 
+#if OPENSSL_VERSION_NUMBER >= 0x10002000L && !defined(LIBRESSL_VERSION_NUMBER) /* OpenSSL 1.0.2 */
+
+X509_VERIFY_PARAM *
+SSL_CTX_get0_param(ctx)
+   SSL_CTX * ctx
+
+X509_VERIFY_PARAM *
+SSL_get0_param(ssl)
+   SSL * ssl
+
+int
+X509_VERIFY_PARAM_set1_host(param, name)
+    X509_VERIFY_PARAM *param
+    PREINIT:
+    STRLEN namelen;
+    INPUT:
+    const char * name = SvPV(ST(1), namelen);
+    CODE:
+    RETVAL = X509_VERIFY_PARAM_set1_host(param, name, namelen);
+    OUTPUT:
+    RETVAL
+
+int
+X509_VERIFY_PARAM_add1_host(param, name)
+    X509_VERIFY_PARAM *param
+    PREINIT:
+    STRLEN namelen;
+    INPUT:
+    const char * name = SvPV(ST(1), namelen);
+    CODE:
+    RETVAL = X509_VERIFY_PARAM_add1_host(param, name, namelen);
+    OUTPUT:
+    RETVAL
+
+void
+X509_VERIFY_PARAM_set_hostflags(param, flags)
+    X509_VERIFY_PARAM *param
+    unsigned int flags
+
+char *
+X509_VERIFY_PARAM_get0_peername(param)
+    X509_VERIFY_PARAM *param
+
+int
+X509_VERIFY_PARAM_set1_email(param, email)
+    X509_VERIFY_PARAM *param
+    PREINIT:
+    STRLEN emaillen;
+    INPUT:
+    const char * email = SvPV(ST(1), emaillen);
+    CODE:
+    RETVAL = X509_VERIFY_PARAM_set1_email(param, email, emaillen);
+    OUTPUT:
+    RETVAL
+
+int
+X509_VERIFY_PARAM_set1_ip(param, ip)
+    X509_VERIFY_PARAM *param
+    PREINIT:
+    STRLEN iplen;
+    INPUT:
+    const unsigned char * ip = (const unsigned char *)SvPV(ST(1), iplen);
+    CODE:
+    RETVAL = X509_VERIFY_PARAM_set1_ip(param, ip, iplen);
+    OUTPUT:
+    RETVAL
+
+int
+X509_VERIFY_PARAM_set1_ip_asc(param, ipasc)
+    X509_VERIFY_PARAM *param
+    const char *ipasc
+
+#endif /* OpenSSL 1.0.2 */
+
 void
 X509_policy_tree_free(tree)
     X509_POLICY_TREE *tree

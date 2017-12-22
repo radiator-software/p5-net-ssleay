@@ -17,6 +17,12 @@ Revision history for Perl extension Net::SSLeay.
 	*   Fixed LibreSSL version detection to correctly parse
      	LibreSSL minor version.
 	Patch from Steffen Ulrich to fix memory leaks in OCSP handling. Thanks.
+	Patch from Heikke Vatiainen adds new functions for certificate verification introduced in 
+	OpenSSL 1.02, a number of constants, new test data files, new tests and 
+	updates to .pod documentation.
+
+The new functions provide access to the built-in wildcard check 
+functionality available in OpenSSL 1.0.2 and later.
 	
 
 
