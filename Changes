@@ -3,24 +3,27 @@ Revision history for Perl extension Net::SSLeay.
 1.??
 	Fixed a problem with exporting OPENSSL_NO_NEXTPROTONEG even though they are not availble on LibreSSL.
 	Patch patch-SSLeay_xs-NO_NPN from Alexander Bluhm.
-	Patch from Heikke Vatiainen adds support for SSL_set_default_passwd_cb* for 
+	Patch from Heikki Vatiainen adds support for SSL_set_default_passwd_cb* for 
 	OpenSSL 1.1.0f and later. LibreSSL does not support these functions, at 
 	least yet.
-	Patch from Heikke Vatiainen adds new functions related to SSL_CTX_new.
-	Patch from Heikke Vatiainen adds two new functions introduced in OpenSSL 1.1.0, a number 
+	Patch from Heikki Vatiainen adds new functions related to SSL_CTX_new.
+	Patch from Heikki Vatiainen adds two new functions introduced in OpenSSL 1.1.0, a number 
 	of constants and a couple of const qualifiers to SSLeay.xs. Tests and 
 	documentation .pod were also updated.
-	Patch from Heikke Vatiainen adds one new OpenSSL 1.1.0 function and has a minor fix for 
+	Patch from Heikki Vatiainen adds one new OpenSSL 1.1.0 function and has a minor fix for 
 	LibreSSL version detection:	    
 	*   Added support for SSL_use_certificate_chain_file
      	function introduced in OpenSSL 1.1.0.
 	*   Fixed LibreSSL version detection to correctly parse
      	LibreSSL minor version.
 	Patch from Steffen Ulrich to fix memory leaks in OCSP handling. Thanks.
-	Patch from Heikke Vatiainen adds new functions for certificate verification introduced in 
+	Patch from Heikki Vatiainen adds new functions for certificate verification introduced in 
 	OpenSSL 1.02, a number of constants, new test data files, new tests and 
 	updates to .pod documentation.
 	Added X509_STORE_CTX_new and X509_verify_cert.
+	SSL_OCSP_response_verify clears the error queue if OCSP_basic_verify fasils but the intermediate certificate
+	succeeds. Patch from Stefan Ullrich.
+
 
 The new functions provide access to the built-in wildcard check 
 functionality available in OpenSSL 1.0.2 and later.

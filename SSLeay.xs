@@ -6693,6 +6693,7 @@ SSL_OCSP_response_verify(ssl,rsp,svreq=NULL,flags=0)
 		 * So find this CA ourself and retry verification. */
 		X509 *issuer;
 		X509 *last = sk_X509_value(chain,sk_X509_num(chain)-1);
+		ERR_clear_error(); /* clear error from last OCSP_basic_verify */
 		if (last && (issuer = find_issuer(last,store,chain))) {
 		    OCSP_basic_add1_cert(bsr, issuer);
 		    TRACE(1,"run OCSP_basic_verify with issuer for last chain element");
