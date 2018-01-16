@@ -1,5 +1,9 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.??
+	Fixed an error in t/local/04_basic.t causing a test failure if
+	Test::Exception not installed. Reported by Joel Berger.
+	
 1.83 2018-01-16
 	Fixed a problem with exporting OPENSSL_NO_NEXTPROTONEG even though they are not availble on LibreSSL.
 	Patch patch-SSLeay_xs-NO_NPN from Alexander Bluhm.
