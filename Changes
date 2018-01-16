@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.??
+1.83 2018-01-16
 	Fixed a problem with exporting OPENSSL_NO_NEXTPROTONEG even though they are not availble on LibreSSL.
 	Patch patch-SSLeay_xs-NO_NPN from Alexander Bluhm.
 	Patch from Heikki Vatiainen adds support for SSL_set_default_passwd_cb* for 
@@ -20,18 +20,13 @@ Revision history for Perl extension Net::SSLeay.
 	Patch from Heikki Vatiainen adds new functions for certificate verification introduced in 
 	OpenSSL 1.02, a number of constants, new test data files, new tests and 
 	updates to .pod documentation.
+	The new functions provide access to the built-in wildcard check 
+	functionality available in OpenSSL 1.0.2 and later.
+	The patch also adds new tests for the new functions and updates some of 
+	the current tests for CTX_set_default_passwd_cb* functions.
 	Added X509_STORE_CTX_new and X509_verify_cert.
-	SSL_OCSP_response_verify clears the error queue if OCSP_basic_verify fasils but the intermediate certificate
-	succeeds. Patch from Stefan Ullrich.
-
-
-The new functions provide access to the built-in wildcard check 
-functionality available in OpenSSL 1.0.2 and later.
-	
-
-
-The patch also adds new tests for the new functions and updates some of 
-the current tests for CTX_set_default_passwd_cb* functions.
+	SSL_OCSP_response_verify now clears the error queue if OCSP_basic_verify fails but the
+	intermediate certificate succeeds. Patch from Stefan Ullrich.
 
 
 1.82 2017-10-31
