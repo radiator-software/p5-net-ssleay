@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.??
+1.84 2018-01-17
 	Fixed an error in t/local/04_basic.t causing a test failure if
 	Test::Exception not installed. Reported by Joel Berger.
 	
