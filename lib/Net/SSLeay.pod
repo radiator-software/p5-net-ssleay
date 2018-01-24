@@ -8466,9 +8466,7 @@ The list of all available constant names:
 
 =for comment the next part is the output of: perl helper_script/regen_openssl_constants.pl -gen-pod
 
-
-
-ASN1_STRFLGS_ESC_CTRL           NID_id_qt_cps                          OP_NO_QUERY_MTU
+ ASN1_STRFLGS_ESC_CTRL           NID_id_qt_cps                          OP_NO_QUERY_MTU
  ASN1_STRFLGS_ESC_MSB            NID_id_qt_unotice                      OP_NO_RENEGOTIATION
  ASN1_STRFLGS_ESC_QUOTE          NID_idea_cbc                           OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION
  ASN1_STRFLGS_RFC2253            NID_idea_cfb64                         OP_NO_SSL_MASK
