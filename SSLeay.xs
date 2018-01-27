@@ -6608,7 +6608,7 @@ SSL_OCSP_cert2ids(ssl,...)
 		croak("OCSP certid has no length");
 	    XPUSHs(sv_2mortal(newSVpvn((char *)pi, len)));
 
-	    free(pi);
+	    OPENSSL_free(pi);
 	    OCSP_CERTID_free(id);
 	}
 

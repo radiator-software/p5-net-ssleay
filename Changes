@@ -2,6 +2,8 @@ Revision history for Perl extension Net::SSLeay.
 
 1.??
 	Fixed test failure in t/local/33_x509_create_cert.t for some version of OpenSSL.
+	Fixed free() error that causes "Free to wrong pool ..." merssage on Windows.
+	Reported and patched by Steffen Ullrich.
 	
 1.84 2018-01-17
 	Fixed an error in t/local/04_basic.t causing a test failure if
