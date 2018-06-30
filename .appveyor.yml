@@ -1,5 +1,7 @@
 environment:
   AUTOMATED_TESTING: 1
+  PERL_MM_USE_DEFAULT: 1
+  RELEASE_TESTING: 0
 
 cache:
   - C:\strawberry
