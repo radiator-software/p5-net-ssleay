@@ -1,0 +1,39 @@
+# .appveyor.yml
+#
+# AppVeoyr configuration to test Net::SSLeay on Windows
+#
+# cache, install and build_script sections thanks to blogs.perl.org
+# entries by eserte and mauke
+
+# If branch name hints that it's for Travis CI, skip build
+branches:
+  except:
+    - /travis/
+
+# Tags need not to trigger builds
+skip_tags: true
+
+# Use defaults for external tests and other Makefile.PL prompts.
+# Make sure that we use OpenSSL from Strawberry Perl instead of, for
+# example, c:\OpenSSL-Win32 that comes pre-installed on the VM.
+environment:
+  AUTOMATED_TESTING: 1
+  PERL_MM_USE_DEFAULT: 1
+  RELEASE_TESTING: 0
+  OPENSSL_PREFIX: C:\strawberry\c
+
+cache:
+  - C:\strawberry
+
+install:
+  - if not exist "C:\strawberry" choco install strawberryperl -y
+  - set PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - cpanm --quiet --installdeps --with-develop --notest .
+
+build_script:
+  - perl Makefile.PL
+  - gmake
+
+test_script:
+  - gmake test
