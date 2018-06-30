@@ -5,8 +5,10 @@
 # cache, install and build_script sections thanks to blogs.perl.org
 # entries by eserte and mauke
 
-# If branch name hints that it's for Travis CI, skip build branches:
-except: - /travis/
+# If branch name hints that it's for Travis CI, skip build
+branches:
+  except:
+    - /travis/
 
 # Tags need not to trigger builds
 skip_tags: true
