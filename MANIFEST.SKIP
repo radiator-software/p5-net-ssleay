@@ -61,3 +61,4 @@ TODO
 DSGL_Amendment_20060615.pdf
 README.md
 .travis.yml
+.appveyor.yml
