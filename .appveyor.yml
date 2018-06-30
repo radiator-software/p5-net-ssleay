@@ -1,3 +1,6 @@
+environment:
+  AUTOMATED_TESTING: 1
+
 cache:
   - C:\strawberry
 
