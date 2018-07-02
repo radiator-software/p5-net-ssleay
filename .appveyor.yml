@@ -17,7 +17,15 @@ image:
 platform:
   - x64
 
+# Environment variables need to:
+# - use defaults for external tests and other Makefile.PL prompts
+# - make sure that we use OpenSSL from Strawberry Perl instead of, for
+#   example, c:\OpenSSL-Win32 that comes pre-installed on the VM.
 environment:
+  AUTOMATED_TESTING: 1
+  PERL_MM_USE_DEFAULT: 1
+  RELEASE_TESTING: 0
+  OPENSSL_PREFIX: C:\strawberry\c
   matrix:
     - perl: 5.26.2.1
 
@@ -28,15 +36,6 @@ branches:
 
 # Tags need not to trigger builds
 skip_tags: true
-
-# Use defaults for external tests and other Makefile.PL prompts.
-# Make sure that we use OpenSSL from Strawberry Perl instead of, for
-# example, c:\OpenSSL-Win32 that comes pre-installed on the VM.
-environment:
-  AUTOMATED_TESTING: 1
-  PERL_MM_USE_DEFAULT: 1
-  RELEASE_TESTING: 0
-  OPENSSL_PREFIX: C:\strawberry\c
 
 cache:
   - C:\strawberry
