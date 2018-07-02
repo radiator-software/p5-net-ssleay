@@ -35,7 +35,7 @@ environment:
     - perl: 5.18.4.1
     - perl: 5.16.3.20170202
     - perl: 5.14.4.1
-    - perl: 5.12.3.1
+    - perl: 5.12.3.0
 
 # If branch name hints that it's for Travis CI, skip build
 branches:
@@ -52,7 +52,7 @@ cache:
   - C:\strawberry
 
 install:
-  - echo Using perl %perl%
+  - echo Using perl %perl% on %APPVEYOR_BUILD_WORKER_IMAGE% %PLATFORM%
   - if not exist "C:\strawberry" choco install strawberryperl --yes --version %perl%
   - set PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
   - cd %APPVEYOR_BUILD_FOLDER%
