@@ -1,9 +1,25 @@
 # .appveyor.yml
 #
-# AppVeoyr configuration to test Net::SSLeay on Windows
+# AppVeyor configuration to test Net::SSLeay on Windows
 #
+# Various parts collected from:
 # cache, install and build_script sections thanks to blogs.perl.org
-# entries by eserte and mauke
+# entries by eserte and mauke.
+#
+# Using $Config{make} for not needing to know if make is called dmake,
+# gmake, etc. from a PerlMonks posting by pyrt.
+
+# 2017 is Server 2016, earlier are Server 2012R2
+image:
+  - Visual Studio 2017
+
+# There's also x86 and Any CPU
+platform:
+  - x64
+
+environment:
+  matrix:
+    - perl: 5.26.2.1
 
 # If branch name hints that it's for Travis CI, skip build
 branches:
@@ -26,14 +42,16 @@ cache:
   - C:\strawberry
 
 install:
-  - if not exist "C:\strawberry" choco install strawberryperl -y
+  - echo Using perl %perl%
+  - if not exist "C:\strawberry" choco install strawberryperl --yes --version %perl%
   - set PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
   - cd %APPVEYOR_BUILD_FOLDER%
   - cpanm --quiet --installdeps --with-develop --notest .
+  - perl -V
 
 build_script:
   - perl Makefile.PL
-  - gmake
+  - perl -MConfig -e "system $Config{make}"
 
 test_script:
-  - gmake test
+  - perl -MConfig -e "system $Config{make}, 'test'"
