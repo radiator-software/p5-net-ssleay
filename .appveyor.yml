@@ -33,12 +33,12 @@ environment:
   OPENSSL_PREFIX: C:\strawberry\c
   matrix:
     - perl: 5.26.2.1
-#    - perl: 5.24.4.1
-#    - perl: 5.22.3.1
-#    - perl: 5.20.3.3
-#    - perl: 5.18.4.1
-#    - perl: 5.16.3.20170202
-#    - perl: 5.14.4.1
+    - perl: 5.24.4.1
+    - perl: 5.22.3.1
+    - perl: 5.20.3.3
+    - perl: 5.18.4.1
+    - perl: 5.16.3.20170202
+    - perl: 5.14.4.1
     # For 5.12.3.1 choco is directed to strawberry-perl.googlecode.com
     # which no longer exists
     # - perl: 5.12.3.1
@@ -58,10 +58,11 @@ cache:
   - C:\strawberry
 
 install:
-  - echo Using perl %perl% on %APPVEYOR_BUILD_WORKER_IMAGE% %PLATFORM%
-  - if /I "%PLATFORM%" == "x86" (set x86=--force86) else (set x86="")
-  - echo if not exist "C:\strawberry" choco install strawberryperl --yes %x86% --version %perl%
-  - if not exist "C:\strawberry" choco install strawberryperl --yes %x86% --version %perl%
+  - if /I "%PLATFORM%" == "x86" (set x86=--forcex86) else (set x86="")
+  - set sp_install_cmd=choco install strawberryperl --yes %x86% --version %perl%
+  - echo Using perl %perl% on image %APPVEYOR_BUILD_WORKER_IMAGE%, platform %PLATFORM%
+  - echo Install command: %sp_install_cmd%
+  - if not exist "C:\strawberry" %sp_install_cmd%
   - set PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
   - cd %APPVEYOR_BUILD_FOLDER%
   - cpanm --quiet --installdeps --with-develop --notest .
