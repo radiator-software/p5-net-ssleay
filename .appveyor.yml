@@ -86,8 +86,12 @@ test_script:
 
 # Run make dist
 after_test:
-  - perl -MConfig -e "system $Config{make}, 'dist'"
+  - tar zcvf Net-SSLeay.tar.gz blib
+  - perl -MConfig -e "system $Config{make}, 'ppd'"
 
 # Make Net-SSLeay-a.bb.tar.gz available for closer looking
 artifacts:
-  - path: 'Net-SSLeay-*.tar.gz'
+  - path: Net-SSLeay.tar.gz
+    name: PPM file
+  - path: Net-SSLeay.ppd
+    name: PPD file for PPM
