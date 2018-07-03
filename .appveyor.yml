@@ -61,7 +61,7 @@ install:
   - if /I "%PLATFORM%" == "x86" (set x86=--forcex86) else (set x86="")
   - set sp_install_cmd="choco install strawberryperl --yes %x86% --version %perl%"
   - echo "Using perl %perl% on image %APPVEYOR_BUILD_WORKER_IMAGE%, platform %PLATFORM%"
-  - echo "Install command: %sp_install_cmd%"
+  - echo "Install command %sp_install_cmd%"
   - if not exist "C:\strawberry" %sp_install_cmd%
   - set PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
   - cd %APPVEYOR_BUILD_FOLDER%
