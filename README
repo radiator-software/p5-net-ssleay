@@ -1,14 +1,17 @@
 README - Net::SSLeay Perl module for using OpenSSL
-$Id$
 
 By popular demand...
 --------------------
 
    perl -MNet::SSLeay -e '($p)=Net::SSLeay::get_https("www.openssl.org", 443, "/"); print $p'
 
-for the latest and possibly unstable version from SVN:
 
-   svn co svn://svn.debian.org/svn/net-ssleay
+for the released versions:
+   https://metacpan.org/release/Net-SSLeay
+
+for the latest and possibly unstable version from git:
+
+   https://github.com/radiator-software/p5-net-ssleay
 
 
 Prerequisites
@@ -338,15 +341,10 @@ which gives excellent tutorial of the build process of XSUBs.
 
 Say `perldoc Net::SSLeay' _NOW_!
 
-To download OpenSSL, try URL http://www.openssl.org/
+To download OpenSSL, see https://www.openssl.org/
 
-Of related interest may be `http://www.symlabs.com/Net_SSLeay/smime.html'
+Bug reports, patch submission, feature requests and git access to the
+latest source code etc., can be obtained at
+https://github.com/radiator-software/p5-net-ssleay
 
-Bug reports, patch submission, feature requests, subversion access to the latest 
-source code etc can be obtained at 
-http://alioth.debian.org/projects/net-ssleay
-
-The developer mailing list (for people interested in contributin to the source code)
-can be found at 
-http://lists.alioth.debian.org/mailman/listinfo/net-ssleay-devel
 
