@@ -14,9 +14,10 @@ image:
   - Visual Studio 2017
   - Visual Studio 2015
 
-# There's also x86 and Any CPU
+# There's also Any CPU
 platform:
-  - x64
+#  - x64
+  - x86
 
 # Environment variables need to:
 # - use defaults for external tests and other Makefile.PL prompts
