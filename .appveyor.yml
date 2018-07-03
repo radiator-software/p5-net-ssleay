@@ -60,6 +60,7 @@ cache:
 install:
   - echo Using perl %perl% on %APPVEYOR_BUILD_WORKER_IMAGE% %PLATFORM%
   - if /I "%PLATFORM%" == "x86" (set x86=--force86) else (set x86="")
+  - echo if not exist "C:\strawberry" choco install strawberryperl --yes %x86% --version %perl%
   - if not exist "C:\strawberry" choco install strawberryperl --yes %x86% --version %perl%
   - set PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
   - cd %APPVEYOR_BUILD_FOLDER%
