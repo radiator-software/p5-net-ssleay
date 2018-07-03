@@ -6,10 +6,13 @@
 # cache, install and build_script sections thanks to blogs.perl.org
 # entries by eserte and mauke.
 #
+# 64bit/32bit Strawberry Perl selection thanks to pali's
+# github/Email-Address-XS
+#
 # Using $Config{make} for not needing to know if make is called dmake,
 # gmake, etc. from a PerlMonks posting by pyrt.
 
-# 2017 is Server 2016, earlier are Server 2012R2
+# 2017 is Windows Server 2016, earlier are 2012R2
 image:
   - Visual Studio 2017
   - Visual Studio 2015
@@ -51,12 +54,16 @@ branches:
 # Tags need not to trigger builds
 skip_tags: true
 
+# Skip duplicate builds when pull request is open
+skip_branch_with_pr: true
+
 # Speed up things: just get this specific gommit, not entire repo
 shallow_clone: true
 
 cache:
   - C:\strawberry
 
+# Need to be careful to get quotes right
 install:
   - if /I "%PLATFORM%" == "x86" (set x86=--forcex86) else (set x86="")
   - set sp_install_cmd=choco install strawberryperl --yes %x86% --version %perl%
@@ -68,9 +75,19 @@ install:
   - cpanm --quiet --installdeps --with-develop --notest .
   - perl -V
 
+# Run make
 build_script:
   - perl Makefile.PL
   - perl -MConfig -e "system $Config{make}"
 
+# Run make test
 test_script:
   - perl -MConfig -e "system $Config{make}, 'test'"
+
+# Run make dist
+after_test:
+  - perl -MConfig -e "system $Config{make}, 'dist'"
+
+# Make Net-SSLeay-a.bb.tar.gz available for closer looking
+artifacts:
+  - path: 'Net-SSLeay-*.tar.gz'
