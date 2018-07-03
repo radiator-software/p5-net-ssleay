@@ -14,9 +14,12 @@ image:
   - Visual Studio 2017
   - Visual Studio 2015
 
-# There's also Any CPU
+# There's also Any CPU. Note: this does not select 32bit or 64bit
+# OS. Both server versions are 64bit and this seems to be related to
+# Visual Studio configuration. We use this to choose either 64bit or
+# 32bit Strawberry Perl.
 platform:
-#  - x64
+  - x64
   - x86
 
 # Environment variables need to:
@@ -30,12 +33,12 @@ environment:
   OPENSSL_PREFIX: C:\strawberry\c
   matrix:
     - perl: 5.26.2.1
-    - perl: 5.24.4.1
-    - perl: 5.22.3.1
-    - perl: 5.20.3.3
-    - perl: 5.18.4.1
-    - perl: 5.16.3.20170202
-    - perl: 5.14.4.1
+#    - perl: 5.24.4.1
+#    - perl: 5.22.3.1
+#    - perl: 5.20.3.3
+#    - perl: 5.18.4.1
+#    - perl: 5.16.3.20170202
+#    - perl: 5.14.4.1
     # For 5.12.3.1 choco is directed to strawberry-perl.googlecode.com
     # which no longer exists
     # - perl: 5.12.3.1
@@ -56,7 +59,8 @@ cache:
 
 install:
   - echo Using perl %perl% on %APPVEYOR_BUILD_WORKER_IMAGE% %PLATFORM%
-  - if not exist "C:\strawberry" choco install strawberryperl --yes --version %perl%
+  - if %PLATFORM% == x86 (set x86=--force86) else (set "x86= ")
+  - if not exist "C:\strawberry" choco install strawberryperl --yes %x86% --version %perl%
   - set PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
   - cd %APPVEYOR_BUILD_FOLDER%
   - cpanm --quiet --installdeps --with-develop --notest .
