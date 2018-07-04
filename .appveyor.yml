@@ -29,23 +29,25 @@ platform:
 # - use defaults for external tests and other Makefile.PL prompts
 # - make sure that we use OpenSSL from Strawberry Perl instead of, for
 #   example, c:\OpenSSL-Win32 that comes pre-installed on the VM.
+# Additional variables in matrix are needed because:
 # - old Strawberry Perls don't have cpanm
-# - On server 2012R2 image's c:\mingw was causing linking problems
+# - on server 2012R2 image's MinGW was causing linking problems with
+#   Strawberry Perl's MinGW.
 environment:
   AUTOMATED_TESTING: 1
   PERL_MM_USE_DEFAULT: 1
   RELEASE_TESTING: 0
   OPENSSL_PREFIX: C:\strawberry\c
   matrix:
-#    - perl: 5.26.2.1
-#    - perl: 5.24.4.1
-#    - perl: 5.22.3.1
-#    - perl: 5.20.3.3
-#    - perl: 5.18.4.1
-#    - perl: 5.16.3.20170202
-#    - perl: 5.14.4.1
-#    - perl: 5.12.3.20180703
-#      ssleay_need_cpanm: 1
+    - perl: 5.26.2.1
+    - perl: 5.24.4.1
+    - perl: 5.22.3.1
+    - perl: 5.20.3.3
+    - perl: 5.18.4.1
+    - perl: 5.16.3.20170202
+    - perl: 5.14.4.1
+    - perl: 5.12.3.20180703
+      ssleay_need_cpanm: 1
     - perl: 5.10.1.5
       ssleay_need_cpanm: 1
       ssleay_rename_mingw: 1

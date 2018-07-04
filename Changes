@@ -28,15 +28,16 @@ Revision history for Perl extension Net::SSLeay.
 	Travis CI configuration was added for automated testing on
 	Linux using 64 bit Ubuntu Trusty. Build matrix dimensions are:
 	Perl 5.8 - 5.26 x OpenSSL 0.9.8zh - 1.1.0h. Only the currently
-	latest version for each major Perl and OpenSSL release was
+	latest version for each major Perl and OpenSSL release is
 	chosen.
 
 	AppVeyor configuration was added for automated testing on
 	Windows. Build matrix dimensions are: Perl 5.8 - 5.26 x 32bit
 	and 64bit Perl environment x Windows Server 2012R2 and Windows
-	Server 2016. The Perl environment, including OpenSSL, is
-	Strawberry Perl.  Only the latest major versions were used,
-	similarly to Travis CI.
+	Server 2016. The Perl environment is Strawberry Perl and its
+	OpenSSL is used with builds. Only the latest major versions
+	are used, similarly to Travis CI. Net-SSLeay PPM and PPD files
+	are made available as artifacts.
 
 	Files t/local/43_misc_functions.t and
 	t/local/65_ticket_sharing_2.t were missing from MANIFEST.
