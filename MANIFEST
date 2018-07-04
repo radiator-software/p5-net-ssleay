@@ -1,7 +1,6 @@
 Changes
 constants.c
 Credits
-LICENSE
 examples/bio.pl
 examples/bulk.pl
 examples/callback.pl
@@ -39,15 +38,15 @@ inc/Module/Install/WriteAll.pm
 lib/Net/SSLeay.pm
 lib/Net/SSLeay.pod
 lib/Net/SSLeay/Handle.pm
+LICENSE
 Makefile.PL
 MANIFEST			This list of files
-META.yml
 ppport.h
 QuickRef
 README
-README.Win32
-README.VMS
 README.OSX
+README.VMS
+README.Win32
 SSLeay.xs
 t/data/binary-test.file
 t/data/cert.pem
@@ -66,6 +65,8 @@ t/data/test_CA1.crt.pem
 t/data/test_CA1.encrypted_key.pem
 t/data/test_CA1.key.der
 t/data/test_CA1.key.pem
+t/data/testcert_cdp.crt.pem
+t/data/testcert_cdp.crt.pem_dump
 t/data/testcert_extended.crt.pem
 t/data/testcert_extended.crt.pem_dump
 t/data/testcert_key_2048.pem
@@ -74,8 +75,6 @@ t/data/testcert_simple.crt.pem
 t/data/testcert_simple.crt.pem_dump
 t/data/testcert_strange.crt.pem
 t/data/testcert_strange.crt.pem_dump
-t/data/testcert_cdp.crt.pem
-t/data/testcert_cdp.crt.pem_dump
 t/data/testcert_wildcard.conf
 t/data/testcert_wildcard.crt.pem
 t/data/testreq1.der

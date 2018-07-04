@@ -45,6 +45,16 @@ Revision history for Perl extension Net::SSLeay.
 	Added README.md with link to master branch build and test
 	status. Did minor updates to README and other misc files.
 
+	Updated inc/ directory with Module::Install 1.19. Updated
+	Makefile.PL author and resource information. Synced SSLeay.pm
+	under ext/ with the latest changes under inc/. Reordered use
+	imports so that META.yml gets correctly regenerated. More
+	Module::Install related changes will follow.
+
+	The module is now primarily maintained by Tuure Vartiainen and
+	Heikki Vatiainen of Radiator Software. The new repository
+	location is https://github.com/radiator-software/p5-net-ssleay
+
 1.85 2018-03-14
 	Preparations for transferring maintenace to a new maintainer
 	Fixed test failure in t/local/33_x509_create_cert.t for some version of OpenSSL.
