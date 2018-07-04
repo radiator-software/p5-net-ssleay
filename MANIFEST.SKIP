@@ -58,8 +58,7 @@ makeppd.bat
 makeppd64.bat
 RCS
 TODO
-DSGL_Amendment_20060615.pdf
-README.md
-.travis.yml
-.appveyor.yml
-.gitignore
+^README\.md$
+^\.travis\.yml$
+^\.appveyor\.yml$
+^\.gitignore$

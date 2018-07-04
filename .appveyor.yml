@@ -35,25 +35,22 @@ environment:
   RELEASE_TESTING: 0
   OPENSSL_PREFIX: C:\strawberry\c
   matrix:
-    - perl: 5.26.2.1
-    - perl: 5.24.4.1
-    - perl: 5.22.3.1
-    - perl: 5.20.3.3
-    - perl: 5.18.4.1
-    - perl: 5.16.3.20170202
-    - perl: 5.14.4.1
-    # For 5.12.3.1 choco is directed to strawberry-perl.googlecode.com
-    # which no longer exists
-    # - perl: 5.12.3.1
+#    - perl: 5.26.2.1
+#    - perl: 5.24.4.1
+#    - perl: 5.22.3.1
+#    - perl: 5.20.3.3
+#    - perl: 5.18.4.1
+#    - perl: 5.16.3.20170202
+#    - perl: 5.14.4.1
+    - perl: 5.12.3.20180703
+    - perl: 5.10.1.5
+    - perl: 5.8.9.5
 
-# If branch name hints that it's for Travis CI, skip build
+# Skip build for every push on most branches
 branches:
   only:
     - master
-
-only_commits:
-  files:
-    - .appveyor.yml
+    - appveyor
 
 # Tags need not to trigger builds
 skip_tags: true
