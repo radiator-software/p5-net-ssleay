@@ -43,8 +43,11 @@ environment:
 #    - perl: 5.16.3.20170202
 #    - perl: 5.14.4.1
     - perl: 5.12.3.20180703
+      ssleay_need_cpanm: 1
     - perl: 5.10.1.5
+      ssleay_need_cpanm: 1
     - perl: 5.8.9.5
+      ssleay_need_cpanm: 1
 
 # Skip build for every push on most branches
 branches:
@@ -73,6 +76,7 @@ install:
   - if not exist "C:\strawberry" %sp_install_cmd%
   - set PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
   - cd %APPVEYOR_BUILD_FOLDER%
+  - if /I "%ssleay_need_cpanm%" == "1" cpan App::cpanminus
   - cpanm --quiet --installdeps --with-develop --notest .
   - perl -V
 
