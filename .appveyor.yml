@@ -1,39 +1,113 @@
 # .appveyor.yml
 #
-# AppVeoyr configuration to test Net::SSLeay on Windows
+# AppVeyor configuration to test Net::SSLeay on Windows
 #
+# Various parts collected from:
 # cache, install and build_script sections thanks to blogs.perl.org
-# entries by eserte and mauke
+# entries by eserte and mauke.
+#
+# 64bit/32bit Strawberry Perl selection thanks to pali's
+# github/Email-Address-XS
+#
+# Using $Config{make} for not needing to know if make is called dmake,
+# gmake, etc. from a PerlMonks posting by pyrt.
 
-# If branch name hints that it's for Travis CI, skip build
-branches:
-  except:
-    - /travis/
+# 2017 is Windows Server 2016, earlier are 2012R2
+image:
+  - Visual Studio 2017
+  - Visual Studio 2015
 
-# Tags need not to trigger builds
-skip_tags: true
+# There's also Any CPU. Note: this does not select 32bit or 64bit
+# OS. Both server versions are 64bit and this seems to be related to
+# Visual Studio configuration. We use this to choose either 64bit or
+# 32bit Strawberry Perl.
+platform:
+  - x64
+  - x86
 
-# Use defaults for external tests and other Makefile.PL prompts.
-# Make sure that we use OpenSSL from Strawberry Perl instead of, for
-# example, c:\OpenSSL-Win32 that comes pre-installed on the VM.
+# Environment variables need to:
+# - use defaults for external tests and other Makefile.PL prompts
+# - make sure that we use OpenSSL from Strawberry Perl instead of, for
+#   example, c:\OpenSSL-Win32 that comes pre-installed on the VM.
+# Additional variables in matrix are needed because:
+# - old Strawberry Perls don't have cpanm
+# - on server 2012R2 image's MinGW was causing linking problems with
+#   Strawberry Perl's MinGW.
 environment:
   AUTOMATED_TESTING: 1
   PERL_MM_USE_DEFAULT: 1
   RELEASE_TESTING: 0
   OPENSSL_PREFIX: C:\strawberry\c
+  matrix:
+    - perl: 5.26.2.1
+    - perl: 5.24.4.1
+    - perl: 5.22.3.1
+    - perl: 5.20.3.3
+    - perl: 5.18.4.1
+    - perl: 5.16.3.20170202
+    - perl: 5.14.4.1
+    - perl: 5.12.3.20180703
+      ssleay_need_cpanm: 1
+    - perl: 5.10.1.5
+      ssleay_need_cpanm: 1
+      ssleay_rename_mingw: 1
+    - perl: 5.8.9.5
+      ssleay_need_cpanm: 1
+      ssleay_rename_mingw: 1
 
-cache:
-  - C:\strawberry
+# Skip build for every push on most branches
+branches:
+  only:
+    - master
+    - /appveyor/
 
+# Tags need not to trigger builds
+skip_tags: true
+
+# Skip duplicate builds when pull request is open
+skip_branch_with_pr: true
+
+# Speed up things: just get this specific gommit, not entire repo
+shallow_clone: true
+
+# Our build size exceeds cache storage size: save resources by
+# skipping compress and failing upload
+#cache:
+#  - C:\strawberry
+
+# Need to be careful to get quotes right
 install:
-  - if not exist "C:\strawberry" choco install strawberryperl -y
+  - if /I "%PLATFORM%" == "x86" (set x86=--forcex86) else (set x86="")
+  - set sp_install_cmd=choco install strawberryperl --yes %x86% --version %perl%
+  - echo "Using perl %perl% on image %APPVEYOR_BUILD_WORKER_IMAGE%, platform %PLATFORM%"
+  - echo "Install command %sp_install_cmd%"
+  - if not exist "C:\strawberry" %sp_install_cmd%
   - set PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
   - cd %APPVEYOR_BUILD_FOLDER%
+  - if /I "%ssleay_need_cpanm%" == "1" cpan App::cpanminus
+  - if /I "%ssleay_rename_mingw%" == "1" if exist C:\MinGW move C:\MinGW C:\MinGW-image
+  - if /I "%ssleay_rename_mingw%" == "1" if exist C:\MinGW-W64 move C:\MinGW-W64 C:\MinGW-W64-image
+  - cpanm Module::Install
   - cpanm --quiet --installdeps --with-develop --notest .
+  - perl -V
 
+# Run make
 build_script:
   - perl Makefile.PL
-  - gmake
+  - perl -MConfig -e "system $Config{make}"
 
+# Run make test
 test_script:
-  - gmake test
+  - perl -MConfig -e "system $Config{make}, 'test'"
+
+# Run make dist
+after_test:
+  - tar zcvf Net-SSLeay.tar.gz blib
+  - perl -MConfig -e "system $Config{make}, 'ppd'"
+
+# Make Net-SSLeay-a.bb.tar.gz available for closer looking
+artifacts:
+  - path: Net-SSLeay.tar.gz
+    name: PPM file
+  - path: Net-SSLeay.ppd
+    name: PPD file for PPM

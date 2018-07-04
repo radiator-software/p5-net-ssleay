@@ -3,13 +3,14 @@
 use strict;
 use warnings;
 use lib 'ext';
-use lib '.';
 use inc::Module::Install;
+use lib '.';
 use Config;
 use File::Spec;
 
 name('Net-SSLeay');
 license('perl');
+author('Originally written by Sampo Kellomäki');
 all_from('lib/Net/SSLeay.pm');
 
 ssleay();
@@ -30,7 +31,7 @@ clean_files(map { fixpath($_) } qw(
 ));
 
 no_index( directory => qw( inc ext helper_script examples ) );
-resources( repository => 'http://svn.debian.org/wsvn/net-ssleay' );
+resources( repository => 'https://github.com/radiator-software/p5-net-ssleay' );
 resources( bugtracker => 'https://rt.cpan.org/Public/Dist/Display.html?Name=net-ssleay' );
 
 my $regen_script = File::Spec->catfile('helper_script', 'regen_openssl_constants.pl');
