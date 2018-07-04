@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.86_01 2018-xx-yy
+1.86_01 2018-07-04
 
 	Chris Novakovic did a full conversion from the old Debian
 	hosted SVN repository to git:
@@ -50,6 +50,12 @@ Revision history for Perl extension Net::SSLeay.
 	under ext/ with the latest changes under inc/. Reordered use
 	imports so that META.yml gets correctly regenerated. More
 	Module::Install related changes will follow.
+
+	Net::SSLeay functionality was not changed in this
+	release. Work was done to switch version contorol systems, add
+	automated testing, update module packaging and change the
+	primary maintainer. This coincided with the decommission of
+	previous code repository service on alioth.debian.org.
 
 	The module is now primarily maintained by Tuure Vartiainen and
 	Heikki Vatiainen of Radiator Software. The new repository
