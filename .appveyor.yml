@@ -29,6 +29,8 @@ platform:
 # - use defaults for external tests and other Makefile.PL prompts
 # - make sure that we use OpenSSL from Strawberry Perl instead of, for
 #   example, c:\OpenSSL-Win32 that comes pre-installed on the VM.
+# - old Strawberry Perls don't have cpanm
+# - On server 2012R2 image's c:\mingw was causing linking problems
 environment:
   AUTOMATED_TESTING: 1
   PERL_MM_USE_DEFAULT: 1
@@ -46,14 +48,16 @@ environment:
       ssleay_need_cpanm: 1
     - perl: 5.10.1.5
       ssleay_need_cpanm: 1
+      ssleay_rename_mingw: 1
     - perl: 5.8.9.5
       ssleay_need_cpanm: 1
+      ssleay_rename_mingw: 1
 
 # Skip build for every push on most branches
 branches:
   only:
     - master
-    - appveyor
+    - /appveyor/
 
 # Tags need not to trigger builds
 skip_tags: true
@@ -64,8 +68,10 @@ skip_branch_with_pr: true
 # Speed up things: just get this specific gommit, not entire repo
 shallow_clone: true
 
-cache:
-  - C:\strawberry
+# Our build size exceeds cache storage size: save resources by
+# skipping compress and failing upload
+#cache:
+#  - C:\strawberry
 
 # Need to be careful to get quotes right
 install:
@@ -77,6 +83,7 @@ install:
   - set PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
   - cd %APPVEYOR_BUILD_FOLDER%
   - if /I "%ssleay_need_cpanm%" == "1" cpan App::cpanminus
+  - if /I "%ssleay_rename_mingw%" == "1" move c:\mingw c:\mingw-image
   - cpanm --quiet --installdeps --with-develop --notest .
   - perl -V
 
