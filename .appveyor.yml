@@ -44,8 +44,8 @@ environment:
 #    - perl: 5.18.4.1
 #    - perl: 5.16.3.20170202
 #    - perl: 5.14.4.1
-    - perl: 5.12.3.20180703
-      ssleay_need_cpanm: 1
+#    - perl: 5.12.3.20180703
+#      ssleay_need_cpanm: 1
     - perl: 5.10.1.5
       ssleay_need_cpanm: 1
       ssleay_rename_mingw: 1
@@ -83,8 +83,8 @@ install:
   - set PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
   - cd %APPVEYOR_BUILD_FOLDER%
   - if /I "%ssleay_need_cpanm%" == "1" cpan App::cpanminus
-  - if /I "%ssleay_rename_mingw%" == "1" if exists C:\MinGW move C:\MinGW C:\MinGW-image
-  - if /I "%ssleay_rename_mingw%" == "1" if exists C:\MinGW-W64 move C:\MinGW-W64 C:\MinGW-W64-image
+  - if /I "%ssleay_rename_mingw%" == "1" if exist C:\MinGW move C:\MinGW C:\MinGW-image
+  - if /I "%ssleay_rename_mingw%" == "1" if exist C:\MinGW-W64 move C:\MinGW-W64 C:\MinGW-W64-image
   - cpanm --quiet --installdeps --with-develop --notest .
   - perl -V
 
