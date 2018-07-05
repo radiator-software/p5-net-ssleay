@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use lib 'ext';
 use inc::Module::Install;
-use lib '.';
 use Config;
 use File::Spec;
 
