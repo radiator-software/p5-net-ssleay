@@ -1,5 +1,14 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.86_02 2018-07-06
+
+	Removed inc/ from repository. Module::Install is now a
+	prerequisite when building from the repository. This allowed
+	also removing "." from Makefile.PL lib path which was added in
+	version 1.81. These updates require no changes when building
+	from release packages but allow AppVeyor builds to work with
+	old Perls.
+
 1.86_01 2018-07-04
 
 	Chris Novakovic did a full conversion from the old Debian
