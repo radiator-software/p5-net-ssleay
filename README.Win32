@@ -28,8 +28,6 @@ perl Makefile.PL
 make
 .....
 
-$Id$
-
 1. Windows Server 2003
    ActivePerl 5.8.8.820
    VC++ 6.0

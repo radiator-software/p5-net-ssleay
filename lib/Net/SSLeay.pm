@@ -4,8 +4,6 @@
 # Copyright (C) 2005 Florian Ragwitz <rafl@debian.org>, All Rights Reserved.
 # Copyright (C) 2005 Mike McCauley <mikem@airspayce.com>, All Rights Reserved.
 #
-# $Id$
-#
 # Change data removed from here. See Changes
 # The distribution and use of this module are subject to the conditions
 # listed in LICENSE file at the root of the Net-SSLeay
@@ -63,7 +61,7 @@ $Net::SSLeay::slowly = 0;
 $Net::SSLeay::random_device = '/dev/urandom';
 $Net::SSLeay::how_random = 512;
 
-$VERSION = '1.86_01'; # Dont forget to set version in META.yml too
+$VERSION = '1.86_02'; # Version in META.yml is automatically updated
 @ISA = qw(Exporter);
 
 #BEWARE:

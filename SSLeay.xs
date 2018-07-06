@@ -8,8 +8,6 @@
  *
  * Change data removed. See Changes
  *
- * $Id$
- * 
  * The distribution and use of this module are subject to the conditions
  * listed in LICENSE file at the root of the Net-SSLeay
  * distribution (i.e. same license as Perl itself).
