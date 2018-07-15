@@ -26,16 +26,6 @@ examples/tcpcat.pl
 examples/tcpecho.pl
 examples/x509_cert_details.pl
 helper_script/regen_openssl_constants.pl
-inc/Module/Install.pm
-inc/Module/Install/Base.pm
-inc/Module/Install/Can.pm
-inc/Module/Install/External.pm
-inc/Module/Install/Fetch.pm
-inc/Module/Install/Makefile.pm
-inc/Module/Install/Metadata.pm
-inc/Module/Install/PRIVATE/Net/SSLeay.pm
-inc/Module/Install/Win32.pm
-inc/Module/Install/WriteAll.pm
 lib/Net/SSLeay.pm
 lib/Net/SSLeay.pod
 lib/Net/SSLeay/Handle.pm
