@@ -42,7 +42,6 @@ lib/Net/SSLeay/Handle.pm
 LICENSE
 Makefile.PL
 MANIFEST			This list of files
-META.yml
 ppport.h
 QuickRef
 README
