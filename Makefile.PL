@@ -102,11 +102,11 @@ EOM
     my %args = (
         CCCDLFLAGS => $opts->{cccdlflags},
         OPTIMIZE => $opts->{optimize},
-        INC => join(' ', map {"-I$_"} @{$opts->{inc_paths}}),
-        LIBS => join(' ', (map {"-L$_"} @{$opts->{lib_paths}}), (map {"-l$_"} @{$opts->{lib_links}})),
+        INC => join(' ', map qq{-I"$_"}, @{$opts->{inc_paths}}),
+        LIBS => join(' ', (map qq{-L"$_"}, @{$opts->{lib_paths}}), (map {"-l$_"} @{$opts->{lib_links}})),
     );
     # From HMBRAND to handle multple version of OPENSSL installed
-    if (my $lp = join " " => map { "-L$_" } @{$opts->{lib_paths} || []})
+    if (my $lp = join " " => map qq{-L"$_"}, @{$opts->{lib_paths} || []})
     {
 	($args{uc $_} = $Config{$_}) =~ s/-L/$lp -L/ for qw(lddlflags ldflags);
     }
