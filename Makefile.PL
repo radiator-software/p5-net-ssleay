@@ -57,6 +57,14 @@ my %eumm_args = (
       license => [ 'http://dev.perl.org/licenses/' ],
     },
     no_index => { directory => [ qw(helper_script examples) ] },
+    prereqs => {
+      develop => {
+        requires => {
+          'Test::Pod::Coverage' => '1.00',
+          'Test::Kwalitee' => '1.00',
+        },
+      },
+    },
   },
   ssleay(),
 );
