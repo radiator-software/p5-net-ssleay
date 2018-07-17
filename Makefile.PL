@@ -103,15 +103,17 @@ EOM
         CCCDLFLAGS => $opts->{cccdlflags},
         OPTIMIZE => $opts->{optimize},
         INC => join(' ', map qq{-I"$_"}, @{$opts->{inc_paths}}),
-        LIBS => join(' ', (map qq{-L"$_"}, @{$opts->{lib_paths}}), (map {"-l$_"} @{$opts->{lib_links}})),
+        LIBS => join(' ', (map '-L'.maybe_quote($_), @{$opts->{lib_paths}}), (map {"-l$_"} @{$opts->{lib_links}})),
     );
     # From HMBRAND to handle multple version of OPENSSL installed
-    if (my $lp = join " " => map qq{-L"$_"}, @{$opts->{lib_paths} || []})
+    if (my $lp = join " " => map '-L'.maybe_quote($_), @{$opts->{lib_paths} || []})
     {
 	($args{uc $_} = $Config{$_}) =~ s/-L/$lp -L/ for qw(lddlflags ldflags);
     }
     %args;
 }
+
+sub maybe_quote { $_[0] =~ / / ? qq{"$_[0]"} : $_[0] }
 
 sub ssleay_get_build_opts {
     my ($prefix, $exec) = @_;
