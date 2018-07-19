@@ -1,42 +1,79 @@
-#!/usr/bin/perl
-
 use strict;
 use warnings;
-use lib 'ext';
-use inc::Module::Install;
+use ExtUtils::MakeMaker;
 use Config;
 use File::Spec;
+use File::Basename ();
+use Symbol qw(gensym);
 
-name('Net-SSLeay');
-license('perl');
-author('Originally written by Sampo Kellomäki');
-all_from('lib/Net/SSLeay.pm');
+# Define this to one if you want to link the openssl libraries statically into 
+# the Net-SSLeay loadable object on Windows
+my $win_link_statically = 0;
 
-ssleay();
+my $tests = prompt(
+  "Do you want to run external tests?\n".
+  "These tests *will* *fail* if you do not have network connectivity.",
+  'n',
+) =~ /^y/i ? 't/*/*.t t/*/*/*.t' : 't/local/*.t t/handle/local/*.t';
 
-requires('MIME::Base64');
-requires('Test::More' => '0.60_01');
+my %eumm_args = (
+  NAME => 'Net::SSLeay',
+  LICENSE => 'perl',
+  AUTHOR => 'Originally written by Sampo Kellomäki',
+  VERSION_FROM => 'lib/Net/SSLeay.pm',
+  CONFIGURE_REQUIRES => {
+    'ExtUtils::MakeMaker' => '0',
+  },
+  TEST_REQUIRES => {
+    'Test::More' => '0.60_01',
+  },
+  PREREQ_PM => {
+    'MIME::Base64' => '0',
+  },
+  test => { TESTS => $tests },
+  clean => { FILES => join ' ', map fixpath($_), qw(
+      makecert.out
+      makecert.err
+      sslecho.log
+      tcpecho.log
+      t/local/ptr_cast_test
+      examples/cert.pem
+      examples/key.pem
+      examples/key.pem.e
+      examples/*.0
+  ) },
+  META_MERGE => {
+    "meta-spec" => { version => 2 },
+    dynamic_config => 0,
+    resources => {
+      repository => {
+        type => 'git',
+        url => 'git@github.com/radiator-software/p5-net-ssleay.git',
+        web => 'https://github.com/radiator-software/p5-net-ssleay',
+      },
+      bugtracker  => {
+        web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=net-ssleay',
+      },
+      license => [ 'http://dev.perl.org/licenses/' ],
+    },
+    no_index => { directory => [ qw(helper_script examples) ] },
+    prereqs => {
+      develop => {
+        requires => {
+          'Test::Pod::Coverage' => '1.00',
+          'Test::Kwalitee' => '1.00',
+        },
+      },
+    },
+  },
+  ssleay(),
+);
+WriteMakefile(%eumm_args);
 
-clean_files(map { fixpath($_) } qw(
-    makecert.out
-    makecert.err
-    sslecho.log
-    tcpecho.log
-    t/local/ptr_cast_test
-    examples/cert.pem
-    examples/key.pem
-    examples/key.pem.e
-    examples/*.0
-));
-
-no_index( directory => qw( inc ext helper_script examples ) );
-resources( repository => 'https://github.com/radiator-software/p5-net-ssleay' );
-resources( bugtracker => 'https://rt.cpan.org/Public/Dist/Display.html?Name=net-ssleay' );
-
+sub MY::postamble {
 my $regen_script = File::Spec->catfile('helper_script', 'regen_openssl_constants.pl');
 my $constants_t = File::Spec->catfile('t', 'local', '21_constants.t');
-
-postamble <<"MAKE";
+<<"MAKE";
 constants.c : $regen_script
 	\$(ABSPERLRUN) $regen_script -gen-c constants.c
 
@@ -46,5 +83,244 @@ $constants_t : $regen_script
 SSLeay$Config{'obj_ext'} : constants.c $constants_t
 
 MAKE
+}
 
-WriteAll();
+sub ssleay {
+    my $prefix = find_openssl_prefix();
+    my $exec   = find_openssl_exec($prefix);
+    unless (-x $exec) {
+        print <<EOM;
+*** Could not find OpenSSL
+    If it's already installed, please set the OPENSSL_PREFIX environment
+    variable accordingly. If it isn't installed yet, get the latest version
+    from http://www.openssl.org/.
+EOM
+        exit 0; # according http://wiki.cpantesters.org/wiki/CPANAuthorNotes this is best-practice when "missing library"
+    }
+    check_openssl_version($prefix, $exec);
+    my $opts = ssleay_get_build_opts($prefix, $exec);
+    my %args = (
+        CCCDLFLAGS => $opts->{cccdlflags},
+        OPTIMIZE => $opts->{optimize},
+        INC => join(' ', map qq{-I"$_"}, @{$opts->{inc_paths}}),
+        LIBS => join(' ', (map '-L'.maybe_quote($_), @{$opts->{lib_paths}}), (map {"-l$_"} @{$opts->{lib_links}})),
+    );
+    # From HMBRAND to handle multple version of OPENSSL installed
+    if (my $lp = join " " => map '-L'.maybe_quote($_), @{$opts->{lib_paths} || []})
+    {
+	($args{uc $_} = $Config{$_}) =~ s/-L/$lp -L/ for qw(lddlflags ldflags);
+    }
+    %args;
+}
+
+sub maybe_quote { $_[0] =~ / / ? qq{"$_[0]"} : $_[0] }
+
+sub ssleay_get_build_opts {
+    my ($prefix, $exec) = @_;
+
+    my $opts = {
+        lib_links  => [],
+        cccdlflags => '',
+    };
+    for ("$prefix/include", "$prefix/inc32", '/usr/kerberos/include') {
+      push @{$opts->{inc_paths}}, $_ if -f "$_/openssl/ssl.h";
+    }
+    for ($prefix, "$prefix/lib64", "$prefix/lib", "$prefix/out32dll") {
+      push @{$opts->{lib_paths}}, $_ if -d $_;
+    }
+
+    my $rsaref  = ssleay_is_rsaref();
+
+    print <<EOM;
+*** Be sure to use the same compiler and options to compile your OpenSSL, perl,
+    and Net::SSLeay. Mixing and matching compilers is not supported.
+EOM
+
+    if ($^O eq 'MSWin32') {
+        print "*** RSAREF build on Windows not supported out of box" if $rsaref;
+        if ($win_link_statically) {
+            # Link to static libs
+            push @{ $opts->{lib_paths} }, "$prefix/lib/VC/static" if -d "$prefix/lib/VC/static";
+        }
+        else {
+            push @{ $opts->{lib_paths} }, "$prefix/lib/VC" if -d "$prefix/lib/VC";
+        }
+
+        my $found = 0;
+        my @pairs = ();
+        # Library names depend on the compiler
+        @pairs = (['eay32','ssl32'],['crypto.dll','ssl.dll'],['crypto','ssl']) if $Config{cc} =~ /gcc/;
+        @pairs = (['libeay32','ssleay32'],['libeay32MD','ssleay32MD'],['libeay32MT','ssleay32MT']) if $Config{cc} =~ /cl/;
+        for my $dir (@{$opts->{lib_paths}}) {
+          for my $p (@pairs) {
+            $found = 1 if ($Config{cc} =~ /gcc/ && -f "$dir/lib$p->[0].a" && -f "$dir/lib$p->[1].a");
+            $found = 1 if ($Config{cc} =~ /cl/ && -f "$dir/$p->[0].lib" && -f "$dir/p->[1].lib");
+            if ($found) {
+              $opts->{lib_links} = [$p->[0], $p->[1], 'crypt32']; # Some systems need this system lib crypt32 too
+              $opts->{lib_paths} = [$dir];
+              last;
+            }
+          }
+        }
+        if (!$found) {
+          #fallback to the old behaviour
+          push @{ $opts->{lib_links} }, qw( libeay32MD ssleay32MD libeay32 ssleay32 libssl32 crypt32);
+        }
+    }
+    elsif ($^O eq 'VMS') {
+        if (-r 'sslroot:[000000]openssl.cnf') {      # openssl.org source install
+          @{ $opts->{lib_paths} } = 'SSLLIB';
+          @{ $opts->{lib_links} } = qw( ssl_libssl32.olb ssl_libcrypto32.olb );
+        }
+        elsif (-r 'ssl$root:[000000]openssl.cnf') {  # HP install
+            @{ $opts->{lib_paths} } = 'SYS$SHARE';
+            @{ $opts->{lib_links} } = qw( SSL$LIBSSL_SHR32 SSL$LIBCRYPTO_SHR32 );
+        }
+        @{ $opts->{lib_links} } = map { $_ =~ s/32\b//g } @{ $opts->{lib_links} } if $Config{use64bitall};
+    }
+    else {
+        push @{ $opts->{lib_links} },
+             ($rsaref
+              ? qw( ssl crypto RSAglue rsaref z )
+              : qw( ssl crypto z )
+             );
+
+        if (($Config{cc} =~ /aCC/i) && $^O eq 'hpux') {
+            print "*** Enabling HPUX aCC options (+e)\n";
+            $opts->{optimize} = '+e -O2 -g';
+        }
+
+        if ( (($Config{ccname} || $Config{cc}) eq 'gcc') && ($Config{cccdlflags} =~ /-fpic/) ) {
+            print "*** Enabling gcc -fPIC optimization\n";
+            $opts->{cccdlflags} .= '-fPIC';
+        }
+    }
+    return $opts;
+}
+
+sub ssleay_is_rsaref {
+    return $ENV{OPENSSL_RSAREF};
+}
+
+my $other_try = 0;
+my @nopath;
+sub check_no_path {            # On OS/2 it would be typically on default paths
+    my $p;
+    if (not($other_try++) and $] >= 5.008001) {
+       use ExtUtils::MM;
+       my $mm = MM->new();
+       my ($list) = $mm->ext("-lssl");
+       return unless $list =~ /-lssl\b/;
+        for $p (split /\Q$Config{path_sep}/, $ENV{PATH}) {
+           @nopath = ("$p/openssl$Config{_exe}",       # exe name
+                      '.')             # dummy lib path
+               if -x "$p/openssl$Config{_exe}"
+       }
+    }
+    @nopath;
+}
+
+sub find_openssl_prefix {
+    my ($dir) = @_;
+
+    if (defined $ENV{OPENSSL_PREFIX}) {
+        return $ENV{OPENSSL_PREFIX};
+    }
+
+    my @guesses = (
+	'/home/linuxbrew/.linuxbrew/opt/openssl/bin/openssl' => '/home/linuxbrew/.linuxbrew/opt/openssl', # LinuxBrew openssl
+	'/usr/local/opt/openssl/bin/openssl' => '/usr/local/opt/openssl', # OSX homebrew openssl
+	'/usr/local/bin/openssl'         => '/usr/local', # OSX homebrew openssl
+	'/opt/local/bin/openssl'         => '/opt/local', # Macports openssl
+	'/usr/bin/openssl'               => '/usr',
+	'/usr/sbin/openssl'              => '/usr',
+	'/opt/ssl/bin/openssl'           => '/opt/ssl',
+	'/opt/ssl/sbin/openssl'          => '/opt/ssl',
+	'/usr/local/ssl/bin/openssl'     => '/usr/local/ssl',
+	'/usr/local/openssl/bin/openssl' => '/usr/local/openssl',
+	'/apps/openssl/std/bin/openssl'  => '/apps/openssl/std',
+	'/usr/sfw/bin/openssl'           => '/usr/sfw', # Open Solaris
+	'C:\OpenSSL\bin\openssl.exe'     => 'C:\OpenSSL',
+	'C:\OpenSSL-Win32\bin\openssl.exe'        => 'C:\OpenSSL-Win32',
+	$Config{prefix} . '\bin\openssl.exe'      => $Config{prefix},           # strawberry perl
+	$Config{prefix} . '\..\c\bin\openssl.exe' => $Config{prefix} . '\..\c', # strawberry perl
+	'/sslexe/openssl.exe'            => '/sslroot',  # VMS, openssl.org
+	'/ssl$exe/openssl.exe'           => '/ssl$root', # VMS, HP install
+    );
+
+    while (my $k = shift @guesses
+           and my $v = shift @guesses) {
+        if ( -x $k ) {
+            return $v;
+        }
+    }
+    (undef, $dir) = check_no_path()
+       and return $dir;
+
+    return;
+}
+
+sub find_openssl_exec {
+    my ($prefix) = @_;
+
+    my $exe_path;
+    for my $subdir (qw( bin sbin out32dll ia64_exe alpha_exe )) {
+        my $path = File::Spec->catfile($prefix, $subdir, "openssl$Config{_exe}");
+        if ( -x $path ) {
+            return $path;
+        }
+    }
+    ($prefix) = check_no_path()
+       and return $prefix;
+    return;
+}
+
+sub check_openssl_version {
+    my ($prefix, $exec) = @_;
+    my ($major, $minor, $letter);
+
+    {
+        my $pipe = gensym();
+        open($pipe, qq{"$exec" version |})
+            or die "Could not execute $exec";
+        my $output = <$pipe>;
+        chomp $output;
+        close $pipe;
+
+	if ( ($major, $minor, $letter) = $output =~ /^OpenSSL\s+(\d+\.\d+)\.(\d+)([a-z]?)/ ) {
+	    print "*** Found OpenSSL-${major}.${minor}${letter} installed in $prefix\n";
+	} elsif ( ($major, $minor) = $output =~ /^LibreSSL\s+(\d+\.\d+)\.(\d+)/ ) {
+	    print "*** Found LibreSSL-${major}.${minor} installed in $prefix\n";
+	} else {
+            die <<EOM
+*** OpenSSL version test failed
+    (`$output' has been returned)
+    Either you have bogus OpenSSL or a new version has changed the version
+    number format. Please inform the authors!
+EOM
+        }
+    }
+
+    if ($major < 0.9 || ($major == 0.9 && $minor < 3)) {
+        print <<EOM;
+*** That's too old!
+    Please upgrade OpenSSL to the latest version (http://www.openssl.org/)
+EOM
+        exit 0; # according http://wiki.cpantesters.org/wiki/CPANAuthorNotes this is best-practice when "missing library"
+    }
+
+    if ($major == 1.1 && $minor > 0) {
+        print <<EOM;
+*** That's newer than what this module was tested with
+    You should consider checking if there is a newer release of this module
+    available. Everything will probably work OK, though.
+EOM
+    }
+}
+
+sub fixpath {
+    my ($text) = @_;
+    my $sep = File::Spec->catdir('');
+    $text =~ s{\b/}{$sep}g;
+    return $text;
+}

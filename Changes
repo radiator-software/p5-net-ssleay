@@ -1,5 +1,10 @@
 Revision history for Perl extension Net::SSLeay.
 
+???
+	- Convert packaging to EUMM
+	- Re-apply patch from ETJ permitting configure and build in
+	  places with a space in the name.
+
 1.86_02 2018-07-06
 	- Removed inc/ from repository. Module::Install is now a
 	  prerequisite when building from the repository. This allowed
