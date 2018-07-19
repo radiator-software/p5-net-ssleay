@@ -18,6 +18,7 @@ my $tests = prompt(
 
 my %eumm_args = (
   NAME => 'Net::SSLeay',
+  ABSTRACT => 'Perl extension for using OpenSSL',
   LICENSE => 'perl',
   AUTHOR => 'Originally written by Sampo Kellomäki',
   VERSION_FROM => 'lib/Net/SSLeay.pm',
