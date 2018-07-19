@@ -1,7 +1,9 @@
 Revision history for Perl extension Net::SSLeay.
 
-???
-	- Convert packaging to EUMM
+1.86_03 2018-07-19
+	- Convert packaging to ExtUtils::MakeMaker
+	- Module::Install is no longer a prerequisite when building
+	  from the reposistory.
 	- Re-apply patch from ETJ permitting configure and build in
 	  places with a space in the name.
 
