@@ -4311,12 +4311,10 @@ SSLv2_method()
 #endif
 
 #ifndef OPENSSL_NO_SSL3
-#if OPENSSL_VERSION_NUMBER < 0x10002000L
 
 const SSL_METHOD *
 SSLv3_method()
 
-#endif
 #endif
 
 const SSL_METHOD *
