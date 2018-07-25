@@ -1,5 +1,9 @@
 Revision history for Perl extension Net::SSLeay.
 
+???
+	- Re-add SSLv3_method() for OpenSSL 1.0.2 and above. Fixes
+	  RT#101484.
+
 1.86_03 2018-07-19
 	- Convert packaging to ExtUtils::MakeMaker
 	- Module::Install is no longer a prerequisite when building
