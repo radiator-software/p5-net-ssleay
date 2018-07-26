@@ -173,6 +173,10 @@ EOM
           @{ $opts->{lib_paths} } = 'SSLLIB';
           @{ $opts->{lib_links} } = qw( ssl_libssl32.olb ssl_libcrypto32.olb );
         }
+        elsif (-r 'ssl1$root:[000000]openssl.cnf') {  # VSI or HPE SSL1 install
+            @{ $opts->{lib_paths} } = 'SYS$SHARE';
+            @{ $opts->{lib_links} } = qw( SSL1$LIBSSL_SHR32 SSL1$LIBCRYPTO_SHR32 );
+        }
         elsif (-r 'ssl$root:[000000]openssl.cnf') {  # HP install
             @{ $opts->{lib_paths} } = 'SYS$SHARE';
             @{ $opts->{lib_links} } = qw( SSL$LIBSSL_SHR32 SSL$LIBCRYPTO_SHR32 );
@@ -246,6 +250,7 @@ sub find_openssl_prefix {
 	$Config{prefix} . '\bin\openssl.exe'      => $Config{prefix},           # strawberry perl
 	$Config{prefix} . '\..\c\bin\openssl.exe' => $Config{prefix} . '\..\c', # strawberry perl
 	'/sslexe/openssl.exe'            => '/sslroot',  # VMS, openssl.org
+	'/ssl1$exe/openssl.exe'          => '/ssl1$root',# VMS, VSI or HPE install
 	'/ssl$exe/openssl.exe'           => '/ssl$root', # VMS, HP install
     );
 
