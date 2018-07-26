@@ -1353,6 +1353,8 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_new.html|http://www.
 
 =item * ENGINE_load_builtin_engines
 
+B<COMPATIBILITY:> Requires an OpenSSL build with dynamic engine loading support.
+
 Load all bundled ENGINEs into memory and make them visible.
 
  Net::SSLeay::ENGINE_load_builtin_engines();
@@ -1363,6 +1365,8 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/engine.html|http://www.op
 
 =item * ENGINE_register_all_complete
 
+B<COMPATIBILITY:> Requires an OpenSSL build with dynamic engine loading support.
+
 Register all loaded ENGINEs for every algorithm they collectively implement.
 
  Net::SSLeay::ENGINE_register_all_complete();
@@ -1372,6 +1376,8 @@ Register all loaded ENGINEs for every algorithm they collectively implement.
 Check openssl doc L<http://www.openssl.org/docs/crypto/engine.html|http://www.openssl.org/docs/crypto/engine.html>
 
 =item * ENGINE_set_default
+
+B<COMPATIBILITY:> Requires an OpenSSL build with dynamic engine loading support.
 
 Set default engine to $e + set its flags to $flags.
 
@@ -1401,6 +1407,8 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/engine.html|http://www.op
 =item * ENGINE_by_id
 
 Get ENGINE by its identification $id.
+
+B<COMPATIBILITY:> Requires an OpenSSL build with dynamic engine loading support.
 
  my $rv = Net::SSLeay::ENGINE_by_id($id);
  # $id - (string) engine identification e.g. "dynamic"
