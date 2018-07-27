@@ -2653,6 +2653,7 @@ SSL_library_init()
 
 #if OPENSSL_VERSION_NUMBER >= 0x0090700fL
 #define REM5 "NOTE: requires 0.9.7+"
+#ifndef OPENSSL_NO_ENGINE
 
 void
 ENGINE_load_builtin_engines()
@@ -2669,6 +2670,7 @@ ENGINE_set_default(e, flags)
         ENGINE * e
         int flags
 
+#endif /* OPENSSL_NO_ENGINE */
 #endif
 
 void
