@@ -6,6 +6,9 @@ Revision history for Perl extension Net::SSLeay.
 	- Don't expose ENGINE-related functions when building against
 	  OpenSSL builds without ENGINE support. Fixes RT#121538. Thanks to
 	  Paul Green.
+	- Automatically detect OpenSSL 1.0.x on VMS, and update VMS
+	  installation instructions to reflect removal of Module::Install
+	  from the build system. Fixes RT#124388. Thanks to Craig A. Berry.
 
 1.86_03 2018-07-19
 	- Convert packaging to ExtUtils::MakeMaker
