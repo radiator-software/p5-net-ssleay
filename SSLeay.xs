@@ -1648,7 +1648,7 @@ X509 * find_issuer(X509 *cert,X509_STORE *store, STACK_OF(X509) *chain) {
 	for(i=0;i<sk_X509_num(chain);i++) {
 	    if ( X509_check_issued(sk_X509_value(chain,i),cert) == X509_V_OK ) {
 		TRACE(2,"found issuer in chain");
-		issuer = sk_X509_value(chain,i);
+		issuer = X509_dup(sk_X509_value(chain,i));
 	    }
 	}
     }
@@ -6598,7 +6598,9 @@ SSL_OCSP_cert2ids(ssl,...)
 		croak("no OCSP request for self-signed certificate");
 	    if (!(issuer = find_issuer(cert,store,chain)))
 		croak("cannot find issuer certificate");
-	    if (!(id = OCSP_cert_to_id(EVP_sha1(),cert,issuer)))
+	    id = OCSP_cert_to_id(EVP_sha1(),cert,issuer);
+	    X509_free(issuer);
+	    if (!id)
 		croak("out of memory for generating OCSP certid");
 
 	    pi = NULL;
@@ -6694,6 +6696,7 @@ SSL_OCSP_response_verify(ssl,rsp,svreq=NULL,flags=0)
 		ERR_clear_error(); /* clear error from last OCSP_basic_verify */
 		if (last && (issuer = find_issuer(last,store,chain))) {
 		    OCSP_basic_add1_cert(bsr, issuer);
+		    X509_free(issuer);
 		    TRACE(1,"run OCSP_basic_verify with issuer for last chain element");
 		    RETVAL = OCSP_basic_verify(bsr, NULL, store, flags);
 		}

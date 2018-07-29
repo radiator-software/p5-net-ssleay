@@ -9,6 +9,8 @@ Revision history for Perl extension Net::SSLeay.
 	- Automatically detect OpenSSL 1.0.x on VMS, and update VMS
 	  installation instructions to reflect removal of Module::Install
 	  from the build system. Fixes RT#124388. Thanks to Craig A. Berry.
+	- Prevent memory leak in OCSP_cert2ids() and OCSP_response_verify().
+	  Fixes RT#125273. Thanks to Steffen Ullrich.
 
 1.86_03 2018-07-19
 	- Convert packaging to ExtUtils::MakeMaker
