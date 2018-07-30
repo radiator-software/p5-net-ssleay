@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-???
+1.86_04 2018-07-30
 	- Re-add SSLv3_method() for OpenSSL 1.0.2 and above. Fixes
 	  RT#101484.
 	- Don't expose ENGINE-related functions when building against
