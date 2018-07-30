@@ -1,5 +1,10 @@
 Revision history for Perl extension Net::SSLeay.
 
+???
+	- Increment Net::SSLeay::Handle's version number to keep it in sync
+	  with Net::SSLeay's, thus satisfying Kwalitee's consistent_version
+	  metric.
+
 1.86_04 2018-07-30
 	- Re-add SSLv3_method() for OpenSSL 1.0.2 and above. Fixes
 	  RT#101484.
