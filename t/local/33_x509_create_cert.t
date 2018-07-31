@@ -299,7 +299,7 @@ SKIP: { ### X509 certificate - unicode
 
  SKIP: 
   {
-      skip 'd2i_X509_bio fails for openssl-1.1.0e and later', 1 unless Net::SSLeay::SSLeay < 0x1010005f; 
+      skip 'd2i_X509_bio fails for openssl-1.1.0e and later', 1 unless Net::SSLeay::SSLeay < 0x1010005f or Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER");
       ok(my $x509 = Net::SSLeay::d2i_X509_bio($bio2), "d2i_X509_bio");
   }
 }
