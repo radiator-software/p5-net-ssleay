@@ -4,6 +4,8 @@ Revision history for Perl extension Net::SSLeay.
 	- Increment Net::SSLeay::Handle's version number to keep it in sync
 	  with Net::SSLeay's, thus satisfying Kwalitee's consistent_version
 	  metric.
+	- Re-enable the d2i_X509_bio() test in t/local/33_x509_create_cert.t
+	  for LibreSSL. Thanks to Alexander Bluhm.
 
 1.86_04 2018-07-30
 	- Re-add SSLv3_method() for OpenSSL 1.0.2 and above. Fixes
