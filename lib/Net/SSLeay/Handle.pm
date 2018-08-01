@@ -1,6 +1,7 @@
 package Net::SSLeay::Handle;
 
-require 5.005_03;
+use 5.8.1;
+
 use strict;
 
 use Socket;
@@ -58,7 +59,6 @@ $VERSION = '0.86_04';
 
 my $Initialized;       #-- only _initialize() once
 my $Debug = 0;         #-- pretty hokey
-my %Glob_Ref;          #-- used to make unique \*S names for versions < 5.6
 
 #== Tie Handle Methods ========================================================
 #
@@ -223,10 +223,9 @@ sub make_socket {
 
     my $dest_ip     = gethostbyname($phost || $host);
     my $host_params = sockaddr_in($pport, $dest_ip);
-    my $socket = $^V ? undef : $class->_glob_ref("$host:$port");
     
-    socket($socket, &PF_INET(), &SOCK_STREAM(), 0) or die "socket: $!";
-    connect($socket, $host_params)                 or die "connect: $!";
+    socket(my $socket, &PF_INET(), &SOCK_STREAM(), 0) or die "socket: $!";
+    connect($socket, $host_params)                    or die "connect: $!";
 
     my $old_select = select($socket); $| = 1; select($old_select);
     $phost and do {
@@ -241,32 +240,6 @@ sub make_socket {
 =back
 
 =cut
-
-#--- _glob_ref($strings) ------------------------------------------------------
-#
-# Create a unique namespace name and return a glob ref to it.  Would be great
-# to use the fileno but need this before we get back the fileno.
-# NEED TO LOCK THIS ROUTINE IF USING THREADS. (but it is only used for
-# versions < 5.6 :)
-#------------------------------------------------------------------------------
-
-sub _glob_ref {
-    my $class = shift;
-    my $preamb = join("", @_) || "_glob_ref";
-    my $num = ++$Glob_Ref{$preamb};
-    my $name = "$preamb:$num";
-    no strict 'refs';
-    my $glob_ref = \*$name;
-    use strict 'refs';
-
-    $Debug and do {
-        print "GLOB_REF $preamb\n";
-        while (my ($k, $v) = each %Glob_Ref) {print "$k = $v\n"} 
-        print "\n";
-    };
-
-    return $glob_ref;
-}
 
 sub _initialize {
     $Initialized++ and return;
@@ -369,19 +342,9 @@ glob, I got a core dump.
 I was able to associate attributes to globs created by this module
 (like *SSL above) by making a hash of hashes keyed by the file head1.
 
-Support for old perls may not be 100%. If in trouble try 5.6.0 or
-newer.
-
 =head1 CHANGES
 
 Please see Net-SSLeay-Handle-0.50/Changes file.
-
-=head1 KNOWN BUGS
-
-If you let this module construct sockets for you with Perl versions
-below v.5.6 then there is a slight memory leak.  Other upgrade your
-Perl, or create the sockets yourself.  The leak was created to let
-these older versions of Perl access more than one Handle at a time.
 
 =head1 AUTHOR
 
