@@ -10,6 +10,9 @@ Revision history for Perl extension Net::SSLeay.
 	  metric.
 	- Re-enable the d2i_X509_bio() test in t/local/33_x509_create_cert.t
 	  for LibreSSL. Thanks to Alexander Bluhm.
+	- Automatically detect new library names on Windows for OpenSSL
+	  1.1.0 onwards (libcrypto, libssl). Fixes part of RT#121084. Thanks
+	  to Jean-Damien Durand.
 
 1.86_04 2018-07-30
 	- Re-add SSLv3_method() for OpenSSL 1.0.2 and above. Fixes
