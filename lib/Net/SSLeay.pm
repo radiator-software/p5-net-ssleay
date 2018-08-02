@@ -11,12 +11,13 @@
 
 package Net::SSLeay;
 
+use 5.8.1;
+
 use strict;
 use Carp;
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK $AUTOLOAD $CRLF);
 use Socket;
 use Errno;
-require 5.005_000;
 
 require Exporter;
 use AutoLoader;

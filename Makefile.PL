@@ -1,3 +1,5 @@
+use 5.8.1;
+
 use strict;
 use warnings;
 use ExtUtils::MakeMaker;
@@ -29,6 +31,7 @@ my %eumm_args = (
     'Test::More' => '0.60_01',
   },
   PREREQ_PM => {
+    'perl' => '5.8.1',
     'MIME::Base64' => '0',
   },
   test => { TESTS => $tests },

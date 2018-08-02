@@ -17,8 +17,7 @@ for the latest and possibly unstable version from git:
 Prerequisites
 -------------
 
-perl-5.6.1     though anything starting from perl5.003 probably works. Later
-	       versions are OK.
+Perl 5.8.1 or higher.
 
 OpenSSL-0.9.6j through to at least OpenSSL-1.1 and probably later
 	       http://www.openssl.org/ - On Linux, you can either build and
@@ -218,9 +217,6 @@ I have a report (schinder@@pobox._com) of make test segfaulting on
 Linux-PPC. This still needs to be investigated. No recent information
 has been received.
 
-It seems perl5.004 (at least some versions) has bad xsub compiler which
-can make builds sometimes fail. Try upgrading to perl-5.6.1 first.
-
 "Random number generator not seeded!!!" This warning indicates that
     randomize() was not able to read /dev/random or /dev/urandom, possibly
     because your system does not have them or they are differently
@@ -232,20 +228,6 @@ is, just say `perldoc Net::SSLeay' or `more SSLeay.pm')?
 
 Are you sure you didn't confuse `Net::SSLeay' with `SSLeay' that
 comes with OpenSSL?
-
-My development environments used to be
-
-  i686,   Linux-2.4.3,  gcc-2.92.2,   glibc-2.2,   perl-5.6.0,   openssl-0.9.6a
-  i686,   Linux-2.4.3,  gcc-2.92.2,   glibc-2.2,   perl5.005_02, openssl-0.9.6a
-  i686,   Linux-2.0.35, gcc-2.7.2.3,  glibc-2.0.6, perl5.005_02, openssl-0.9.5a
-  i586,   Linux-2.4.3,  gcc-2.92.2.1, glibc-2.2.2, perl-5.6.0,   openssl-0.9.6a
-  i586,   Linux-2.4.3,  gcc-2.92.2.1, glibc-2.2.2, perl5.005_03, openssl-0.9.6
-  i586,   Linux-2.4.3,  gcc-2.92.2.1, glibc-2.2.2, perl5.005_03, openssl-0.9.6a
-  Sun-U1, SunOS-5.6,    gcc-2.92.2,   libc2        perl-5.6.1,   openssl-0.9.6c
-
-Unfortunately I do not have access to other systems so you are
-somewhat on your own. Everything compiles without a warning (except
-those mentioned above) on my systems.
 
 Check that perl is finding your OpenSSL.
 
