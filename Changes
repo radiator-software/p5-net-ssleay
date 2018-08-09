@@ -16,6 +16,8 @@ Revision history for Perl extension Net::SSLeay.
 	- Fix a typo preventing OpenSSL libraries built with the VC compiler
 	  (i.e. ones with a ".lib" suffix) from being automatically detected
 	  on Windows. Fixes part of RT#121084. Thanks to Jean-Damien Durand.
+	- Add missing call to va_end() following va_start() in TRACE().
+	  Fixes RT#126028. Thanks to Jitka Plesnikova.
 
 1.86_04 2018-07-30
 	- Re-add SSLv3_method() for OpenSSL 1.0.2 and above. Fixes

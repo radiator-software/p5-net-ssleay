@@ -222,6 +222,7 @@ static void TRACE(int level,char *msg,...) {
 	va_start(args,msg);
 	vsnprintf(buf,4095,msg,args);
 	warn("%s",buf);
+	va_end(args);
     }
 }
 
