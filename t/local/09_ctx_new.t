@@ -1,10 +1,11 @@
 #!/usr/bin/perl
 
 # Tests for SSL_CTX_new and related functions
+# Also test handshake state machine retrieval
 
 use strict;
 use warnings;
-use Test::More tests => 40;
+use Test::More tests => 44;
 use Net::SSLeay;
 
 Net::SSLeay::randomize();
@@ -31,6 +32,12 @@ ok($ctx_23_server, 'CTX_new with SSLv23_server_method');
 
 my $ctx_tls1 = Net::SSLeay::CTX_new_with_method(Net::SSLeay::TLSv1_method());
 ok($ctx_tls1, 'CTX_new with TLSv1_method');
+
+# Retrieve information about the handshake state machine
+is(Net::SSLeay::in_connect_init(Net::SSLeay::new($ctx_23_client)), 1, 'in_connect_init() is 1 for client');
+is(Net::SSLeay::in_accept_init(Net::SSLeay::new($ctx_23_client)),  0, 'in_accept_init() is 0 for client');
+is(Net::SSLeay::in_connect_init(Net::SSLeay::new($ctx_23_server)), 0, 'in_connect_init() is 0 for server');
+is(Net::SSLeay::in_accept_init(Net::SSLeay::new($ctx_23_server)),  1, 'in_accept_init() is 1 for server');
 
 # Need recent enough OpenSSL or LibreSSL for TLS_method functions
 my ($ctx_tls, $ssl_tls, $ctx_tls_client, $ssl_tls_client, $ctx_tls_server, $ssl_tls_server);

@@ -1,6 +1,12 @@
 Revision history for Perl extension Net::SSLeay.
 
 ???
+	- Added SSL_in_init() and the related functions for all
+	  libraries and their versions. All return 0 or 1 as
+	  documented by OpenSSL 1.1.1. Use of these functions is
+	  recommended over using constants returned by get_state() and
+	  state(). New constants TLS_ST_*, used by OpenSSL 1.1.0 and
+	  later, will not be made available by Net::SSLeay.
 	- Net-SSLeay now requires at least Perl 5.8.1. This is a
 	  formalisation of what has been the de facto case for some time,
 	  as the distribution hasn't compiled and passed its tests on Perl
