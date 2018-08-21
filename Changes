@@ -18,6 +18,12 @@ Revision history for Perl extension Net::SSLeay.
 	  on Windows. Fixes part of RT#121084. Thanks to Jean-Damien Durand.
 	- Add missing call to va_end() following va_start() in TRACE().
 	  Fixes RT#126028. Thanks to Jitka Plesnikova.
+	- Added SSL_in_init() and the related functions for all
+	  libraries and their versions. All return 0 or 1 as
+	  documented by OpenSSL 1.1.1. Use of these functions is
+	  recommended over using constants returned by get_state() and
+	  state(). New constants TLS_ST_*, used by OpenSSL 1.1.0 and
+	  later, will not be made available by Net::SSLeay.
 
 1.86_04 2018-07-30
 	- Re-add SSLv3_method() for OpenSSL 1.0.2 and above. Fixes

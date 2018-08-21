@@ -74,6 +74,7 @@ matrix:
 # Skip build for every push on most branches
 branches:
   only:
+    - master
     - /appveyor/
 
 # Tags need not to trigger builds

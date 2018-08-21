@@ -13,7 +13,7 @@ BEGIN {
   plan skip_all => "fork() not supported on $^O" unless $Config{d_fork};
 }
 
-plan tests => 78;
+plan tests => 99;
 
 my $sock;
 my $pid;
@@ -76,8 +76,13 @@ Net::SSLeay::library_init();
             my $ssl = Net::SSLeay::new($ctx);
             ok($ssl, 'new');
 
+	    is(Net::SSLeay::in_before($ssl), 1, 'in_before is 1');
+	    is(Net::SSLeay::in_init($ssl), 1, 'in_init is 1');
+
             ok(Net::SSLeay::set_fd($ssl, fileno($ns)), 'set_fd using fileno');
             ok(Net::SSLeay::accept($ssl), 'accept');
+
+	    is(Net::SSLeay::is_init_finished($ssl), 1, 'is_init_finished is 1');
 
             ok(Net::SSLeay::get_cipher($ssl), 'get_cipher');
             like(Net::SSLeay::get_shared_ciphers($ssl), qr/(AES|RSA|SHA|CBC|DES)/, 'get_shared_ciphers');
@@ -351,7 +356,7 @@ waitpid $pid, 0;
 push @results, [ $? == 0, 'server exited with 0' ];
 
 END {
-    Test::More->builder->current_test(51);
+    Test::More->builder->current_test(72);
     for my $t (@results) {
         ok( $t->[0], $t->[1] );
     }
