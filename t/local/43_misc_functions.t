@@ -21,17 +21,31 @@ alarm(30);
 END { kill 9,$pid if $pid }
 
 # Values that were previously looked up for get_keyblock_size test
-our %cipher_to_keyblock_size =
+# Revisit: currently the only known user for get_keyblock_size is
+# EAP-FAST. How it works with AEAD ciphers is for future study.
+our %non_aead_cipher_to_keyblock_size =
     (
      'RC4-MD5' => 64,
      'RC4-SHA' => 72,
-#     'AES256-GCM-SHA384' => 88, # Doesnt work with libressl-2.4.1
-     'AES128-GCM-SHA256' => 56,
      'AES256-SHA256' => 160,
      'AES128-SHA256' => 128,
      'AES128-SHA' => 104,
      'AES256-SHA' => 136,
     );
+
+our %aead_cipher_to_keyblock_size =
+    (
+     'AES128-GCM-SHA256' => 56,
+     'AES256-GCM-SHA384' => 88,
+
+     # Only in TLS 1.3
+     'TLS_AES_128_GCM_SHA256' => 56,
+     'TLS_AES_256_GCM_SHA384' => 88,
+     'TLS_CHACHA20_POLY1305_SHA256' => 88,
+    );
+
+# Combine the two hahes
+our %cipher_to_keyblock_size = (%non_aead_cipher_to_keyblock_size, %aead_cipher_to_keyblock_size);
 
 my $server;
 Net::SSLeay::initialize();
@@ -51,7 +65,8 @@ Net::SSLeay::initialize();
 	my $cl = $server->accept or BAIL_OUT("accept failed: $!");
 	my $ctx = Net::SSLeay::CTX_new();
 	Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem);
-	my $get_keyblock_size_ciphers = join(':', keys(%cipher_to_keyblock_size));
+#	my $get_keyblock_size_ciphers = join(':', keys(%cipher_to_keyblock_size));
+	my $get_keyblock_size_ciphers = join(':', keys(%non_aead_cipher_to_keyblock_size));
 	Net::SSLeay::CTX_set_cipher_list($ctx, $get_keyblock_size_ciphers);
 	my $ssl = Net::SSLeay::new($ctx);
 
@@ -151,6 +166,9 @@ sub client_test_finished
 }
 
 # Test get_keyblock_size
+# Notes: With TLS 1.3 the cipher is always an AEAD cipher. If AEAD
+# ciphers are enabled for TLS 1.2 and earlier, with LibreSSL
+# get_keyblock_size returns -1 when AEAD cipher is chosen.
 sub client_test_keyblock_size
 {
     my ($ssl) = @_;
@@ -160,7 +178,15 @@ sub client_test_keyblock_size
 
     my $keyblock_size = &Net::SSLeay::get_keyblock_size($ssl);
     ok(defined $keyblock_size, 'get_keyblock_size return value is defined');
-    ok($keyblock_size >= 0, 'get_keyblock_size return value is not negative');
-
-    ok($cipher_to_keyblock_size{$cipher} == $keyblock_size, "keyblock size $keyblock_size is the expected value $cipher_to_keyblock_size{$cipher}");
+    if ($keyblock_size == -1)
+    {
+	# Accept -1 with AEAD ciphers with LibreSSL
+	like(Net::SSLeay::SSLeay_version(Net::SSLeay::SSLEAY_VERSION()), qr/^LibreSSL/, 'get_keyblock_size returns -1 with LibreSSL');
+	ok(defined $aead_cipher_to_keyblock_size{$cipher}, 'keyblock size is -1 for an AEAD cipher');
+    }
+    else
+    {
+	ok($keyblock_size >= 0, 'get_keyblock_size return value is not negative');
+	ok($cipher_to_keyblock_size{$cipher} == $keyblock_size, "keyblock size $keyblock_size is the expected value $cipher_to_keyblock_size{$cipher}");
+    }
 }
