@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-???
+1.86_05 2018-08-22
 	- Net-SSLeay now requires at least Perl 5.8.1. This is a
 	  formalisation of what has been the de facto case for some time,
 	  as the distribution hasn't compiled and passed its tests on Perl
