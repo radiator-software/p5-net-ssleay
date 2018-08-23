@@ -1,5 +1,9 @@
 Revision history for Perl extension Net::SSLeay.
 
+??????? 2018-??-??
+	- Enhance t/local/43_misc_functions.t get_keyblock_size test
+	  to work better with AEAD ciphers.
+
 1.86_05 2018-08-22
 	- Net-SSLeay now requires at least Perl 5.8.1. This is a
 	  formalisation of what has been the de facto case for some time,
