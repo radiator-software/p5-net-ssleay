@@ -1,5 +1,9 @@
 Revision history for Perl extension Net::SSLeay.
 
+??????? 2018-??-??
+	- Enhance t/local/43_misc_functions.t get_keyblock_size test
+	  to work better with AEAD ciphers.
+
 1.86_05 2018-08-22
 	- Net-SSLeay now requires at least Perl 5.8.1. This is a
 	  formalisation of what has been the de facto case for some time,
@@ -24,8 +28,6 @@ Revision history for Perl extension Net::SSLeay.
 	  recommended over using constants returned by get_state() and
 	  state(). New constants TLS_ST_*, used by OpenSSL 1.1.0 and
 	  later, will not be made available by Net::SSLeay.
-	- Enhance t/local/43_misc_functions.t get_keyblock_size test
-	  to work better with AEAD ciphers.
 
 1.86_04 2018-07-30
 	- Re-add SSLv3_method() for OpenSSL 1.0.2 and above. Fixes
