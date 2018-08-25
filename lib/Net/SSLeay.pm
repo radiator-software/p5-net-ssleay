@@ -1,8 +1,11 @@
 # Net::SSLeay.pm - Perl module for using Eric Young's implementation of SSL
 #
-# Copyright (c) 1996-2003 Sampo Kellomaki <sampo@iki.fi>, All Rights Reserved.
-# Copyright (C) 2005 Florian Ragwitz <rafl@debian.org>, All Rights Reserved.
-# Copyright (C) 2005 Mike McCauley <mikem@airspayce.com>, All Rights Reserved.
+# Copyright (c) 1996-2003 Sampo Kellomäki <sampo@iki.fi>, All Rights Reserved.
+# Copyright (c) 2005-2010 Florian Ragwitz <rafl@debian.org>, All Rights Reserved.
+# Copyright (c) 2005-2018 Mike McCauley <mikem@airspayce.com>, All Rights Reserved.
+# Copyright (c) 2018- Chris Novakovic <chris@chrisn.me.uk>, All Rights Reserved.
+# Copyright (c) 2018- Tuure Vartiainen <vartiait@radiatorsoftware.com>, All Rights Reserved.
+# Copyright (c) 2018- Heikki Vatiainen <hvn@radiatorsoftware.com>, All Rights Reserved.
 #
 # Change data removed from here. See Changes
 # The distribution and use of this module are subject to the conditions

@@ -9151,17 +9151,27 @@ Commercial support for Net::SSLeay may be obtained from
 
 =head1 AUTHOR
 
-Maintained by Mike McCauley and Florian Ragwitz since November 2005
+Originally written by Sampo Kellomäki.
 
-Originally written by Sampo Kellomäki <sampo@symlabs.com>
+Maintained by Florian Ragwitz between November 2005 and January 2010.
+
+Maintained by Mike McCauley between November 2005 and June 2018.
+
+Maintained by Chris Novakovic, Tuure Vartiainen and Heikki Vatiainen since June 2018.
 
 =head1 COPYRIGHT
 
-Copyright (c) 1996-2003 Sampo Kellomäki <sampo@symlabs.com>
+Copyright (c) 1996-2003 Sampo Kellomäki <sampo@iki.fi>
 
-Copyright (C) 2005-2006 Florian Ragwitz <rafl@debian.org>
+Copyright (c) 2005-2010 Florian Ragwitz <rafl@debian.org>
 
-Copyright (C) 2005 Mike McCauley <mikem@airspayce.com>
+Copyright (c) 2005-2018 Mike McCauley <mikem@airspayce.com>
+
+Copyright (c) 2018- Chris Novakovic <chris@chrisn.me.uk>
+
+Copyright (c) 2018- Tuure Vartiainen <vartiait@radiatorsoftware.com>
+
+Copyright (c) 2018- Heikki Vatiainen <hvn@radiatorsoftware.com>
 
 All Rights Reserved.
 

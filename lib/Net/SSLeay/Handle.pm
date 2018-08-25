@@ -9,6 +9,8 @@ use Net::SSLeay;
 
 require Exporter;
 
+=encoding utf-8
+
 =head1 NAME
 
 Net::SSLeay::Handle - Perl module that lets SSL (HTTPS) sockets be
@@ -348,7 +350,33 @@ Please see Net-SSLeay-Handle-0.50/Changes file.
 
 =head1 AUTHOR
 
-Jim Bowlin jbowlin@linklint.org
+Originally written by Jim Bowlin.
+
+Maintained by Sampo Kellomäki between July 2001 and August 2003.
+
+Maintained by Florian Ragwitz between November 2005 and January 2010.
+
+Maintained by Mike McCauley between November 2005 and June 2018.
+
+Maintained by Chris Novakovic, Tuure Vartiainen and Heikki Vatiainen since June 2018.
+
+=head1 COPYRIGHT
+
+Copyright (c) 2001 Jim Bowlin <jbowlin@linklint.org>
+
+Copyright (c) 2001-2003 Sampo Kellomäki <sampo@iki.fi>
+
+Copyright (c) 2005-2010 Florian Ragwitz <rafl@debian.org>
+
+Copyright (c) 2005-2018 Mike McCauley <mikem@airspayce.com>
+
+Copyright (c) 2018- Chris Novakovic <chris@chrisn.me.uk>
+
+Copyright (c) 2018- Tuure Vartiainen <vartiait@radiatorsoftware.com>
+
+Copyright (c) 2018- Heikki Vatiainen <hvn@radiatorsoftware.com>
+
+All rights reserved.
 
 =head1 SEE ALSO
 
