@@ -13,7 +13,7 @@ BEGIN {
   plan skip_all => "fork() not supported on $^O" unless $Config{d_fork};
 }
 
-my $tests = 20;
+my $tests = 24;
 plan tests => $tests;
 
 my $pid;
@@ -46,6 +46,15 @@ our %aead_cipher_to_keyblock_size =
 
 # Combine the two hahes
 our %cipher_to_keyblock_size = (%non_aead_cipher_to_keyblock_size, %aead_cipher_to_keyblock_size);
+
+our %version_str2int =
+    (
+     'SSLv3'   => sub {return eval {Net::SSLeay::SSL3_VERSION();}},
+     'TLSv1'   => sub {return eval {Net::SSLeay::TLS1_VERSION();}},
+     'TLSv1.1' => sub {return eval {Net::SSLeay::TLS1_1_VERSION();}},
+     'TLSv1.2' => sub {return eval {Net::SSLeay::TLS1_2_VERSION();}},
+     'TLSv1.3' => sub {return eval {Net::SSLeay::TLS1_3_VERSION();}},
+    );
 
 my $server;
 Net::SSLeay::initialize();
@@ -106,6 +115,7 @@ sub client {
 
     client_test_finished($ssl);
     client_test_keyblock_size($ssl);
+    client_test_version_funcs($ssl);
 
     # Tell the server to quit and see that our connection is still up
     my $end = "end";
@@ -189,4 +199,37 @@ sub client_test_keyblock_size
 	ok($keyblock_size >= 0, 'get_keyblock_size return value is not negative');
 	ok($cipher_to_keyblock_size{$cipher} == $keyblock_size, "keyblock size $keyblock_size is the expected value $cipher_to_keyblock_size{$cipher}");
     }
+}
+
+# Test SSL_get_version and related functions
+sub client_test_version_funcs
+{
+    my ($ssl) = @_;
+
+    my $version_str = Net::SSLeay::get_version($ssl);
+    my $version_const = $version_str2int{$version_str};
+    my $version = Net::SSLeay::version($ssl);
+
+    ok(defined $version_const, "Net::SSLeay::get_version return value $version_str is known");
+    is(&$version_const, $version, "Net:SSLeay::version return value $version matches get_version string");
+
+    if (defined &Net::SSLeay::client_version) {
+	if ($version_str eq 'TLSv1.3') {
+	    # Noticed that the are equal for all SSL/TLS versions except of TLSv1.3
+	  TODO: {
+	      local $TODO = "Not sure about the correct return value, see: https://github.com/openssl/openssl/issues/7079";
+	      is(Net::SSLeay::client_version($ssl), $version, 'Net::SSLeay::client_version equals to Net::SSLeay::version');
+	    }
+	} else {
+	    is(Net::SSLeay::client_version($ssl), $version, 'Net::SSLeay::client_version equals to Net::SSLeay::version');
+	}
+	is(Net::SSLeay::is_dtls($ssl), 0, 'Net::SSLeay::is_dtls returns 0');
+    } else
+    {
+      SKIP: {
+	  skip('Do not have Net::SSLeay::client_version nor Net::SSLeay::is_dtls', 2);
+	};
+    }
+
+    return;
 }

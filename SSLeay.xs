@@ -5058,9 +5058,25 @@ int
 SSL_shutdown(s)
      SSL *	s
 
+const char *
+SSL_get_version(ssl)
+     const SSL * ssl
+
 int
 SSL_version(ssl)
      SSL *	ssl
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100006L && !defined(LIBRESSL_VERSION_NUMBER) /* 1.1.0-pre6 */
+
+int
+SSL_client_version(ssl)
+     const SSL * ssl
+
+int
+SSL_is_dtls(ssl)
+     const SSL * ssl
+
+#endif
 
 #define REM_MANUALLY_ADDED_1_09
 
