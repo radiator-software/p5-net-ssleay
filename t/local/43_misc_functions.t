@@ -215,7 +215,7 @@ sub client_test_version_funcs
 
     if (defined &Net::SSLeay::client_version) {
 	if ($version_str eq 'TLSv1.3') {
-	    # Noticed that the are equal for all SSL/TLS versions except of TLSv1.3
+	    # Noticed that client_version and version are equal for all SSL/TLS versions except of TLSv1.3
 	  TODO: {
 	      local $TODO = "Not sure about the correct return value, see: https://github.com/openssl/openssl/issues/7079";
 	      is(Net::SSLeay::client_version($ssl), $version, 'Net::SSLeay::client_version equals to Net::SSLeay::version');
