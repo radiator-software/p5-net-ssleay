@@ -136,12 +136,12 @@ sub make_ctx
 	Net::SSLeay::CTX_set_max_proto_version($ctx, Net::SSLeay::TLS1_3_VERSION());
     }
     elsif ($round =~ /^TLSv1\.2/) {
-	return undef unless eval { Net::SSLeay::TLS1_2_VERSION(); };
+	return undef unless exists &Net::SSLeay::TLSv1_2_method;
 
 	$ctx = Net::SSLeay::CTX_new_with_method(Net::SSLeay::TLSv1_2_method());
     }
     elsif ($round =~ /^TLSv1\.1/) {
-	return undef unless eval { Net::SSLeay::TLS1_1_VERSION(); };
+	return undef unless exists &Net::SSLeay::TLSv1_1_method;
 
 	$ctx = Net::SSLeay::CTX_new_with_method(Net::SSLeay::TLSv1_1_method());
     }
@@ -276,7 +276,7 @@ sub test_stats
     is($clt_stats->{'TLSv1'}->{remove_cb_called}, 1, 'Client TLSv1 remove_cb call count');
     is($clt_stats->{'TLSv1'}->{remove_params_ok}, 1, 'Client TLSv1 remove_cb params were correct');
 
-    if (eval { Net::SSLeay::TLS1_1_VERSION(); })
+    if (exists &Net::SSLeay::TLSv1_1_method)
     {
 	# Should be the same as TLSv1
 	is($srv_stats->{'TLSv1.1'}->{new_cb_called}, 1, 'Server TLSv1.1 new_cb call count');
@@ -294,7 +294,7 @@ sub test_stats
 	}
     }
 
-    if (eval { Net::SSLeay::TLS1_2_VERSION(); })
+    if (exists &Net::SSLeay::TLSv1_2_method)
     {
 	# Should be the same as TLSv1
 	is($srv_stats->{'TLSv1.2'}->{new_cb_called}, 1, 'Server TLSv1.2 new_cb call count');
