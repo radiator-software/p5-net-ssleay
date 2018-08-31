@@ -1,6 +1,7 @@
 Revision history for Perl extension Net::SSLeay.
 
 ??????? 2018-??-??
+	- Added SSL_get_version, SSL_client_version and SSL_is_dtls.
 	- Enhance t/local/43_misc_functions.t get_keyblock_size test
 	  to work better with AEAD ciphers.
 

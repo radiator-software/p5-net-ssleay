@@ -4750,6 +4750,19 @@ Loads the first certificate stored in $file into $ssl.
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
 
+=item * get_version
+
+Returns SSL/TLS protocol name
+
+ my $rv = Net::SSLeay::get_version($ssl);
+ # $ssl - value corresponding to openssl's SSL structure
+ #
+ # returns: (string) protocol name, see OpenSSL manual for the full list
+ #          TLSv1
+ #          TLSv1.3
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_get_version.html|https://www.openssl.org/docs/manmaster/man3/SSL_get_version.html>
+
 =item * version
 
 Returns SSL/TLS protocol version
@@ -4757,11 +4770,39 @@ Returns SSL/TLS protocol version
  my $rv = Net::SSLeay::version($ssl);
  # $ssl - value corresponding to openssl's SSL structure
  #
- # returns: (integer) protocol version
- #          0x0002 - SSL2_VERSION  (SSLv2)
- #          0x0300 - SSL3_VERSION  (SSLv3)
+ # returns: (integer) protocol version, see OpenSSL manual for the full list
  #          0x0301 - TLS1_VERSION  (TLSv1)
  #          0xFEFF - DTLS1_VERSION (DTLSv1)
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_version.html|https://www.openssl.org/docs/manmaster/man3/SSL_version.html>
+
+=item * client_version
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.0, not in LibreSSL
+
+Returns TLS protocol version used by the client when initiating the connection
+
+ my $rv = Net::SSLeay::client_version($ssl);
+ # $ssl - value corresponding to openssl's SSL structure
+ #
+ # returns: (integer) protocol version, see OpenSSL manual for the full list
+ #          0x0301 - TLS1_VERSION  (TLSv1)
+ #          0xFEFF - DTLS1_VERSION (DTLSv1)
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_client_version.html|https://www.openssl.org/docs/manmaster/man3/SSL_client_version.html>
+
+=item * is_dtls
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.0, not in LibreSSL
+
+ my $rv = Net::SSLeay::is_dtls($ssl);
+ # $ssl - value corresponding to openssl's SSL structure
+ #
+ # returns: (integer) zero or one
+ #          0 - connection is not using DTLS
+ #          1 - connection is using DTLS
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_is_dtls.html|https://www.openssl.org/docs/manmaster/man3/SSL_is_dtls.html>
 
 =item * want
 
