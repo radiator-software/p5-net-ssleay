@@ -2803,6 +2803,34 @@ server mode, but that were invalid due to timeout. These sessions are not includ
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html|http://www.openssl.org/docs/ssl/SSL_CTX_sess_number.html>
 
+=item * CTX_sess_set_new_cb
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before
+
+Sets the callback function, which is automatically called whenever a new session was negotiated.
+
+ Net::SSLeay::CTX_sess_set_new_cb($ctx, $func);
+ # $ctx - value corresponding to openssl's SSL_CTX structure
+ # $func - perl reference to callback function
+ #
+ # returns: no return value
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_sess_set_new_cb.html|https://www.openssl.org/docs/manmaster/man3/SSL_CTX_sess_set_new_cb.html>
+
+=item * CTX_sess_set_remove_cb
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before
+
+Sets the callback function, which is automatically called whenever a session is removed by the SSL engine.
+
+ Net::SSLeay::CTX_sess_set_remove_cb($ctx, $func);
+ # $ctx - value corresponding to openssl's SSL_CTX structure
+ # $func - perl reference to callback function
+ #
+ # returns: no return value
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_sess_set_remove_cb.html|https://www.openssl.org/docs/manmaster/man3/SSL_CTX_sess_set_remove_cb.html>
+
 =item * CTX_sessions
 
 Returns a pointer to the lhash databases containing the internal session cache for ctx.

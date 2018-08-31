@@ -1571,6 +1571,72 @@ int tlsext_ticket_key_cb_invoke(
 
 #endif
 
+int ssleay_ssl_ctx_sess_new_cb_invoke(struct ssl_st *ssl, SSL_SESSION *sess)
+{
+    dSP;
+    int count, remove;
+    SSL_CTX *ctx;
+    SV *cb_func;
+
+    PR1("STARTED: ssleay_ssl_ctx_sess_new_cb_invoke\n");
+    ctx = SSL_get_SSL_CTX(ssl);
+    cb_func = cb_data_advanced_get(ctx, "ssleay_ssl_ctx_sess_new_cb!!func");
+
+    if(!SvOK(cb_func))
+        croak ("Net::SSLeay: ssleay_ssl_ctx_sess_new_cb_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(sp);
+    XPUSHs(sv_2mortal(newSViv(PTR2IV(ssl))));
+    XPUSHs(sv_2mortal(newSViv(PTR2IV(sess))));
+    PUTBACK;
+
+    count = call_sv(cb_func, G_SCALAR);
+
+    SPAGAIN;
+
+    if (count != 1)
+        croak("Net::SSLeay: ssleay_ssl_ctx_sess_new_cb_invoke perl function did not return a scalar\n");
+
+    remove = POPi;
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return remove;
+}
+
+void ssleay_ssl_ctx_sess_remove_cb_invoke(SSL_CTX *ctx, SSL_SESSION *sess)
+{
+    dSP;
+    int count, remove;
+    SV *cb_func;
+
+    PR1("STARTED: ssleay_ssl_ctx_sess_remove_cb_invoke\n");
+    cb_func = cb_data_advanced_get(ctx, "ssleay_ssl_ctx_sess_remove_cb!!func");
+
+    if(!SvOK(cb_func))
+        croak ("Net::SSLeay: ssleay_ssl_ctx_sess_remove_cb_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(sp);
+    XPUSHs(sv_2mortal(newSViv(PTR2IV(ctx))));
+    XPUSHs(sv_2mortal(newSViv(PTR2IV(sess))));
+    PUTBACK;
+
+    call_sv(cb_func, G_VOID);
+
+    SPAGAIN;
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+}
 
 /* ============= end of callback stuff, begin helper functions ============== */
 
@@ -1902,6 +1968,7 @@ SSL_CTX_set_verify(ctx,mode,callback=&PL_sv_undef)
         SSL_CTX_set_verify(ctx, mode, &ssleay_verify_callback_invoke);
     }
 
+
 #if OPENSSL_VERSION_NUMBER >= 0x10100001L && !defined(LIBRESSL_VERSION_NUMBER)
 
 void
@@ -1911,6 +1978,34 @@ int
 SSL_CTX_get_security_level(SSL_CTX * ctx)
 
 #endif
+
+void
+SSL_CTX_sess_set_new_cb(ctx, callback)
+        SSL_CTX * ctx
+        SV * callback
+    CODE:
+        if (callback==NULL || !SvOK(callback)) {
+            SSL_CTX_sess_set_new_cb(ctx, NULL);
+            cb_data_advanced_put(ctx, "ssleay_ssl_ctx_sess_new_cb!!func", NULL);
+        }
+        else {
+            cb_data_advanced_put(ctx, "ssleay_ssl_ctx_sess_new_cb!!func", newSVsv(callback));
+            SSL_CTX_sess_set_new_cb(ctx, &ssleay_ssl_ctx_sess_new_cb_invoke);
+        }
+
+void
+SSL_CTX_sess_set_remove_cb(ctx, callback)
+        SSL_CTX * ctx
+        SV * callback
+    CODE:
+        if (callback==NULL || !SvOK(callback)) {
+            SSL_CTX_sess_set_remove_cb(ctx, NULL);
+            cb_data_advanced_put(ctx, "ssleay_ssl_ctx_sess_remove_cb!!func", NULL);
+        }
+        else {
+            cb_data_advanced_put(ctx, "ssleay_ssl_ctx_sess_remove_cb!!func", newSVsv(callback));
+            SSL_CTX_sess_set_remove_cb(ctx, &ssleay_ssl_ctx_sess_remove_cb_invoke);
+        }
 
 int
 SSL_get_error(s,ret)
