@@ -1902,6 +1902,16 @@ SSL_CTX_set_verify(ctx,mode,callback=&PL_sv_undef)
         SSL_CTX_set_verify(ctx, mode, &ssleay_verify_callback_invoke);
     }
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100001L && !defined(LIBRESSL_VERSION_NUMBER)
+
+void
+SSL_CTX_set_security_level(SSL_CTX * ctx, int level)
+
+int
+SSL_CTX_get_security_level(SSL_CTX * ctx)
+
+#endif
+
 int
 SSL_get_error(s,ret)
      SSL *              s
@@ -2614,6 +2624,16 @@ SSL_set_default_passwd_cb_userdata(ssl,data=&PL_sv_undef)
 #endif /* !BoringSSL */
 #endif /* !LibreSSL */
 #endif /* >= 1.1.0f */
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100001L && !defined(LIBRESSL_VERSION_NUMBER)
+
+void
+SSL_set_security_level(SSL * ssl, int level)
+
+int
+SSL_get_security_level(SSL * ssl)
+
+#endif
 
 const BIO_METHOD *
 BIO_f_ssl()

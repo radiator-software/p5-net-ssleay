@@ -3195,6 +3195,33 @@ Loads the first certificate stored in $file into $ctx.
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html|http://www.openssl.org/docs/ssl/SSL_CTX_use_certificate.html>
 
+=item * CTX_get_security_level
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.0, not in LibreSSL
+
+Returns the security level associated with $ctx.
+
+ my $level = Net::SSLeay::CTX_get_security_level($ctx);
+ # $ctx   - value corresponding to openssl's SSL_CTX structure
+ #
+ # returns: (integer) current security level
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_get_security_level.html|https://www.openssl.org/docs/manmaster/man3/SSL_CTX_get_security_level.html>
+
+=item * CTX_set_security_level
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.0, not in LibreSSL
+
+Sets the security level associated with $ctx to $level.
+
+ Net::SSLeay::CTX_set_security_level($ctx, $level);
+ # $ssl   - value corresponding to openssl's SSL_CTX structure
+ # $level - new security level
+ #
+ # returns: no return value
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_security_level.html|https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_security_level.html>
+
 =back
 
 =head3 Low level API: SSL_* related functions
@@ -3713,6 +3740,33 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_rbio.html|http://www
  # $val - read_ahead value to be set
  #
  # returns: the original read_ahead value
+
+=item * get_security_level
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.0, not in LibreSSL
+
+Returns the security level associated with $ssl.
+
+ my $level = Net::SSLeay::get_security_level($ssl);
+ # $ssl   - value corresponding to openssl's SSL structure
+ #
+ # returns: (integer) current security level
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_get_security_level.html|https://www.openssl.org/docs/manmaster/man3/SSL_get_security_level.html>
+
+=item * set_security_level
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.0, not in LibreSSL
+
+Sets the security level associated with $ssl to $level.
+
+ Net::SSLeay::set_security_level($ssl, $level);
+ # $ssl   - value corresponding to openssl's SSL structure
+ # $level - new security level
+ #
+ # returns: no return value
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_set_security_level.html|https://www.openssl.org/docs/manmaster/man3/SSL_set_security_level.html>
 
 =item * get_server_random
 
