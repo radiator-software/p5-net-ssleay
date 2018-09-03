@@ -178,6 +178,7 @@ sub _handshake {
 	my $ctx = Net::SSLeay::CTX_tlsv1_new();
 	Net::SSLeay::CTX_set_options($ctx,Net::SSLeay::OP_ALL());
 	Net::SSLeay::CTX_set_cipher_list($ctx,'AES128-SHA');
+	Net::SSLeay::CTX_set_security_level($ctx, 1) if exists &Net::SSLeay::CTX_set_security_level;
 	my $id = 'client';
 	if ($args{cert}) {
 	    my ($cert,$key) = @{ delete $args{cert} };
@@ -240,6 +241,7 @@ sub _handshake {
     sub _reset {
 	my $self = shift;
 	my $ssl = Net::SSLeay::new($self->{ctx});
+	Net::SSLeay::set_security_level($ssl, 1) if exists &Net::SSLeay::set_security_level;
 	my @bio = (
 	    Net::SSLeay::BIO_new(Net::SSLeay::BIO_s_mem()),
 	    Net::SSLeay::BIO_new(Net::SSLeay::BIO_s_mem()),

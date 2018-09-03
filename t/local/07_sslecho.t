@@ -58,6 +58,7 @@ Net::SSLeay::library_init();
 
     my $ctx = Net::SSLeay::CTX_new();
     ok($ctx, 'CTX_new');
+    Net::SSLeay::CTX_set_security_level($ctx, 1) if exists &Net::SSLeay::CTX_set_security_level;
     ok(Net::SSLeay::CTX_set_cipher_list($ctx, 'ALL'), 'CTX_set_cipher_list');
     my ($dummy, $errs) = Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem);
     ok($errs eq '', "set_cert_and_key: $errs");
@@ -75,6 +76,7 @@ Net::SSLeay::library_init();
 
             my $ssl = Net::SSLeay::new($ctx);
             ok($ssl, 'new');
+            Net::SSLeay::set_security_level($ssl, 1) if exists &Net::SSLeay::set_security_level;
 
 	    is(Net::SSLeay::in_before($ssl), 1, 'in_before is 1');
 	    is(Net::SSLeay::in_init($ssl), 1, 'in_init is 1');

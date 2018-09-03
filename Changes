@@ -5,6 +5,12 @@ Revision history for Perl extension Net::SSLeay.
 	  SSL_set_security_level and SSL_get_security_level.
 	  Add new test file 65_security_level.t.
 	  All courtesy of Damyan Ivanov of Debian project.
+	- Set OpenSSL security level to 1 in tests that use the test suite's
+	  (1024-bit) RSA keys, which allows the test suite to pass when
+	  Net-SSLeay is built against an OpenSSL with a higher default
+	  security level. Fixes RT#126987. Thanks to Petr Pisar (in
+	  RT#126270) and Damyan Ivanov (in RT#126987) for the reports and
+	  patches, and to Damyan Ivanov for the preferred patch.
 	- Add SSL_CTX_sess_set_new_cb and SSL_CTX_sess_set_remove_cb.
 	  Add new test file 44_sess.t for these and future session
 	  related tests for which no specific test file is needed.

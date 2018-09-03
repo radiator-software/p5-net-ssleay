@@ -44,6 +44,7 @@ die unless defined $pid;
 
 if ($pid == 0) {
     my $ctx = Net::SSLeay::CTX_new();
+    Net::SSLeay::CTX_set_security_level($ctx, 1) if exists &Net::SSLeay::CTX_set_security_level;
     Net::SSLeay::set_server_cert_and_key($ctx, $cert, $key);
 
     my $ssl = Net::SSLeay::new($ctx);
@@ -68,6 +69,7 @@ if ($pid == 0) {
 my @results;
 {
     my $ctx = Net::SSLeay::CTX_new();
+    Net::SSLeay::CTX_set_security_level($ctx, 1) if exists &Net::SSLeay::CTX_set_security_level;
     my $ssl = Net::SSLeay::new($ctx);
 
     my $rc_handle = IO::Handle->new_from_fd( fileno($rc), 'r' );
