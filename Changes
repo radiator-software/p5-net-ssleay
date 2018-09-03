@@ -1,10 +1,14 @@
 Revision history for Perl extension Net::SSLeay.
 
 ??????? 2018-??-??
-	- Add SSL_get_version, SSL_client_version and SSL_is_dtls.
+	- Add SSL_CTX_set_security_level, SSL_CTX_get_security_level,
+	  SSL_set_security_level and SSL_get_security_level.
+	  Add new test file 65_security_level.t.
+	  All courtesy of Damyan Ivanov of Debian project.
 	- Add SSL_CTX_sess_set_new_cb and SSL_CTX_sess_set_remove_cb.
 	  Add new test file 44_sess.t for these and future session
 	  related tests for which no specific test file is needed.
+	- Add SSL_get_version, SSL_client_version and SSL_is_dtls.
 	- Enhance t/local/43_misc_functions.t get_keyblock_size test
 	  to work better with AEAD ciphers.
 
