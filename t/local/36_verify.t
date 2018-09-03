@@ -233,6 +233,7 @@ sub client {
     {
 	$ctx = Net::SSLeay::CTX_new();
 	is(Net::SSLeay::CTX_load_verify_locations($ctx, $ca_pem, $ca_dir), 1, "load_verify_locations($ca_pem $ca_dir)");
+	Net::SSLeay::CTX_set_security_level($ctx, 1) if exists &Net::SSLeay::CTX_set_security_level;
 
 	$cl = IO::Socket::INET->new($server_addr) or BAIL_OUT("failed to connect to server: $!");
 
