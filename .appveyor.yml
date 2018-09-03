@@ -46,6 +46,14 @@ environment:
   RELEASE_TESTING: 0
   OPENSSL_PREFIX: C:\strawberry\c
   matrix:
+    - perl: 5.28.0.1
+    - perl: 5.26.2.1
+    - perl: 5.24.4.1
+    - perl: 5.22.3.1
+    - perl: 5.20.3.3
+    - perl: 5.18.4.1
+    - perl: 5.16.3.20170202
+    - perl: 5.14.4.1
     - perl: 5.12.3.20180709
       ssleay_need_cpanm: 1
     - perl: 5.10.1.5
