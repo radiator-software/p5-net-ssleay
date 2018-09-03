@@ -31,6 +31,7 @@ my %eumm_args = (
     'Heikki Vatiainen <hvn@radiatorsoftware.com>'
   ],
   VERSION_FROM => 'lib/Net/SSLeay.pm',
+  MIN_PERL_VERSION => '5.8.1',
   CONFIGURE_REQUIRES => {
     'ExtUtils::MakeMaker' => '0',
   },
@@ -38,7 +39,6 @@ my %eumm_args = (
     'Test::More' => '0.60_01',
   },
   PREREQ_PM => {
-    'perl' => '5.8.1',
     'MIME::Base64' => '0',
   },
   test => { TESTS => $tests },
@@ -79,6 +79,13 @@ my %eumm_args = (
   },
   ssleay(),
 );
+
+# This can go when EU::MM older than 6.58 are gone
+$eumm_args{AUTHOR} = join(', ', @{$eumm_args{AUTHOR}}) unless eval { ExtUtils::MakeMaker->VERSION(6.58); };
+
+# This can go when EU::MM older than 6.64 are gone
+delete $eumm_args{TEST_REQUIRES} unless eval { ExtUtils::MakeMaker->VERSION(6.64); };
+
 WriteMakefile(%eumm_args);
 
 sub MY::postamble {
