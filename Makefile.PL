@@ -79,6 +79,13 @@ my %eumm_args = (
   },
   ssleay(),
 );
+
+# This can go when EU::MM older than 6.58 are gone
+$eumm_args{AUTHOR} = join(', ', @{$eumm_args{AUTHOR}}) unless eval { ExtUtils::MakeMaker->VERSION(6.58); };
+
+# This can go when EU::MM older than 6.64 are gone
+delete $eumm_args{TEST_REQUIRES} unless eval { ExtUtils::MakeMaker->VERSION(6.64); };
+
 WriteMakefile(%eumm_args);
 
 sub MY::postamble {
