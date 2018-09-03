@@ -31,6 +31,7 @@ my %eumm_args = (
     'Heikki Vatiainen <hvn@radiatorsoftware.com>'
   ],
   VERSION_FROM => 'lib/Net/SSLeay.pm',
+  MIN_PERL_VERSION => '5.8.1',
   CONFIGURE_REQUIRES => {
     'ExtUtils::MakeMaker' => '0',
   },
@@ -38,7 +39,6 @@ my %eumm_args = (
     'Test::More' => '0.60_01',
   },
   PREREQ_PM => {
-    'perl' => '5.8.1',
     'MIME::Base64' => '0',
   },
   test => { TESTS => $tests },
