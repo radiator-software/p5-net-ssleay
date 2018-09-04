@@ -4977,7 +4977,8 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_write.html|http://www.op
 
 B<NOTE:> Does not exactly correspond to any low level API function
 
-Writes a fragment of data in $data from the buffer $data into the specified $ssl connection.
+Writes a fragment of data in $data from the buffer $data into the specified
+$ssl connection. This is a non-blocking function like L<Net::SSLeay::write()>.
 
  my $rv = Net::SSLeay::write_partial($ssl, $from, $count, $data);
  # $ssl - value corresponding to openssl's SSL structure

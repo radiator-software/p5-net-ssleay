@@ -13,7 +13,8 @@ BEGIN {
   plan skip_all => "fork() not supported on $^O" unless $Config{d_fork};
 }
 
-plan tests => 99;
+plan tests => 100;
+$SIG{'PIPE'} = 'IGNORE';
 
 my $sock;
 my $pid;
@@ -62,6 +63,16 @@ Net::SSLeay::library_init();
     ok(Net::SSLeay::CTX_set_cipher_list($ctx, 'ALL'), 'CTX_set_cipher_list');
     my ($dummy, $errs) = Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem);
     ok($errs eq '', "set_cert_and_key: $errs");
+    SKIP: {
+        skip 'Disabling session tickets requires OpenSSL >= 1.1.1', 1
+	    unless defined (&Net::SSLeay::CTX_set_num_tickets);
+        # TLS 1.3 server sends session tickets after a handhake as part of
+        # the SSL_accept(). If a client finishes all its job including closing
+        # TCP connection before a server sends the tickets, SSL_accept() fails
+        # with SSL_ERROR_SYSCALL and EPIPE errno and the server receives
+        # SIGPIPE signal. <https://github.com/openssl/openssl/issues/6904>
+	ok(Net::SSLeay::CTX_set_num_tickets($ctx, 0), 'Session tickets disabled');
+    }
 
     $pid = fork();
     BAIL_OUT("failed to fork: $!") unless defined $pid;
@@ -130,10 +141,10 @@ my @results;
 
     push @results, [ Net::SSLeay::get_cipher($ssl), 'get_cipher' ];
 
-    push @results, [ Net::SSLeay::write($ssl, $msg), 'write' ];
+    push @results, [ Net::SSLeay::ssl_write_all($ssl, $msg), 'write' ];
     shutdown($s, 1);
 
-    my ($got) = Net::SSLeay::read($ssl);
+    my $got = Net::SSLeay::ssl_read_all($ssl);
     push @results, [ $got eq uc($msg), 'read' ];
 
     Net::SSLeay::free($ssl);
@@ -173,7 +184,7 @@ my @results;
             Net::SSLeay::set_fd($ssl, fileno($s));
             Net::SSLeay::connect($ssl);
 
-            Net::SSLeay::write($ssl, $msg);
+            Net::SSLeay::ssl_write_all($ssl, $msg);
 
             shutdown $s, 2;
             close $s;
@@ -227,15 +238,15 @@ my @results;
             Net::SSLeay::set_fd($ssl3, $s3);
 
             Net::SSLeay::connect($ssl1);
-            Net::SSLeay::write($ssl1, $msg);
+            Net::SSLeay::ssl_write_all($ssl1, $msg);
             shutdown $s1, 2;
 
             Net::SSLeay::connect($ssl2);
-            Net::SSLeay::write($ssl2, $msg);
+            Net::SSLeay::ssl_write_all($ssl2, $msg);
             shutdown $s2, 2;
 
             Net::SSLeay::connect($ssl3);
-            Net::SSLeay::write($ssl3, $msg);
+            Net::SSLeay::ssl_write_all($ssl3, $msg);
             shutdown $s3, 2;
 
             close $s1;
@@ -358,7 +369,7 @@ waitpid $pid, 0;
 push @results, [ $? == 0, 'server exited with 0' ];
 
 END {
-    Test::More->builder->current_test(72);
+    Test::More->builder->current_test(73);
     for my $t (@results) {
         ok( $t->[0], $t->[1] );
     }

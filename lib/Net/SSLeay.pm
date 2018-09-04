@@ -581,14 +581,22 @@ sub debug_read {
 sub ssl_read_all {
     my ($ssl,$how_much) = @_;
     $how_much = 2000000000 unless $how_much;
-    my ($got, $errs);
+    my ($got, $rv, $errs);
     my $reply = '';
 
     while ($how_much > 0) {
-        $got = Net::SSLeay::read($ssl,
+        ($got, $rv) = Net::SSLeay::read($ssl,
                 ($how_much > 32768) ? 32768 : $how_much
         );
-        last if $errs = print_errs('SSL_read');
+	if (! defined $got) {
+	    my $err = Net::SSLeay::get_error($ssl, $rv);
+	    if ($err != Net::SSLeay::ERROR_WANT_READ() and
+		$err != Net::SSLeay::ERROR_WANT_WRITE()) {
+                $errs = print_errs('SSL_read');
+                last;
+            }
+            next;
+        }
         $how_much -= blength($got);
         debug_read(\$reply, \$got) if $trace>1;
         last if $got eq '';  # EOF
@@ -841,14 +849,14 @@ sub ssl_read_until ($;$$) {
 	    $found = index($match, $delim);
 
 	    if ($found > -1) {
-		#$got = Net::SSLeay::read($ssl, $found+$len_delim);
+		#$got = Net::SSLeay::ssl_read_all($ssl, $found+$len_delim);
 		#read up to the end of the delimiter
-		$got = Net::SSLeay::read($ssl,
+		$got = Net::SSLeay::ssl_read_all($ssl,
 					 $found + $len_delim
 					 - ((blength($match)) - (blength($got))));
 		$done = 1;
 	    } else {
-		$got = Net::SSLeay::read($ssl, $peek_length);
+		$got = Net::SSLeay::ssl_read_all($ssl, $peek_length);
 		$done = 1 if ($peek_length == $max_length - blength($reply));
 	    }
 
@@ -859,7 +867,7 @@ sub ssl_read_until ($;$$) {
 	}
     } else {
 	while (!defined $max_length || length $reply < $max_length) {
-	    $got = Net::SSLeay::read($ssl,1);  # one by one
+	    $got = Net::SSLeay::ssl_read_all($ssl,1);  # one by one
 	    last if print_errs('SSL_read');
 	    debug_read(\$reply, \$got) if $trace>1;
 	    last if $got eq '';

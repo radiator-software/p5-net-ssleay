@@ -1,6 +1,24 @@
 Revision history for Perl extension Net::SSLeay.
 
 ??????? 2018-??-??
+	- Net::SSLeay::read() now checks SSL_get_error() for
+	  SSL_ERROR_ZERO_RETURN for return values <= 0 to make
+	  Net::SSLeay::read() behave more like underlying OpenSSL
+	  function SSL_read().
+	  Convenience function ssl_read_all() now does an automatic
+	  retry when ERROR_WANT_READ or ERROR_WANT_WRITE is returned
+	  with Net::SSLeay::read().
+	  Convenience function ssl_read_until() now uses
+	  Net::SSLeay::ssl_read_all() instead of
+	  Net::SSLeay::read(). Tests 07_sslecho.t and 36_verify.t were
+	  also updated to use ssl_read_all() and ssl_write_all(). The
+	  tests now also disable TLSv1.3 session tickets and ignore
+	  SIGPIPE to avoid this signal when the client has finished
+	  before server has sent session tickets and called
+	  Net::SSLeay::accept().
+	  Thanks to Petr Pisar and Sebastian Andrzej Siewior for the
+	  patches (in #RT125218).
+	- Enable OpenSSL 1.1.1-pre9 with Travis CI.
 	- Add SSL_CTX_set_num_tickets, SSL_CTX_get_num_tickets,
 	  SSL_set_num_ticket and SSL_get_num_tickets for controlling
 	  the number of TLSv1.3 session tickets that are issued.  Add
