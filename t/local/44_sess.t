@@ -17,7 +17,7 @@ BEGIN {
   plan skip_all => "fork() not supported on $^O" unless $Config{d_fork};
 }
 
-my $tests = 33;
+my $tests = 39;
 plan tests => $tests;
 
 my $pid;
@@ -25,7 +25,7 @@ alarm(30);
 END { kill 9,$pid if $pid }
 
 # The -end round is just for communicating stats back to client
-my @rounds = qw(TLSv1 TLSv1.1 TLSv1.2 TLSv1.3 TLSv1-end);
+my @rounds = qw(TLSv1 TLSv1.1 TLSv1.2 TLSv1.3 TLSv1.3-num-tickets-ssl TLSv1.3-num-tickets-ctx-6 TLSv1.3-num-tickets-ctx-0 TLSv1-end);
 my (%server_stats, %client_stats);
 
 # Update client and server stats so that when something fails, it
@@ -176,12 +176,27 @@ sub server
 
 	    Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem);
 	    Net::SSLeay::CTX_set_session_cache_mode($ctx, Net::SSLeay::SESS_CACHE_SERVER());
-	    # Need OP_NO_TICKET to enable server side (Session ID based) resumption
-	    Net::SSLeay::CTX_set_options($ctx, Net::SSLeay::OP_ALL() | Net::SSLeay::OP_NO_TICKET());
+	    # Need OP_NO_TICKET to enable server side (Session ID based) resumption.
+	    # See also SSL_CTX_set_options documenation about its use with TLSv1.3
+	    Net::SSLeay::CTX_set_options($ctx, Net::SSLeay::OP_ALL() | Net::SSLeay::OP_NO_TICKET())
+		if ($round !~ /^TLSv1\.3/);
+
 	    Net::SSLeay::CTX_sess_set_new_cb($ctx, sub {server_new_cb(@_, $ctx, $round);});
 	    Net::SSLeay::CTX_sess_set_remove_cb($ctx, sub {server_remove_cb(@_, $ctx, $round);});
 
+	    # Test set_num_tickets separately for CTX and SSL
+	    if (defined &Net::SSLeay::CTX_set_num_tickets)
+	    {
+		Net::SSLeay::CTX_set_num_tickets($ctx, 6) if ($round eq 'TLSv1.3-num-tickets-ctx-6');
+		Net::SSLeay::CTX_set_num_tickets($ctx, 0) if ($round eq 'TLSv1.3-num-tickets-ctx-0');
+	    }
+
 	    $ssl = Net::SSLeay::new($ctx);
+	    if (defined &Net::SSLeay::set_num_tickets)
+	    {
+		Net::SSLeay::set_num_tickets($ssl, 4) if ($round eq 'TLSv1.3-num-tickets-ssl');
+	    }
+
 	    Net::SSLeay::set_fd($ssl, fileno($cl));
 	    Net::SSLeay::accept($ssl);
 
@@ -319,14 +334,21 @@ sub test_stats
 	is($srv_stats->{'TLSv1.3'}->{new_params_ok}, 1, 'Server TLSv1.3 new_cb params were correct');
 	is($srv_stats->{'TLSv1.3'}->{remove_cb_called}, 1, 'Server TLSv1.3 remove_cb call count');
 	is($srv_stats->{'TLSv1.3'}->{remove_params_ok}, 1, 'Server TLSv1.3 remove_cb params were correct');
+	is($srv_stats->{'TLSv1.3-num-tickets-ssl'}->{new_cb_called}, 4, 'Server TLSv1.3 new_cb call count with set_num_tickets');
+	is($srv_stats->{'TLSv1.3-num-tickets-ctx-6'}->{new_cb_called}, 6, 'Server TLSv1.3 new_cb call count with CTX_set_num_tickets 6');
+	is($srv_stats->{'TLSv1.3-num-tickets-ctx-0'}->{new_cb_called}, undef, 'Server TLSv1.3 new_cb call count with CTX_set_num_tickets 0');
 
 	is($clt_stats->{'TLSv1.3'}->{new_cb_called}, 2, 'Client TLSv1.3 new_cb call count');
 	is($clt_stats->{'TLSv1.3'}->{new_params_ok}, 1, 'Client TLSv1.3 new_cb params were correct');
 	is($clt_stats->{'TLSv1.3'}->{remove_cb_called}, 1, 'Client TLSv1.3 remove_cb call count');
 	is($clt_stats->{'TLSv1.3'}->{remove_params_ok}, 1, 'Client TLSv1.3 remove_cb params were correct');
+	is($clt_stats->{'TLSv1.3-num-tickets-ssl'}->{new_cb_called}, 4, 'Client TLSv1.3 new_cb call count with set_num_tickets');
+	is($clt_stats->{'TLSv1.3-num-tickets-ctx-6'}->{new_cb_called}, 6, 'Client TLSv1.3 new_cb call count with CTX_set_num_tickets 6');
+	is($clt_stats->{'TLSv1.3-num-tickets-ctx-0'}->{new_cb_called}, undef, 'Client TLSv1.3 new_cb call count with CTX_set_num_tickets 0');
+
     } else {
       SKIP: {
-	  skip('Do not have support for TLSv1.3', 8);
+	  skip('Do not have support for TLSv1.3', 14);
 	}
     }
 

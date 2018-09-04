@@ -3250,6 +3250,35 @@ Sets the security level associated with $ctx to $level.
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_security_level.html|https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_security_level.html>
 
+=item * CTX_set_num_tickets
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1, not in LibreSSL
+
+Set number of TLSv1.3 session tickets that will be sent to a client.
+
+ my $rv = Net::SSLeay::CTX_set_num_tickets($ctx, $number_of_tickets);
+ # $ctx  - value corresponding to openssl's SSL_CTX structure
+ # $number_of_tickets - number of tickets to send
+ #
+ # returns: 1 on success, 0 on failure
+
+Set to zero if you do not no want to support a session resumption.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_num_tickets.html|https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_num_tickets.html>
+
+=item * CTX_get_num_tickets
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1, not in LibreSSL
+
+Get number of TLSv1.3 session tickets that will be sent to a client.
+
+ my $number_of_tickets = Net::SSLeay::CTX_get_num_tickets($ctx);
+ # $ctx  - value corresponding to openssl's SSL_CTX structure
+ #
+ # returns: (integer) number of tickets to send
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_get_num_tickets.html|https://www.openssl.org/docs/manmaster/man3/SSL_CTX_get_num_tickets.html>
+
 =back
 
 =head3 Low level API: SSL_* related functions
@@ -3795,6 +3824,35 @@ Sets the security level associated with $ssl to $level.
  # returns: no return value
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_set_security_level.html|https://www.openssl.org/docs/manmaster/man3/SSL_set_security_level.html>
+
+=item * set_num_tickets
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1, not in LibreSSL
+
+Set number of TLSv1.3 session tickets that will be sent to a client.
+
+ my $rv = Net::SSLeay::set_num_tickets($ssl, $number_of_tickets);
+ # $ssl  - value corresponding to openssl's SSL structure
+ # $number_of_tickets - number of tickets to send
+ #
+ # returns: 1 on success, 0 on failure
+
+Set to zero if you do not no want to support a session resumption.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_set_num_tickets.html|https://www.openssl.org/docs/manmaster/man3/SSL_set_num_tickets.html>
+
+=item * get_num_tickets
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1, not in LibreSSL
+
+Get number of TLSv1.3 session tickets that will be sent to a client.
+
+ my $number_of_tickets = Net::SSLeay::get_num_tickets($ctx);
+ # $ctx  - value corresponding to openssl's SSL structure
+ #
+ # returns: number of tickets to send
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_get_num_tickets.html|https://www.openssl.org/docs/manmaster/man3/SSL_get_num_tickets.html>
 
 =item * get_server_random
 
