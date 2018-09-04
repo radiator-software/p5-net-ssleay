@@ -35,6 +35,8 @@ matrix:
   exclude:
   - perl: "5.8"
     env: OPENSSL_VERSION=1.1.0i
+  - perl: "5.8"
+    env: OPENSSL_VERSION=1.1.1-pre9
 
 cache:
   directories:
