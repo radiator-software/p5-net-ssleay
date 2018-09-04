@@ -1978,6 +1978,16 @@ SSL_CTX_get_security_level(SSL_CTX * ctx)
 
 #endif
 
+#if OPENSSL_VERSION_NUMBER >= 0x10101007L && !defined(LIBRESSL_VERSION_NUMBER)
+
+int
+SSL_CTX_set_num_tickets(SSL_CTX *ctx, size_t num_tickets)
+
+size_t
+SSL_CTX_get_num_tickets(SSL_CTX *ctx)
+
+#endif
+
 void
 SSL_CTX_sess_set_new_cb(ctx, callback)
         SSL_CTX * ctx
@@ -2726,6 +2736,16 @@ SSL_set_security_level(SSL * ssl, int level)
 
 int
 SSL_get_security_level(SSL * ssl)
+
+#endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x10101007L && !defined(LIBRESSL_VERSION_NUMBER)
+
+int
+SSL_set_num_tickets(SSL *ssl, size_t num_tickets)
+
+size_t
+SSL_get_num_tickets(SSL *ssl)
 
 #endif
 
