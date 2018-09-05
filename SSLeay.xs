@@ -1762,8 +1762,10 @@ BOOT:
     {
     MY_CXT_INIT;
     LIB_initialized = 0;
+    void *ssleay_debug_my_perl = NULL;
 #ifdef USE_ITHREADS
     MUTEX_INIT(&LIB_init_mutex);
+    ssleay_debug_my_perl = my_perl;
 #ifdef OPENSSL_THREADS
     /* If we running under ModPerl, we dont need our own thread locking because
      * perl threads are not supported under mod-perl, and we can fall back to the thread
@@ -1776,13 +1778,18 @@ BOOT:
     /* initialize global shared callback data hash */
     MY_CXT.global_cb_data = newHV();
     MY_CXT.tid = get_my_thread_id();
-    PR3("BOOT: tid=%d my_perl=0x%p\n", MY_CXT.tid, my_perl);
+    PR3("BOOT: tid=%lu my_perl=%p\n", MY_CXT.tid, ssleay_debug_my_perl);
     }
 
 void
 CLONE(...)
 CODE:
     MY_CXT_CLONE;
+#ifdef USE_ITHREADS
+    void *ssleay_debug_my_perl = my_perl;
+#else
+    void *ssleay_debug_my_perl = NULL;
+#endif
     /* reset all callback related data as we want to prevent 
      * cross-thread callbacks
      * TODO: later somebody can make the global hash MY_CXT.global_cb_data
@@ -1790,7 +1797,7 @@ CODE:
      */
     MY_CXT.global_cb_data = newHV();
     MY_CXT.tid = get_my_thread_id();
-    PR3("CLONE: tid=%d my_perl=0x%p\n", MY_CXT.tid, my_perl);
+    PR3("CLONE: tid=%lu my_perl=0x%p\n", MY_CXT.tid, ssleay_debug_my_perl);
 
 double
 constant(name)
@@ -2196,7 +2203,7 @@ SSL_write_partial(s,from,count,buf)
      } else
        buf = SvPV( ST(3), len);
        */
-     PR4("write_partial from=%d count=%d len=%ul\n",from,count,ulen);
+     PR4("write_partial from=%d count=%d len=%lu\n",from,count,ulen);
      /*PR2("buf='%s'\n",&buf[from]); / * too noisy */
      len = (IV)ulen;
      len -= from;
