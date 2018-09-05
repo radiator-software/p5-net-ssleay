@@ -40,6 +40,9 @@ Revision history for Perl extension Net::SSLeay.
 	- Add SSL_get_version, SSL_client_version and SSL_is_dtls.
 	- Enhance t/local/43_misc_functions.t get_keyblock_size test
 	  to work better with AEAD ciphers.
+	- Fix complie time DEFINE=-DSHOW_XS_DEBUG to work on
+	  non-threaded Perls. Fixes RT#127027. Thanks to SREZIC for
+	  the report. Also fix other minor compile warnings.
 
 1.86_05 2018-08-22
 	- Net-SSLeay now requires at least Perl 5.8.1. This is a
