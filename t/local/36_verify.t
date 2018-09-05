@@ -253,8 +253,9 @@ sub client {
     Net::SSLeay::set_fd($ssl, $cl);
     Net::SSLeay::connect($ssl);
     my $end = "end";
-    Net::SSLeay::write($ssl, $end);
-    ok($end eq Net::SSLeay::read($ssl),  'Successful termination');
+    Net::SSLeay::ssl_write_all($ssl, $end);
+    Net::SSLeay::shutdown($ssl);
+    ok($end eq Net::SSLeay::ssl_read_all($ssl), 'Successful termination');
     return;
 }
 
@@ -267,10 +268,20 @@ sub run_server
 
     return if $pid != 0;
 
+    $SIG{'PIPE'} = 'IGNORE';
     my $ctx = Net::SSLeay::CTX_new();
     Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem);
     my $ret = Net::SSLeay::CTX_check_private_key($ctx);
     BAIL_OUT("Server: CTX_check_private_key failed: $cert_pem, $key_pem") unless $ret == 1;
+    if (defined &Net::SSLeay::CTX_set_num_tickets) {
+        # TLS 1.3 server sends session tickets after a handhake as part of
+        # the SSL_accept(). If a client finishes all its job including closing
+        # TCP connectino before a server sends the tickets, SSL_accept() fails
+        # with SSL_ERROR_SYSCALL and EPIPE errno and the server receives
+        # SIGPIPE signal. <https://github.com/openssl/openssl/issues/6904>
+        my $ret = Net::SSLeay::CTX_set_num_tickets($ctx, 0);
+        BAIL_OUT("Session tickets disabled") unless $ret;
+    }
 
     while (1)
     {
@@ -282,10 +293,10 @@ sub run_server
 	next unless $ret == 1;
 
 	# Termination request or other message from client
-	my $msg = Net::SSLeay::read($ssl);
-	if ($msg eq 'end')
+	my $msg = Net::SSLeay::ssl_read_all($ssl);
+	if (defined $msg and $msg eq 'end')
 	{
-	    Net::SSLeay::write($ssl, 'end');
+	    Net::SSLeay::ssl_write_all($ssl, 'end');
 	    exit (0);
 	}
     }
