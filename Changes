@@ -24,6 +24,9 @@ Revision history for Perl extension Net::SSLeay.
 	  the number of TLSv1.3 session tickets that are issued.  Add
 	  tests in 44_sess.t. Parts taken from a larger patch by Petr
 	  Pisar of RedHat.
+	- Add SSL_CTX_set_ciphersuites and SSL_set_ciphersuites for
+	  configuring the available TLSv1.3 ciphersuites. Add tests in
+	  43_misc_functions.t and clarify SSL_client_version tests.
 	- Add SSL_CTX_set_security_level, SSL_CTX_get_security_level,
 	  SSL_set_security_level and SSL_get_security_level.
 	  Add new test file 65_security_level.t.

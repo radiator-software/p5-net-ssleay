@@ -13,7 +13,7 @@ BEGIN {
   plan skip_all => "fork() not supported on $^O" unless $Config{d_fork};
 }
 
-my $tests = 24;
+my $tests = 34;
 plan tests => $tests;
 
 my $pid;
@@ -33,18 +33,22 @@ our %non_aead_cipher_to_keyblock_size =
      'AES256-SHA' => 136,
     );
 
-our %aead_cipher_to_keyblock_size =
-    (
+our %tls_1_2_aead_cipher_to_keyblock_size = (
      'AES128-GCM-SHA256' => 56,
      'AES256-GCM-SHA384' => 88,
+    );
 
+our %tls_1_3_aead_cipher_to_keyblock_size = (
      # Only in TLS 1.3
      'TLS_AES_128_GCM_SHA256' => 56,
      'TLS_AES_256_GCM_SHA384' => 88,
      'TLS_CHACHA20_POLY1305_SHA256' => 88,
     );
 
-# Combine the two hahes
+# Combine the AEAD hashes
+our %aead_cipher_to_keyblock_size = (%tls_1_2_aead_cipher_to_keyblock_size, %tls_1_3_aead_cipher_to_keyblock_size);
+
+# Combine the hashes
 our %cipher_to_keyblock_size = (%non_aead_cipher_to_keyblock_size, %aead_cipher_to_keyblock_size);
 
 our %version_str2int =
@@ -116,6 +120,7 @@ sub client {
     client_test_finished($ssl);
     client_test_keyblock_size($ssl);
     client_test_version_funcs($ssl);
+    client_test_ciphersuites();
 
     # Tell the server to quit and see that our connection is still up
     my $end = "end";
@@ -216,10 +221,9 @@ sub client_test_version_funcs
     if (defined &Net::SSLeay::client_version) {
 	if ($version_str eq 'TLSv1.3') {
 	    # Noticed that client_version and version are equal for all SSL/TLS versions except of TLSv1.3
-	  TODO: {
-	      local $TODO = "Not sure about the correct return value, see: https://github.com/openssl/openssl/issues/7079";
-	      is(Net::SSLeay::client_version($ssl), $version, 'Net::SSLeay::client_version equals to Net::SSLeay::version');
-	    }
+	    # For more, see https://github.com/openssl/openssl/issues/7079
+	    is(Net::SSLeay::client_version($ssl), &{$version_str2int{'TLSv1.2'}},
+	       'Net::SSLeay::client_version TLSv1.2 is expected when Net::SSLeay::version indicates TLSv1.3');
 	} else {
 	    is(Net::SSLeay::client_version($ssl), $version, 'Net::SSLeay::client_version equals to Net::SSLeay::version');
 	}
@@ -230,6 +234,52 @@ sub client_test_version_funcs
 	  skip('Do not have Net::SSLeay::client_version nor Net::SSLeay::is_dtls', 2);
 	};
     }
+
+    return;
+}
+
+sub client_test_ciphersuites
+{
+    unless (defined &Net::SSLeay::CTX_set_ciphersuites)
+    {
+      SKIP: {
+	  skip('Do not have Net::SSLeay::CTX_set_ciphersuites', 10);
+	}
+	return;
+    }
+
+    my $ciphersuites = join(':', keys(%tls_1_3_aead_cipher_to_keyblock_size));
+
+    my ($ctx, $rv, $ssl);
+    $ctx = Net::SSLeay::CTX_new();
+    $rv = Net::SSLeay::CTX_set_ciphersuites($ctx, $ciphersuites);
+    is($rv, 1, 'CTX set good ciphersuites');
+    $rv = Net::SSLeay::CTX_set_ciphersuites($ctx, '');
+    is($rv, 1, 'CTX set empty ciphersuites');
+    {
+	no warnings 'uninitialized';
+	$rv = Net::SSLeay::CTX_set_ciphersuites($ctx, undef);
+    };
+    is($rv, 1, 'CTX set undef ciphersuites');
+    $rv = Net::SSLeay::CTX_set_ciphersuites($ctx, 'nosuchthing:' . $ciphersuites);
+    is($rv, 0, 'CTX set partially bad ciphersuites');
+    $rv = Net::SSLeay::CTX_set_ciphersuites($ctx, 'nosuchthing:');
+    is($rv, 0, 'CTX set bad ciphersuites');
+
+    $ssl = Net::SSLeay::new($ctx);
+    $rv = Net::SSLeay::set_ciphersuites($ssl, $ciphersuites);
+    is($rv, 1, 'SSL set good ciphersuites');
+    $rv = Net::SSLeay::set_ciphersuites($ssl, '');
+    is($rv, 1, 'SSL set empty ciphersuites');
+    {
+	no warnings 'uninitialized';
+	$rv = Net::SSLeay::set_ciphersuites($ssl, undef);
+    };
+    is($rv, 1, 'SSL set undef ciphersuites');
+    $rv = Net::SSLeay::set_ciphersuites($ssl, 'nosuchthing:' . $ciphersuites);
+    is($rv, 0, 'SSL set partially bad ciphersuites');
+    $rv = Net::SSLeay::set_ciphersuites($ssl, 'nosuchthing:');
+    is($rv, 0, 'SSL set bad ciphersuites');
 
     return;
 }
