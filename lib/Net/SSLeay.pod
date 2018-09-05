@@ -1842,6 +1842,19 @@ Free an allocated SSL_SESSION structure.
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_SESSION_free.html|http://www.openssl.org/docs/ssl/SSL_SESSION_free.html>
 
+=item * SESSION_is_resumable
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1, not in LibreSSL
+
+Determine whether an SSL_SESSION object can be used for resumption.
+
+ Net::SSLeay::SESSION_is_resumable($ses);
+ # $ses - value corresponding to openssl's SSL_SESSION structure
+ #
+ # returns: (integer) 1 if it can or 0 if not
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_SESSION_is_resumable.html|https://www.openssl.org/docs/manmaster/man3/SSL_SESSION_is_resumable.html>
+
 =item * SESSION_cmp
 
 Compare two SSL_SESSION structures.

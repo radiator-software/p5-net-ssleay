@@ -2432,6 +2432,14 @@ void
 SSL_SESSION_free(ses)
      SSL_SESSION *      ses
 
+#if OPENSSL_VERSION_NUMBER >= 0x10101001L && !defined(LIBRESSL_VERSION_NUMBER)
+
+int
+SSL_SESSION_is_resumable(ses)
+     SSL_SESSION *      ses
+
+#endif
+
 int
 i2d_SSL_SESSION(in,pp)
      SSL_SESSION *      in
