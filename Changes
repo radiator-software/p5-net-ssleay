@@ -28,6 +28,7 @@ Revision history for Perl extension Net::SSLeay.
 	  SSL_set_security_level and SSL_get_security_level.
 	  Add new test file 65_security_level.t.
 	  All courtesy of Damyan Ivanov of Debian project.
+	- Add SSL_SESSION_is_resumable. Add and update tests in 44_sess.t.
 	- Set OpenSSL security level to 1 in tests that use the test suite's
 	  (1024-bit) RSA keys, which allows the test suite to pass when
 	  Net-SSLeay is built against an OpenSSL with a higher default
@@ -40,7 +41,7 @@ Revision history for Perl extension Net::SSLeay.
 	- Add SSL_get_version, SSL_client_version and SSL_is_dtls.
 	- Enhance t/local/43_misc_functions.t get_keyblock_size test
 	  to work better with AEAD ciphers.
-	- Fix complie time DEFINE=-DSHOW_XS_DEBUG to work on
+	- Fix compile time DEFINE=-DSHOW_XS_DEBUG to work with
 	  non-threaded Perls. Fixes RT#127027. Thanks to SREZIC for
 	  the report. Also fix other minor compile warnings.
 

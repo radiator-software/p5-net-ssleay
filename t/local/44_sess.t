@@ -17,7 +17,7 @@ BEGIN {
   plan skip_all => "fork() not supported on $^O" unless $Config{d_fork};
 }
 
-my $tests = 39;
+my $tests = 58;
 plan tests => $tests;
 
 my $pid;
@@ -69,6 +69,12 @@ sub client_new_cb
     diag("client_new_cb params not ok: $round") unless $is_ok;
     set_client_stat($round, 'new_params_ok', $is_ok);
 
+    if (defined &Net::SSLeay::SESSION_is_resumable) {
+	my $is_resumable = Net::SSLeay::SESSION_is_resumable($ssl_session);
+	BAIL_OUT("is_resumable is not 0 or 1: $round") unless defined $is_resumable && ($is_resumable == 0 || $is_resumable == 1);
+	set_client_stat($round, 'new_session_is_resumable', $is_resumable);
+    }
+
     #Net::SSLeay::SESSION_print_fp(*STDOUT, $ssl_session);
     return 0;
 }
@@ -100,6 +106,12 @@ sub server_new_cb
 		 $round =~ m/^$ssl_version/);
     diag("server_new_cb params not ok: $round") unless $is_ok;
     set_server_stat($round, 'new_params_ok', $is_ok);
+
+    if (defined &Net::SSLeay::SESSION_is_resumable) {
+	my $is_resumable = Net::SSLeay::SESSION_is_resumable($ssl_session);
+	BAIL_OUT("is_resumable is not 0 or 1: $round") unless defined $is_resumable && ($is_resumable == 0 || $is_resumable == 1);
+	set_server_stat($round, 'new_session_is_resumable', $is_resumable);
+    }
 
     #Net::SSLeay::SESSION_print_fp(*STDOUT, $ssl_session);
     return 0;
@@ -189,14 +201,15 @@ sub server
 	    {
 		Net::SSLeay::CTX_set_num_tickets($ctx, 6) if ($round eq 'TLSv1.3-num-tickets-ctx-6');
 		Net::SSLeay::CTX_set_num_tickets($ctx, 0) if ($round eq 'TLSv1.3-num-tickets-ctx-0');
+		$server_stats{$round}->{get_num_tickets} = Net::SSLeay::CTX_get_num_tickets($ctx);
 	    }
 
 	    $ssl = Net::SSLeay::new($ctx);
 	    if (defined &Net::SSLeay::set_num_tickets)
 	    {
 		Net::SSLeay::set_num_tickets($ssl, 4) if ($round eq 'TLSv1.3-num-tickets-ssl');
+		$server_stats{$round}->{get_num_tickets} = Net::SSLeay::get_num_tickets($ssl);
 	    }
-
 	    Net::SSLeay::set_fd($ssl, fileno($cl));
 	    Net::SSLeay::accept($ssl);
 
@@ -211,6 +224,13 @@ sub server
 	    Net::SSLeay::shutdown($ssl);
 	    my $sess = Net::SSLeay::get1_session($ssl);
 	    $ret = Net::SSLeay::CTX_remove_session($ctx, $sess);
+
+	    if (defined &Net::SSLeay::SESSION_is_resumable) {
+		my $is_resumable = Net::SSLeay::SESSION_is_resumable($sess);
+		BAIL_OUT("is_resumable is not 0 or 1: $round") unless defined $is_resumable && ($is_resumable == 0 || $is_resumable == 1);
+		set_server_stat($round, 'old_session_is_resumable', $is_resumable);
+	    }
+
 	    Net::SSLeay::SESSION_free($sess) unless $ret; # Not cached, undo get1
 	    Net::SSLeay::free($ssl);
 	}
@@ -255,6 +275,13 @@ sub client {
 	my $sess = Net::SSLeay::get1_session($ssl);
 	$ret = Net::SSLeay::CTX_remove_session($ctx, $sess);
 	Net::SSLeay::SESSION_free($sess) unless $ret; # Not cached, undo get1
+
+	if (defined &Net::SSLeay::SESSION_is_resumable) {
+	    my $is_resumable = Net::SSLeay::SESSION_is_resumable($sess);
+	    BAIL_OUT("is_resumable is not 0 or 1: $round") unless defined $is_resumable && ($is_resumable == 0 || $is_resumable == 1);
+	    set_client_stat($round, 'old_session_is_resumable', $is_resumable);
+	}
+
 	Net::SSLeay::shutdown($ssl);
 	Net::SSLeay::free($ssl);
     }
@@ -291,6 +318,18 @@ sub test_stats
     is($clt_stats->{'TLSv1'}->{remove_cb_called}, 1, 'Client TLSv1 remove_cb call count');
     is($clt_stats->{'TLSv1'}->{remove_params_ok}, 1, 'Client TLSv1 remove_cb params were correct');
 
+    if (defined &Net::SSLeay::SESSION_is_resumable) {
+	is($srv_stats->{'TLSv1'}->{new_session_is_resumable}, 1, 'Server TLSv1 session is resumable');
+	is($srv_stats->{'TLSv1'}->{old_session_is_resumable}, 0, 'Server TLSv1 session is no longer resumable');
+
+	is($clt_stats->{'TLSv1'}->{new_session_is_resumable}, 1, 'Client TLSv1 session is resumable');
+	is($clt_stats->{'TLSv1'}->{old_session_is_resumable}, 0, 'Client TLSv1 session is no longer resumable');
+    } else {
+      SKIP: {
+	  skip('Do not have Net::SSLeay::SESSION_is_resumable', 4);
+	}
+    }
+
     if (exists &Net::SSLeay::TLSv1_1_method)
     {
 	# Should be the same as TLSv1
@@ -298,6 +337,17 @@ sub test_stats
 	is($srv_stats->{'TLSv1.1'}->{new_params_ok}, 1, 'Server TLSv1.1 new_cb params were correct');
 	is($srv_stats->{'TLSv1.1'}->{remove_cb_called}, 1, 'Server TLSv1.1 remove_cb call count');
 	is($srv_stats->{'TLSv1.1'}->{remove_params_ok}, 1, 'Server TLSv1.1 remove_cb params were correct');
+	if (defined &Net::SSLeay::SESSION_is_resumable) {
+	    is($srv_stats->{'TLSv1.1'}->{new_session_is_resumable}, 1, 'Server TLSv1.1 session is resumable');
+	    is($srv_stats->{'TLSv1.1'}->{old_session_is_resumable}, 0, 'Server TLSv1.1 session is no longer resumable');
+
+	    is($clt_stats->{'TLSv1.1'}->{new_session_is_resumable}, 1, 'Client TLSv1.1 session is resumable');
+	    is($clt_stats->{'TLSv1.1'}->{old_session_is_resumable}, 0, 'Client TLSv1.1 session is no longer resumable');
+	} else {
+	  SKIP: {
+	      skip('Do not have Net::SSLeay::SESSION_is_resumable', 4);
+	    }
+	}
 
 	is($clt_stats->{'TLSv1.1'}->{new_cb_called}, 1, 'Client TLSv1.1 new_cb call count');
 	is($clt_stats->{'TLSv1.1'}->{new_params_ok}, 1, 'Client TLSv1.1 new_cb params were correct');
@@ -305,7 +355,7 @@ sub test_stats
 	is($clt_stats->{'TLSv1.1'}->{remove_params_ok}, 1, 'Client TLSv1.1 remove_cb params were correct');
     } else {
       SKIP: {
-	  skip('Do not have support for TLSv1.1', 8);
+	  skip('Do not have support for TLSv1.1', 12);
 	}
     }
 
@@ -316,6 +366,17 @@ sub test_stats
 	is($srv_stats->{'TLSv1.2'}->{new_params_ok}, 1, 'Server TLSv1.2 new_cb params were correct');
 	is($srv_stats->{'TLSv1.2'}->{remove_cb_called}, 1, 'Server TLSv1.2 remove_cb call count');
 	is($srv_stats->{'TLSv1.2'}->{remove_params_ok}, 1, 'Server TLSv1.2 remove_cb params were correct');
+	if (defined &Net::SSLeay::SESSION_is_resumable) {
+	    is($srv_stats->{'TLSv1.2'}->{new_session_is_resumable}, 1, 'Server TLSv1.2 session is resumable');
+	    is($srv_stats->{'TLSv1.2'}->{old_session_is_resumable}, 0, 'Server TLSv1.2 session is no longer resumable');
+
+	    is($clt_stats->{'TLSv1.2'}->{new_session_is_resumable}, 1, 'Client TLSv1.2 session is resumable');
+	    is($clt_stats->{'TLSv1.2'}->{old_session_is_resumable}, 0, 'Client TLSv1.2 session is no longer resumable');
+	} else {
+	  SKIP: {
+	      skip('Do not have Net::SSLeay::SESSION_is_resumable', 4);
+	    }
+	}
 
 	is($clt_stats->{'TLSv1.2'}->{new_cb_called}, 1, 'Client TLSv1.2 new_cb call count');
 	is($clt_stats->{'TLSv1.2'}->{new_params_ok}, 1, 'Client TLSv1.2 new_cb params were correct');
@@ -323,7 +384,7 @@ sub test_stats
 	is($clt_stats->{'TLSv1.2'}->{remove_params_ok}, 1, 'Client TLSv1.2 remove_cb params were correct');
     } else {
       SKIP: {
-	  skip('Do not have support for TLSv1.2', 8);
+	  skip('Do not have support for TLSv1.2', 12);
 	}
     }
 
@@ -334,21 +395,27 @@ sub test_stats
 	is($srv_stats->{'TLSv1.3'}->{new_params_ok}, 1, 'Server TLSv1.3 new_cb params were correct');
 	is($srv_stats->{'TLSv1.3'}->{remove_cb_called}, 1, 'Server TLSv1.3 remove_cb call count');
 	is($srv_stats->{'TLSv1.3'}->{remove_params_ok}, 1, 'Server TLSv1.3 remove_cb params were correct');
-	is($srv_stats->{'TLSv1.3-num-tickets-ssl'}->{new_cb_called}, 4, 'Server TLSv1.3 new_cb call count with set_num_tickets');
+	is($srv_stats->{'TLSv1.3-num-tickets-ssl'}->{get_num_tickets}, 4, 'Server TLSv1.3 get_num_tickets 4');
+	is($srv_stats->{'TLSv1.3-num-tickets-ssl'}->{new_cb_called}, 4, 'Server TLSv1.3 new_cb call count with set_num_tickets 4');
+	is($srv_stats->{'TLSv1.3-num-tickets-ctx-6'}->{get_num_tickets}, 6, 'Server TLSv1.3 CTX_get_num_tickets 6');
 	is($srv_stats->{'TLSv1.3-num-tickets-ctx-6'}->{new_cb_called}, 6, 'Server TLSv1.3 new_cb call count with CTX_set_num_tickets 6');
+	is($srv_stats->{'TLSv1.3-num-tickets-ctx-0'}->{get_num_tickets}, 0, 'Server TLSv1.3 CTX_get_num_tickets 0');
 	is($srv_stats->{'TLSv1.3-num-tickets-ctx-0'}->{new_cb_called}, undef, 'Server TLSv1.3 new_cb call count with CTX_set_num_tickets 0');
+	is($srv_stats->{'TLSv1.3'}->{new_session_is_resumable}, 1, 'Server TLSv1.3 session is resumable');
+	is($srv_stats->{'TLSv1.3'}->{old_session_is_resumable}, 0, 'Server TLSv1.3 session is no longer resumable');
 
 	is($clt_stats->{'TLSv1.3'}->{new_cb_called}, 2, 'Client TLSv1.3 new_cb call count');
 	is($clt_stats->{'TLSv1.3'}->{new_params_ok}, 1, 'Client TLSv1.3 new_cb params were correct');
 	is($clt_stats->{'TLSv1.3'}->{remove_cb_called}, 1, 'Client TLSv1.3 remove_cb call count');
 	is($clt_stats->{'TLSv1.3'}->{remove_params_ok}, 1, 'Client TLSv1.3 remove_cb params were correct');
-	is($clt_stats->{'TLSv1.3-num-tickets-ssl'}->{new_cb_called}, 4, 'Client TLSv1.3 new_cb call count with set_num_tickets');
+	is($clt_stats->{'TLSv1.3-num-tickets-ssl'}->{new_cb_called}, 4, 'Client TLSv1.3 new_cb call count with set_num_tickets 4');
 	is($clt_stats->{'TLSv1.3-num-tickets-ctx-6'}->{new_cb_called}, 6, 'Client TLSv1.3 new_cb call count with CTX_set_num_tickets 6');
 	is($clt_stats->{'TLSv1.3-num-tickets-ctx-0'}->{new_cb_called}, undef, 'Client TLSv1.3 new_cb call count with CTX_set_num_tickets 0');
-
+	is($clt_stats->{'TLSv1.3'}->{new_session_is_resumable}, 1, 'Client TLSv1.3 session is resumable');
+	is($clt_stats->{'TLSv1.3'}->{old_session_is_resumable}, 0, 'Client TLSv1.3 session is no longer resumable');
     } else {
       SKIP: {
-	  skip('Do not have support for TLSv1.3', 14);
+	  skip('Do not have support for TLSv1.3', 21);
 	}
     }
 
