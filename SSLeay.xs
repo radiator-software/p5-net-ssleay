@@ -253,9 +253,9 @@ UV get_my_thread_id(void) /* returns threads->tid() value */
 {
     dSP;
     UV tid = 0;
+#ifdef USE_ITHREADS
     int count = 0;
 
-#ifdef USE_ITHREADS
     ENTER;
     SAVETMPS;
     PUSHMARK(SP);
@@ -1612,7 +1612,6 @@ int ssleay_ssl_ctx_sess_new_cb_invoke(struct ssl_st *ssl, SSL_SESSION *sess)
 void ssleay_ssl_ctx_sess_remove_cb_invoke(SSL_CTX *ctx, SSL_SESSION *sess)
 {
     dSP;
-    int count, remove;
     SV *cb_func;
 
     PR1("STARTED: ssleay_ssl_ctx_sess_remove_cb_invoke\n");
@@ -1776,7 +1775,11 @@ BOOT:
     /* initialize global shared callback data hash */
     MY_CXT.global_cb_data = newHV();
     MY_CXT.tid = get_my_thread_id();
-    PR3("BOOT: tid=%d my_perl=0x%p\n", MY_CXT.tid, my_perl);
+#ifdef USE_ITHREADS
+    PR3("BOOT: tid=%lu my_perl=%p\n", MY_CXT.tid, my_perl);
+#else
+    PR1("BOOT:\n");
+#endif
     }
 
 void
@@ -1790,7 +1793,11 @@ CODE:
      */
     MY_CXT.global_cb_data = newHV();
     MY_CXT.tid = get_my_thread_id();
-    PR3("CLONE: tid=%d my_perl=0x%p\n", MY_CXT.tid, my_perl);
+#ifdef USE_ITHREADS
+    PR3("CLONE: tid=%lu my_perl=%p\n", MY_CXT.tid, my_perl);
+#else
+    PR1("CLONE: but USE_ITHREADS not defined\n");
+#endif
 
 double
 constant(name)
@@ -2196,7 +2203,7 @@ SSL_write_partial(s,from,count,buf)
      } else
        buf = SvPV( ST(3), len);
        */
-     PR4("write_partial from=%d count=%d len=%ul\n",from,count,ulen);
+     PR4("write_partial from=%d count=%d len=%lu\n",from,count,ulen);
      /*PR2("buf='%s'\n",&buf[from]); / * too noisy */
      len = (IV)ulen;
      len -= from;
@@ -5880,6 +5887,7 @@ SSL_get_keyblock_size(s)
 	int md_size = -1;
 	c = s->enc_read_ctx->cipher;
 #if OPENSSL_VERSION_NUMBER >= 0x10001000L
+	h = NULL;
 	if (s->s3)
 	    md_size = s->s3->tmp.new_mac_secret_size;
 #elif OPENSSL_VERSION_NUMBER >= 0x00909000L
