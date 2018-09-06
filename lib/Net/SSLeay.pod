@@ -5093,9 +5093,25 @@ Puts $num cryptographically strong pseudo-random bytes into $buf.
  # $buf - buffer where the random data will be stored
  # $num - the size (in bytes) of requested random data
  #
- # returns: 1 on success, 0 otherwise
+ # returns: 1 on success, -1 if not supported by the current RAND method, or 0 on other failure
 
-Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_bytes.html|http://www.openssl.org/docs/crypto/RAND_bytes.html>
+Check openssl doc L<http://www.openssl.org/docs/manmaster/man3/RAND_bytes.html|http://www.openssl.org/docs/manmaster/man3/RAND_bytes.html>
+
+=item * RAND_priv_bytes
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1, not in LibreSSL
+
+Puts $num cryptographically strong pseudo-random bytes into $buf.
+
+ my $rv = Net::SSLeay::RAND_priv_bytes($buf, $num);
+ # $buf - buffer where the random data will be stored
+ # $num - the size (in bytes) of requested random data
+ #
+ # returns: 1 on success, -1 if not supported by the current RAND method, or 0 on other failure
+
+RAND_priv_bytes has the same semantics as RAND_bytes, but see see the documentation for more information.
+
+Check openssl doc L<http://www.openssl.org/docs/manmaster/man3/RAND_priv_bytes.html|http://www.openssl.org/docs/manmaster/man3/RAND_priv_bytes.html>
 
 =item * RAND_pseudo_bytes
 
@@ -5142,6 +5158,8 @@ Generates a default path for the random seed file.
 Check openssl doc L<http://www.openssl.org/docs/crypto/RAND_load_file.html|http://www.openssl.org/docs/crypto/RAND_load_file.html>
 
 =item * RAND_load_file
+
+B<COMPATIBILITY:> Is no longer functional on LibreSSL
 
 Reads $max_bytes of bytes from $file_name and adds them to the PRNG.
 

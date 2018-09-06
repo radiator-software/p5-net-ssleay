@@ -2909,6 +2909,26 @@ RAND_bytes(buf, num)
     OUTPUT:
         RETVAL
 
+#if OPENSSL_VERSION_NUMBER >= 0x10101001L && !defined(LIBRESSL_VERSION_NUMBER)
+
+int
+RAND_priv_bytes(buf, num)
+    SV *buf
+    int num
+    PREINIT:
+        int rc;
+        unsigned char *random;
+    CODE:
+        New(0, random, num, unsigned char);
+        rc = RAND_priv_bytes(random, num);
+        sv_setpvn(buf, (const char*)random, num);
+        Safefree(random);
+        RETVAL = rc;
+    OUTPUT:
+        RETVAL
+
+#endif
+
 int
 RAND_pseudo_bytes(buf, num)
     SV *buf
