@@ -14,16 +14,17 @@
 
 package Net::SSLeay;
 
-use 5.8.1;
-
 use strict;
+use warnings;
+use 5.008_001;
 use Carp;
-use vars qw($VERSION @ISA @EXPORT @EXPORT_OK $AUTOLOAD $CRLF);
 use Socket;
 use Errno;
-
-require Exporter;
 use AutoLoader;
+use Exporter;
+
+our (@EXPORT_OK, $VERSION, $AUTOLOAD, $CRLF);
+our @ISA = qw(Exporter);
 
 # 0=no warns, 1=only errors, 2=ciphers, 3=progress, 4=dump data
 $Net::SSLeay::trace = 0;  # Do not change here, use
@@ -65,8 +66,7 @@ $Net::SSLeay::slowly = 0;
 $Net::SSLeay::random_device = '/dev/urandom';
 $Net::SSLeay::how_random = 512;
 
-$VERSION = '1.86_05'; # Also update $Net::SSLeay::Handle::VERSION
-@ISA = qw(Exporter);
+$Net::SSLeay::VERSION = '1.86_05'; # Also update $Net::SSLeay::Handle::VERSION
 
 #BEWARE:
 # 3-columns part of @EXPORT_OK related to constants is the output of command:
@@ -419,32 +419,33 @@ $VERSION = '1.86_05'; # Also update $Net::SSLeay::Handle::VERSION
 sub AUTOLOAD {
     # This AUTOLOAD is used to 'autoload' constants from the constant()
     # XS function.  If a constant is not found then control is passed
-    # to the AUTOLOAD in AutoLoader.
+    # to the AUTOLOAD in AutoLoader. See AutoLoader module documentation.
 
-    my $constname;
-    ($constname = $AUTOLOAD) =~ s/.*:://;
+    my $sub = $AUTOLOAD;
+    (my $constname = $sub) =~ s/.*:://;
     my $val = constant($constname);
     if ($! != 0) {
 	if ($! =~ /((Invalid)|(not valid))/i || $!{EINVAL}) {
-	    $AutoLoader::AUTOLOAD = $AUTOLOAD;
+	    $AutoLoader::AUTOLOAD = $sub;
 	    goto &AutoLoader::AUTOLOAD;
 	}
 	else {
-	  croak "Your vendor has not defined SSLeay macro $constname";
+	    croak "Your vendor has not defined SSLeay macro $constname";
 	}
     }
-    eval "sub $AUTOLOAD { $val }";
-    goto &$AUTOLOAD;
+    no strict "refs";
+    *$sub = sub { $val };
+    goto &$sub;
 }
 
 eval {
-	require XSLoader;
-	XSLoader::load('Net::SSLeay', $VERSION);
-	1;
+    require XSLoader;
+    XSLoader::load('Net::SSLeay', $VERSION);
+    1;
 } or do {
-	require DynaLoader;
-	push @ISA, 'DynaLoader';
-	bootstrap Net::SSLeay $VERSION;
+    require DynaLoader;
+    push @ISA, 'DynaLoader';
+    bootstrap Net::SSLeay $VERSION;
 };
 
 # Preloaded methods go here.
@@ -472,6 +473,7 @@ sub print_errs {
 sub die_if_ssl_error {
     my ($msg) = @_;
     die "$$: $msg\n" if print_errs($msg);
+    return;
 }
 
 # Unconditional death. Used to print SSLeay errors before dying.
@@ -488,8 +490,8 @@ sub die_now {
 # Thanks to Sean Burke for the snippet.
 
 BEGIN{
-eval 'use bytes; sub blength ($) { defined $_[0] ? length $_[0] : 0  }';
-$@ and eval '    sub blength ($) { defined $_[0] ? length $_[0] : 0 }' ;
+    eval 'use bytes; sub blength ($) { defined $_[0] ? length $_[0] : 0  }';
+    $@ and eval '    sub blength ($) { defined $_[0] ? length $_[0] : 0 }' ;
 }
 
 # Autoload methods go after __END__, and are processed by the autosplit program.

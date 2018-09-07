@@ -1,13 +1,15 @@
 package Net::SSLeay::Handle;
 
-use 5.8.1;
-
 use strict;
-
+use warnings;
+use 5.008_001;
 use Socket;
+use Exporter;
 use Net::SSLeay;
 
-require Exporter;
+our (@EXPORT_OK, $VERSION);
+our @ISA = qw(Exporter);
+@EXPORT_OK = qw(shutdown);
 
 =encoding utf-8
 
@@ -26,7 +28,7 @@ handled as standard file handles.
   print SSL "GET / HTTP/1.0\r\n";
   shutdown(\*SSL, 1);
   print while (<SSL>);
-  close SSL;                                                       
+  close SSL;
 
 =head1 DESCRIPTION
 
@@ -46,18 +48,15 @@ you need to add to your program is the tie function as in:
     if ($scheme eq "https") {
         tie(*S2, "Net::SSLeay::Handle", $host, $port);
         $socket = \*S2;
-    else {
+    } else {
         $socket = Net::SSLeay::Handle->make_socket($host, $port);
     }
     print $socket $request_headers;
-    ... 
+    ...
 
 =cut
 
-use vars qw(@ISA @EXPORT_OK $VERSION);
-@ISA = qw(Exporter);
-@EXPORT_OK = qw(shutdown);
-$VERSION = '0.86_05';
+$Net::SSLeay::Handle::VERSION = '0.86_05';
 
 my $Initialized;       #-- only _initialize() once
 my $Debug = 0;         #-- pretty hokey
@@ -70,6 +69,7 @@ my $Debug = 0;         #-- pretty hokey
 
 sub TIEHANDLE {
     my ($class, $socket, $port) = @_;
+
     $Debug > 10 and print "TIEHANDLE(@{[join ', ', @_]})\n";
 
     ref $socket eq "GLOB" or $socket = $class->make_socket($socket, $port);
@@ -81,14 +81,14 @@ sub TIEHANDLE {
 
     my $fileno = fileno($socket);
 
-  Net::SSLeay::set_fd($ssl, $fileno);   # Must use fileno
+    Net::SSLeay::set_fd($ssl, $fileno);   # Must use fileno
 
     my $resp = Net::SSLeay::connect($ssl);
 
     $Debug and print "Cipher '" . Net::SSLeay::get_cipher($ssl) . "'\n";
 
-	my $self = bless {
-        ssl    => $ssl, 
+    my $self = bless {
+        ssl    => $ssl,
         ctx    => $ctx,
         socket => $socket,
         fileno => $fileno,
@@ -111,27 +111,29 @@ sub PRINT {
 
 sub READLINE {
     my $self = shift;
+
     my $ssl  = _get_ssl($self);
-	if (wantarray) {
-		my @lines;
-		while (my $line = Net::SSLeay::ssl_read_until($ssl)) {
-			push @lines, $line;
-		}
-		return @lines;
-	} else {
-		my $line = Net::SSLeay::ssl_read_until($ssl); 
-		return $line ? $line : undef;
+    if (wantarray) {
+	my @lines;
+	while (my $line = Net::SSLeay::ssl_read_until($ssl)) {
+	    push @lines, $line;
 	}
+	return @lines;
+    } else {
+	my $line = Net::SSLeay::ssl_read_until($ssl);
+	return $line ? $line : undef;
+    }
 }
 
 sub READ {
     my ($self, $buf, $len, $offset) = \ (@_);
+
     my $ssl = _get_ssl($$self);
-    defined($$offset) or 
-      return length($$buf = Net::SSLeay::ssl_read_all($ssl, $$len));
+    defined($$offset) or
+	return length($$buf = Net::SSLeay::ssl_read_all($ssl, $$len));
 
     defined(my $read = Net::SSLeay::ssl_read_all($ssl, $$len))
-      or return undef;
+	or return undef;
 
     my $buf_len = length($$buf);
     $$offset > $buf_len and $$buf .= chr(0) x ($$offset - $buf_len);
@@ -141,6 +143,7 @@ sub READ {
 
 sub WRITE {
     my $self = shift;
+
     my ($buf, $len, $offset) = @_;
     $offset = 0 unless defined $offset;
 
@@ -152,14 +155,15 @@ sub WRITE {
 
 sub CLOSE {
     my $self = shift;
+
     my $fileno = $self->{fileno};
     $Debug > 10 and print "close($fileno)\n";
     Net::SSLeay::free ($self->{ssl});
     Net::SSLeay::CTX_free ($self->{ctx});
-    close $self->{socket};
+    return close $self->{socket};
 }
 
-sub FILENO  { $_[0]->{fileno} }
+sub FILENO  { return $_[0]->{fileno}; }
 
 
 =head1 FUNCTIONS
@@ -179,8 +183,8 @@ sockets and do the right thing.
 sub shutdown {
     my ($obj, @params) = @_;
 
-	my $socket = UNIVERSAL::isa($obj, 'Net::SSLeay::Handle') ?
-		$obj->{socket} : $obj;
+    my $socket = UNIVERSAL::isa($obj, 'Net::SSLeay::Handle') ?
+	$obj->{socket} : $obj;
     return shutdown($socket, @params);
 }
 
@@ -216,6 +220,7 @@ the created socket.
 
 sub make_socket {
     my ($class, $host, $port) = @_;
+
     $Debug > 10 and print "_make_socket(@{[join ', ', @_]})\n";
     $host ||= 'localhost';
     $port ||= 443;
@@ -225,7 +230,7 @@ sub make_socket {
 
     my $dest_ip     = gethostbyname($phost || $host);
     my $host_params = sockaddr_in($pport, $dest_ip);
-    
+
     socket(my $socket, &PF_INET(), &SOCK_STREAM(), 0) or die "socket: $!";
     connect($socket, $host_params)                    or die "connect: $!";
 
@@ -236,6 +241,7 @@ sub make_socket {
         print $socket "CONNECT $host:$port HTTP/1.0$auth$CRLF$CRLF";
         my $line = <$socket>;
     };
+
     return $socket;
 }
 
@@ -245,15 +251,17 @@ sub make_socket {
 
 sub _initialize {
     $Initialized++ and return;
-  Net::SSLeay::load_error_strings();
-  Net::SSLeay::SSLeay_add_ssl_algorithms();
-  Net::SSLeay::randomize();
+    Net::SSLeay::load_error_strings();
+    Net::SSLeay::SSLeay_add_ssl_algorithms();
+    Net::SSLeay::randomize();
+    return;
 }
 
 sub __dummy {
     my $host = $Net::SSLeay::proxyhost;
     my $port = $Net::SSLeay::proxyport;
     my $auth = $Net::SSLeay::proxyauth;
+    return;
 }
 
 #--- _get_self($socket) -------------------------------------------------------
@@ -269,9 +277,7 @@ sub _get_self { return $_[0]; }
 # created here.
 #------------------------------------------------------------------------------
 
-sub _get_ssl {
-    return $_[0]->{ssl};
-}
+sub _get_ssl { return $_[0]->{ssl}; }
 
 1;
 
@@ -293,7 +299,7 @@ like:
     }
     my $last_sel = select($socket); $| = 1; select($last_sel);
     print $socket $request_headers;
-    ... 
+    ...
 
 Note: As far as I know you must be careful with the globs in the tie()
 function.  The first parameter must be a glob (*SOMETHING) and the
@@ -325,7 +331,7 @@ non-SSL sockets and do the right thing.
   print SSL "GET / HTTP/1.0\r\n";
   shutdown(\*SSL, 1);
   print while (<SSL>);
-  close SSL; 
+  close SSL;
 
 =head1 TODO
 

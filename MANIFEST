@@ -114,4 +114,5 @@ t/local/63_ec_key_generate_key.t
 t/local/64_ticket_sharing.t
 t/local/65_ticket_sharing_2.t
 t/local/kwalitee.t
+t/local/kwalitee_extra.t
 typemap
