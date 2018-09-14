@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 
-# Various SSL read related tests. Currently:
-# - SSL_read, SSL_peek
+# Various SSL read and write related tests:
+# - SSL_read, SSL_peek, SSL_read_ex, SSL_peek_ex,
+# - SSL_write_ex, SSL_pending and SSL_has_pending.
 
 use strict;
 use warnings;
@@ -24,7 +25,7 @@ my $pid;
 alarm(30);
 END { kill 9,$pid if $pid }
 
-my ($server, $server_ctx, $client_ctx, $server_ssl, $client_ssl);
+my $server;
 Net::SSLeay::initialize();
 
 # See that lengths differ for all msgs

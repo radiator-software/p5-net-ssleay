@@ -48,7 +48,7 @@ Revision history for Perl extension Net::SSLeay.
 	  related tests for which no specific test file is needed.
 	- Add SSL_get_version, SSL_client_version and SSL_is_dtls.
 	- Add SSL_peek_ex, SSL_read_ex, SSL_write_ex and SSL_has_pending.
-	  Added tests in t/local/11_read.t
+	  Add tests in t/local/11_read.t
 	- Enhance t/local/43_misc_functions.t get_keyblock_size test
 	  to work better with AEAD ciphers.
 	- Add constants SSL_OP_ENABLE_MIDDLEBOX_COMPAT and
