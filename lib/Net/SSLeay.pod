@@ -4201,7 +4201,24 @@ buffer is unmodified after the SSL_peek() operation.
  #
  # in scalar context: data read from the TLS/SSL connection, undef on error
  # in list context:   two-item array consisting of data read (undef on error),
- #                      and return code from SSL_read().
+ #                      and return code from SSL_peek().
+
+=item * peek_ex
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1, not in LibreSSL
+
+Copies $max bytes from the specified $ssl into the returned value.
+In contrast to the C<Net::SSLeay::read_ex()> function, the data in the SSL
+buffer is unmodified after the SSL_peek_ex() operation.
+
+ my($got, $rv) = Net::SSLeay::peek_ex($ssl, $max);
+ # $ssl - value corresponding to openssl's SSL structure
+ # $max - [optional] max bytes to peek (integer) - default is 32768
+ #
+ # returns a list: two-item list consisting of data read (undef on error),
+ #                 and return code from SSL_peek_ex().
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_peek_ex.html|https://www.openssl.org/docs/manmaster/man3/SSL_peek_ex.html>
 
 =item * pending
 
@@ -4213,6 +4230,19 @@ Obtain number of readable bytes buffered in $ssl object.
  # returns: the number of bytes pending
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_pending.html|http://www.openssl.org/docs/ssl/SSL_pending.html>
+
+=item * has_pending
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.0, not in LibreSSL
+
+Returns 1 if $ssl has buffered data (whether processed or unprocessed) and 0 otherwise.
+
+ my $rv = Net::SSLeay::has_pending($ssl);
+ # $ssl - value corresponding to openssl's SSL structure
+ #
+ # returns: (integer) 1 or 0
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_has_pending.html|https://www.openssl.org/docs/manmaster/man3/SSL_has_pending.html>
 
 =item * read
 
@@ -4229,6 +4259,21 @@ Tries to read $max bytes from the specified $ssl.
  #                      and return code from SSL_read().
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_read.html|http://www.openssl.org/docs/ssl/SSL_read.html>
+
+=item * read_ex
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1, not in LibreSSL
+
+Tries to read $max bytes from the specified $ssl.
+
+ my($got, $rv) = Net::SSLeay::read_ex($ssl, $max);
+ # $ssl - value corresponding to openssl's SSL structure
+ # $max - [optional] max bytes to read (integer) - default is 32768
+ #
+ # returns a list: two-item list consisting of data read (undef on error),
+ #                 and return code from SSL_read_ex().
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_read_ex.html|https://www.openssl.org/docs/manmaster/man3/SSL_read_ex.html>
 
 =item * renegotiate
 
@@ -5013,6 +5058,21 @@ Writes data from the buffer $data into the specified $ssl connection.
  #          <0 - error
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_write.html|http://www.openssl.org/docs/ssl/SSL_write.html>
+
+=item * write_ex
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1, not in LibreSSL
+
+Writes data from the buffer $data into the specified $ssl connection.
+
+ my ($len, $rv) = Net::SSLeay::write_ex($ssl, $data);
+ # $ssl - value corresponding to openssl's SSL structure
+ # $data - data to be written
+ #
+ # returns a list: two-item list consisting of number of bytes written,
+ #                 and return code from SSL_write_ex()
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_write_ex.html|https://www.openssl.org/docs/manmaster/man3/SSL_write_ex.html>
 
 =item * write_partial
 

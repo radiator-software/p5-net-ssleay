@@ -1,8 +1,8 @@
 Revision history for Perl extension Net::SSLeay.
 
 ??????? 2018-??-??
-	- Net::SSLeay::read() now checks SSL_get_error() for
-	  SSL_ERROR_ZERO_RETURN for return values <= 0 to make
+	- Net::SSLeay::read() and SSL_peek() now check SSL_get_error()
+	  for SSL_ERROR_ZERO_RETURN for return values <= 0 to make
 	  Net::SSLeay::read() behave more like underlying OpenSSL
 	  function SSL_read().
 	  Convenience function ssl_read_all() now does an automatic
@@ -47,6 +47,8 @@ Revision history for Perl extension Net::SSLeay.
 	  Add new test file 44_sess.t for these and future session
 	  related tests for which no specific test file is needed.
 	- Add SSL_get_version, SSL_client_version and SSL_is_dtls.
+	- Add SSL_peek_ex, SSL_read_ex, SSL_write_ex and SSL_has_pending.
+	  Add tests in t/local/11_read.t
 	- Enhance t/local/43_misc_functions.t get_keyblock_size test
 	  to work better with AEAD ciphers.
 	- Add constants SSL_OP_ENABLE_MIDDLEBOX_COMPAT and
