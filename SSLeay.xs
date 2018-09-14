@@ -2120,7 +2120,7 @@ int
 SSL_get_fd(s)
      SSL *   s
 
-AV *
+void
 SSL_read(s,max=32768)
 	SSL *   s
 	int     max
@@ -2156,13 +2156,16 @@ void
 SSL_peek(s,max=32768)
 	SSL *   s
 	int     max
-	PREINIT:
+    PREINIT:
 	char *buf;
 	int got;
-	PPCODE:
+	int succeeded = 1;
+    PPCODE:
 	New(0, buf, max, char);
 
 	got = SSL_peek(s, buf, max);
+	if (got <= 0 && SSL_ERROR_ZERO_RETURN != SSL_get_error(s, got))
+	       succeeded = 0;
 
 	/* If in list context, return 2-item list:
 	 *   first return value:  data gotten, or undef on error (got<0)
@@ -2170,15 +2173,86 @@ SSL_peek(s,max=32768)
 	 */
 	if (GIMME_V==G_ARRAY) {
 	    EXTEND(SP, 2);
-	    PUSHs(sv_2mortal(got>=0 ? newSVpvn(buf, got) : newSV(0)));
+	    PUSHs(sv_2mortal(succeeded ? newSVpvn(buf, got) : newSV(0)));
 	    PUSHs(sv_2mortal(newSViv(got)));
 	    
 	    /* If in scalar or void context, return data gotten, or undef on error. */
 	} else {
 	    EXTEND(SP, 1);
-	    PUSHs(sv_2mortal(got>=0 ? newSVpvn(buf, got) : newSV(0)));
+	    PUSHs(sv_2mortal(succeeded ? newSVpvn(buf, got) : newSV(0)));
 	}
 	Safefree(buf);
+
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL && !defined(LIBRESSL_VERSION_NUMBER) /* OpenSSL 1.1.1 */
+
+void
+SSL_read_ex(s,max=32768)
+	SSL *   s
+	int     max
+    PREINIT:
+	char *buf;
+	size_t readbytes;
+	int succeeded;
+    PPCODE:
+	Newx(buf, max, char);
+
+	succeeded = SSL_read_ex(s, buf, max, &readbytes);
+
+	/* Return 2-item list:
+	 *   first return value:  data gotten, or undef on error
+	 *   second return value: result from SSL_read_ex()
+	 */
+	EXTEND(SP, 2);
+	PUSHs(sv_2mortal(succeeded ? newSVpvn(buf, readbytes) : newSV(0)));
+	PUSHs(sv_2mortal(newSViv(succeeded)));
+
+	Safefree(buf);
+
+
+void
+SSL_peek_ex(s,max=32768)
+	SSL *   s
+	int     max
+    PREINIT:
+	char *buf;
+	size_t readbytes;
+	int succeeded;
+    PPCODE:
+	Newx(buf, max, char);
+
+	succeeded = SSL_peek_ex(s, buf, max, &readbytes);
+
+	/* Return 2-item list:
+	 *   first return value:  data gotten, or undef on error
+	 *   second return value: result from SSL_peek_ex()
+	 */
+	EXTEND(SP, 2);
+	PUSHs(sv_2mortal(succeeded ? newSVpvn(buf, readbytes) : newSV(0)));
+	PUSHs(sv_2mortal(newSViv(succeeded)));
+
+	Safefree(buf);
+
+void
+SSL_write_ex(s,buf)
+	SSL *   s
+    PREINIT:
+	STRLEN len;
+	size_t written;
+	int succeeded;
+    INPUT:
+	char *  buf = SvPV( ST(1), len);
+    PPCODE:
+	succeeded = SSL_write_ex(s, buf, len, &written);
+
+	/* Return 2-item list:
+	 *   first return value:  data gotten, or undef on error
+	 *   second return value: result from SSL_read_ex()
+	 */
+	EXTEND(SP, 2);
+	PUSHs(sv_2mortal(newSVuv(written)));
+	PUSHs(sv_2mortal(newSViv(succeeded)));
+
+#endif
 
 int
 SSL_write(s,buf)
@@ -2344,6 +2418,14 @@ SSL_get_read_ahead(s)
 int
 SSL_pending(s)
      SSL *              s
+
+#if OPENSSL_VERSION_NUMBER >= 0x1010000fL && !defined(LIBRESSL_VERSION_NUMBER) /* OpenSSL 1.1.0 */
+
+int
+SSL_has_pending(s)
+     SSL *              s
+
+#endif
 
 int
 SSL_CTX_set_cipher_list(s,str)

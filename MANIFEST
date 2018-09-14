@@ -89,6 +89,7 @@ t/local/07_sslecho.t
 t/local/08_pipe.t
 t/local/09_ctx_new.t
 t/local/10_rand.t
+t/local/11_read.t
 t/local/15_bio.t
 t/local/20_autoload.t
 t/local/21_constants.t
