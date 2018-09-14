@@ -24,7 +24,7 @@ env:
     - AUTOMATED_TESTING=1
     - RELEASE_TESTING=0
   matrix:
-    - OPENSSL_VERSION=1.1.1-pre9
+    - OPENSSL_VERSION=1.1.1
     - OPENSSL_VERSION=1.1.0i
     - OPENSSL_VERSION=1.0.2p
     - OPENSSL_VERSION=1.0.1u
@@ -36,7 +36,7 @@ matrix:
   - perl: "5.8"
     env: OPENSSL_VERSION=1.1.0i
   - perl: "5.8"
-    env: OPENSSL_VERSION=1.1.1-pre9
+    env: OPENSSL_VERSION=1.1.1
 
 cache:
   directories:
