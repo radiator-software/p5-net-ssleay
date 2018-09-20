@@ -31,6 +31,12 @@ Revision history for Perl extension Net::SSLeay.
 	  SSL_set_security_level and SSL_get_security_level.
 	  Add new test file 65_security_level.t.
 	  All courtesy of Damyan Ivanov of Debian project.
+	- Fix export_keying_material return value check and context
+	  handling. SSL_export_keying_material use_context is now
+	  correctly set to non-zero value when context is an empty
+	  string. This affects values exported with TLSv1.2 and earlier.
+	  Update documentation in NetSSLeay.pod and add tests
+	  in t/local/45_export.t.
 	- Add RAND_priv_bytes. Add new test file t/local/10_rand.t for
 	  RAND_bytes, RAND_pseudo_bytes, RAND_priv_bytes, RAND_status,
 	  RAND_poll, RAND_file_name and RAND_load_file.
