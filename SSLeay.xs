@@ -7271,21 +7271,28 @@ P_alpn_selected(s)
 #if OPENSSL_VERSION_NUMBER >= 0x10001000L
 
 void
-SSL_export_keying_material(ssl, outlen, label, p)
+SSL_export_keying_material(ssl, outlen, label, context=&PL_sv_undef)
         SSL * ssl
         int outlen
+        SV * context
     PREINIT:
-        char *  out;
-        STRLEN labellen;
-        STRLEN plen;
-	int ret;
+        unsigned char *  out;
+        STRLEN llen;
+        STRLEN contextlen = 0;
+        char *context_arg = NULL;
+        int use_context = 0;
+        int ret;
     INPUT:
-        char *  label = SvPV( ST(2), labellen);
-        char *  p = SvPV( ST(3), plen);
+        char *  label = SvPV( ST(2), llen);
     PPCODE:
-	New(0, out, outlen, char);
-        ret = SSL_export_keying_material(ssl, (unsigned char*)out, outlen, label, labellen, (unsigned char*)p, plen, plen ? 1 : 0);
-        PUSHs(sv_2mortal(ret>=0 ? newSVpvn(out, outlen) : newSV(0)));
+        Newx(out, outlen, unsigned char);
+
+        if (context != &PL_sv_undef) {
+            use_context = 1;
+            context_arg = SvPV( ST(3), contextlen);
+        }
+        ret = SSL_export_keying_material(ssl, out, outlen, label, llen, (unsigned char*)context_arg, contextlen, use_context);
+        PUSHs(sv_2mortal(ret>0 ? newSVpvn((const char *)out, outlen) : newSV(0)));
         EXTEND(SP, 1);
 	Safefree(out);
 

@@ -3903,15 +3903,20 @@ Returns internal SSLv3 client_random value.
 
 =item * export_keying_material
 
-Returns a buffer of $req_len bytes of keying material based on the constant string $label using the
-masterkey and client and server random strings as described in 
-draft-ietf-pppext-eap-ttls-01.txt and See rfc2716
-If p is present, it will be concatenated before generating the keying material
-Returns undef on error
+Returns keying material based on the string $label and optional
+$context. Note that with TLSv1.2 and lower, empty context (empty
+string) and undefined context (no value or 'undef') will return
+different values.
 
-    my $out = Net::SSLeay::export_keying_material($ssl, $req_len, $label, $p);
+  my $out = Net::SSLeay::export_keying_material($ssl, $olen, $label, $context);
+  # $ssl - value corresponding to openssl's SSL structure
+  # $olen - number of bytes to return
+  # $label - application specific label
+  # $context - [optional] context - default is undef for no context
+  #
+  # returns: keying material (binary data) or undef on error
 
-
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_export_keying_material.html|https://www.openssl.org/docs/manmaster/man3/SSL_export_keying_material.html>
 
 =item * get_session
 
