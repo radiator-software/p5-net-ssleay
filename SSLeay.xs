@@ -7291,4 +7291,13 @@ SSL_export_keying_material(ssl, outlen, label, p)
 
 #endif
 
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL && !defined(LIBRESSL_VERSION_NUMBER) /* OpenSSL 1.1.1 */
+
+void
+SSL_CTX_set_post_handshake_auth(s,val)
+    SSL_CTX * s
+    int val
+
+#endif
+
 #define REM_EOF "/* EOF - SSLeay.xs */"
