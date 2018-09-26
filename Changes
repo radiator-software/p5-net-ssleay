@@ -18,6 +18,9 @@ Revision history for Perl extension Net::SSLeay.
 	  Net::SSLeay::accept().
 	  Thanks to Petr Pisar and Sebastian Andrzej Siewior for the
 	  patches (in #RT125218).
+	- Fix a memory leak in cb_data_advanced_put. Fixes
+	  RT#127131. Noticed, investigated and patched by Paul
+	  Evans. Thanks!
 	- Enable OpenSSL 1.1.1-pre9 with Travis CI.
 	- Add SSL_CTX_set_num_tickets, SSL_CTX_get_num_tickets,
 	  SSL_set_num_ticket and SSL_get_num_tickets for controlling
