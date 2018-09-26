@@ -522,9 +522,13 @@ int cb_data_advanced_put(void *ptr, const char* data_name, SV* data)
 
     /* first delete already stored value */
     hv_delete(L2HV, data_name, strlen(data_name), G_DISCARD);
-    if (data!=NULL)
+    if (data!=NULL) {
         if (SvOK(data))
             hv_store(L2HV, data_name, strlen(data_name), data, 0);
+        else
+            /* we're not storing data so discard it */
+            SvREFCNT_dec(data);
+    }
 
     return 1;
 }
