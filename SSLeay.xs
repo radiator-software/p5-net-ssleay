@@ -2002,6 +2002,13 @@ SSL_CTX_set_ciphersuites(SSL_CTX *ctx, const char *str)
 
 #endif
 
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL && !defined(LIBRESSL_VERSION_NUMBER) /* OpenSSL 1.1.1 */
+
+void
+SSL_CTX_set_post_handshake_auth(SSL_CTX *ctx, int val)
+
+#endif
+
 void
 SSL_CTX_sess_set_new_cb(ctx, callback)
         SSL_CTX * ctx
@@ -2526,6 +2533,15 @@ SSL_SESSION_free(ses)
 int
 SSL_SESSION_is_resumable(ses)
      SSL_SESSION *      ses
+
+#endif
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL && !defined(LIBRESSL_VERSION_NUMBER) /* OpenSSL 1.1.1 */
+
+void
+SSL_set_post_handshake_auth(SSL *ssl, int val)
+
+int
+SSL_verify_client_post_handshake(SSL *ssl)
 
 #endif
 
@@ -7295,15 +7311,6 @@ SSL_export_keying_material(ssl, outlen, label, context=&PL_sv_undef)
         PUSHs(sv_2mortal(ret>0 ? newSVpvn((const char *)out, outlen) : newSV(0)));
         EXTEND(SP, 1);
 	Safefree(out);
-
-#endif
-
-#if OPENSSL_VERSION_NUMBER >= 0x1010100fL && !defined(LIBRESSL_VERSION_NUMBER) /* OpenSSL 1.1.1 */
-
-void
-SSL_CTX_set_post_handshake_auth(s,val)
-    SSL_CTX * s
-    int val
 
 #endif
 
