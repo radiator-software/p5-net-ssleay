@@ -62,6 +62,10 @@ Revision history for Perl extension Net::SSLeay.
 	  Howarth. Add SSL_set_post_handshake_auth,
 	  SSL_verify_client_post_handshake and constant
 	  SSL_VERIFY_POST_HANDSHAKE.
+	- Applied a patch to set_cert_and_key() from Damyan Ivanov,
+	  Debian Perl Group. This function now returns errors from
+	  library's error stack only when an underlying routine
+	  fails. Unrelated errors are now skipped. Fixes RT#126988.
 	- Enhance t/local/43_misc_functions.t get_keyblock_size test
 	  to work better with AEAD ciphers.
 	- Add constants SSL_OP_ENABLE_MIDDLEBOX_COMPAT and
