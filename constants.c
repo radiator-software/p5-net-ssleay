@@ -3688,9 +3688,10 @@ constant (const char *name, size_t len) {
        F_REQUEST_CERTIFICATE F_SSL_GET_NEW_SESSION F_SSL_USE_CERTIFICATE
        NID_SMIMECapabilities NID_basic_constraints NID_netscape_base_url
        NID_pkcs9_contentType NID_pkcs9_signingTime OP_NETSCAPE_CA_DN_BUG
-       X509_PURPOSE_CRL_SIGN X509_TRUST_SSL_CLIENT X509_TRUST_SSL_SERVER
-       X509_V_ERR_INVALID_CA X509_V_ERR_OUT_OF_MEM X509_V_FLAG_CRL_CHECK
-       XN_FLAG_SEP_CPLUS_SPC XN_FLAG_SEP_MULTILINE XN_FLAG_SEP_SPLUS_SPC */
+       VERIFY_POST_HANDSHAKE X509_PURPOSE_CRL_SIGN X509_TRUST_SSL_CLIENT
+       X509_TRUST_SSL_SERVER X509_V_ERR_INVALID_CA X509_V_ERR_OUT_OF_MEM
+       X509_V_FLAG_CRL_CHECK XN_FLAG_SEP_CPLUS_SPC XN_FLAG_SEP_MULTILINE
+       XN_FLAG_SEP_SPLUS_SPC */
     /* Offset 15 gives the best switch position.  */
     switch (name[15]) {
     case 'C':
@@ -3721,6 +3722,16 @@ constant (const char *name, size_t len) {
         
 #ifdef SSL_OP_NETSCAPE_CA_DN_BUG
         return SSL_OP_NETSCAPE_CA_DN_BUG;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "VERIFY_POST_HANDSHAKE", 21)) {
+      /*                                ^            */
+        
+#ifdef SSL_VERIFY_POST_HANDSHAKE
+        return SSL_VERIFY_POST_HANDSHAKE;
 #else
         goto not_there;
 #endif

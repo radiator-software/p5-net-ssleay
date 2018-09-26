@@ -55,6 +55,10 @@ Revision history for Perl extension Net::SSLeay.
 	- Add SSL_get_version, SSL_client_version and SSL_is_dtls.
 	- Add SSL_peek_ex, SSL_read_ex, SSL_write_ex and SSL_has_pending.
 	  Add tests in t/local/11_read.t
+	- Add SSL_CTX_set_post_handshake_auth contributed by Paul
+	  Howarth. Add SSL_set_post_handshake_auth,
+	  SSL_verify_client_post_handshake and constant
+	  SSL_VERIFY_POST_HANDSHAKE.
 	- Enhance t/local/43_misc_functions.t get_keyblock_size test
 	  to work better with AEAD ciphers.
 	- Add constants SSL_OP_ENABLE_MIDDLEBOX_COMPAT and
