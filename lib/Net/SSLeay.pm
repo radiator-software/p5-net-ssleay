@@ -34,6 +34,7 @@ $Net::SSLeay::trace = 0;  # Do not change here, use
 # 10 = insist on TLSv1
 # 11 = insist on TLSv1.1
 # 12 = insist on TLSv1.2
+# 13 = insist on TLSv1.3
 # 0 or undef = guess (v23)
 #
 $Net::SSLeay::ssl_version = 0;  # don't change here, use
@@ -1007,6 +1008,21 @@ sub new_x_ctx {
 	    return undef;
 	}
         $ctx = CTX_tlsv1_2_new;
+    }
+    elsif ($ssl_version == 13) {
+	unless (eval { Net::SSLeay::TLS1_3_VERSION(); } ) {
+	    warn "ssl_version has been set to 13, but this version of OpenSSL has been compiled without TLSv1.3 support";
+	    return undef;
+	}
+        $ctx = CTX_new();
+        unless(Net::SSLeay::CTX_set_min_proto_version($ctx, Net::SSLeay::TLS1_3_VERSION())) {
+            warn "CTX_set_min_proto failed for TLSv1.3";
+            return undef;
+        }
+        unless(Net::SSLeay::CTX_set_max_proto_version($ctx, Net::SSLeay::TLS1_3_VERSION())) {
+            warn "CTX_set_max_proto failed for TLSv1.3";
+            return undef;
+        }
     }
     else                       { $ctx = CTX_new(); }
     return $ctx;
