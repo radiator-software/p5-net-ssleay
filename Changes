@@ -66,6 +66,7 @@ Revision history for Perl extension Net::SSLeay.
 	  Debian Perl Group. This function now returns errors from
 	  library's error stack only when an underlying routine
 	  fails. Unrelated errors are now skipped. Fixes RT#126988.
+	- Add support for TLSv1.3 via $Net::SSLeay::ssl_version.
 	- Enhance t/local/43_misc_functions.t get_keyblock_size test
 	  to work better with AEAD ciphers.
 	- Add constants SSL_OP_ENABLE_MIDDLEBOX_COMPAT and

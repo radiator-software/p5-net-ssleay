@@ -9321,7 +9321,7 @@ have rather complex interfaces with function pointers and all. In these
 cases you should proceed wit great caution.
 
 This module defaults to using OpenSSL automatic protocol negotiation
-code for automatically detecting the version of the SSL protocol
+code for automatically detecting the version of the SSL/TLS protocol
 that the other end talks. With most web servers this works just
 fine, but once in a while I get complaints from people that the module
 does not work with some web servers. Usually this can be solved
@@ -9330,6 +9330,9 @@ by explicitly setting the protocol version, e.g.
    $Net::SSLeay::ssl_version = 2;  # Insist on SSLv2
    $Net::SSLeay::ssl_version = 3;  # Insist on SSLv3
    $Net::SSLeay::ssl_version = 10; # Insist on TLSv1
+   $Net::SSLeay::ssl_version = 11; # Insist on TLSv1.1
+   $Net::SSLeay::ssl_version = 12; # Insist on TLSv1.2
+   $Net::SSLeay::ssl_version = 13; # Insist on TLSv1.3
 
 Although the autonegotiation is nice to have, the SSL standards
 do not formally specify any such mechanism. Most of the world has
