@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-??????? 2018-??-??
+1.86_06 2018-09-29
 	- Net::SSLeay::read() and SSL_peek() now check SSL_get_error()
 	  for SSL_ERROR_ZERO_RETURN for return values <= 0 to make
 	  Net::SSLeay::read() behave more like underlying OpenSSL
@@ -113,7 +113,7 @@ Revision history for Perl extension Net::SSLeay.
 	  Fixes RT#125273. Thanks to Steffen Ullrich.
 
 1.86_03 2018-07-19
-	- Convert packaging to ExtUtils::MakeMaker
+	- Convert packaging to ExtUtils::MakeMaker. Thanks to mohawk2.
 	- Module::Install is no longer a prerequisite when building
 	  from the reposistory.
 	- Re-apply patch from ETJ permitting configure and build in
