@@ -1829,7 +1829,7 @@ const char *
 SSLeay_version(type=SSLEAY_VERSION)
         int type
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
 
 unsigned long
 OpenSSL_version_num()
