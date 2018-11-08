@@ -5756,7 +5756,7 @@ RSA_generate_key(bits,ee,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
         simple_cb_data_t* cb_data = NULL;
     CODE:
        /* openssl 0.9.8 deprecated RSA_generate_key. */
-       /* This equivalent is contributed by Brian Fraser for Android */
+       /* This equivalent was contributed by Brian Fraser for Android */
        /* but is not portable to old OpenSSLs where RSA_generate_key_ex is not available */
        /* as of openssl 1.1.0 it is not possible anymore to generate the BN_GENCB structure directly. */
        /* instead BN_EGNCB_new() has to be used. */
