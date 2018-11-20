@@ -5771,13 +5771,20 @@ RSA_generate_key(bits,ee,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
        cb_data = simple_cb_data_new(perl_cb, perl_data);
 
        ret = RSA_new();
-       if(!ret)
+       if(!ret) {
+	   simple_cb_data_free(cb_data);
+	   BN_free(e);
            croak("Net::SSLeay: RSA_generate_key perl function could not create RSA structure.\n");
+       }
 #if (OPENSSL_VERSION_NUMBER >= 0x1010000fL && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
        BN_GENCB *new_cb;
        new_cb = BN_GENCB_new();
-       if(!new_cb)
-           croak("Net::SSLeay: RSA_generate_key perl function could not create BN_GENCB structure.\n");
+       if(!new_cb) {
+	   simple_cb_data_free(cb_data);
+	   BN_free(e);
+	   RSA_free(ret);
+	   croak("Net::SSLeay: RSA_generate_key perl function could not create BN_GENCB structure.\n");
+       }
        BN_GENCB_set_old(new_cb, ssleay_RSA_generate_key_cb_invoke, cb_data);
        rc = RSA_generate_key_ex(ret, bits, e, new_cb);
        BN_GENCB_free(new_cb);
@@ -5786,10 +5793,12 @@ RSA_generate_key(bits,ee,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
        BN_GENCB_set_old(&new_cb, ssleay_RSA_generate_key_cb_invoke, cb_data);
        rc = RSA_generate_key_ex(ret, bits, e, &new_cb);
 #endif
-       if (rc == -1 || ret == NULL)
-           croak("Net::SSLeay: Couldn't generate RSA key");
        simple_cb_data_free(cb_data);
        BN_free(e);
+       if (rc == -1 || ret == NULL) {
+           if (ret) RSA_free(ret);
+           croak("Net::SSLeay: Couldn't generate RSA key");
+       }
        e = NULL;
        RETVAL = ret;
     OUTPUT:
