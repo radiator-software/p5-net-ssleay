@@ -5769,7 +5769,7 @@ RSA_generate_key(bits,ee,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
        cb_data = simple_cb_data_new(perl_cb, perl_data);
 
        ret = RSA_new();
-#if OPENSSL_VERSION_NUMBER >= 0x1010000fL
+#if (OPENSSL_VERSION_NUMBER >= 0x1010000fL && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
        BN_GENCB *new_cb;
        new_cb = BN_GENCB_new();
        BN_GENCB_set_old(new_cb, ssleay_RSA_generate_key_cb_invoke, cb_data);
