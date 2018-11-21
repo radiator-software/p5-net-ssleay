@@ -5744,7 +5744,7 @@ SSL_set_tmp_rsa(ssl,rsa)
 
 #endif
 
-#ifdef __ANDROID__
+#if OPENSSL_VERSION_NUMBER >= 0x0090800fL
 
 RSA *
 RSA_generate_key(bits,ee,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
@@ -5755,24 +5755,50 @@ RSA_generate_key(bits,ee,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
     PREINIT:
         simple_cb_data_t* cb_data = NULL;
     CODE:
-       /* Android does not have RSA_generate_key. This equivalent is contributed by Brian Fraser for Android */
-       /* but is not portable to old OpenSSLs where RSA_generate_key_ex is not available */
+       /* openssl 0.9.8 deprecated RSA_generate_key. */
+       /* This equivalent was contributed by Brian Fraser for Android, */
+       /* but was not portable to old OpenSSLs where RSA_generate_key_ex is not available. */
+       /* It should now be more versatile. */
+       /* as of openssl 1.1.0 it is not possible anymore to generate the BN_GENCB structure directly. */
+       /* instead BN_EGNCB_new() has to be used. */
        int rc;
        RSA * ret;
        BIGNUM *e;
        e = BN_new();
+       if(!e)
+           croak("Net::SSLeay: RSA_generate_key perl function could not create BN structure.\n");
        BN_set_word(e, ee);
        cb_data = simple_cb_data_new(perl_cb, perl_data);
-       BN_GENCB new_cb;
-       BN_GENCB_set_old(&new_cb, ssleay_RSA_generate_key_cb_invoke, cb_data);
 
        ret = RSA_new();
+       if(!ret) {
+	   simple_cb_data_free(cb_data);
+	   BN_free(e);
+           croak("Net::SSLeay: RSA_generate_key perl function could not create RSA structure.\n");
+       }
+#if (OPENSSL_VERSION_NUMBER >= 0x1010000fL && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
+       BN_GENCB *new_cb;
+       new_cb = BN_GENCB_new();
+       if(!new_cb) {
+	   simple_cb_data_free(cb_data);
+	   BN_free(e);
+	   RSA_free(ret);
+	   croak("Net::SSLeay: RSA_generate_key perl function could not create BN_GENCB structure.\n");
+       }
+       BN_GENCB_set_old(new_cb, ssleay_RSA_generate_key_cb_invoke, cb_data);
+       rc = RSA_generate_key_ex(ret, bits, e, new_cb);
+       BN_GENCB_free(new_cb);
+#else
+       BN_GENCB new_cb;
+       BN_GENCB_set_old(&new_cb, ssleay_RSA_generate_key_cb_invoke, cb_data);
        rc = RSA_generate_key_ex(ret, bits, e, &new_cb);
-       
-       if (rc == -1 || ret == NULL)
-           croak("Couldn't generate RSA key");
+#endif
        simple_cb_data_free(cb_data);
        BN_free(e);
+       if (rc == -1 || ret == NULL) {
+           if (ret) RSA_free(ret);
+           croak("Net::SSLeay: Couldn't generate RSA key");
+       }
        e = NULL;
        RETVAL = ret;
     OUTPUT:
