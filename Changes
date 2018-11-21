@@ -1,5 +1,11 @@
 Revision history for Perl extension Net::SSLeay.
 
+??????? 2018-??-??
+        - Net::SSLeay::RSA_generate_key() now prefers using
+          RSA_generate_key_ex. This avois deprecated RSA_generate_key
+          and allows removing the only Android specific code in
+          SSLeay.xs. Fixes RT#127593. Thanks to Rouven Weiler.
+
 1.86_06 2018-09-29
 	- Net::SSLeay::read() and SSL_peek() now check SSL_get_error()
 	  for SSL_ERROR_ZERO_RETURN for return values <= 0 to make
