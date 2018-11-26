@@ -1526,7 +1526,7 @@ int tlsext_ticket_key_cb_invoke(
 		croak("name must be at at most 16 bytes, got %d",(int)svlen);
 	    if (svlen == 0)
 		croak("name should not be empty");
-	    memset(name, 0, 16);
+	    OPENSSL_cleanse(name, 16);
 	    memcpy(name,pname,svlen);
 	    usable_rv_count++;
 	}
@@ -1672,7 +1672,7 @@ time_t ASN1_TIME_timet(ASN1_TIME *asn1t) {
     }
 
     /* extract data and time */
-    memset(&t,0,sizeof(t));
+    OPENSSL_cleanse(&t, sizeof(t));
     if (asn1t->type == V_ASN1_UTCTIME) { /* YY - two digit year */
 	t.tm_year = (p[0]-'0')*10 + (p[1]-'0');
 	if (t.tm_year < 70) t.tm_year += 100;
