@@ -121,7 +121,7 @@ sub test_policy_checks
     Net::SSLeay::X509_VERIFY_PARAM_free($pm);
 }
 
-# These needs OpenSSL 1.0.2 or LibreSSL 2.7.0, and later
+# These need at least OpenSSL 1.0.2 or LibreSSL 2.7.0
 sub test_hostname_checks
 {
     my ($ctx, $cl, $ok) = @_;
