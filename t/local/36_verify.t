@@ -121,7 +121,7 @@ sub test_policy_checks
     Net::SSLeay::X509_VERIFY_PARAM_free($pm);
 }
 
-# Currently OpenSSL specific: even the latest LibreSSL 2.6.3 does not have these
+# These need at least OpenSSL 1.0.2 or LibreSSL 2.7.0
 sub test_hostname_checks
 {
     my ($ctx, $cl, $ok) = @_;
@@ -162,12 +162,17 @@ sub test_hostname_checks
 	  is($verify_result, Net::SSLeay::X509_V_ERR_HOSTNAME_MISMATCH(), 'Verify result is X509_V_ERR_HOSTNAME_MISMATCH');
       }
 
-      # For some reason OpenSSL 1.0.2 returns undef for get0_peername. Are we doing this wrong?
+      # For some reason OpenSSL 1.0.2 and LibreSSL return undef for get0_peername. Are we doing this wrong?
       $pm2 = Net::SSLeay::get0_param($ssl);
       my $peername = Net::SSLeay::X509_VERIFY_PARAM_get0_peername($pm2);
-      is($peername, '*.example.com', 'X509_VERIFY_PARAM_get0_peername returns *.example.com')     if ($ok && Net::SSLeay::SSLeay >= 0x10100000);
-      is($peername, undef, 'X509_VERIFY_PARAM_get0_peername returns undefined for OpenSSL 1.0.2') if ($ok && Net::SSLeay::SSLeay <  0x10100000);
-      is($peername, undef, 'X509_VERIFY_PARAM_get0_peername returns undefined') if !$ok;
+      if ($ok) {
+	  is($peername, '*.example.com', 'X509_VERIFY_PARAM_get0_peername returns *.example.com')
+	      if (Net::SSLeay::SSLeay >= 0x10100000 && !Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER"));
+	  is($peername, undef, 'X509_VERIFY_PARAM_get0_peername returns undefined for OpenSSL 1.0.2 and LibreSSL')
+	      if (Net::SSLeay::SSLeay <  0x10100000 ||  Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER"));
+      } else {
+	  is($peername, undef, 'X509_VERIFY_PARAM_get0_peername returns undefined');
+      }
 
       Net::SSLeay::X509_VERIFY_PARAM_free($pm);
       Net::SSLeay::X509_VERIFY_PARAM_free($pm2);

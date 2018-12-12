@@ -5,6 +5,25 @@ Revision history for Perl extension Net::SSLeay.
           RSA_generate_key_ex. This avois deprecated RSA_generate_key
           and allows removing the only Android specific code in
           SSLeay.xs. Fixes RT#127593. Thanks to Rouven Weiler.
+	- SSL_CTX_get0_param, SSL_CTX_get0_param,
+	  X509_VERIFY_PARAM_set1_host, X509_VERIFY_PARAM_add1_host,
+	  X509_VERIFY_PARAM_set_hostflags,
+	  X509_VERIFY_PARAM_get0_peername,
+	  X509_VERIFY_PARAM_set1_email, X509_VERIFY_PARAM_set1_ip and
+	  X509_VERIFY_PARAM_set1_ip_asc added in 1.83 for OpenSSL
+	  1.0.2 and later are now available with LibreSSL 2.7.0 and
+	  later.
+	- get_keyblock_size() now gets the MAC secret size from the
+	  cipher on LibreSSL 2.7.0 and later, rather than reaching
+	  into libssl internals. This effectively takes the OpenSSL
+	  1.1 code path for LibreSSL 2.7.0 instead of the OpenSSL 1.0
+	  code path.  Thanks to Alexander Bluhm.
+	- get_client_random and get_server_random now use API
+	  functions supported by LibreSSL 2.7.0 and later. Thanks to
+	  Alexander Bluhm.
+	- Add X509_check_host(), X509_check_email(), X509_check_ip(),
+	  and X509_check_ip_asc() for LibreSSL 2.5.0 and later. Thanks
+	  to Alexander Bluhm.
         - OpenSSL_version() and OpenSSL_version_num() are available
           with LibreSSL 2.7.0 and later. Thanks to Alexander Bluhm.
         - Use OPENSSL_cleanse() instead of memset(). Fixes

@@ -3102,7 +3102,7 @@ RAND_write_file(file_name)
 
 #define REM40 "Minimal X509 stuff..., this is a bit ugly and should be put in its own modules Net::SSLeay::X509.pm"
 
-#if OPENSSL_VERSION_NUMBER >= 0x1000200fL && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x1000200fL && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2050000fL)
 
 int
 X509_check_host(X509 *cert, const char *name, unsigned int flags = 0, SV *peername = &PL_sv_undef)
@@ -5961,7 +5961,7 @@ SSL_SESSION_set_master_key(s,key)
 
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
 
 void
 SSL_get_client_random(s)
@@ -5988,7 +5988,7 @@ SSL_get_client_random(s)
 
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
 
 void
 SSL_get_server_random(s)
@@ -6019,7 +6019,7 @@ int
 SSL_get_keyblock_size(s)
      SSL *   s
      CODE:
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
         const SSL_CIPHER *ssl_cipher;
 	int cipher = NID_undef, digest = NID_undef, mac_secret_size = 0;
 	const EVP_CIPHER *c = NULL;
@@ -6404,7 +6404,7 @@ X509_VERIFY_PARAM_lookup(name)
 void
 X509_VERIFY_PARAM_table_cleanup()
 
-#if OPENSSL_VERSION_NUMBER >= 0x10002000L && !defined(LIBRESSL_VERSION_NUMBER) /* OpenSSL 1.0.2 */
+#if (OPENSSL_VERSION_NUMBER >= 0x10002000L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL) /* OpenSSL 1.0.2, LibreSSL 2.7.0 */
 
 X509_VERIFY_PARAM *
 SSL_CTX_get0_param(ctx)
@@ -6476,7 +6476,7 @@ X509_VERIFY_PARAM_set1_ip_asc(param, ipasc)
     X509_VERIFY_PARAM *param
     const char *ipasc
 
-#endif /* OpenSSL 1.0.2 */
+#endif /* OpenSSL 1.0.2, LibreSSL 2.7.0 */
 
 void
 X509_policy_tree_free(tree)
