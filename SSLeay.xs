@@ -3990,6 +3990,17 @@ X509V3_EXT_d2i(ext)
 X509_STORE_CTX *
 X509_STORE_CTX_new()
 
+void
+X509_STORE_CTX_init(ctx, store=NULL, x509=NULL, chain=NULL)
+     X509_STORE_CTX * ctx
+     X509_STORE * store
+     X509 * x509
+     STACK_OF(X509) * chain
+
+void
+X509_STORE_CTX_free(ctx)
+     X509_STORE_CTX * ctx
+
 int
 X509_verify_cert(x509_store_ctx)
      X509_STORE_CTX * 	x509_store_ctx
@@ -4027,6 +4038,18 @@ X509_STORE_CTX_set_cert(x509_store_ctx,x)
      X509_STORE_CTX * x509_store_ctx
      X509 * x
 
+X509_STORE *
+X509_STORE_new()
+
+void
+X509_STORE_free(store)
+    X509_STORE * store
+
+X509_LOOKUP *
+X509_STORE_add_lookup(store, method)
+    X509_STORE * store
+    X509_LOOKUP_METHOD * method
+
 int
 X509_STORE_add_cert(ctx, x)
     X509_STORE *ctx
@@ -4060,6 +4083,15 @@ X509_STORE_set1_param(ctx, pm)
     X509_VERIFY_PARAM *pm
 
 #endif
+
+X509_LOOKUP_METHOD *
+X509_LOOKUP_hash_dir()
+
+void
+X509_LOOKUP_add_dir(lookup, dir, type)
+    X509_LOOKUP * lookup
+    char * dir
+    int type
 
 int
 X509_load_cert_file(ctx, file, type)
