@@ -980,6 +980,8 @@ unsigned int ssleay_set_psk_client_callback_invoke(SSL *ssl, const char *hint,
     BIGNUM *psk_bn = NULL;
     SV * cb_func;
     SV * hintsv;
+    /* this n_a is required for building with old perls: */
+    STRLEN n_a;
 
     PR1("STARTED: ssleay_set_psk_client_callback_invoke\n");
     cb_func = cb_data_advanced_get(ssl, "ssleay_set_psk_client_callback!!func");
@@ -1036,6 +1038,8 @@ unsigned int ssleay_ctx_set_psk_client_callback_invoke(SSL *ssl, const char *hin
     BIGNUM *psk_bn = NULL;
     SV * cb_func;
     SV * hintsv;
+    /* this n_a is required for building with old perls: */
+    STRLEN n_a;
 
     ctx = SSL_get_SSL_CTX(ssl);
 
