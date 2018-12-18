@@ -7260,11 +7260,43 @@ Add a directory of certs to a stack. All certs in $dir that are not already in t
 
 returns a newly initialised X509_STORE_CTX structure. 
 
+=item * X509_STORE_CTX_init
+
+X509_STORE_CTX_init() sets up an X509_STORE_CTX for a subsequent verification operation.
+It must be called before each call to X509_verify_cert().
+
+Net::SSLeay::X509_STORE_CTX_init($x509_store_ctx, $x509_store, $x509, $chain);
+
+# $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure (required)
+# $x509_store - value corresponding to openssl's X509_STORE structure (optional)
+# $x509 - value corresponding to openssl's X509 structure (optional)
+# $chain - value corresponding to openssl's STACK_OF(X509) structure (optional)
+
+Check openssl doc L<https://www.openssl.org/docs/man1.0.2/crypto/X509_STORE_CTX_init.html|https://www.openssl.org/docs/man1.0.2/crypto/X509_STORE_CTX_init.html>
+
+=item * X509_STORE_CTX_free
+
+Frees an X509_STORE_CTX structure.
+
+Net::SSLeay::X509_STORE_CTX_free($x509_store_ctx);
+
+# $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
+
 =item * X509_verify_cert
 
 The X509_verify_cert() function attempts to discover and validate a
 certificate chain based on parameters in ctx. A complete description
 of the process is contained in the verify(1) manual page.
+
+If this function returns 0, use X509_STORE_CTX_get_error to get additional error
+information.
+
+my $rv = Net::SSLeay::X509_verify_cert($x509_store_ctx);
+# $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
+#
+# returns: 1 if a complete chain can be built and validated, otherwise 0
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_verify_cert.html|https://www.openssl.org/docs/manmaster/man3/X509_verify_cert.html>
 
 =item * X509_STORE_CTX_get_current_cert
 
@@ -7337,6 +7369,34 @@ Sets the certificate to be verified in $x509_store_ctx to $x.
 
 Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_new.html|http://www.openssl.org/docs/crypto/X509_STORE_CTX_new.html>
 
+=item * X509_STORE_new
+
+Returns a newly initialized X509_STORE structure.
+
+my $rv = Net::SSLeay::X509_STORE_new();
+#
+# returns: value corresponding to openssl's X509_STORE structure (0 on failure)
+
+=item * X509_STORE_free
+
+Frees an X509_STORE structure
+
+Net::SSLeay::X509_STORE_free($x509_store);
+# $x509_store - value corresponding to openssl's X509_STORE structure
+
+=item * X509_STORE_add_lookup
+
+Adds a lookup to an X509_STORE for a given lookup method.
+
+my $method = &Net::SSLeay::X509_LOOKUP_hash_dir;
+my $rv = Net::SSLeay::X509_STORE_add_lookup($x509_store, $method);
+# $method - value corresponding to openssl's X509_LOOKUP_METHOD structure
+# $x509_store - value corresponding to openssl's X509_STORE structure
+#
+# returns: value corresponding to openssl's X509_LOOKUP structure
+
+Check openssl doc L<https://www.openssl.org/docs/man1.1.1/man3/X509_load_crl_file.html|https://www.openssl.org/docs/man1.1.1/man3/X509_load_crl_file.html>
+
 =item * X509_STORE_CTX_set_error
 
 Sets the error code of $ctx to $s. For example it might be used in a verification callback to set an error based on additional checks.
@@ -7378,6 +7438,31 @@ Adds X509 CRL $x into the X509_STORE $store.
  # $pm - value corresponding to openssl's X509_VERIFY_PARAM structure
  #
  # returns: 1 on success, 0 on failure
+
+=item * X509_LOOKUP_hash_dir
+
+Returns an X509_LOOKUP structure that instructs an X509_STORE to
+load files from a directory containing certificates with filenames
+in the format I<hash.N> or crls with filenames in the format I<hash.>B<r>I<N>
+
+my $rv = Net::SSLeay::X509_LOOKUP_hash_dir();
+#
+# returns: value corresponding to openssl's X509_LOOKUP_METHOD structure, with the hashed directory method
+
+Check openssl doc L<https://www.openssl.org/docs/man1.1.1/man3/X509_load_crl_file.html|https://www.openssl.org/docs/man1.1.1/man3/X509_load_crl_file.html>
+
+=item * X509_LOOKUP_add_dir
+
+Add a directory to an X509_LOOKUP structure, usually obtained from
+X509_STORE_add_lookup.
+
+my $method = &Net::SSLeay::X509_LOOKUP_hash_dir;
+my $lookup = Net::SSLeay::X509_STORE_add_lookup($x509_store, $method);
+my $type = &Net::SSLeay::X509_FILETYPE_PEM;
+Net::SSLeay::X509_LOOKUP_add_dir($lookup, $dir, $type);
+# $lookup - value corresponding to openssl's X509_LOOKUP structure
+# $dir - string path to a directory
+s# $type - constant corresponding to the type of file in the directory - can be X509_FILETYPE_PEM, X509_FILETYPE_DEFAULT, or X509_FILETYPE_ASN1
 
 =item * X509_STORE_set_flags
 
