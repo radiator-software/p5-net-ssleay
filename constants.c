@@ -2862,8 +2862,8 @@ constant (const char *name, size_t len) {
        NID_des_ede_ofb64 NID_dsaWithSHA1_2 NID_email_protect NID_ext_key_usage
        NID_id_qt_unotice NID_rsaEncryption OP_NO_ANTI_REPLAY OP_NO_COMPRESSION
        OP_TLSEXT_PADDING RECEIVED_SHUTDOWN R_BAD_WRITE_RETRY R_NO_CIPHER_MATCH
-       SESS_CACHE_CLIENT SESS_CACHE_SERVER X509_TRUST_COMPAT XN_FLAG_MULTILINE
-       */
+       SESS_CACHE_CLIENT SESS_CACHE_SERVER X509_FILETYPE_PEM X509_TRUST_COMPAT
+       XN_FLAG_MULTILINE */
     /* Offset 12 gives the best switch position.  */
     switch (name[12]) {
     case 'C':
@@ -2916,6 +2916,16 @@ constant (const char *name, size_t len) {
         
 #ifdef SSL_SESS_CACHE_SERVER
         return SSL_SESS_CACHE_SERVER;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "X509_FILETYPE_PEM", 17)) {
+      /*                             ^           */
+        
+#ifdef X509_FILETYPE_PEM
+        return X509_FILETYPE_PEM;
 #else
         goto not_there;
 #endif
@@ -3149,7 +3159,7 @@ constant (const char *name, size_t len) {
     /* CB_HANDSHAKE_START ERROR_WANT_CONNECT F_GET_CLIENT_HELLO
        F_GET_SERVER_HELLO NID_des_ede3_cfb64 NID_des_ede3_ofb64
        NID_dhKeyAgreement OP_COOKIE_EXCHANGE OP_SINGLE_ECDH_USE
-       R_BAD_SSL_FILETYPE VERIFY_CLIENT_ONCE */
+       R_BAD_SSL_FILETYPE VERIFY_CLIENT_ONCE X509_FILETYPE_ASN1 */
     /* Offset 11 gives the best switch position.  */
     switch (name[11]) {
     case '3':
@@ -3226,6 +3236,18 @@ constant (const char *name, size_t len) {
         
 #ifdef SSL_VERIFY_CLIENT_ONCE
         return SSL_VERIFY_CLIENT_ONCE;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'P':
+      if (!memcmp(name, "X509_FILETYPE_ASN1", 18)) {
+      /*                            ^             */
+        
+#ifdef X509_FILETYPE_ASN1
+        return X509_FILETYPE_ASN1;
 #else
         goto not_there;
 #endif
@@ -3688,10 +3710,10 @@ constant (const char *name, size_t len) {
        F_REQUEST_CERTIFICATE F_SSL_GET_NEW_SESSION F_SSL_USE_CERTIFICATE
        NID_SMIMECapabilities NID_basic_constraints NID_netscape_base_url
        NID_pkcs9_contentType NID_pkcs9_signingTime OP_NETSCAPE_CA_DN_BUG
-       VERIFY_POST_HANDSHAKE X509_PURPOSE_CRL_SIGN X509_TRUST_SSL_CLIENT
-       X509_TRUST_SSL_SERVER X509_V_ERR_INVALID_CA X509_V_ERR_OUT_OF_MEM
-       X509_V_FLAG_CRL_CHECK XN_FLAG_SEP_CPLUS_SPC XN_FLAG_SEP_MULTILINE
-       XN_FLAG_SEP_SPLUS_SPC */
+       VERIFY_POST_HANDSHAKE X509_FILETYPE_DEFAULT X509_PURPOSE_CRL_SIGN
+       X509_TRUST_SSL_CLIENT X509_TRUST_SSL_SERVER X509_V_ERR_INVALID_CA
+       X509_V_ERR_OUT_OF_MEM X509_V_FLAG_CRL_CHECK XN_FLAG_SEP_CPLUS_SPC
+       XN_FLAG_SEP_MULTILINE XN_FLAG_SEP_SPLUS_SPC */
     /* Offset 15 gives the best switch position.  */
     switch (name[15]) {
     case 'C':
@@ -3744,6 +3766,16 @@ constant (const char *name, size_t len) {
         
 #ifdef SSL_F_SSL_GET_NEW_SESSION
         return SSL_F_SSL_GET_NEW_SESSION;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "X509_FILETYPE_DEFAULT", 21)) {
+      /*                                ^            */
+        
+#ifdef X509_FILETYPE_DEFAULT
+        return X509_FILETYPE_DEFAULT;
 #else
         goto not_there;
 #endif
