@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 1243;
+use Test::More tests => 1261;
 use Net::SSLeay;
 use File::Spec;
 use lib '.';
@@ -133,6 +133,15 @@ for my $f (keys (%$dump)) {
 
   is(Net::SSLeay::P_ASN1_INTEGER_get_hex($ai), $dump->{$f}->{serial}->{hex}, "serial P_ASN1_INTEGER_get_hex\t$f");
   is(Net::SSLeay::P_ASN1_INTEGER_get_dec($ai), $dump->{$f}->{serial}->{dec}, "serial P_ASN1_INTEGER_get_dec\t$f");
+
+  SKIP: {
+    # X509_get0_serialNumber should function the same as X509_get_serialNumber
+    skip('X509_get0_serialNumber requires OpenSSL 1.1.0+ or LibreSSL 2.8.1+', 3) unless defined (&Net::SSLeay::X509_get0_serialNumber);
+    ok(my $ai = Net::SSLeay::X509_get0_serialNumber($x509), "X509_get0_serialNumber\t$f");
+
+    is(Net::SSLeay::P_ASN1_INTEGER_get_hex($ai), $dump->{$f}->{serial}->{hex}, "serial P_ASN1_INTEGER_get_hex\t$f");
+    is(Net::SSLeay::P_ASN1_INTEGER_get_dec($ai), $dump->{$f}->{serial}->{dec}, "serial P_ASN1_INTEGER_get_dec\t$f");
+  }
 
   # On platforms with 64-bit long int returns 4294967295 rather than -1
   # Caution, there is much difference between 32 and 64 bit behaviours with 
