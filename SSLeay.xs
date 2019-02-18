@@ -5655,7 +5655,7 @@ EC_KEY_generate_key(curve)
 	RETVAL
 
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#ifdef SSL_CTRL_SET_ECDH_AUTO
 
 long
 SSL_CTX_set_ecdh_auto(ctx,onoff)
@@ -5669,7 +5669,7 @@ SSL_set_ecdh_auto(ssl,onoff)
 
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x10002000L
+#ifdef SSL_CTRL_SET_CURVES_LIST
 
 long
 SSL_CTX_set1_curves_list(ctx,list)
@@ -5683,7 +5683,7 @@ SSL_set1_curves_list(ssl,list)
 
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x10101000L
+#if SSL_CTRL_SET_GROUPS_LIST
 
 long
 SSL_CTX_set1_groups_list(ctx,list)
