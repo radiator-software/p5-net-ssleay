@@ -5929,7 +5929,7 @@ sk_X509_INFO_num(stack)
 
 X509_INFO *
 sk_X509_INFO_value(stack, index)
-    STACK_OF(X509_INFO) * stack
+    const STACK_OF(X509_INFO) * stack
     int index
 
 void
@@ -5941,12 +5941,12 @@ sk_X509_new_null()
 
 void
 sk_X509_free(stack)
-    STACK_OF(X509) * stack
+    const STACK_OF(X509) * stack
 
 int
 sk_X509_push(stack, data)
     STACK_OF(X509) * stack
-    X509 * data
+    const X509 * data
 
 X509 *
 P_X509_INFO_get_x509(info)
