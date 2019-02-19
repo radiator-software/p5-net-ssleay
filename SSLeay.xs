@@ -5949,7 +5949,7 @@ sk_X509_push(stack, data)
     X509 * data
 
 X509 *
-P_get_X509_INFO_x509(info)
+P_X509_INFO_get_x509(info)
         X509_INFO * info
     CODE:
         RETVAL = info->x509;

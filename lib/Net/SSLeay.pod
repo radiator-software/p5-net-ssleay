@@ -7555,11 +7555,11 @@ Returns the value of a STACK_OF(X509_INFO) structure at a given index.
  #
  # returns: value corresponding to openssl's X509_INFO structure at the given index
 
-=item * P_get_X509_INFO_x509
+=item * P_X509_INFO_get_x509
 
 Returns the X509 structure stored in an X509_INFO structure.
 
- my $rv = Net::SSLeay::P_get_X509_INFO_x509($x509_info);
+ my $rv = Net::SSLeay::P_X509_INFO_get_x509($x509_info);
  # $x509_info - value corresponding to openssl's X509_INFO structure
  #
  # returns: value corresponding to openssl's X509 structure
