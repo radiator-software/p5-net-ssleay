@@ -15,7 +15,7 @@ perl:
 #  - "5.14"
 #  - "5.12"
 #  - "5.10"
-#  - "5.8"
+  - "5.8"
 
 env:
   global:
@@ -24,12 +24,12 @@ env:
     - AUTOMATED_TESTING=1
     - RELEASE_TESTING=0
   matrix:
-#    - OPENSSL_VERSION=1.1.1a
-#    - OPENSSL_VERSION=1.1.0j
+    - OPENSSL_VERSION=1.1.1a
+    - OPENSSL_VERSION=1.1.0j
 #    - OPENSSL_VERSION=1.0.2q
 #    - OPENSSL_VERSION=1.0.1u
-    - OPENSSL_VERSION=1.0.0t
-#    - OPENSSL_VERSION=0.9.8zh
+#    - OPENSSL_VERSION=1.0.0t
+    - OPENSSL_VERSION=0.9.8zh
     - LIBRESSL_VERSION=2.2.1
     - LIBRESSL_VERSION=2.7.5
     - LIBRESSL_VERSION=2.8.3
@@ -39,8 +39,36 @@ matrix:
   exclude:
   - perl: "5.8"
     env: OPENSSL_VERSION=1.1.0j
-  - perl: "5.8"
     env: OPENSSL_VERSION=1.1.1a
+    env: LIBRESSL_VERSION=2.2.1
+    env: LIBRESSL_VERSION=2.7.5
+    env: LIBRESSL_VERSION=2.8.3
+    env: LIBRESSL_VERSION=2.9.0
+  - perl: "5.10"
+    env: LIBRESSL_VERSION=2.2.1
+    env: LIBRESSL_VERSION=2.7.5
+    env: LIBRESSL_VERSION=2.8.3
+    env: LIBRESSL_VERSION=2.9.0
+  - perl: "5.12"
+    env: LIBRESSL_VERSION=2.2.1
+    env: LIBRESSL_VERSION=2.7.5
+    env: LIBRESSL_VERSION=2.8.3
+    env: LIBRESSL_VERSION=2.9.0
+  - perl: "5.14"
+    env: LIBRESSL_VERSION=2.2.1
+    env: LIBRESSL_VERSION=2.7.5
+    env: LIBRESSL_VERSION=2.8.3
+    env: LIBRESSL_VERSION=2.9.0
+  - perl: "5.16"
+    env: LIBRESSL_VERSION=2.2.1
+    env: LIBRESSL_VERSION=2.7.5
+    env: LIBRESSL_VERSION=2.8.3
+    env: LIBRESSL_VERSION=2.9.0
+  - perl: "5.18"
+    env: LIBRESSL_VERSION=2.2.1
+    env: LIBRESSL_VERSION=2.7.5
+    env: LIBRESSL_VERSION=2.8.3
+    env: LIBRESSL_VERSION=2.9.0
 
 cache:
   directories:
