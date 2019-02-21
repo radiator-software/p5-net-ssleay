@@ -72,16 +72,19 @@ script:
       if [ "$OPENSSL_VERSION" = "1.0.0s" ] || [ "$OPENSSL_VERSION" = "0.9.8zh" ]; then
         ./Configure linux-x86_64 --prefix=$PWD/../../build/openssl-$OPENSSL_VERSION --openssldir=$PWD/../../build/openssl-$OPENSSL_VERSION/ssl shared -Wa,--noexecstack > build.log 2>&1 || (cat build.log && exit 1)
         make > build.log 2>&1 || (cat build.log && exit 1)
+        make install_sw > build.log 2>&1 || (cat build.log && exit 1)
+        make install_ssldirs > build.log 2>&1 || (cat build.log && exit 1)
       elif [ -n "$OPENSSL_VERSION" ]; then
         ./Configure linux-x86_64 --prefix=$PWD/../../build/openssl-$OPENSSL_VERSION --openssldir=$PWD/../../build/openssl-$OPENSSL_VERSION/ssl enable-shared -Wa,--noexecstack > build.log 2>&1 || (cat build.log && exit 1)
         make -j$JOBS > build.log 2>&1 || (cat build.log && exit 1)
+        make install_sw > build.log 2>&1 || (cat build.log && exit 1)
+        make install_ssldirs > build.log 2>&1 || (cat build.log && exit 1)
       else
         # LibreSSL
         ./configure --prefix=$PWD/../../build/$SSL_LIB_NAME_VER
         make -j$JOBS > build.log 2>&1 || (cat build.log && exit 1)
+        make install > build.log 2>&1 || (cat build.log && exit 1)
       fi
-      make install_sw > build.log 2>&1 || (cat build.log && exit 1)
-      make install_ssldirs > build.log 2>&1 || (cat build.log && exit 1)
       cd ../../..
     fi
   - grep -H _VERSION_NUMBER $PWD/openssl_version_cache/build/$SSL_LIB_NAME_VER/include/openssl/opensslv.h # show what version it thinks it is
