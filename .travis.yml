@@ -6,15 +6,15 @@ language: perl
 
 perl:
   - "5.28"
-#  - "5.26"
-#  - "5.24"
-#  - "5.22"
-#  - "5.20"
-#  - "5.18"
-#  - "5.16"
-#  - "5.14"
-#  - "5.12"
-#  - "5.10"
+  - "5.26"
+  - "5.24"
+  - "5.22"
+  - "5.20"
+  - "5.18"
+  - "5.16"
+  - "5.14"
+  - "5.12"
+  - "5.10"
   - "5.8"
 
 env:
@@ -26,9 +26,9 @@ env:
   matrix:
     - OPENSSL_VERSION=1.1.1a
     - OPENSSL_VERSION=1.1.0j
-#    - OPENSSL_VERSION=1.0.2q
-#    - OPENSSL_VERSION=1.0.1u
-#    - OPENSSL_VERSION=1.0.0t
+    - OPENSSL_VERSION=1.0.2q
+    - OPENSSL_VERSION=1.0.1u
+    - OPENSSL_VERSION=1.0.0t
     - OPENSSL_VERSION=0.9.8zh
     - LIBRESSL_VERSION=2.2.1
     - LIBRESSL_VERSION=2.7.5
