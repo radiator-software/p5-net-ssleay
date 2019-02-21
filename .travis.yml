@@ -77,7 +77,7 @@ script:
         make -j$JOBS > build.log 2>&1 || (cat build.log && exit 1)
       else
         # LibreSSL
-	./configure --prefix=prefix=$PWD/../../build/$SSL_LIB_NAME_VER
+        ./configure --prefix=prefix=$PWD/../../build/$SSL_LIB_NAME_VER
         make -j$JOBS > build.log 2>&1 || (cat build.log && exit 1)
       fi
       make install_sw > build.log 2>&1 || (cat build.log && exit 1)
