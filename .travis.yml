@@ -72,7 +72,7 @@ script:
       if [ "$OPENSSL_VERSION" = "1.0.0s" ] || [ "$OPENSSL_VERSION" = "0.9.8zh" ]; then
         ./Configure linux-x86_64 --prefix=$PWD/../../build/openssl-$OPENSSL_VERSION --openssldir=$PWD/../../build/openssl-$OPENSSL_VERSION/ssl shared -Wa,--noexecstack > build.log 2>&1 || (cat build.log && exit 1)
         make > build.log 2>&1 || (cat build.log && exit 1)
-      elsif [ -n "$OPENSSL_VERSION" ]; then
+      elif [ -n "$OPENSSL_VERSION" ]; then
         ./Configure linux-x86_64 --prefix=$PWD/../../build/openssl-$OPENSSL_VERSION --openssldir=$PWD/../../build/openssl-$OPENSSL_VERSION/ssl enable-shared -Wa,--noexecstack > build.log 2>&1 || (cat build.log && exit 1)
         make -j$JOBS > build.log 2>&1 || (cat build.log && exit 1)
       else
