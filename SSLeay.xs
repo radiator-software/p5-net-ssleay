@@ -2542,6 +2542,10 @@ int
 SSL_SESSION_is_resumable(ses)
      SSL_SESSION *      ses
 
+SSL_SESSION *
+SSL_SESSION_dup(sess)
+     SSL_SESSION * sess
+
 #endif
 #if OPENSSL_VERSION_NUMBER >= 0x1010100fL && !defined(LIBRESSL_VERSION_NUMBER) /* OpenSSL 1.1.1 */
 
@@ -2581,11 +2585,6 @@ d2i_SSL_SESSION(pv)
 	}
     OUTPUT:
 	RETVAL
-
-
-SSL_SESSION *
-SSL_SESSION_dup(sess)
-     SSL_SESSION * sess
 
 
 int
