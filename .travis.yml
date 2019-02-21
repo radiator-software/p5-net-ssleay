@@ -39,35 +39,55 @@ matrix:
   exclude:
   - perl: "5.8"
     env: OPENSSL_VERSION=1.1.0j
+  - perl: "5.8"
     env: OPENSSL_VERSION=1.1.1a
+  - perl: "5.8"
     env: LIBRESSL_VERSION=2.2.1
+  - perl: "5.8"
     env: LIBRESSL_VERSION=2.7.5
+  - perl: "5.8"
     env: LIBRESSL_VERSION=2.8.3
+  - perl: "5.8"
     env: LIBRESSL_VERSION=2.9.0
   - perl: "5.10"
     env: LIBRESSL_VERSION=2.2.1
+  - perl: "5.10"
     env: LIBRESSL_VERSION=2.7.5
+  - perl: "5.10"
     env: LIBRESSL_VERSION=2.8.3
+  - perl: "5.10"
     env: LIBRESSL_VERSION=2.9.0
   - perl: "5.12"
     env: LIBRESSL_VERSION=2.2.1
+  - perl: "5.12"
     env: LIBRESSL_VERSION=2.7.5
+  - perl: "5.12"
     env: LIBRESSL_VERSION=2.8.3
+  - perl: "5.12"
     env: LIBRESSL_VERSION=2.9.0
   - perl: "5.14"
     env: LIBRESSL_VERSION=2.2.1
+  - perl: "5.14"
     env: LIBRESSL_VERSION=2.7.5
+  - perl: "5.14"
     env: LIBRESSL_VERSION=2.8.3
+  - perl: "5.14"
     env: LIBRESSL_VERSION=2.9.0
   - perl: "5.16"
     env: LIBRESSL_VERSION=2.2.1
+  - perl: "5.16"
     env: LIBRESSL_VERSION=2.7.5
+  - perl: "5.16"
     env: LIBRESSL_VERSION=2.8.3
+  - perl: "5.16"
     env: LIBRESSL_VERSION=2.9.0
   - perl: "5.18"
     env: LIBRESSL_VERSION=2.2.1
+  - perl: "5.18"
     env: LIBRESSL_VERSION=2.7.5
+  - perl: "5.18"
     env: LIBRESSL_VERSION=2.8.3
+  - perl: "5.18"
     env: LIBRESSL_VERSION=2.9.0
 
 cache:
