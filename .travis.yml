@@ -84,7 +84,7 @@ script:
       make install_ssldirs > build.log 2>&1 || (cat build.log && exit 1)
       cd ../../..
     fi
-  - grep -H OPENSSL_VERSION_NUMBER $PWD/openssl_version_cache/build/$SSL_LIB_NAM_VER/include/openssl/opensslv.h # show what version it thinks it is
+  - grep -H OPENSSL_VERSION_NUMBER $PWD/openssl_version_cache/build/$SSL_LIB_NAME_VER/include/openssl/opensslv.h # show what version it thinks it is
   - OPENSSL_PREFIX=$PWD/openssl_version_cache/build/$SSL_LIB_NAME_VER LD_LIBRARY_PATH=$PWD/openssl_version_cache/build/$SSL_LIB_NAME_VER/lib perl Makefile.PL
   - make
   - make test
