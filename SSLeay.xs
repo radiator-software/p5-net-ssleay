@@ -2553,34 +2553,46 @@ SSL_verify_client_post_handshake(SSL *ssl)
 
 #endif
 
-int
-i2d_SSL_SESSION(in,pp)
-     SSL_SESSION *      in
-     unsigned char *    &pp
+void
+i2d_SSL_SESSION(sess)
+	SSL_SESSION * sess
+    PPCODE:
+	STRLEN len;
+	unsigned char *pc,*pi;
+	if (!(len = i2d_SSL_SESSION(sess,NULL))) croak("invalid SSL_SESSION");
+	Newx(pc,len,unsigned char);
+	if (!pc) croak("out of memory");
+	pi = pc;
+	i2d_SSL_SESSION(sess,&pi);
+	XPUSHs(sv_2mortal(newSVpv((char*)pc,len)));
+	Safefree(pc);
+
+
+SSL_SESSION *
+d2i_SSL_SESSION(pv)
+	SV *pv
+    CODE:
+	RETVAL = NULL;
+	if (SvPOK(pv)) {
+	    const unsigned char *p;
+	    STRLEN len;
+	    p = (unsigned char*)SvPV(pv,len);
+	    RETVAL = d2i_SSL_SESSION(NULL,&p,len);
+	}
+    OUTPUT:
+	RETVAL
+
+
+SSL_SESSION *
+SSL_SESSION_dup(sess)
+     SSL_SESSION * sess
+
 
 int
 SSL_set_session(to,ses)
      SSL *              to
      SSL_SESSION *      ses
 
-#if OPENSSL_VERSION_NUMBER < 0x0090707fL
-#define REM3 "NOTE: before 0.9.7g"
-
-SSL_SESSION *
-d2i_SSL_SESSION(a,pp,length)
-     SSL_SESSION *      &a
-     unsigned char *    &pp
-     long               length
-
-#else
-
-SSL_SESSION *
-d2i_SSL_SESSION(a,pp,length)
-     SSL_SESSION *      &a
-     const unsigned char *    &pp
-     long               length
-
-#endif
 #define REM30 "SSLeay-0.9.0 defines these as macros. I expand them here for safety's sake"
 
 SSL_SESSION *

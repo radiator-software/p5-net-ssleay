@@ -1793,33 +1793,26 @@ Net::SSLeay::P_PKCS12_load_file. See README.Win32 for more details.
 
 =item * d2i_SSL_SESSION
 
-Transforms the external ASN1 representation of an SSL/TLS session, stored as binary data
-at location pp with length of $length, into an SSL_SESSION object.
+Transforms the binary ASN1 representation string of an SSL/TLS session into an
+SSL_SESSION object.
 
-??? (does this function really work?)
 
- my $rv = Net::SSLeay::d2i_SSL_SESSION($a, $pp, $length);
- # $a - value corresponding to openssl's SSL_SESSION structure
- # $pp - pointer/buffer ???
- # $length - ???
+ my $ses = Net::SSLeay::d2i_SSL_SESSION($data);
+ # $data - the session as ASN1 representation string
  #
- # returns: ???
+ # returns: $ses - the new SSL_SESSION
 
-Check openssl doc L<http://www.openssl.org/docs/ssl/d2i_SSL_SESSION.html|http://www.openssl.org/docs/ssl/d2i_SSL_SESSION.html>
+Check openssl doc L<http://www.openssl.org/docs/ssl/i2d_SSL_SESSION.html|http://www.openssl.org/docs/ssl/i2d_SSL_SESSION.html>
 
 =item * i2d_SSL_SESSION
 
-Transforms the SSL_SESSION object in into the ASN1 representation and stores it
-into the memory location pointed to by pp. The length of the resulting ASN1
-representation is returned.
+Transforms the SSL_SESSION object in into the ASN1 representation and returns
+it as string.
 
-??? (does this function really work?)
-
- my $rv = Net::SSLeay::i2d_SSL_SESSION($in, $pp);
- # $in - value corresponding to openssl's SSL_SESSION structure
- # $pp - pointer/data ???
+ my $data = Net::SSLeay::i2d_SSL_SESSION($ses);
+ # $ses - value corresponding to openssl's SSL_SESSION structure
  #
- # returns: 1 on success, 0
+ # returns: $data - session as string
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/d2i_SSL_SESSION.html|http://www.openssl.org/docs/ssl/d2i_SSL_SESSION.html>
 
@@ -1841,6 +1834,18 @@ Free an allocated SSL_SESSION structure.
  # returns: no return value
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_SESSION_free.html|http://www.openssl.org/docs/ssl/SSL_SESSION_free.html>
+
+=item * SESSION_dup
+
+Duplicates (increases the reference counter) a SSL_SESSION structure.
+
+ Net::SSLeay::SESSION_dup($ses);
+ # $ses - value corresponding to openssl's SSL_SESSION structure
+ #
+ # returns: the duplicated session
+
+Check openssl doc
+L<http://www.openssl.org/docs/ssl/SSL_SESSION_dup.html|http://www.openssl.org/docs/ssl/SSL_SESSION_dup.html>
 
 =item * SESSION_is_resumable
 
