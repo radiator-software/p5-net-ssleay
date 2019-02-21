@@ -136,7 +136,7 @@ for my $f (keys (%$dump)) {
 
   SKIP: {
     # X509_get0_serialNumber should function the same as X509_get_serialNumber
-    skip('X509_get0_serialNumber requires 1.1.0+', 3) unless Net::SSLeay::SSLeay >= 0x1010000f;
+    skip('X509_get0_serialNumber requires OpenSSL 1.1.0+ or LibreSSL 2.8.1+', 3) unless defined (&Net::SSLeay::X509_get0_serialNumber);
     ok(my $ai = Net::SSLeay::X509_get0_serialNumber($x509), "X509_get0_serialNumber\t$f");
 
     is(Net::SSLeay::P_ASN1_INTEGER_get_hex($ai), $dump->{$f}->{serial}->{hex}, "serial P_ASN1_INTEGER_get_hex\t$f");
