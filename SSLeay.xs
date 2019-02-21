@@ -2586,6 +2586,13 @@ d2i_SSL_SESSION(pv)
     OUTPUT:
 	RETVAL
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+
+int
+SSL_SESSION_up_ref(sess)
+     SSL_SESSION * sess
+
+#endif
 
 int
 SSL_set_session(to,ses)

@@ -1835,9 +1835,21 @@ Free an allocated SSL_SESSION structure.
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_SESSION_free.html|http://www.openssl.org/docs/ssl/SSL_SESSION_free.html>
 
+=item * SESSION_up_ref
+
+Increases the reference counter on a SSL_SESSION structure.
+
+ Net::SSLeay::SESSION_up_ref($ses);
+ # $ses - value corresponding to openssl's SSL_SESSION structure
+ #
+ # returns: 1 on success else 0
+
+Check openssl doc
+L<http://www.openssl.org/docs/ssl/SSL_SESSION_up_ref.html|http://www.openssl.org/docs/ssl/SSL_SESSION_up_ref.html>
+
 =item * SESSION_dup
 
-Duplicates (increases the reference counter) a SSL_SESSION structure.
+Duplicates a SSL_SESSION structure.
 
  Net::SSLeay::SESSION_dup($ses);
  # $ses - value corresponding to openssl's SSL_SESSION structure
