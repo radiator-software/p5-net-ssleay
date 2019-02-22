@@ -5919,7 +5919,7 @@ PEM_read_bio_X509(BIO *bio,void *x=NULL,void *cb=NULL,void *u=NULL)
 STACK_OF(X509_INFO) *
 PEM_X509_INFO_read_bio(bio, stack=NULL, cb=NULL, u=NULL)
     BIO * bio
-    STACK_OF(X509) * stack
+    STACK_OF(X509_INFO) * stack
     pem_password_cb * cb
     void * u
 
@@ -5941,12 +5941,12 @@ sk_X509_new_null()
 
 void
 sk_X509_free(stack)
-    const STACK_OF(X509) * stack
+    STACK_OF(X509) * stack
 
 int
 sk_X509_push(stack, data)
     STACK_OF(X509) * stack
-    const X509 * data
+    X509 * data
 
 X509 *
 P_X509_INFO_get_x509(info)
