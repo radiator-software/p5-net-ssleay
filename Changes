@@ -5,6 +5,7 @@ Revision history for Perl extension Net::SSLeay.
 	  ssleay_ctx_set_psk_client_callback_invoke to avoid a compilation
 	  error with Perl versions below 5.8.8. Fixes RT#128030. Thanks to
 	  Graham Ollis for the report.
+	- Add X509_get0_serialNumber. Thanks to Marc Reisner.
 
 1.86_07 2018-12-13
         - Net::SSLeay::RSA_generate_key() now prefers using
