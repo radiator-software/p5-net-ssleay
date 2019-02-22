@@ -1,11 +1,29 @@
 Revision history for Perl extension Net::SSLeay.
 
 ?? ????-??-??
+
+	- Add functions and constants that are necessary to verify a
+	  certificate using a hash directory outside of an SSL/TLS
+	  connection. Newly exposed functions:
+	  X509_STORE_CTX_init
+	  X509_STORE_CTX_free
+	  X509_STORE_new
+	  X509_STORE_free
+	  X509_STORE_add_lookup
+	  X509_LOOKUP_hash_dir
+	  X509_LOOKUP_add_dir
+	  Newly exposed constants:
+	  X509_FILETYPE_ASN1
+	  X509_FILETYPE_DEFAULT
+	  X509_FILETYPE_PEM
+	  Thanks to Marc Reisner.
 	- Declare n_a in ssleay_set_psk_client_callback_invoke and
 	  ssleay_ctx_set_psk_client_callback_invoke to avoid a compilation
 	  error with Perl versions below 5.8.8. Fixes RT#128030. Thanks to
 	  Graham Ollis for the report.
 	- Add X509_get0_serialNumber. Thanks to Marc Reisner.
+	- Enable Travis CI for LibreSSL 2.2.1, 2.7.5, 2.8.3 and 2.9.0
+	  on Perl 5.20 and more recent.
 
 1.86_07 2018-12-13
         - Net::SSLeay::RSA_generate_key() now prefers using
