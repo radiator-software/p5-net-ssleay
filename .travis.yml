@@ -28,8 +28,12 @@ env:
     - OPENSSL_VERSION=1.1.0j
     - OPENSSL_VERSION=1.0.2q
     - OPENSSL_VERSION=1.0.1u
-    - OPENSSL_VERSION=1.0.0s
+    - OPENSSL_VERSION=1.0.0t
     - OPENSSL_VERSION=0.9.8zh
+    - LIBRESSL_VERSION=2.9.0
+    - LIBRESSL_VERSION=2.8.3
+    - LIBRESSL_VERSION=2.7.5
+    - LIBRESSL_VERSION=2.2.1
 
 matrix:
   exclude:
@@ -37,6 +41,54 @@ matrix:
     env: OPENSSL_VERSION=1.1.0j
   - perl: "5.8"
     env: OPENSSL_VERSION=1.1.1a
+  - perl: "5.8"
+    env: LIBRESSL_VERSION=2.2.1
+  - perl: "5.8"
+    env: LIBRESSL_VERSION=2.7.5
+  - perl: "5.8"
+    env: LIBRESSL_VERSION=2.8.3
+  - perl: "5.8"
+    env: LIBRESSL_VERSION=2.9.0
+  - perl: "5.10"
+    env: LIBRESSL_VERSION=2.2.1
+  - perl: "5.10"
+    env: LIBRESSL_VERSION=2.7.5
+  - perl: "5.10"
+    env: LIBRESSL_VERSION=2.8.3
+  - perl: "5.10"
+    env: LIBRESSL_VERSION=2.9.0
+  - perl: "5.12"
+    env: LIBRESSL_VERSION=2.2.1
+  - perl: "5.12"
+    env: LIBRESSL_VERSION=2.7.5
+  - perl: "5.12"
+    env: LIBRESSL_VERSION=2.8.3
+  - perl: "5.12"
+    env: LIBRESSL_VERSION=2.9.0
+  - perl: "5.14"
+    env: LIBRESSL_VERSION=2.2.1
+  - perl: "5.14"
+    env: LIBRESSL_VERSION=2.7.5
+  - perl: "5.14"
+    env: LIBRESSL_VERSION=2.8.3
+  - perl: "5.14"
+    env: LIBRESSL_VERSION=2.9.0
+  - perl: "5.16"
+    env: LIBRESSL_VERSION=2.2.1
+  - perl: "5.16"
+    env: LIBRESSL_VERSION=2.7.5
+  - perl: "5.16"
+    env: LIBRESSL_VERSION=2.8.3
+  - perl: "5.16"
+    env: LIBRESSL_VERSION=2.9.0
+  - perl: "5.18"
+    env: LIBRESSL_VERSION=2.2.1
+  - perl: "5.18"
+    env: LIBRESSL_VERSION=2.7.5
+  - perl: "5.18"
+    env: LIBRESSL_VERSION=2.8.3
+  - perl: "5.18"
+    env: LIBRESSL_VERSION=2.9.0
 
 cache:
   directories:
@@ -47,32 +99,45 @@ before_install:
   - mkdir -p openssl_version_cache/build
 
 install:
-  - if [ ! -f openssl_version_cache/src/openssl-$OPENSSL_VERSION.tar.gz ]; then wget -k -P openssl_version_cache/src https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz; fi
+  - if [ -n "$OPENSSL_VERSION" ] && [ ! -f openssl_version_cache/src/openssl-$OPENSSL_VERSION.tar.gz ]; then wget -k -P openssl_version_cache/src https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz; fi
+  - if [ -n "$LIBRESSL_VERSION" ] && [ ! -f openssl_version_cache/src/libressl-$LIBRESSL_VERSION.tar.gz ]; then wget -k -P openssl_version_cache/src https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-$LIBRESSL_VERSION.tar.gz; fi
 
 script:
   - |
-    if [ ! -d openssl_version_cache/build/openssl-$OPENSSL_VERSION ]; then
-      if [ ! -d openssl_version_cache/src/openssl-$OPENSSL_VERSION ]; then
+    if [ -n "$OPENSSL_VERSION" ]; then
+       SSL_LIB_NAME_VER=openssl-$OPENSSL_VERSION
+    else
+       SSL_LIB_NAME_VER=libressl-$LIBRESSL_VERSION
+    fi
+    if [ ! -d openssl_version_cache/build/$SSL_LIB_NAME_VER ]; then
+      if [ ! -d openssl_version_cache/src/$SSL_LIB_NAME_VER ]; then
         cd openssl_version_cache/src
-        tar xzf openssl-$OPENSSL_VERSION.tar.gz || exit 1
+        tar xzf $SSL_LIB_NAME_VER.tar.gz || exit 1
         cd ../..
       fi
-      if [ ! -d openssl_version_cache/src/openssl-$OPENSSL_VERSION ]; then
-        echo "ERROR Dir openssl_version_cache/src/openssl-$OPENSSL_VERSION does not exist" && exit 1
+      if [ ! -d openssl_version_cache/src/$SSL_LIB_NAME_VER ]; then
+        echo "ERROR Dir openssl_version_cache/src/SSL_LIB_NAME_VER does not exist" && exit 1
       fi
-      cd openssl_version_cache/src/openssl-$OPENSSL_VERSION
-      if [ "$OPENSSL_VERSION" = "1.0.0s" ] || [ "$OPENSSL_VERSION" = "0.9.8zh" ]; then
+      cd openssl_version_cache/src/$SSL_LIB_NAME_VER
+      if [ "$OPENSSL_VERSION" = "1.0.0t" ] || [ "$OPENSSL_VERSION" = "0.9.8zh" ]; then
         ./Configure linux-x86_64 --prefix=$PWD/../../build/openssl-$OPENSSL_VERSION --openssldir=$PWD/../../build/openssl-$OPENSSL_VERSION/ssl shared -Wa,--noexecstack > build.log 2>&1 || (cat build.log && exit 1)
         make > build.log 2>&1 || (cat build.log && exit 1)
-      else
+        make install_sw > build.log 2>&1 || (cat build.log && exit 1)
+        make install_ssldirs > build.log 2>&1 || (cat build.log && exit 1)
+      elif [ -n "$OPENSSL_VERSION" ]; then
         ./Configure linux-x86_64 --prefix=$PWD/../../build/openssl-$OPENSSL_VERSION --openssldir=$PWD/../../build/openssl-$OPENSSL_VERSION/ssl enable-shared -Wa,--noexecstack > build.log 2>&1 || (cat build.log && exit 1)
         make -j$JOBS > build.log 2>&1 || (cat build.log && exit 1)
+        make install_sw > build.log 2>&1 || (cat build.log && exit 1)
+        make install_ssldirs > build.log 2>&1 || (cat build.log && exit 1)
+      else
+        # LibreSSL
+        ./configure --prefix=$PWD/../../build/$SSL_LIB_NAME_VER
+        make -j$JOBS > build.log 2>&1 || (cat build.log && exit 1)
+        make install > build.log 2>&1 || (cat build.log && exit 1)
       fi
-      make install_sw > build.log 2>&1 || (cat build.log && exit 1)
-      make install_ssldirs > build.log 2>&1 || (cat build.log && exit 1)
       cd ../../..
     fi
-  - grep -H OPENSSL_VERSION_NUMBER $PWD/openssl_version_cache/build/openssl-$OPENSSL_VERSION/include/openssl/opensslv.h # show what version it thinks it is
-  - OPENSSL_PREFIX=$PWD/openssl_version_cache/build/openssl-$OPENSSL_VERSION LD_LIBRARY_PATH=$PWD/openssl_version_cache/build/openssl-$OPENSSL_VERSION/lib perl Makefile.PL
+  - grep -H _VERSION_NUMBER $PWD/openssl_version_cache/build/$SSL_LIB_NAME_VER/include/openssl/opensslv.h # show what version it thinks it is
+  - OPENSSL_PREFIX=$PWD/openssl_version_cache/build/$SSL_LIB_NAME_VER LD_LIBRARY_PATH=$PWD/openssl_version_cache/build/$SSL_LIB_NAME_VER/lib perl Makefile.PL
   - make
   - make test

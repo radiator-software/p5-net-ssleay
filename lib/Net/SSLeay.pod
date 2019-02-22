@@ -5991,6 +5991,12 @@ Returns serial number of X509 certificate $x.
 
 See L</P_ASN1_INTEGER_get_dec>, L</P_ASN1_INTEGER_get_hex> or L</ASN1_INTEGER_get> to decode ASN1_INTEGER object.
 
+=item * X509_get0_serialNumber
+
+B<COMPATIBILITY:> available in Net-SSLeay-1.86 onwards
+
+X509_get0_serialNumber() is the same as X509_get_serialNumber() except it accepts a const parameter and returns a const result.
+
 =item * X509_get_version
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
