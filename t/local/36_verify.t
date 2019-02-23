@@ -5,7 +5,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 79;
+use Test::More tests => 103;
 use Net::SSLeay;
 use File::Spec;
 use IO::Socket::INET;
@@ -91,6 +91,8 @@ SKIP: {
      close($server);
      client($server_addr);
 }
+
+verify_local_trust();
 
 sub test_policy_checks
 {
@@ -199,6 +201,57 @@ sub test_wildcard_checks
 
       Net::SSLeay::X509_VERIFY_PARAM_free($pm);
     }
+}
+
+sub verify_local_trust {
+    my $digicert_ca = File::Spec->catfile('t', 'data', 'digicert.crt.pem');
+    my $twitter_chain = File::Spec->catfile('t', 'data', 'chain_twitter.crt.pem');
+
+    # read in twitter chain
+    my $bio = Net::SSLeay::BIO_new_file($twitter_chain, 'r');
+    ok(my $x509_info_sk = Net::SSLeay::PEM_X509_INFO_read_bio($bio), "PEM_X509_INFO_read_bio able to read in entire chain");
+    Net::SSLeay::BIO_free($bio);
+    # read in just twitter certificate
+    $bio = Net::SSLeay::BIO_new_file($twitter_chain, 'r');
+    ok(my $cert = Net::SSLeay::PEM_read_bio_X509($bio), "PEM_read_bio_X509 able to read in single cert from chain");
+    Net::SSLeay::BIO_free($bio);
+    # read in root CA (digicert CA)
+    $bio = Net::SSLeay::BIO_new_file($digicert_ca, 'r');
+    ok(my $ca = Net::SSLeay::PEM_read_bio_X509($bio), "PEM_read_bio_X509 able to read in root CA");
+    Net::SSLeay::BIO_free($bio);
+
+    ok(my $x509_sk = Net::SSLeay::sk_X509_new_null(), "sk_X509_new_null creates STACK_OF(X509) successfully");
+    ok(my $num = Net::SSLeay::sk_X509_INFO_num($x509_info_sk), "sk_X509_INFO_num is nonzero");
+
+    # set up STORE_CTX and verify twitter cert using only root CA, should fail due to incomplete chain
+    ok(my $store = Net::SSLeay::X509_STORE_new(), "X509_STORE_new creates new store");
+    ok(Net::SSLeay::X509_STORE_add_cert($store, $ca), "X509_STORE_add_cert CA cert");
+    ok(my $ctx = Net::SSLeay::X509_STORE_CTX_new(), "X509_STORE_CTX_new creates new store context");
+    Net::SSLeay::X509_STORE_CTX_init($ctx, $store, $cert);
+    ok(!Net::SSLeay::X509_verify_cert($ctx), 'X509_verify_cert correctly fails');
+    is(Net::SSLeay::X509_STORE_CTX_get_error($ctx),
+        Net::SSLeay::X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY(), "X509_STORE_CTX_get_error returns unable to get local issuer certificate");
+    Net::SSLeay::X509_STORE_free($store);
+    Net::SSLeay::X509_STORE_CTX_free($ctx);
+
+    # add all certificates from twitter chain to X509 stack
+    for (my $i = 0; $i < $num; $i++) {
+        ok(my $x509_info = Net::SSLeay::sk_X509_INFO_value($x509_info_sk, $i), "sk_X509_INFO_value");
+        ok(my $x509 = Net::SSLeay::P_X509_INFO_get_x509($x509_info), "P_X509_INFO_get_x509");
+        ok(Net::SSLeay::sk_X509_push($x509_sk, $x509), "sk_X509_push");
+    }
+
+    # set up STORE_CTX and verify twitter cert using root CA and chain, should succeed
+    ok($store = Net::SSLeay::X509_STORE_new(), "X509_STORE_new creates new store");
+    ok(Net::SSLeay::X509_STORE_add_cert($store, $ca), "X509_STORE_add_cert CA cert");
+    ok($ctx = Net::SSLeay::X509_STORE_CTX_new(), "X509_STORE_CTX_new creates new store context");
+    Net::SSLeay::X509_STORE_CTX_init($ctx, $store, $cert, $x509_sk);
+    ok(Net::SSLeay::X509_verify_cert($ctx), 'X509_verify_cert correctly succeeds');
+    is(Net::SSLeay::X509_STORE_CTX_get_error($ctx), Net::SSLeay::X509_V_OK(), "X509_STORE_CTX_get_error returns ok");
+    Net::SSLeay::X509_STORE_free($store);
+    Net::SSLeay::X509_STORE_CTX_free($ctx);
+
+    Net::SSLeay::sk_X509_free($x509_sk);
 }
 
 # Prepare and return a new $ssl based on callers verification needs

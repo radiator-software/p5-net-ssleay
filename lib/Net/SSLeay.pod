@@ -1632,6 +1632,21 @@ Callback function signature:
    return "secret";
  }
 
+=item * PEM_X509_INFO_read_bio
+
+Reads a BIO containing a PEM formatted file into a STACK_OF(X509_INFO) structure.
+
+ my $rv = Net::SSLeay::PEM_X509_INFO_read_bio($bio);
+ # $bio - value corresponding to openssl's BIO structure
+ #
+ # returns: value corresponding to openssl's STACK_OF(X509_INFO) structure.
+
+Example:
+
+ my $bio = Net::SSLeay::BIO_new_file($filename, 'r');
+ my $sk_x509_info = Net::SSLeay::PEM_X509_INFO_read_bio($bio);
+ Net::SSLeay::BIO_free($bio);
+
 =item * PEM_get_string_X509
 
 B<NOTE:> Does not exactly correspond to any low level API function
@@ -6399,6 +6414,24 @@ To get textual representation use:
  my $alg = Net::SSLeay::OBJ_obj2txt(Net::SSLeay::P_X509_get_signature_alg($x509))
  # returns for example: "sha1WithRSAEncryption"
 
+=item * sk_X509_new_null
+
+Returns a new, empty, STACK_OF(X509) structure.
+
+ my $rv = Net::SSLeay::sk_X509_new_null();
+ #
+ # returns: value corresponding to openssl's STACK_OF(X509) structure
+
+=item * sk_X509_push
+
+Pushes an X509 structure onto a STACK_OF(X509) structure.
+
+ my $rv = Net::SSLeay::sk_X509_push($sk_x509, $x509);
+ # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
+ # $x509 - value corresponding to openssl's X509 structure
+ #
+ # returns: 1 if successful, 0 if unsuccessful
+
 =back
 
 =head3 Low level API: X509_REQ_* related functions
@@ -7502,6 +7535,40 @@ For more details about $purpose identifier check L</CTX_set_purpose>.
  # returns: no return value
 
 For more details about $trust identifier check L</CTX_set_trust>.
+
+=back
+
+=head3 Low Level API: X509_INFO related functions
+
+=over
+
+=item * sk_X509_INFO_num
+
+Returns the number of values in a STACK_OF(X509_INFO) structure.
+
+ my $rv = Net::SSLeay::sk_X509_INFO_num($sk_x509_info);
+ # $sk_x509_info - value corresponding to openssl's STACK_OF(X509_INFO) structure
+ #
+ # returns: number of values in $sk_X509_info
+
+=item * sk_X509_INFO_value
+
+Returns the value of a STACK_OF(X509_INFO) structure at a given index.
+
+ my $rv = Net::SSLeay::sk_X509_INFO_value($sk_x509_info, $index);
+ # $sk_x509_info - value corresponding to openssl's STACK_OF(X509_INFO) structure
+ # $index - index into the stack
+ #
+ # returns: value corresponding to openssl's X509_INFO structure at the given index
+
+=item * P_X509_INFO_get_x509
+
+Returns the X509 structure stored in an X509_INFO structure.
+
+ my $rv = Net::SSLeay::P_X509_INFO_get_x509($x509_info);
+ # $x509_info - value corresponding to openssl's X509_INFO structure
+ #
+ # returns: value corresponding to openssl's X509 structure
 
 =back
 
