@@ -1,6 +1,12 @@
 Revision history for Perl extension Net::SSLeay.
 
 ?? ????-??-??
+	- Add and fix functions needed to properly implement client
+	  side session reuse for TLS 1.3 with using
+	  CTX_sess_set_new_cb. Newly exposed functions:
+	  SSL_SESSION_dup and SSL_SESSION_up_ref.
+	  Fixed functions: i2d_SSL_SESSION and d2i_SSL_SESSION.
+	  Thanks to Steffen Ullrich.
 	- Add functions functions to allow reading multiple pems from
 	  file and creating untrusted chain: These functions allow you
 	  to:
