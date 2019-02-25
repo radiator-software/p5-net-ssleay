@@ -1793,18 +1793,21 @@ Net::SSLeay::P_PKCS12_load_file. See README.Win32 for more details.
 
 =item * d2i_SSL_SESSION
 
+B<COMPATIBILITY:> does not work in Net-SSLeay-1.85 and before
+
 Transforms the binary ASN1 representation string of an SSL/TLS session into an
 SSL_SESSION object.
-
 
  my $ses = Net::SSLeay::d2i_SSL_SESSION($data);
  # $data - the session as ASN1 representation string
  #
  # returns: $ses - the new SSL_SESSION
 
-Check openssl doc L<http://www.openssl.org/docs/ssl/i2d_SSL_SESSION.html|http://www.openssl.org/docs/ssl/i2d_SSL_SESSION.html>
+Check openssl doc L<https://www.openssl.org/docs/ssl/i2d_SSL_SESSION.html|https://www.openssl.org/docs/ssl/i2d_SSL_SESSION.html>
 
 =item * i2d_SSL_SESSION
+
+B<COMPATIBILITY:> does not work in Net-SSLeay-1.85 and before
 
 Transforms the SSL_SESSION object in into the ASN1 representation and returns
 it as string.
@@ -1814,7 +1817,7 @@ it as string.
  #
  # returns: $data - session as string
 
-Check openssl doc L<http://www.openssl.org/docs/ssl/d2i_SSL_SESSION.html|http://www.openssl.org/docs/ssl/d2i_SSL_SESSION.html>
+Check openssl doc L<https://www.openssl.org/docs/ssl/d2i_SSL_SESSION.html|https://www.openssl.org/docs/ssl/d2i_SSL_SESSION.html>
 
 =item * SESSION_new
 
@@ -1837,6 +1840,8 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_SESSION_free.html|http:/
 
 =item * SESSION_up_ref
 
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.0 or LibreSSL 2.7.0
+
 Increases the reference counter on a SSL_SESSION structure.
 
  Net::SSLeay::SESSION_up_ref($ses);
@@ -1845,9 +1850,11 @@ Increases the reference counter on a SSL_SESSION structure.
  # returns: 1 on success else 0
 
 Check openssl doc
-L<http://www.openssl.org/docs/ssl/SSL_SESSION_up_ref.html|http://www.openssl.org/docs/ssl/SSL_SESSION_up_ref.html>
+L<https://www.openssl.org/docs/ssl/SSL_SESSION_up_ref.html|https://www.openssl.org/docs/ssl/SSL_SESSION_up_ref.html>
 
 =item * SESSION_dup
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1, not in LibreSSL
 
 Duplicates a SSL_SESSION structure.
 
@@ -1857,7 +1864,7 @@ Duplicates a SSL_SESSION structure.
  # returns: the duplicated session
 
 Check openssl doc
-L<http://www.openssl.org/docs/ssl/SSL_SESSION_dup.html|http://www.openssl.org/docs/ssl/SSL_SESSION_dup.html>
+L<https://www.openssl.org/docs/ssl/SSL_SESSION_dup.html|https://www.openssl.org/docs/ssl/SSL_SESSION_dup.html>
 
 =item * SESSION_is_resumable
 
