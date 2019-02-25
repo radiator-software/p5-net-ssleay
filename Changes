@@ -1,10 +1,52 @@
 Revision history for Perl extension Net::SSLeay.
 
 ?? ????-??-??
+	- Add functions functions to allow reading multiple pems from
+	  file and creating untrusted chain: These functions allow you
+	  to:
+	  - Read in a PEM file with multiple certificates as a
+	    STACK_OF(X509_INFO)
+	  - Determine the size of the STACK_OF(X509_INFO) and value at
+	    an index, which allows you to loop over the stack.
+	  - Retrieve the X509 structure from each X509_INFO structure
+	    in the stack.
+	  Then you can create a new STACK_OF(X509) and push the X509
+	  structures onto the new stack. You can then pass this
+	  STACK_OF(X509) to X509_STORE_CTX_init which will allow you
+	  to add additional untrusted certificates to the chain for
+	  verification. Exposed functions are:
+	  PEM_X509_INFO_read_bio
+	  sk_X509_INFO_num
+	  sk_X509_INFO_value
+	  sk_X509_INFO_free
+	  sk_X509_new_null
+	  sk_X509_free
+	  sk_X509_push
+	  New function implemented by Net::SSLeay:
+	  P_X509_INFO_get_x509
+	  Thanks to Marc Reisner.
+	- Add functions and constants that are necessary to verify a
+	  certificate using a hash directory outside of an SSL/TLS
+	  connection. Newly exposed functions:
+	  X509_STORE_CTX_init
+	  X509_STORE_CTX_free
+	  X509_STORE_new
+	  X509_STORE_free
+	  X509_STORE_add_lookup
+	  X509_LOOKUP_hash_dir
+	  X509_LOOKUP_add_dir
+	  Newly exposed constants:
+	  X509_FILETYPE_ASN1
+	  X509_FILETYPE_DEFAULT
+	  X509_FILETYPE_PEM
+	  Thanks to Marc Reisner.
 	- Declare n_a in ssleay_set_psk_client_callback_invoke and
 	  ssleay_ctx_set_psk_client_callback_invoke to avoid a compilation
 	  error with Perl versions below 5.8.8. Fixes RT#128030. Thanks to
 	  Graham Ollis for the report.
+	- Add X509_get0_serialNumber. Thanks to Marc Reisner.
+	- Enable Travis CI for LibreSSL 2.2.1, 2.7.5, 2.8.3 and 2.9.0
+	  on Perl 5.20 and more recent.
 
 1.86_07 2018-12-13
         - Net::SSLeay::RSA_generate_key() now prefers using

@@ -3228,6 +3228,13 @@ X509_get_pubkey(X509 *x)
 ASN1_INTEGER *
 X509_get_serialNumber(X509 *x)
 
+#if (OPENSSL_VERSION_NUMBER >= 0x1010000fL && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2080100fL)
+
+const ASN1_INTEGER *
+X509_get0_serialNumber(const X509 *x)
+
+#endif
+
 int
 X509_set_serialNumber(X509 *x, ASN1_INTEGER *serial)
 
@@ -5933,6 +5940,46 @@ PEM_read_bio_X509_CRL(bio,x=NULL,cb=NULL,u=NULL)
 
 X509 *
 PEM_read_bio_X509(BIO *bio,void *x=NULL,void *cb=NULL,void *u=NULL)
+
+STACK_OF(X509_INFO) *
+PEM_X509_INFO_read_bio(bio, stack=NULL, cb=NULL, u=NULL)
+    BIO * bio
+    STACK_OF(X509_INFO) * stack
+    pem_password_cb * cb
+    void * u
+
+int
+sk_X509_INFO_num(stack)
+    STACK_OF(X509_INFO) * stack
+
+X509_INFO *
+sk_X509_INFO_value(stack, index)
+    const STACK_OF(X509_INFO) * stack
+    int index
+
+void
+sk_X509_INFO_free(stack)
+    STACK_OF(X509_INFO) * stack
+
+STACK_OF(X509) *
+sk_X509_new_null()
+
+void
+sk_X509_free(stack)
+    STACK_OF(X509) * stack
+
+int
+sk_X509_push(stack, data)
+    STACK_OF(X509) * stack
+    X509 * data
+
+X509 *
+P_X509_INFO_get_x509(info)
+        X509_INFO * info
+    CODE:
+        RETVAL = info->x509;
+    OUTPUT:
+        RETVAL
 
 X509_REQ *
 PEM_read_bio_X509_REQ(BIO *bio,void *x=NULL,pem_password_cb *cb=NULL,void *u=NULL)
