@@ -8889,7 +8889,7 @@ functions for an easier interface.
 =item * CTX_set_ecdh_auto, set_ecdh_auto
 
 These functions enable or disable the automatic curve selection on the server
-side by calling SSL_CTX_set_ecdh_auto resp. SSL_set_ecdh_auto.
+side by calling SSL_CTX_set_ecdh_auto or SSL_set_ecdh_auto respectively.
 If enabled the highest preference curve is automatically used for ECDH temporary
 keys used during key exchange.
 This function is no longer available for OpenSSL 1.1.0 or higher.
