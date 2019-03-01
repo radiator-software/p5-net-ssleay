@@ -8914,7 +8914,7 @@ These functions are only available since OpenSSL 1.1.0.
 These functions set the supported groups in the order of preferences by calling
 SSL_CTX_set1_groups_list or SSL_set1_groups_list respectively.
 This is practically the same as CTX_set1_curves_list and set1_curves_list except
-that als DH groups can be given as supported by TLS 1.3.
+that all DH groups can be given as supported by TLS 1.3.
 These functions are only available since OpenSSL 1.1.1.
 
   Net::SSLeay::CTX_set1_groups_list($ctx,"P-521:P-384:P-256");
