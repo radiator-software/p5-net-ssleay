@@ -105,6 +105,8 @@ sub _handshake {
 	my $ctx = Net::SSLeay::CTX_tlsv1_new();
 	Net::SSLeay::CTX_set_options($ctx,Net::SSLeay::OP_ALL());
 	Net::SSLeay::CTX_set_cipher_list($ctx,'ECDHE');
+	Net::SSLeay::CTX_set_ecdh_auto($ctx,1)
+	    if defined &Net::SSLeay::CTX_set_ecdh_auto;
 	my $id = 'client';
 	if ($args{cert}) {
 	    my ($cert,$key) = @{ delete $args{cert} };
