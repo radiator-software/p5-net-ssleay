@@ -90,9 +90,11 @@ sub _handshake {
 	}
     }
 
-    return $expect_ok 
-	? $client_done && $server_done && "@hs" eq "> <[C] > <"
-	: $client_done && $server_done && "@hs" eq "> <"; # alert only
+    my $result = "$client_done - $server_done - @hs";
+    return $result eq '1 - 1 - > <[C] > <' if $expect_ok;
+    return 1 if $result eq '1 - 1 - > <'; # failed connect with OpenSSL >= 1.1.0
+    return 1 if $result =~ qr{^\Q0 - 0 - > < < <}; # OpenSSL 1.0.2, LibreSSL
+    return 0; # unexpected result
 }
 
 
