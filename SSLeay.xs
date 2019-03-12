@@ -5680,6 +5680,50 @@ EC_KEY_generate_key(curve)
 	RETVAL
 
 
+#ifdef SSL_CTRL_SET_ECDH_AUTO
+
+long
+SSL_CTX_set_ecdh_auto(ctx,onoff)
+     SSL_CTX * ctx
+     int onoff
+
+long
+SSL_set_ecdh_auto(ssl,onoff)
+     SSL * ssl
+     int onoff
+
+#endif
+
+#ifdef SSL_CTRL_SET_CURVES_LIST
+
+long
+SSL_CTX_set1_curves_list(ctx,list)
+     SSL_CTX * ctx
+     char * list
+
+long
+SSL_set1_curves_list(ssl,list)
+     SSL * ssl
+     char * list
+
+#endif
+
+#if SSL_CTRL_SET_GROUPS_LIST
+
+long
+SSL_CTX_set1_groups_list(ctx,list)
+     SSL_CTX * ctx
+     char * list
+
+long
+SSL_set1_groups_list(ssl,list)
+     SSL * ssl
+     char * list
+
+#endif
+
+
+
 #endif
 
 void *

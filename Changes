@@ -53,6 +53,11 @@ Revision history for Perl extension Net::SSLeay.
 	- Add X509_get0_serialNumber. Thanks to Marc Reisner.
 	- Enable Travis CI for LibreSSL 2.2.1, 2.7.5, 2.8.3 and 2.9.0
 	  on Perl 5.20 and more recent.
+	- Expose the following functions for curve and group selection:
+	  - CTX_set_ecdh_auto, set_ecdh_auto
+	  - CTX_set1_curves_list, set1_curves_list
+	  - CTX_set1_groups_list, set1_groups_list
+	  Thanks to Steffen Ullrich.
 
 1.86_07 2018-12-13
         - Net::SSLeay::RSA_generate_key() now prefers using
