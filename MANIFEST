@@ -39,12 +39,15 @@ README.OSX
 README.VMS
 README.Win32
 SSLeay.xs
+t/data/0f89dbb5.0
 t/data/binary-test.file
 t/data/cert.pem
 t/data/cert_paypal.crt.pem
 t/data/cert_paypal.crt.pem_dump
 t/data/cert_twitter.crt.pem
 t/data/cert_twitter.crt.pem_dump
+t/data/chain_twitter.crt.pem
+t/data/digicert.crt.pem
 t/data/key.pem
 t/data/key.pem.e
 t/data/pkcs12-full.p12
@@ -113,6 +116,7 @@ t/local/50_digest.t
 t/local/61_threads-cb-crash.t
 t/local/62_threads-ctx_new-deadlock.t
 t/local/63_ec_key_generate_key.t
+t/local/65_security_level.t
 t/local/64_ticket_sharing.t
 t/local/65_ticket_sharing_2.t
 t/local/66_curves.t
