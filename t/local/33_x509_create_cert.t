@@ -240,7 +240,7 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
 
 { ### X509 certificate - copy some fields from other certificate
 
-  my $orig_crt_pem = File::Spec->catfile('t', 'data', 'cert_twitter.crt.pem');
+  my $orig_crt_pem = File::Spec->catfile('t', 'data', 'test_leaf.crt.pem');
   ok(my $bio = Net::SSLeay::BIO_new_file($orig_crt_pem, 'r'), "BIO_new_file");
   ok(my $orig_cert = Net::SSLeay::PEM_read_bio_X509($bio), "PEM_read_bio_X509");
 
