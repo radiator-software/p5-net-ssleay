@@ -204,8 +204,8 @@ sub test_wildcard_checks
 }
 
 sub verify_local_trust {
-    my $digicert_ca = File::Spec->catfile('t', 'data', 'digicert.crt.pem');
-    my $twitter_chain = File::Spec->catfile('t', 'data', 'chain_twitter.crt.pem');
+    my $digicert_ca = File::Spec->catfile('t', 'data', 'test_CA1.crt.pem');
+    my $twitter_chain = File::Spec->catfile('t', 'data', 'chain_leaf.crt.pem');
 
     # read in twitter chain
     my $bio = Net::SSLeay::BIO_new_file($twitter_chain, 'r');

@@ -1,5 +1,12 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.86_10 ????-??-??
+	- Use locally-generated certificate chain in local tests rather
+	  than the Twitter one, which changes regularly and breaks the
+	  test suite unnecessarily. Fixes RT#129201. Thanks to Petr Písař
+	  for the report and patch, and Steffen Ullrich for an alternative
+	  patch suggestion.
+
 1.86_09 2019-03-12
 	- Add missing files to MANIFEST that prevented tests from passing
 	  when installing from the 1.86_08 release tarball.
