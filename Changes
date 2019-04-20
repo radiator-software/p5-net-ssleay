@@ -6,6 +6,14 @@ Revision history for Perl extension Net::SSLeay.
 	  test suite unnecessarily. Fixes RT#129201. Thanks to Petr Písař
 	  for the report and patch, and Steffen Ullrich for an alternative
 	  patch suggestion.
+	- In t/local/09_ctx_new.t, rather than checking that the functions
+	  (CTX_)get_min_proto_version and (CTX_)get_max_proto_version return
+	  0x0000 (indicating the lowest and highest versions supported by
+	  libssl respectively, which is not the case if a run-time
+	  configuration is enforcing a different minimum or maximum), just
+	  check whether the returned value is one of those mentioned on the
+	  SSL_CTX_set_min_proto_version(3) man page. Fixes RT#128025. Thanks
+	  to Slaven Rezić and Dmytro Zagashev for the downstream reports.
 
 1.86_09 2019-03-12
 	- Add missing files to MANIFEST that prevented tests from passing
