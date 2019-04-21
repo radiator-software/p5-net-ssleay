@@ -378,6 +378,11 @@ Copyright (c) 2018- Heikki Vatiainen <hvn@radiatorsoftware.com>
 
 All rights reserved.
 
+=head1 LICENSE
+
+This module is released under the terms of the Artistic License 2.0. For
+details, see the C<LICENSE> file distributed with Net-SSLeay's source code.
+
 =head1 SEE ALSO
 
 Net::SSLeay, perl(1), http://openssl.org/

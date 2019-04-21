@@ -9761,27 +9761,12 @@ Copyright (c) 2018- Tuure Vartiainen <vartiait@radiatorsoftware.com>
 
 Copyright (c) 2018- Heikki Vatiainen <hvn@radiatorsoftware.com>
 
-All Rights Reserved.
+All rights reserved.
 
-Distribution and use of this module is under the same terms as the
-OpenSSL package itself (i.e. free, but mandatory attribution; NO
-WARRANTY). Please consult LICENSE file in the root of the Net-SSLeay
-distribution, and also included in this distribution.
+=head1 LICENSE
 
-The Authors credit Eric Young and the OpenSSL team with the development of the
-excellent OpenSSL library, which this Perl package uses.
-
-And remember, you, and nobody else but you, are responsible for
-auditing this module and OpenSSL library for security problems,
-backdoors, and general suitability for your application.
-
-=head1 LICENSE 
-
-From version
-1.66 onwards, this Net-SSLeay library is issued under the "Perl Artistic
-License 2.0", the same license as Perl itself.
-
-(ignore this line: this is to keep kwalitee happy by saying: Not GPL)
+This module is released under the terms of the Artistic License 2.0. For
+details, see the C<LICENSE> file distributed with Net-SSLeay's source code.
 
 =head1 SEE ALSO
 
