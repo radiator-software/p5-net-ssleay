@@ -19,7 +19,7 @@ use File::Spec;
 use Net::SSLeay;
 
 my $start_time = time;
-my $file = File::Spec->catfile('t', 'data', 'key.pem');
+my $file = File::Spec->catfile('t', 'data', 'testcert_key_2048.pem');
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();

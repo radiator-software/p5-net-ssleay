@@ -20,8 +20,8 @@ Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();
 Net::SSLeay::OpenSSL_add_ssl_algorithms();
 
-my $cert = File::Spec->catfile(qw( t data cert.pem ));
-my $key  = File::Spec->catfile(qw( t data key.pem  ));
+my $cert = File::Spec->catfile('t', 'data', 'testcert_wildcard.crt.pem');
+my $key  = File::Spec->catfile('t', 'data', 'testcert_key_2048.pem');
 
 my $how_much = 1024 ** 2;
 
@@ -44,7 +44,6 @@ die unless defined $pid;
 
 if ($pid == 0) {
     my $ctx = Net::SSLeay::CTX_new();
-    Net::SSLeay::CTX_set_security_level($ctx, 1) if exists &Net::SSLeay::CTX_set_security_level;
     Net::SSLeay::set_server_cert_and_key($ctx, $cert, $key);
 
     my $ssl = Net::SSLeay::new($ctx);
@@ -69,7 +68,6 @@ if ($pid == 0) {
 my @results;
 {
     my $ctx = Net::SSLeay::CTX_new();
-    Net::SSLeay::CTX_set_security_level($ctx, 1) if exists &Net::SSLeay::CTX_set_security_level;
     my $ssl = Net::SSLeay::new($ctx);
 
     my $rc_handle = IO::Handle->new_from_fd( fileno($rc), 'r' );

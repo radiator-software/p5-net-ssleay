@@ -8607,7 +8607,7 @@ Simple approach for using NPN support looks like this:
  Net::SSLeay::initialize();
  my $ctx = Net::SSLeay::CTX_tlsv1_new() or die;
  Net::SSLeay::CTX_set_options($ctx, &Net::SSLeay::OP_ALL);
- Net::SSLeay::set_cert_and_key($ctx, "t/data/cert.pem", "t/data/key.pem");
+ Net::SSLeay::set_cert_and_key($ctx, "cert.pem", "key.pem");
  Net::SSLeay::CTX_set_next_protos_advertised_cb($ctx, ['spdy/2','http1.1']);
  my $sock = IO::Socket::INET->new(LocalAddr=>'localhost', LocalPort=>5443, Proto=>'tcp', Listen=>20) or die;
  
@@ -8776,7 +8776,7 @@ With ALPN, the most basic implementation looks like this:
  Net::SSLeay::initialize();
  my $ctx = Net::SSLeay::CTX_tlsv1_new() or die;
  Net::SSLeay::CTX_set_options($ctx, &Net::SSLeay::OP_ALL);
- Net::SSLeay::set_cert_and_key($ctx, "t/data/cert.pem", "t/data/key.pem");
+ Net::SSLeay::set_cert_and_key($ctx, "cert.pem", "key.pem");
  Net::SSLeay::CTX_set_alpn_select_cb($ctx, ['http/1.1', 'http/2.0', 'spdy/3]);
  my $sock = IO::Socket::INET->new(LocalAddr=>'localhost', LocalPort=>5443, Proto=>'tcp', Listen=>20) or die;
 

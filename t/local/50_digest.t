@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 230;
+use Test::More tests => 203;
 use File::Spec;
 use Net::SSLeay;
 
@@ -177,23 +177,8 @@ SKIP: {
   isnt(scalar(keys %all_digests), 0, 'non-empty digest list');
 }
 
-my $file1 = File::Spec->catfile('t', 'data', 'cert.pem'); 
-my $results1 = {
-        md2       => '6d89cda9599a54d03652f9464e8b6e51',
-        md4       => 'ada352f40f1ca64f4168a8aae7c1a281',
-        md5       => 'e060f11c6afa9e1f59a8e7c873aa3423',
-        mdc2      => 'e9ca1fd1cfccfb450b402a0dd446db28',
-        ripemd160 => 'cbd50056558b01b5e9ec67901b518462b5393e5b',
-        sha       => '79de0d0cc736d98b65f5d6b3ac89e65ca8d3b2a7',
-        sha1      => '0267dd25bbd8930c537716d972dd9ba128846428',
-        sha224    => '5b42d5a3b16a6cee821b03c41f0428b09b70695becb0aaafbc7d6419',
-        sha256    => '764633a51af4ef374cabb1ea859cc324680cfeff694797e90562e19ffb71ab26',
-        sha512    => '37e3a2e84aec822922c51d4d8d37bf003e1d85f55a4bf2fae2940a5aab5b32f7601c2a9cde5b9c6391aaa4ffef1e845f11d2f0b6a37a9b2f48fb7f6469f0a51c',
-        whirlpool => 'b2dc90dbbc60e5e2dc28de3bdeab45fb2fa6d13d86ff14908130624a242e38ecc195b3b11a7ef137b77a24e9a0ba5be061ac1baa11892369286d613569199458',
-};
-
-my $file2 = File::Spec->catfile('t', 'data', 'binary-test.file'); 
-my $results2 = {
+my $file = File::Spec->catfile('t', 'data', 'binary-test.file'); 
+my $file_digests = {
         md2       => '67ae6d821be6898101414c56b1fb4f46',
         md4       => '480438696e7d9a6ab3ecc1e2a3419f78',
         md5       => 'cc89b43c171818c347639fa5170aee16',
@@ -310,6 +295,5 @@ SKIP: {
   is(Net::SSLeay::EVP_MD_size(Net::SSLeay::EVP_sha1()), 20, 'EVP_MD_size sha1');
 }
 
-digest_file($file1, $results1, \%all_digests);
-digest_file($file2, $results2, \%all_digests);
+digest_file($file, $file_digests, \%all_digests);
 digest_strings(\%fps, \%all_digests);

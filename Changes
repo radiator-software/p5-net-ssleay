@@ -12,8 +12,16 @@ Revision history for Perl extension Net::SSLeay.
 	  libssl respectively, which is not the case if a run-time
 	  configuration is enforcing a different minimum or maximum), just
 	  check whether the returned value is one of those mentioned on the
-	  SSL_CTX_set_min_proto_version(3) man page. Fixes RT#128025. Thanks
-	  to Slaven Rezić and Dmytro Zagashev for the downstream reports.
+	  SSL_CTX_set_min_proto_version(3) man page. Partially fixes
+	  RT#128025. Thanks to Slaven Rezić and Dmytro Zagashev for the
+	  downstream reports.
+	- Move from 1024-bit keys/certificates to 2048-bit keys/certificates
+	  across the entire test suite. This removes the need to manually
+	  set the security level to 1 in tests that used the old keys, and
+	  fixes large numbers of test failures on modern Linux distributions
+	  that set the minimum OpenSSL security level to 2. Fixes RT#126270
+	  and the remainder of RT#128025. Thanks to Petr Písař and Slaven
+	  Rezić for the downstream reports.
 
 1.86_09 2019-03-12
 	- Add missing files to MANIFEST that prevented tests from passing

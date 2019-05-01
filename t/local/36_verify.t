@@ -17,9 +17,10 @@ Net::SSLeay::add_ssl_algorithms();
 Net::SSLeay::OpenSSL_add_all_algorithms();
 
 # Our CA cert and a cert signed with it
-my $ca_pem = File::Spec->catfile('t', 'data', 'test_CA1.crt.pem');
-my $ca_dir =  File::Spec->catfile('t', 'data');
-my $cert_pem = File::Spec->catfile('t', 'data', 'testcert_wildcard.crt.pem');
+my $ca_pem = File::Spec->catfile('t', 'data', 'test_CA1_2048.crt.pem');
+#my $ca_dir =  File::Spec->catfile('t', 'data');
+my $ca_dir =  '';
+my $cert_pem = File::Spec->catfile('t', 'data', 'testcert_wildcard_CA1_2048.crt.pem');
 my $key_pem = File::Spec->catfile('t', 'data', 'testcert_key_2048.pem');
 
 my $pm;
@@ -291,7 +292,6 @@ sub client {
     {
 	$ctx = Net::SSLeay::CTX_new();
 	is(Net::SSLeay::CTX_load_verify_locations($ctx, $ca_pem, $ca_dir), 1, "load_verify_locations($ca_pem $ca_dir)");
-	Net::SSLeay::CTX_set_security_level($ctx, 1) if exists &Net::SSLeay::CTX_set_security_level;
 
 	$cl = IO::Socket::INET->new($server_addr) or BAIL_OUT("failed to connect to server: $!");
 
