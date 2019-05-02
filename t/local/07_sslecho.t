@@ -20,7 +20,7 @@ my $sock;
 my $pid;
 
 my $port = 1212;
-my $dest_ip = gethostbyname('localhost');
+my $dest_ip = "\x7F\0\0\x01";
 my $dest_serv_params  = sockaddr_in($port, $dest_ip);
 my $port_trials = 1000;
 
@@ -118,7 +118,7 @@ Net::SSLeay::library_init();
 
 my @results;
 {
-    my ($got) = Net::SSLeay::sslcat('localhost', $port, $msg);
+    my ($got) = Net::SSLeay::sslcat('127.0.0.1', $port, $msg);
     push @results, [ $got eq uc($msg), 'send and received correctly' ];
 
 }
