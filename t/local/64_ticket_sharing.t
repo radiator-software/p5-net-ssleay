@@ -27,8 +27,8 @@ my %TRANSFER;  # set in _handshake
 
 my $client = _minSSL->new();
 my $server = _minSSL->new( cert => [
-    File::Spec->catfile('t','data','cert.pem'),
-    File::Spec->catfile('t','data','key.pem')
+    File::Spec->catfile('t', 'data', 'testcert_wildcard.crt.pem'),
+    File::Spec->catfile('t', 'data', 'testcert_key_2048.pem')
 ]);
 
 
@@ -67,8 +67,8 @@ is( _handshake($client,$server,$reuse),'reuse',"handshake again with reuse");
 # should not be reused
 # ----------------------------------------------
 my $server2 = _minSSL->new( cert => [
-    File::Spec->catfile('t','data','cert.pem'),
-    File::Spec->catfile('t','data','key.pem')
+    File::Spec->catfile('t', 'data', 'testcert_wildcard.crt.pem'),
+    File::Spec->catfile('t', 'data', 'testcert_key_2048.pem')
 ]);
 is( _handshake($client,$server2,$reuse),'full',"handshake with server2 is full");
 
@@ -198,7 +198,6 @@ sub _handshake {
 	my $ctx = Net::SSLeay::CTX_tlsv1_new();
 	Net::SSLeay::CTX_set_options($ctx,Net::SSLeay::OP_ALL());
 	Net::SSLeay::CTX_set_cipher_list($ctx,'AES128-SHA');
-	Net::SSLeay::CTX_set_security_level($ctx, 1) if exists &Net::SSLeay::CTX_set_security_level;
 	my $id = 'client';
 	if ($args{cert}) {
 	    my ($cert,$key) = @{ delete $args{cert} };

@@ -25,8 +25,8 @@ Net::SSLeay::initialize();
 
 {
     # SSL server - just handle single connect and  shutdown connection
-    my $cert_pem = File::Spec->catfile('t', 'data', 'cert.pem');
-    my $key_pem = File::Spec->catfile('t', 'data', 'key.pem');
+    my $cert_pem = File::Spec->catfile('t', 'data', 'testcert_wildcard.crt.pem');
+    my $key_pem = File::Spec->catfile('t', 'data', 'testcert_key_2048.pem');
 
     $server = IO::Socket::INET->new( LocalAddr => '127.0.0.1', Listen => 3)
 	or BAIL_OUT("failed to create server socket: $!");

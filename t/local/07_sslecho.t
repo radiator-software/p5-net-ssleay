@@ -13,7 +13,7 @@ BEGIN {
   plan skip_all => "fork() not supported on $^O" unless $Config{d_fork};
 }
 
-plan tests => 100;
+plan tests => 102;
 $SIG{'PIPE'} = 'IGNORE';
 
 my $sock;
@@ -25,12 +25,15 @@ my $dest_serv_params  = sockaddr_in($port, $dest_ip);
 my $port_trials = 1000;
 
 my $msg = 'ssleay-test';
-my $cert_pem = File::Spec->catfile('t', 'data', 'cert.pem');
-my $key_pem = File::Spec->catfile('t', 'data', 'key.pem');
+my $ca_cert_pem = File::Spec->catfile('t', 'data', 'test_CA1_2048.crt.pem');
+my $cert_pem = File::Spec->catfile('t', 'data', 'testcert_wildcard_CA1_2048.crt.pem');
+my $key_pem = File::Spec->catfile('t', 'data', 'testcert_key_2048.pem');
 
 my $cert_name = (Net::SSLeay::SSLeay >= 0x0090700f) ?
-                '/C=PL/ST=Peoples Republic of Perl/L=Net::/O=Net::SSLeay/OU=Net::SSLeay developers/CN=127.0.0.1/emailAddress=rafl@debian.org' :
-                '/C=PL/ST=Peoples Republic of Perl/L=Net::/O=Net::SSLeay/OU=Net::SSLeay developers/CN=127.0.0.1/Email=rafl@debian.org';
+                '/C=US/ST=State/L=City/O=Company/OU=Unit/CN=*.example.com/emailAddress=wildcard@example.com' :
+                '/C=US/ST=State/L=City/O=Company/OU=Unit/CN=*.example.com/Email=wildcard@example.com';
+my $cert_issuer = '/C=US/O=Demo1/CN=CA1';
+my $cert_sha1_fp = '91:41:FD:7D:99:02:2E:70:91:53:EF:C6:F3:F8:9D:E2:CF:B0:5F:0C';
 
 $ENV{RND_SEED} = '1234567890123456789012345678901234567890';
 
@@ -59,7 +62,6 @@ Net::SSLeay::library_init();
 
     my $ctx = Net::SSLeay::CTX_new();
     ok($ctx, 'CTX_new');
-    Net::SSLeay::CTX_set_security_level($ctx, 1) if exists &Net::SSLeay::CTX_set_security_level;
     ok(Net::SSLeay::CTX_set_cipher_list($ctx, 'ALL'), 'CTX_set_cipher_list');
     my ($dummy, $errs) = Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem);
     ok($errs eq '', "set_cert_and_key: $errs");
@@ -87,7 +89,6 @@ Net::SSLeay::library_init();
 
             my $ssl = Net::SSLeay::new($ctx);
             ok($ssl, 'new');
-            Net::SSLeay::set_security_level($ssl, 1) if exists &Net::SSLeay::set_security_level;
 
 	    is(Net::SSLeay::in_before($ssl), 1, 'in_before is 1');
 	    is(Net::SSLeay::in_init($ssl), 1, 'in_init is 1');
@@ -160,10 +161,8 @@ my @results;
     my $verify_cb_2_called = 0;
     my $verify_cb_3_called = 0;
     {
-        my $cert_dir = 't/data';
-
         my $ctx = Net::SSLeay::CTX_new();
-        push @results, [ Net::SSLeay::CTX_load_verify_locations($ctx, '', $cert_dir), 'CTX_load_verify_locations' ];
+        push @results, [ Net::SSLeay::CTX_load_verify_locations($ctx, $ca_cert_pem, ''), 'CTX_load_verify_locations' ];
         Net::SSLeay::CTX_set_verify($ctx, &Net::SSLeay::VERIFY_PEER, \&verify);
 
         my $ctx2 = Net::SSLeay::CTX_new();
@@ -269,12 +268,12 @@ my @results;
 
     sub verify {
         my ($ok, $x509_store_ctx) = @_;
-	return 1 unless $ok; # openssl 1.0 calls us twice with ok = 0 then ok = 1
 
+        # Skip intermediate certs but propagate possible not ok condition
+        my $depth = Net::SSLeay::X509_STORE_CTX_get_error_depth($x509_store_ctx);
+        return $ok unless $depth == 0;
 
         $verify_cb_1_called++;
-
-        push @results, [ $ok, 'verify cb' ];
 
         my $cert = Net::SSLeay::X509_STORE_CTX_get_current_cert($x509_store_ctx);
         push @results, [ $cert, 'verify cb cert' ];
@@ -289,31 +288,40 @@ my @results;
 
 	my $fingerprint =  Net::SSLeay::X509_get_fingerprint($cert, 'SHA-1');
 
-        push @results, [ $issuer  eq $cert_name, 'cert issuer'  ];
+        push @results, [ $ok == 1, 'verify is ok' ];
+        push @results, [ $issuer eq $cert_issuer, 'cert issuer' ];
         push @results, [ $subject eq $cert_name, 'cert subject' ];
         push @results, [ substr($cn, length($cn) - 1, 1) ne "\0", 'tailing 0 character is not returned from get_text_by_NID' ];
-        push @results, [ $fingerprint  eq '96:9F:25:FD:42:A7:FC:4D:8B:FF:14:76:7F:2E:07:AF:F6:A4:10:96', 'SHA-1 fingerprint'  ];
+        push @results, [ $fingerprint eq $cert_sha1_fp, 'SHA-1 fingerprint' ];
 
         return 1;
     }
 
     sub verify2 {
         my ($ok, $x509_store_ctx) = @_;
-	return 1 unless $ok;# openssl 1.0 calls us twice with ok = 0 then ok = 1
+
+        # Skip intermediate certs but propagate possible not ok condition
+        my $depth = Net::SSLeay::X509_STORE_CTX_get_error_depth($x509_store_ctx);
+        return $ok unless $depth == 0;
+
         $verify_cb_2_called++;
-        return 1;
+        push @results, [ $ok == 1, 'verify 2 is ok' ];
+        return $ok;
     }
 
     sub verify3 {
         my ($ok, $x509_store_ctx) = @_;
-	return 1 unless $ok;# openssl 1.0 calls us twice with ok = 0 then ok = 1
+
+        # Skip intermediate certs but propagate possible not ok condition
+        my $depth = Net::SSLeay::X509_STORE_CTX_get_error_depth($x509_store_ctx);
+        return $ok unless $depth == 0;
+
         $verify_cb_3_called++;
-        return 1;
+        push @results, [ $ok == 1, 'verify 3 is ok' ];
+        return $ok;
     }
 
     sub verify4 {
-        my ($ok, $x509_store_ctx) = @_;
-	return 1 unless $ok;# openssl 1.0 calls us twice with ok = 0 then ok = 1
         my ($cert_store, $userdata) = @_;
         push @results, [$userdata == 1, 'CTX_set_cert_verify_callback'];
         return $userdata;
@@ -348,7 +356,7 @@ my @results;
     );
 
     push @results, [ $subject eq $cert_name, 'get_peer_certificate subject' ];
-    push @results, [ $issuer  eq $cert_name, 'get_peer_certificate issuer'  ];
+    push @results, [ $issuer eq $cert_issuer, 'get_peer_certificate issuer' ];
 
     my $data = 'a' x 1024 ** 2;
     my $written = Net::SSLeay::ssl_write_all($ssl, \$data);

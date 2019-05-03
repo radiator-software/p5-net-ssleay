@@ -24,8 +24,8 @@ my $ip = "\x7F\0\0\x01";
 my $serv_params  = sockaddr_in($port, $ip);
 
 my $msg = 'ssleay-alpn-test';
-my $cert_pem = File::Spec->catfile('t', 'data', 'cert.pem');
-my $key_pem = File::Spec->catfile('t', 'data', 'key.pem');
+my $cert_pem = File::Spec->catfile('t', 'data', 'testcert_wildcard.crt.pem');
+my $key_pem = File::Spec->catfile('t', 'data', 'testcert_key_2048.pem');
 my @results;
 Net::SSLeay::initialize();
 

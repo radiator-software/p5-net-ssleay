@@ -32,8 +32,8 @@ my $set_session_ticket_ext_cb_run = 0;
 
 my $client = _minSSL->new();
 my $server = _minSSL->new( cert => [
-    File::Spec->catfile('t','data','cert.pem'),
-    File::Spec->catfile('t','data','key.pem')
+    File::Spec->catfile('t','data','testcert_wildcard.crt.pem'),
+    File::Spec->catfile('t','data','testcert_key_2048.pem')
 ]);
 
 
