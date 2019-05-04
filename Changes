@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.86_10 ????-??-??
+1.86_10 2019-05-04
 	- Use locally-generated certificate chain in local tests rather
 	  than the Twitter one, which changes regularly and breaks the
 	  test suite unnecessarily. Fixes RT#129201. Thanks to Petr Písař
