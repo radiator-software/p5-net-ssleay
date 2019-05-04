@@ -22,6 +22,11 @@ Revision history for Perl extension Net::SSLeay.
 	  that set the minimum OpenSSL security level to 2. Fixes RT#126270
 	  and the remainder of RT#128025. Thanks to Petr Písař and Slaven
 	  Rezić for the downstream reports.
+	- In t/local/06_tcpecho.t and t/local/07_sslecho.t, connect to
+	  127.0.0.1 instead of localhost. This fixes these tests when
+	  executed inside a network sandbox that disrupts the behaviour of
+	  gethostbyname(). Fixes RT#128207. Thanks to Kent Fredric for the
+	  downstream report.
 
 1.86_09 2019-03-12
 	- Add missing files to MANIFEST that prevented tests from passing

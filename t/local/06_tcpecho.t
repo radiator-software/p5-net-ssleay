@@ -62,7 +62,7 @@ my $port_trials = 1000;
 
 my @results;
 {
-    my ($got) = Net::SSLeay::tcpcat('localhost', $port, $msg);
+    my ($got) = Net::SSLeay::tcpcat('127.0.0.1', $port, $msg);
     push @results, [ $got eq uc($msg), 'sent and received correctly' ];
 }
 
