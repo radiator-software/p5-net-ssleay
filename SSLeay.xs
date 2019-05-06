@@ -7,13 +7,12 @@
  * Copyright (c) 2018- Tuure Vartiainen <vartiait@radiatorsoftware.com>
  * Copyright (c) 2018- Heikki Vatiainen <hvn@radiatorsoftware.com>
  * 
- * All Rights Reserved.
+ * All rights reserved.
  *
  * Change data removed. See Changes
  *
- * The distribution and use of this module are subject to the conditions
- * listed in LICENSE file at the root of the Net-SSLeay
- * distribution (i.e. same license as Perl itself).
+ * This module is released under the terms of the Artistic License 2.0. For
+ * details, see the LICENSE file.
  */
 
 /* ####

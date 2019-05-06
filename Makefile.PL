@@ -21,7 +21,7 @@ my $tests = prompt(
 my %eumm_args = (
   NAME => 'Net::SSLeay',
   ABSTRACT => 'Perl extension for using OpenSSL',
-  LICENSE => 'perl',
+  LICENSE => 'artistic_2',
   AUTHOR => [
     'Sampo Kellomäki <sampo@iki.fi>',
     'Florian Ragwitz <rafl@debian.org>',
@@ -65,7 +65,6 @@ my %eumm_args = (
       bugtracker  => {
         web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=net-ssleay',
       },
-      license => [ 'http://dev.perl.org/licenses/' ],
     },
     no_index => { directory => [ qw(helper_script examples) ] },
     prereqs => {

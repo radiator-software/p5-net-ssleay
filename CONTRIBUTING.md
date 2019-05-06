@@ -21,5 +21,8 @@ Choose the method that is more convenient for you.
 GitHub pull requests are preferred, but please do not hesitate to use
 the CPAN bug tracker or any other means to send your contribution.
 
+All contributions to Net-SSLeay are assumed to be provided under the
+terms of the Artistic License 2.0. See [`LICENSE`](LICENSE) for details.
+
 ## More information
 See [README](README) for more information about this module.
