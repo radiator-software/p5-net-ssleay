@@ -33,8 +33,6 @@
 Makefile.old$
 Makefile$
 pm_to_blib$
-svn-commit\.tmp$
-\.svn
 \bblib/
 ^openssl_path$
 ^cover_db
