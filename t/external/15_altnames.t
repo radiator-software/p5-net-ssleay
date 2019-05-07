@@ -6,7 +6,9 @@ use Test::More;
 use Net::SSLeay;
 
 my @sites = qw(
-        signin.ebay.de
+	www.google.com
+	www.microsoft.com
+	www.kernel.org
 );
 
 @sites = split(/:/, $ENV{SSLEAY_ALTNAME_SITES})
