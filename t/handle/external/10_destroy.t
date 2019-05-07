@@ -5,8 +5,9 @@ use warnings;
 use Test::More;
 
 my @uris = qw(
-        debianforum.de
-        www.open.com.au
+	www.google.com
+	www.microsoft.com
+	www.kernel.org
 );
 @uris = split(/:/, $ENV{SSLEAY_URIS}) if exists $ENV{SSLEAY_URIS};
 if (@uris) {

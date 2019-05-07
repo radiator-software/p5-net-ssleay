@@ -7,10 +7,9 @@ use Symbol qw(gensym);
 use Net::SSLeay::Handle;
 
 my @sites = qw(
-        www.cdw.com
-        banking.wellsfargo.com
-        www.open.com.au
-        alioth.debian.org
+	www.google.com
+	www.microsoft.com
+	www.kernel.org
 );
 @sites = split(/:/, $ENV{SSLEAY_SITES}) if exists $ENV{SSLEAY_SITES};
 if (@sites) {
