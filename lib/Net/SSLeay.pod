@@ -9694,48 +9694,45 @@ Solutions:
 
 =back
 
-=head1 BUGS AND SUPPORT
+=head1 BUGS
 
-Please report any bugs or feature requests to
-C<bug-Net-SSLeay at rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org/Public/Dist/Display.html?Name=Net-SSLeay>.
-I will be notified, and then you'll automatically be notified of progress on
-your bug as I make changes.
+If you encounter a problem with this module that you believe is a bug,
+please report it in one of the following ways:
 
-Subversion access to the latest source code etc can be obtained at
-L<http://alioth.debian.org/projects/net-ssleay>
+=over
 
-The developer mailing list (for people interested in contributing
-to the source code) can be found at
-L<http://lists.alioth.debian.org/mailman/listinfo/net-ssleay-devel>
+=item *
 
-You can find documentation for this module with the C<perldoc> command.
+L<create a new issue|https://github.com/radiator-software/p5-net-ssleay/issues/new>
+under the Net-SSLeay GitHub project at
+L<https://github.com/radiator-software/p5-net-ssleay>;
 
-    perldoc Net::SSLeay
+=item *
 
-You can also look for information at:
+L<open a ticket|https://rt.cpan.org/Ticket/Create.html?Queue=Net-SSLeay> using
+the CPAN RT bug tracker's web interface at
+L<https://rt.cpan.org/Dist/Display.html?Queue=Net-SSLeay>;
 
-=over 4
+=item *
 
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/Net-SSLeay>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/Net-SSLeay>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/Net-SSLeay>
+send an email to the CPAN RT bug tracker at
+L<bug-Net-SSLeay@rt.cpan.org|mailto:bug-Net-SSLeay@rt.cpan.org>.
 
 =back
 
-Commercial support for Net::SSLeay may be obtained from
+Please make sure your bug report includes the following information:
 
-   Symlabs (netssleay@symlabs.com)
-   Tel: +351-214.222.630
-   Fax: +351-214.222.637
+=over
+
+=item * the code you are trying to run;
+
+=item * your operating system name and version;
+
+=item * the output of C<perl -V>;
+
+=item * the version of OpenSSL or LibreSSL you are using.
+
+=back
 
 =head1 AUTHOR
 
