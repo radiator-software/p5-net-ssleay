@@ -1850,6 +1850,7 @@ SSL_CTX *
 SSL_CTX_new()
      CODE:
      RETVAL = SSL_CTX_new (SSLv23_method());
+     SSL_CTX_set_max_proto_version(RETVAL, TLS1_2_VERSION);
      OUTPUT:
      RETVAL
 
@@ -1881,6 +1882,7 @@ SSL_CTX *
 SSL_CTX_v23_new()
      CODE:
      RETVAL = SSL_CTX_new (SSLv23_method());
+     SSL_CTX_set_max_proto_version(RETVAL, TLS1_2_VERSION);
      OUTPUT:
      RETVAL
 
@@ -1888,6 +1890,7 @@ SSL_CTX *
 SSL_CTX_tlsv1_new()
      CODE:
      RETVAL = SSL_CTX_new (TLSv1_method());
+     SSL_CTX_set_max_proto_version(RETVAL, TLS1_2_VERSION);
      OUTPUT:
      RETVAL
 
@@ -1897,6 +1900,7 @@ SSL_CTX *
 SSL_CTX_tlsv1_1_new()
      CODE:
      RETVAL = SSL_CTX_new (TLSv1_1_method());
+     SSL_CTX_set_max_proto_version(RETVAL, TLS1_2_VERSION);
      OUTPUT:
      RETVAL
 
@@ -1908,6 +1912,7 @@ SSL_CTX *
 SSL_CTX_tlsv1_2_new()
      CODE:
      RETVAL = SSL_CTX_new (TLSv1_2_method());
+     SSL_CTX_set_max_proto_version(RETVAL, TLS1_2_VERSION);
      OUTPUT:
      RETVAL
 
@@ -1918,6 +1923,7 @@ SSL_CTX_new_with_method(meth)
      SSL_METHOD * meth
      CODE:
      RETVAL = SSL_CTX_new (meth);
+     SSL_CTX_set_max_proto_version(RETVAL, TLS1_2_VERSION);
      OUTPUT:
      RETVAL
 
