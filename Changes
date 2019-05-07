@@ -260,71 +260,69 @@ Revision history for Perl extension Net::SSLeay.
           unused version control tags from comments.
 
 1.86_01 2018-07-04
-	[Version control system change]
-	- Chris Novakovic did a full conversion from the old Debian
-	  hosted SVN repository to git.
+	- Net::SSLeay functionality was not changed in this release.
 
-	- Fixes to commit metadata, branches and tags that git-svn
-	  couldn't handle or had no way of handling, were done
-	  manually or semi-automatically afterwards. For instance, the
-	  "git-svn-id:" lines that git-svn appends to commit messages
-	  were kept because Mike used SVN revision numbers in RT
-	  replies to indicate when bugs had been fixed/patches applied
-	  (which may be useful for future reference).
+	- Maintainer changes:
+	  - Mike McCauley, maintainer of Net-SSLeay since November 2005,
+	    has stepped down. Thanks to Mike for his 13 years of
+	    stewardship.
+	  - Net-SSLeay is now maintained by Chris Novakovic, Heikki
+	    Vatiainen and Tuure Vartiainen.
 
-	- All commits were replayed onto a single master branch rather
-	  than having separate dead-end branches for the old SVN
-	  version tags (as this seems more "git-like").
+	- Version control system changes:
+	  - The previous Debian-hosted SVN repository has been imported
+	    into Git. The source code is now maintained on GitHub, at
+	    https://github.com/radiator-software/p5-net-ssleay.
 
-	- New lightweight tags were created for each public release
-	  going back as far as the start of the SVN repository using
-	  data from MetaCPAN (cross-referencing with the changelog
-	  when it wasn't clear when a release was cut from the SVN
-	  repo).
+	  - Fixes to commit metadata, branches and tags that git-svn
+	    couldn't handle or had no way of handling, were done
+	    manually or semi-automatically afterwards. For instance, the
+	    "git-svn-id:" lines that git-svn appends to commit messages
+	    were kept because Mike used SVN revision numbers in RT
+	    replies to indicate when bugs had been fixed/patches applied
+	    (which may be useful for future reference).
 
-	- Florian's and Mike's email addresses were mapped to git
-	  author/committer IDs
+	  - All commits were replayed onto a single master branch rather
+	    than having separate dead-end branches for the old SVN
+	    version tags (as this seems more "git-like").
 
-	[Continuous integration]
-	- Travis CI configuration was added for automated testing on
-	   Linux using 64 bit Ubuntu Trusty. Build matrix dimensions
-	   are: Perl 5.8 - 5.26 x OpenSSL 0.9.8zh - 1.1.0h. Only the
-	   currently latest version for each major Perl and OpenSSL
-	   release is chosen.
+	  - New lightweight tags were created for each public release
+	    going back as far as the start of the SVN repository using
+	    data from MetaCPAN (cross-referencing with the changelog
+	    when it wasn't clear when a release was cut from the SVN
+	    repo).
 
-	- AppVeyor configuration was added for automated testing on
-	  Windows. Build matrix dimensions are: Perl 5.8 - 5.26 x
-	  32bit and 64bit Perl environment x Windows Server 2012R2 and
-	  Windows Server 2016. The Perl environment is Strawberry Perl
-	  and its OpenSSL is used with builds. Only the latest major
-	  versions are used, similarly to Travis CI. Net-SSLeay PPM
-	  and PPD files are made available as artifacts.
+	  - Florian's and Mike's email addresses were mapped to git
+	    author/committer IDs
 
-	- Added README.md with link to master branch build and test
-	  status. Did minor updates to README and other misc files.
+	- Continuous integration:
+	  - Travis CI configuration was added for automated testing on
+	    Linux using 64 bit Ubuntu Trusty. Build matrix dimensions
+	    are: Perl 5.8 - 5.26 x OpenSSL 0.9.8zh - 1.1.0h. Only the
+	    currently latest version for each major Perl and OpenSSL
+	    release is chosen.
 
-	[Release packaging]
-	- Files t/local/43_misc_functions.t and
-	  t/local/65_ticket_sharing_2.t were missing from MANIFEST.
+	  - AppVeyor configuration was added for automated testing on
+	    Windows. Build matrix dimensions are: Perl 5.8 - 5.26 x
+	    32bit and 64bit Perl environment x Windows Server 2012R2 and
+	    Windows Server 2016. The Perl environment is Strawberry Perl
+	    and its OpenSSL is used with builds. Only the latest major
+	    versions are used, similarly to Travis CI. Net-SSLeay PPM
+	    and PPD files are made available as artifacts.
 
-	- Updated inc/ directory with Module::Install 1.19. Updated
-	  Makefile.PL author and resource information. Synced
-	  SSLeay.pm under ext/ with the latest changes under
-	  inc/. Reordered use imports so that META.yml gets correctly
-	  regenerated. More Module::Install related changes will
-	  follow.
+	  - Added README.md with link to master branch build and test
+	    status. Did minor updates to README and other misc files.
 
-	[Repository amd maintainer change]
-	- Net::SSLeay functionality was not changed in this
-	  release. Work was done to switch version contorol systems,
-	  add automated testing, update module packaging and change
-	  the primary maintainer. This coincided with the decommission
-	  of previous code repository service on alioth.debian.org.
+	- Release packaging:
+	  - Files t/local/43_misc_functions.t and
+	    t/local/65_ticket_sharing_2.t were missing from MANIFEST.
 
-	- The module is now primarily maintained by Tuure Vartiainen
-	  and Heikki Vatiainen of Radiator Software. The new
-	  repository location is
-	  https://github.com/radiator-software/p5-net-ssleay
+	  - Updated inc/ directory with Module::Install 1.19. Updated
+	    Makefile.PL author and resource information. Synced
+	    SSLeay.pm under ext/ with the latest changes under
+	    inc/. Reordered use imports so that META.yml gets correctly
+	    regenerated. More Module::Install related changes will
+	    follow.
 
 1.85 2018-03-14
 	Preparations for transferring maintenace to a new maintainer
