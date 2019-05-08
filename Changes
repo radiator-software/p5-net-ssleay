@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-????
+1.86_11 2019-05-08
 	- Clarified Net-SSLeay's licensing terms: the module distribution has
 	  been released under the terms of the Artistic License 2.0 since
 	  version 1.66; references to other licenses have been removed. Fixes
