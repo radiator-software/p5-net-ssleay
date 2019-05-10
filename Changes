@@ -1,5 +1,35 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.88 2019-05-10
+	- New stable release incorporating all changes from developer
+	  releases 1.86_01 to 1.86_11.
+	- From this release, Net-SSLeay is switching to an "odd/even"
+	  developer/stable release version numbering system, like that of
+	  many core modules (e.g. ExtUtils::MakeMaker): developer releases
+	  will have an odd minor version number (and the usual "_xx" suffix),
+	  and stable releases will have an even minor version number. This
+	  means there is no Net-SSLeay 1.87.
+	- Summary of major changes since version 1.85:
+	  - Mike McCauley has stepped down as maintainer. The new maintainers
+	    are Chris Novakovic, Heikki Vatiainen and Tuure Vartiainen.
+	  - The source code has moved from the now-defunct Debian Subversion
+	    server (alioth.debian.org) to GitHub
+	    (https://github.com/radiator-software/p5-net-ssleay).
+	  - Net-SSLeay is provided under the terms of the Artistic License
+	    2.0 - this has been the case since version 1.66, but references
+	    to other licenses remained in the source code, causing ambiguity.
+	  - Perl 5.8.1 or newer is now required to use Net-SSLeay. This has
+	    already been the case for some time in practice, as the test
+	    suite hasn't fully passed on Perl 5.6 for several years.
+	  - Much-improved compatibility with OpenSSL 1.1.1, and improved
+	    support for TLS 1.3.
+	  - Fixed a long-standing bug in cb_data_advanced_put() that caused
+	    memory leaks when callbacks were frequently added and removed.
+	  - Support in the test suite for "hardened" OpenSSL configurations
+	    that set a default security level of 2 or higher (e.g., in the
+	    OpenSSL packages that ship with recent versions of Debian, Fedora
+	    and Ubuntu).
+
 1.86_11 2019-05-08
 	- Clarified Net-SSLeay's licensing terms: the module distribution has
 	  been released under the terms of the Artistic License 2.0 since
