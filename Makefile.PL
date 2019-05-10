@@ -59,7 +59,7 @@ my %eumm_args = (
     resources => {
       repository => {
         type => 'git',
-        url => 'git@github.com/radiator-software/p5-net-ssleay.git',
+        url => 'git://github.com/radiator-software/p5-net-ssleay.git',
         web => 'https://github.com/radiator-software/p5-net-ssleay',
       },
       bugtracker  => {
