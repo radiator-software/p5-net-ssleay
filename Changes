@@ -1,5 +1,10 @@
 Revision history for Perl extension Net::SSLeay.
 
+????
+	- Fix the repository URL in Makefile.PL (git:// rather than git@),
+	  which was preventing it from being added to META.json. Thanks to
+	  Dan Book.
+
 1.88 2019-05-10
 	- New stable release incorporating all changes from developer
 	  releases 1.86_01 to 1.86_11.
