@@ -24,13 +24,13 @@ env:
     - AUTOMATED_TESTING=1
     - RELEASE_TESTING=0
   matrix:
-    - OPENSSL_VERSION=1.1.1b
-    - OPENSSL_VERSION=1.1.0j
-    - OPENSSL_VERSION=1.0.2r
+    - OPENSSL_VERSION=1.1.1d
+    - OPENSSL_VERSION=1.1.0l
+    - OPENSSL_VERSION=1.0.2t
     - OPENSSL_VERSION=1.0.1u
     - OPENSSL_VERSION=1.0.0t
     - OPENSSL_VERSION=0.9.8zh
-    - LIBRESSL_VERSION=2.9.1
+    - LIBRESSL_VERSION=2.9.2
     - LIBRESSL_VERSION=2.8.3
     - LIBRESSL_VERSION=2.7.5
     - LIBRESSL_VERSION=2.2.1
@@ -38,9 +38,9 @@ env:
 matrix:
   exclude:
   - perl: "5.8"
-    env: OPENSSL_VERSION=1.1.0j
+    env: OPENSSL_VERSION=1.1.0l
   - perl: "5.8"
-    env: OPENSSL_VERSION=1.1.1b
+    env: OPENSSL_VERSION=1.1.1d
   - perl: "5.8"
     env: LIBRESSL_VERSION=2.2.1
   - perl: "5.8"
@@ -48,7 +48,7 @@ matrix:
   - perl: "5.8"
     env: LIBRESSL_VERSION=2.8.3
   - perl: "5.8"
-    env: LIBRESSL_VERSION=2.9.1
+    env: LIBRESSL_VERSION=2.9.2
   - perl: "5.10"
     env: LIBRESSL_VERSION=2.2.1
   - perl: "5.10"
@@ -56,7 +56,7 @@ matrix:
   - perl: "5.10"
     env: LIBRESSL_VERSION=2.8.3
   - perl: "5.10"
-    env: LIBRESSL_VERSION=2.9.1
+    env: LIBRESSL_VERSION=2.9.2
   - perl: "5.12"
     env: LIBRESSL_VERSION=2.2.1
   - perl: "5.12"
@@ -64,7 +64,7 @@ matrix:
   - perl: "5.12"
     env: LIBRESSL_VERSION=2.8.3
   - perl: "5.12"
-    env: LIBRESSL_VERSION=2.9.1
+    env: LIBRESSL_VERSION=2.9.2
   - perl: "5.14"
     env: LIBRESSL_VERSION=2.2.1
   - perl: "5.14"
@@ -72,7 +72,7 @@ matrix:
   - perl: "5.14"
     env: LIBRESSL_VERSION=2.8.3
   - perl: "5.14"
-    env: LIBRESSL_VERSION=2.9.1
+    env: LIBRESSL_VERSION=2.9.2
   - perl: "5.16"
     env: LIBRESSL_VERSION=2.2.1
   - perl: "5.16"
@@ -80,7 +80,7 @@ matrix:
   - perl: "5.16"
     env: LIBRESSL_VERSION=2.8.3
   - perl: "5.16"
-    env: LIBRESSL_VERSION=2.9.1
+    env: LIBRESSL_VERSION=2.9.2
   - perl: "5.18"
     env: LIBRESSL_VERSION=2.2.1
   - perl: "5.18"
@@ -88,7 +88,7 @@ matrix:
   - perl: "5.18"
     env: LIBRESSL_VERSION=2.8.3
   - perl: "5.18"
-    env: LIBRESSL_VERSION=2.9.1
+    env: LIBRESSL_VERSION=2.9.2
 
 cache:
   directories:
