@@ -1925,8 +1925,8 @@ void
 SSL_CTX_free(ctx)
         SSL_CTX * ctx
      CODE:
-        cb_data_advanced_drop(ctx); /* clean callback related data from global hash */
         SSL_CTX_free(ctx);
+        cb_data_advanced_drop(ctx); /* clean callback related data from global hash */
 
 int
 SSL_CTX_add_session(ctx,ses)
@@ -2059,8 +2059,8 @@ void
 SSL_free(s)
         SSL * s
      CODE:
-        cb_data_advanced_drop(s); /* clean callback related data from global hash */
         SSL_free(s);
+        cb_data_advanced_drop(s); /* clean callback related data from global hash */
 
 #if 0 /* this seems to be gone in 0.9.0 */
 void
