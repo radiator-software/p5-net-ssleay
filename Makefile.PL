@@ -105,7 +105,7 @@ MAKE
 sub ssleay {
     my $prefix = find_openssl_prefix();
     my $exec   = find_openssl_exec($prefix);
-    unless (-x $exec) {
+    unless (defined $exec && -x $exec) {
         print <<EOM;
 *** Could not find OpenSSL
     If it's already installed, please set the OPENSSL_PREFIX environment

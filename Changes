@@ -4,6 +4,8 @@ Revision history for Perl extension Net::SSLeay.
 	- Fix the repository URL in Makefile.PL (git:// rather than git@),
 	  which was preventing it from being added to META.json. Thanks to
 	  Dan Book.
+	- When building Net-SSLeay, exit if an OpenSSL executable cannot be
+	  found in PATH. Fixes RT#131060. Thanks to Nigel Horne for the report.
 
 1.88 2019-05-10
 	- New stable release incorporating all changes from developer
