@@ -279,6 +279,10 @@ sub find_openssl_prefix {
     (undef, $dir) = check_no_path()
        and return $dir;
 
+    if(eval { require Alien::LibreSSL; Alien::LibreSSL->install_type('share'); }) {
+        return Alien::LibreSSL->dist_dir;
+    }
+
     return;
 }
 
