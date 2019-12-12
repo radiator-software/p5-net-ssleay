@@ -10,6 +10,8 @@ Revision history for Perl extension Net::SSLeay.
 	  local tests or fail for reasons outside of our control. Fixes
 	  RT#129542. Thanks to Andreas Vögele for the bug report that
 	  ultimately led to this change.
+	- Add support for LibreSSL on Windows when built with Visual C++.
+	  Thanks to Graham Ollis for the patch.
 
 1.88 2019-05-10
 	- New stable release incorporating all changes from developer
