@@ -12,6 +12,10 @@ Revision history for Perl extension Net::SSLeay.
 	  ultimately led to this change.
 	- Add support for LibreSSL on Windows when built with Visual C++.
 	  Thanks to Graham Ollis for the patch.
+	- In SSL_CTX_free() and SSL_free(), clean callback-related data from
+	  the global hash after freeing ctx, not before. This allows callbacks
+	  to be executed during freeing. Thanks to Steffen Ullrich for the
+	  patch.
 
 1.88 2019-05-10
 	- New stable release incorporating all changes from developer
