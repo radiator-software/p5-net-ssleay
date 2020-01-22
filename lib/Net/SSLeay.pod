@@ -6957,6 +6957,22 @@ Sets serial number of X509_CRL object to $crl_number.
  #
  # returns: 1 on success, 0 on failure
 
+=item * P_X509_CRL_add_extensions
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.88 and before
+
+Adds one or more X509 extensions to X509 CRL object $x.
+
+ my $rv = Net::SSLeay::P_X509_CRL_add_extensions($x, $ca_cert, $nid, $value);
+ # $x - value corresponding to openssl's X509 CRL structure
+ # $ca_cert - value corresponding to openssl's X509 structure (issuer's cert - necessary for sertting NID_authority_key_identifier)
+ # $nid - NID identifying extension to be set
+ # $value - extension value
+ #
+ # returns: 1 on success, 0 on failure
+
+For more details see L</P_X509_add_extensions>.
+
 =back
 
 =head3 Low level API: X509_EXTENSION_* related functions
