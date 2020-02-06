@@ -8,7 +8,7 @@ use File::Spec;
 use File::Basename ();
 use Symbol qw(gensym);
 
-# Define this to one if you want to link the openssl libraries statically into 
+# Define this to one if you want to link the openssl libraries statically into
 # the Net-SSLeay loadable object on Windows
 my $win_link_statically = 0;
 
@@ -248,10 +248,12 @@ sub find_openssl_prefix {
         return $ENV{OPENSSL_PREFIX};
     }
 
+    # Homebrew (macOS) or LinuxBrew
+    if ($^O ne 'win32' and my $prefix = `brew --prefix openssl 2>&1`) {
+        return $prefix;
+    }
+
     my @guesses = (
-	'/home/linuxbrew/.linuxbrew/opt/openssl/bin/openssl' => '/home/linuxbrew/.linuxbrew/opt/openssl', # LinuxBrew openssl
-	'/usr/local/opt/openssl/bin/openssl' => '/usr/local/opt/openssl', # OSX homebrew openssl
-	'/usr/local/bin/openssl'         => '/usr/local', # OSX homebrew openssl
 	'/opt/local/bin/openssl'         => '/opt/local', # Macports openssl
 	'/usr/bin/openssl'               => '/usr',
 	'/usr/sbin/openssl'              => '/usr',
