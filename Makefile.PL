@@ -250,6 +250,7 @@ sub find_openssl_prefix {
 
     # Homebrew (macOS) or LinuxBrew
     if ($^O ne 'MSWin32' and my $prefix = `brew --prefix openssl 2>@{[File::Spec->devnull]}`) {
+        chomp $prefix;
         return $prefix;
     }
 
