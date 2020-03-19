@@ -16,6 +16,14 @@ Revision history for Perl extension Net::SSLeay.
 	  the global hash after freeing ctx, not before. This allows callbacks
 	  to be executed during freeing. Thanks to Steffen Ullrich for the
 	  patch.
+	- t/local/07_sslecho.t started failing with OpenSSL
+          1.1.1e. Updated the test file with missing calls to
+          Net::SSLeay::shutdown(). Also added one callin SSLeay.pm
+          sslcat() function. Enabling SSLeay trace level 3 showed
+          'unexpected eof while reading' errors which were added to
+          OpenSSL with commit
+          https://github.com/openssl/openssl/commit/db943f43a60d1b5b1277e4b5317e8f288e7a0a3a
+          This fixes GitHub issue GH-160 reported by Brett T. Warden.
 
 1.88 2019-05-10
 	- New stable release incorporating all changes from developer
