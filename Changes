@@ -24,6 +24,9 @@ Revision history for Perl extension Net::SSLeay.
           OpenSSL with commit
           https://github.com/openssl/openssl/commit/db943f43a60d1b5b1277e4b5317e8f288e7a0a3a
           This fixes GitHub issue GH-160 reported by Brett T. Warden.
+        - t/local/01_pod.t now requires Test::Pod 1.41 to work with
+          Pod syntax used with Net::SSleay 1.88 and later. This fixes
+          GitHub issue GH-147 reported by Ulrik Haugen.
 
 1.88 2019-05-10
 	- New stable release incorporating all changes from developer
