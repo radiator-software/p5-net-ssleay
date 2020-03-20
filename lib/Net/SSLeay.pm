@@ -1120,6 +1120,7 @@ sub sslcat { # address, port, message, $crt, $key --> reply / (reply,errs,cert)
     goto cleanup unless $written;
 
     sleep $slowly if $slowly;  # Closing too soon can abort broken servers
+    Net::SSLeay::shutdown($ssl); # Useful starting with OpenSSL 1.1.1e
     CORE::shutdown SSLCAT_S, 1;  # Half close --> No more output, send EOF to server
 
     warn "waiting for reply...\n" if $trace>2;
