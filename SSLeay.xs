@@ -3642,6 +3642,41 @@ P_X509_add_extensions(x,ca_cert,...)
     OUTPUT:
             RETVAL
 
+int
+P_X509_CRL_add_extensions(x,ca_cert,...)
+        X509_CRL *x
+        X509 *ca_cert
+    PREINIT:
+        int i=2;
+        int nid;
+        char *data;
+        X509_EXTENSION *ex;
+        X509V3_CTX ctx;
+    CODE:
+        if (items>1) {
+            RETVAL = 1;
+            while(i+1<items) {
+                nid = SvIV(ST(i));
+                data = SvPV_nolen(ST(i+1));
+                i+=2;
+                X509V3_set_ctx(&ctx, ca_cert, NULL, NULL, x, 0);
+                ex = X509V3_EXT_conf_nid(NULL, &ctx, nid, data);
+                if (ex) {
+                    X509_CRL_add_ext(x,ex,-1);
+                    X509_EXTENSION_free(ex);
+                }
+                else {
+                    warn("failure during X509V3_EXT_conf_nid() for nid=%d\n", nid);
+                    ERR_print_errors_fp(stderr);
+                    RETVAL = 0;
+                }
+            }
+        }
+        else
+            RETVAL = 0;
+    OUTPUT:
+            RETVAL
+
 void
 P_X509_copy_extensions(x509_req,x509,override=1)
         X509_REQ *x509_req

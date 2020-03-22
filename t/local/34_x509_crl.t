@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 41;
+use Test::More tests => 42;
 use Net::SSLeay;
 use File::Spec;
 
@@ -102,6 +102,10 @@ ok(my $ca_pk = Net::SSLeay::PEM_read_bio_PrivateKey($bio2), "PEM_read_bio_Privat
   Net::SSLeay::ASN1_TIME_free($rev_datetime);
   Net::SSLeay::ASN1_TIME_free($comp_datetime);
   
+  ok(Net::SSLeay::P_X509_CRL_add_extensions($crl,$ca_cert,
+        &Net::SSLeay::NID_authority_key_identifier => 'keyid:always,issuer:always',
+    ), "P_X509_CRL_add_extensions");
+
   ok(my $sha1_digest = Net::SSLeay::EVP_get_digestbyname("sha1"), "EVP_get_digestbyname");
   SKIP: {
     skip('requires openssl-0.9.7', 1) unless Net::SSLeay::SSLeay >= 0x0090700f;

@@ -1,5 +1,9 @@
 Revision history for Perl extension Net::SSLeay.
 
+????
+	- Add support for the P_X509_CRL_add_extensions function. Thanks to
+	  Manuel Mausz for the patch.
+
 1.89_01 2020-03-22
 	- Fix the repository URL in Makefile.PL (git:// rather than git@),
 	  which was preventing it from being added to META.json. Thanks to
