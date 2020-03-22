@@ -3659,7 +3659,7 @@ P_X509_CRL_add_extensions(x,ca_cert,...)
                 nid = SvIV(ST(i));
                 data = SvPV_nolen(ST(i+1));
                 i+=2;
-                X509V3_set_ctx(&ctx, ca_cert, x, NULL, NULL, 0);
+                X509V3_set_ctx(&ctx, ca_cert, NULL, NULL, x, 0);
                 ex = X509V3_EXT_conf_nid(NULL, &ctx, nid, data);
                 if (ex) {
                     X509_CRL_add_ext(x,ex,-1);

@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 41;
+use Test::More tests => 42;
 use Net::SSLeay;
 use File::Spec;
 
