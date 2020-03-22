@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-????
+1.89_01 2020-03-22
 	- Fix the repository URL in Makefile.PL (git:// rather than git@),
 	  which was preventing it from being added to META.json. Thanks to
 	  Dan Book.
@@ -16,17 +16,15 @@ Revision history for Perl extension Net::SSLeay.
 	  the global hash after freeing ctx, not before. This allows callbacks
 	  to be executed during freeing. Thanks to Steffen Ullrich for the
 	  patch.
-	- t/local/07_sslecho.t started failing with OpenSSL
-          1.1.1e. Updated the test file with missing calls to
-          Net::SSLeay::shutdown(). Also added one callin SSLeay.pm
-          sslcat() function. Enabling SSLeay trace level 3 showed
-          'unexpected eof while reading' errors which were added to
-          OpenSSL with commit
-          https://github.com/openssl/openssl/commit/db943f43a60d1b5b1277e4b5317e8f288e7a0a3a
-          This fixes GitHub issue GH-160 reported by Brett T. Warden.
-        - t/local/01_pod.t now requires Test::Pod 1.41 to work with
-          Pod syntax used with Net::SSleay 1.88 and later. This fixes
-          GitHub issue GH-147 reported by Ulrik Haugen.
+	- t/local/07_sslecho.t started failing with OpenSSL 1.1.1e. Updated
+	  the test file with missing calls to Net::SSLeay::shutdown(). Also
+	  added one call in SSLeay.pm sslcat() function. Enabling SSLeay trace
+	  level 3 showed 'unexpected eof while reading' errors which were added
+	  to OpenSSL with commit db943f43. This fixes GitHub issue GH-160
+	  reported by Brett T. Warden.
+	- t/local/01_pod.t now requires Test::Pod 1.41 to work with Pod syntax
+	  used with Net::SSLeay 1.88 and later. This fixes GitHub issue GH-147
+	  reported by Ulrik Haugen.
 
 1.88 2019-05-10
 	- New stable release incorporating all changes from developer
