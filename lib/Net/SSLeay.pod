@@ -6129,7 +6129,12 @@ Returns the list of alternative subject names from X509 certificate $cert.
  #          7 - GEN_IPADD
  #          8 - GEN_RID
 
-Note: type 7 - GEN_IPADD contains the IP address as a packed binary address.
+Note: type 7 - GEN_IPADD contains the IP address as a packed binary
+address. GEN_RID is available in Net-SSLeay-1.90 and later. Maximum
+length for returned RID string is currently 2500. Invalid and overly
+long RID values are skipped and not returned. GEN_X400 and
+GEN_EDIPARTY are not supported and will not be returned even when
+present in the certificate.
 
 =item * X509_get_subject_name
 

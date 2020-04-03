@@ -8,6 +8,17 @@ use Data::Dumper;
 use IO::Socket::INET;
 use Net::SSLeay qw/XN_FLAG_RFC2253 ASN1_STRFLGS_ESC_MSB/;
 
+# Sorting keys helps keeping diffs at minimum between dumps.
+#
+# Quotekeys and Trailingcomma were set to match format used to
+# generate t/data/testcert_extended.crt.pem_dump when it was initially
+# imported to version control. They can likely be dropped in a future
+# release.
+$Data::Dumper::Sortkeys = 1;
+$Data::Dumper::Useqq = 1;
+$Data::Dumper::Quotekeys = 0;
+$Data::Dumper::Trailingcomma = 1;
+
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();
 Net::SSLeay::ERR_load_crypto_strings();

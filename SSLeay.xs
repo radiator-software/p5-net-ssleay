@@ -3825,8 +3825,21 @@ X509_get_subjectAltNames(cert)
                          count++;
                          PUSHs(sv_2mortal(newSViv(subjAltNameDN->type)));
                          PUSHs(sv_2mortal(newSVpv((buf), strlen((buf)))));
-                         break;
                          }
+                         break;
+
+                     case GEN_RID:
+                         {
+			 char buf[2501]; /* Much more than what's suggested on OBJ_obj2txt manual page */
+                         int len = OBJ_obj2txt(buf, sizeof(buf), subjAltNameDN->d.rid, 1);
+			 if (len < 0 || len > (int)((sizeof(buf) - 1)))
+			   break; /* Skip bad or overly long RID */
+                         EXTEND(SP, 2);
+                         count++;
+                         PUSHs(sv_2mortal(newSViv(subjAltNameDN->type)));
+                         PUSHs(sv_2mortal(newSVpv(buf, 0)));
+                         }
+                         break;
 
                      case GEN_IPADD:
                          EXTEND(SP, 2);
