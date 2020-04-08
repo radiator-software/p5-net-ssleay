@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 123;
+use Test::More tests => 139;
 use Net::SSLeay qw/MBSTRING_ASC MBSTRING_UTF8 EVP_PK_RSA EVP_PKT_SIGN EVP_PKT_ENC/;
 use File::Spec;
 use utf8;
@@ -148,13 +148,38 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
   ok(Net::SSLeay::X509_NAME_add_entry_by_txt($name, "commonName", MBSTRING_UTF8, "Common name text X509_REQ"), "X509_NAME_add_entry_by_txt");
   ok(Net::SSLeay::X509_NAME_add_entry_by_txt($name, "countryName", MBSTRING_UTF8, "UK"), "X509_NAME_add_entry_by_txt");
   ok(Net::SSLeay::X509_NAME_add_entry_by_txt($name, "organizationName", MBSTRING_UTF8, "Company Name"), "X509_NAME_add_entry_by_txt");
-  
+
+  # All these subjectAltNames should be copied to the
+  # certificate. This array is also used later when checking the
+  # signed certificate.
+  my @req_altnames = (
+      # Numeric type,                 Type name,       Value to add,     Value to expect back, if not equal
+     #[ Net::SSLeay::GEN_DIRNAME(),   'dirName',       'dir_sect' ], # Would need config file
+      [ Net::SSLeay::GEN_DNS(),       'DNS',           's1.com' ],
+      [ Net::SSLeay::GEN_DNS(),       'DNS',           's2.com' ],
+     #[ Net::SSLeay::GEN_EDIPARTY(),  'EdiPartyName?', '' ], # Name not in OpenSSL source
+      [ Net::SSLeay::GEN_EMAIL(),     'email',         'foo@xample.com.com' ],
+      [ Net::SSLeay::GEN_IPADD(),     'IP',            '10.20.30.41', pack('CCCC', '10', '20', '30', '41') ],
+      [ Net::SSLeay::GEN_IPADD(),     'IP',            '2001:db8:23::1', pack('nnnnnnnn', 0x2001, 0x0db8, 0x23, 0, 0, 0, 0, 0x01) ],
+      [ Net::SSLeay::GEN_OTHERNAME(), 'otherName',     '2.3.4.5;UTF8:some other identifier', 'some other identifier' ],
+      [ Net::SSLeay::GEN_RID(),       'RID',           '1.2.3.4.1.2.3.4.1.2.3.4.1.2.3.4.1.2.3.4.1.2.3.4.1.2.3.4.1.2.3.4.1.2.3.4.1.2.3.4.1.2.3.4.1.2.3.4.1.2.3.4.1.2.3.4.1.2.3.4.99.1234' ],
+      [ Net::SSLeay::GEN_URI(),       'URI',           'https://john.doe@www.example.com:123/forum/questions/?tag=networking&order=newest#top' ],
+     #[ Net::SSLeay::GEN_X400(),      'X400Name?',     '' ], # Name not in OpenSSL source
+      );
+
+  # Create a comma separated list of typename:value altnames
+  my $req_ext_altname = '';
+  foreach my $alt (@req_altnames) {
+      $req_ext_altname .= "$alt->[1]:$alt->[2],";
+  }
+  chop $req_ext_altname; # Remove trailing comma
+
   ok(Net::SSLeay::P_X509_REQ_add_extensions($req,
         &Net::SSLeay::NID_key_usage => 'digitalSignature,keyEncipherment',
         &Net::SSLeay::NID_basic_constraints => 'CA:FALSE',
         &Net::SSLeay::NID_ext_key_usage => 'serverAuth,clientAuth',
         &Net::SSLeay::NID_netscape_cert_type => 'server',
-        &Net::SSLeay::NID_subject_alt_name => 'DNS:s1.com,DNS:s2.com',
+        &Net::SSLeay::NID_subject_alt_name => $req_ext_altname,
         &Net::SSLeay::NID_crl_distribution_points => 'URI:http://pki.com/crl1,URI:http://pki.com/crl2',        
     ), "P_X509_REQ_add_extensions");
   
@@ -220,7 +245,19 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
     like(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get_notBefore($x509ss)), qr/^\d\d\d\d-\d\d-\d\d/, "X509_get_notBefore");
     like(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get_notAfter($x509ss)), qr/^\d\d\d\d-\d\d-\d\d/, "X509_get_notAfter");
   }
-  
+
+  # See that all subjectAltNames added to request were copied to the certificate
+  my @altnames = Net::SSLeay::X509_get_subjectAltNames($x509ss);
+  for (my $i = 0; $i < @req_altnames; $i++)
+  {
+      my ($type, $name) = ($altnames[2*$i], $altnames[2*$i+1]);
+      my $test_vec = $req_altnames[$i];
+      my $expected = defined $test_vec->[3] ? $test_vec->[3] : $test_vec->[2];
+
+      is($type, $test_vec->[0], "subjectAltName type in certificate matches request: $type");
+      is($name, $expected, "subjectAltName value in certificate matches request: $test_vec->[2]");
+  }
+
   my $mask = EVP_PK_RSA | EVP_PKT_SIGN | EVP_PKT_ENC;
   is(Net::SSLeay::X509_certificate_type($x509ss)&$mask, $mask, "X509_certificate_type");
  

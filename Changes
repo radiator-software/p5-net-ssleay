@@ -3,6 +3,13 @@ Revision history for Perl extension Net::SSLeay.
 ????
 	- Add support for the P_X509_CRL_add_extensions function. Thanks to
 	  Manuel Mausz for the patch.
+	- X509_get_subjectAltNames now knows how to return
+	  GEN_RID. The returned value is an ASN OID in text format
+	  with current maximum length of 2500 characters. Updated
+	  t/local/33_x509_create_cert.t to use GEN_RID and all other
+	  supported types with certificate request and signed
+	  certificate. These relate to GitHub issue GH-149 opened by
+	  s482dcaw.
 
 1.89_01 2020-03-22
 	- Fix the repository URL in Makefile.PL (git:// rather than git@),
