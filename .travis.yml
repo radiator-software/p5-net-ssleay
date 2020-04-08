@@ -113,8 +113,23 @@ before_install:
   - mkdir -p openssl_version_cache/build
 
 install:
-  - if [ -n "$OPENSSL_VERSION" ] && [ ! -f openssl_version_cache/src/openssl-$OPENSSL_VERSION.tar.gz ]; then wget -k -P openssl_version_cache/src https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz; fi
-  - if [ -n "$LIBRESSL_VERSION" ] && [ ! -f openssl_version_cache/src/libressl-$LIBRESSL_VERSION.tar.gz ]; then wget -k -P openssl_version_cache/src https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-$LIBRESSL_VERSION.tar.gz; fi
+  - |
+    if [ -n "$OPENSSL_VERSION" ] && [ ! -f openssl_version_cache/src/openssl-$OPENSSL_VERSION.tar.gz ]; then
+      case "$OPENSSL_VERSION" in
+        0.9.8*)
+          SRC_OLD_DIR=0.9.x
+          ;;
+        *)
+          SRC_OLD_DIR="$(echo "$OPENSSL_VERSION" | sed -e 's/[a-z]*$//')"
+          ;;
+      esac
+      wget -P openssl_version_cache/src https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz ||
+        wget -P openssl_version_cache/src https://www.openssl.org/source/old/$SRC_OLD_DIR/openssl-$OPENSSL_VERSION.tar.gz
+    fi
+  - |
+    if [ -n "$LIBRESSL_VERSION" ] && [ ! -f openssl_version_cache/src/libressl-$LIBRESSL_VERSION.tar.gz ]; then
+      wget -P openssl_version_cache/src https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-$LIBRESSL_VERSION.tar.gz
+    fi
 
 script:
   - |
