@@ -1,13 +1,12 @@
-#!/usr/bin/perl
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
+use Test::Net::SSLeay;
+
 use IO::Socket::INET;
-use Net::SSLeay;
 
-plan skip_all => "no OCSP support" 
-    if ! defined &Net::SSLeay::OCSP_response_status;
+if (!defined &Net::SSLeay::OCSP_response_status) {
+    plan skip_all => 'No support for OCSP in your OpenSSL';
+}
 
 #$Net::SSLeay::trace=3;
 

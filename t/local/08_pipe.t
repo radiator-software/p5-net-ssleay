@@ -1,20 +1,18 @@
-#!/usr/bin/perl
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
 use Net::SSLeay;
-use Symbol qw( gensym );
-use IO::Handle;
-use File::Spec;
+use Test::Net::SSLeay;
+
 use Config;
+use File::Spec;
+use IO::Handle;
+use Symbol qw( gensym );
 
-BEGIN {
-  plan skip_all => "Either pipes or fork() not supported on $^O"
-      if ($^O eq 'MSWin32' || !$Config{d_fork});
+if ($^O eq 'MSWin32' || !$Config{d_fork}) {
+    plan skip_all => "Either pipes or fork() not supported on $^O";
+} else {
+    plan tests => 11;
 }
-
-plan tests => 11;
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();

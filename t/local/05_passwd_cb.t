@@ -1,10 +1,13 @@
-#!/usr/bin/perl
+# Test password entry callback functionality
 
-use strict;
-use warnings;
-use Test::More tests => 36;
-use File::Spec;
+use lib 'inc';
+
 use Net::SSLeay;
+use Test::Net::SSLeay;
+
+use File::Spec;
+
+plan tests => 36;
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();

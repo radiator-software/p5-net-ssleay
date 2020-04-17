@@ -1,9 +1,9 @@
-#!/usr/bin/perl
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More tests => 10;
 use Net::SSLeay;
+use Test::Net::SSLeay;
+
+plan tests => 10;
 
 my $atime1 = Net::SSLeay::ASN1_TIME_new();
 ok($atime1, 'ASN1_TIME_new [1]');

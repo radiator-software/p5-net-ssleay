@@ -1,20 +1,22 @@
-#!/usr/bin/perl
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
-use Socket;
-use File::Spec;
-use Symbol qw(gensym);
 use Net::SSLeay;
+use Test::Net::SSLeay;
+
 use Config;
+use File::Spec;
+use Socket;
+use Symbol qw(gensym);
 
 BEGIN {
-  plan skip_all => "openssl 1.0.2 required" unless Net::SSLeay::SSLeay >= 0x10002000;
-  plan skip_all => "fork() not supported on $^O" unless $Config{d_fork};
+    if (Net::SSLeay::SSLeay < 0x10002000) {
+        plan skip_all => "OpenSSL 1.0.2 or above required";
+    } elsif (!$Config{d_fork}) {
+        plan skip_all => "fork() not supported on $^O";
+    } else {
+        plan tests => 6;
+    }
 }
-
-plan tests => 6; 
 
 my $sock;
 my $pid;

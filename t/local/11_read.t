@@ -1,25 +1,22 @@
-#!/usr/bin/perl
+# Various SSL read and write related tests: SSL_read, SSL_peek, SSL_read_ex,
+# SSL_peek_ex, SSL_write_ex, SSL_pending and SSL_has_pending
 
-# Various SSL read and write related tests:
-# - SSL_read, SSL_peek, SSL_read_ex, SSL_peek_ex,
-# - SSL_write_ex, SSL_pending and SSL_has_pending.
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
-use Socket;
-use File::Spec;
 use Net::SSLeay;
+use Test::Net::SSLeay;
+
 use Config;
+use File::Spec;
 use IO::Socket::INET;
+use Socket;
 use Storable;
 
-BEGIN {
-  plan skip_all => "fork() not supported on $^O" unless $Config{d_fork};
+if (!$Config{d_fork}) {
+    plan skip_all => "fork() not supported on $^O";
+} else {
+    plan tests => 53;
 }
-
-my $tests = 53;
-plan tests => $tests;
 
 my $pid;
 alarm(30);

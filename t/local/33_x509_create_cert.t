@@ -1,13 +1,12 @@
-#!/usr/bin/perl
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More tests => 139;
-use Net::SSLeay qw/MBSTRING_ASC MBSTRING_UTF8 EVP_PK_RSA EVP_PKT_SIGN EVP_PKT_ENC/;
-use File::Spec;
+use Net::SSLeay qw(MBSTRING_ASC MBSTRING_UTF8 EVP_PK_RSA EVP_PKT_SIGN EVP_PKT_ENC);
+use Test::Net::SSLeay;
+
 use utf8;
+use File::Spec;
 
-#use File::Slurp;
+plan tests => 139;
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();

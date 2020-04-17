@@ -1,14 +1,14 @@
-#!/usr/bin/perl
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
 use Net::SSLeay;
+use Test::Net::SSLeay;
 
 eval 'use Test::Exception';
-plan skip_all => 'Test::Exception required' if $@;
-
-plan tests => 14;
+if ($@) {
+    plan skip_all => 'Test::Exception required';
+} else {
+    plan tests => 14;
+}
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();

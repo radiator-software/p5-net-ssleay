@@ -1,12 +1,11 @@
-#!/usr/bin/perl
+# RAND-related tests
 
-# RAND related tests
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
-use File::Spec;
 use Net::SSLeay;
+use Test::Net::SSLeay;
+
+use File::Spec;
 
 plan tests => 52;
 

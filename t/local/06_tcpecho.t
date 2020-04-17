@@ -1,18 +1,19 @@
-#!/usr/bin/perl
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
+use Net::SSLeay;
+use Test::Net::SSLeay;
+
+use Config;
 use Socket;
 use Symbol qw(gensym);
-use Net::SSLeay;
-use Config;
 
 BEGIN {
-  plan skip_all => "fork() not supported on $^O" unless $Config{d_fork};
+    if (!$Config{d_fork}) {
+        plan skip_all => "fork() not supported on $^O";
+    } else {
+        plan tests => 4;
+    }
 }
-
-plan tests => 4;
 
 my $sock;
 my $pid;

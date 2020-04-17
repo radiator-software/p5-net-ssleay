@@ -1,21 +1,24 @@
-#!/usr/bin/perl
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
-use Socket;
-use File::Spec;
-use Symbol qw(gensym);
 use Net::SSLeay;
+use Test::Net::SSLeay;
+
 use Config;
+use File::Spec;
+use Socket;
+use Symbol qw(gensym);
 
 BEGIN {
-  plan skip_all => "openssl 1.0.1 required" unless Net::SSLeay::SSLeay >= 0x10001000;
-  plan skip_all => "libressl removed support for NPN" if Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER");
-  plan skip_all => "fork() not supported on $^O" unless $Config{d_fork};
+    if (Net::SSLeay::SSLeay < 0x10001000) {
+        plan skip_all => "OpenSSL 1.0.1 or above required";
+    } elsif (Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER")) {
+        plan skip_all => "LibreSSL removed support for NPN";
+    } elsif (!$Config{d_fork}) {
+        plan skip_all => "fork() not supported on $^O";
+    } else {
+        plan tests => 7;
+    }
 }
-
-plan tests => 7; 
 
 my $sock;
 my $pid;
