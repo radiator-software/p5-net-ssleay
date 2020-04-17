@@ -1,15 +1,15 @@
-#!/usr/bin/perl
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
 use Net::SSLeay;
+use Test::Net::SSLeay;
 
-plan skip_all => 'openssl-1.1.0 required' unless Net::SSLeay::SSLeay >= 0x10100001;
-plan skip_all => 'get/set_security_level not available with LibreSSL' if Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER");
-
-plan tests => 20;
-
+if (Net::SSLeay::SSLeay < 0x10100001) {
+    plan skip_all => 'OpenSSL 1.1.0 required';
+} elsif (Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER")) {
+    plan skip_all => 'get/set_security_level not available with LibreSSL';
+} else {
+    plan tests => 20;
+}
 
 my $ctx = Net::SSLeay::CTX_new();
 ok( defined Net::SSLeay::CTX_get_security_level($ctx),

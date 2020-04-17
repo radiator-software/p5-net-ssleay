@@ -1,12 +1,13 @@
-#!/usr/bin/perl
+# Test version and initialisation functions
 
-use strict;
-use warnings;
-use Test::More tests => 14;
+use lib 'inc';
+
 use Net::SSLeay;
+use Test::Net::SSLeay;
+
+plan tests => 14;
 
 eval "use Test::Exception;";
-
 SKIP: {
     skip 'Need Test::Exception for the some tests', 6 if $@;
     lives_ok( sub { Net::SSLeay::randomize() }, 'randomizing' );

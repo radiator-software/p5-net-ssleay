@@ -1,15 +1,15 @@
-#!/usr/bin/perl
-#
 # Test various verify and ASN functions
-# added 2010-04-16
 
-use strict;
-use warnings;
-use Test::More tests => 103;
+use lib 'inc';
+
 use Net::SSLeay;
+use Test::Net::SSLeay;
+
+use Config;
 use File::Spec;
 use IO::Socket::INET;
-use Config;
+
+plan tests => 103;
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();

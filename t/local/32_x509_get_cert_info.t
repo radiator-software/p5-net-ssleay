@@ -1,11 +1,12 @@
-#!/usr/bin/perl
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More tests => 1018;
 use Net::SSLeay;
-use File::Spec;
+use Test::Net::SSLeay;
+
 use lib '.';
+use File::Spec;
+
+plan tests => 1018;
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();

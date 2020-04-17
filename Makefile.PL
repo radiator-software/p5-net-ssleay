@@ -36,7 +36,10 @@ my %eumm_args = (
     'ExtUtils::MakeMaker' => '0',
   },
   TEST_REQUIRES => {
+    'Carp' => '0',
+    'English' => '0',
     'Test::More' => '0.60_01',
+    'base' => '0',
   },
   PREREQ_PM => {
     'MIME::Base64' => '0',

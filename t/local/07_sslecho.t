@@ -1,19 +1,21 @@
-#!/usr/bin/perl
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
-use Socket;
-use File::Spec;
-use Symbol qw(gensym);
 use Net::SSLeay;
+use Test::Net::SSLeay;
+
 use Config;
+use File::Spec;
+use Socket;
+use Symbol qw(gensym);
 
 BEGIN {
-  plan skip_all => "fork() not supported on $^O" unless $Config{d_fork};
+    if (!$Config{d_fork}) {
+        plan skip_all => "fork() not supported on $^O";
+    } else {
+        plan tests => 122;
+    }
 }
 
-plan tests => 122;
 $SIG{'PIPE'} = 'IGNORE';
 
 my $sock;

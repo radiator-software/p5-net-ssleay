@@ -1,25 +1,23 @@
-#!/usr/bin/perl
+# Various TLS exporter-related tests
 
-# Various TLS exporter related tests.
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
-use Socket;
-use File::Spec;
 use Net::SSLeay;
+use Test::Net::SSLeay;
+
 use Config;
+use File::Spec;
 use IO::Socket::INET;
+use Socket;
 use Storable;
 
-BEGIN {
-  plan skip_all => "fork() not supported on $^O" unless $Config{d_fork};
-  plan skip_all => "No export_keying_material()" unless defined &Net::SSLeay::export_keying_material;
-
+if (!$Config{d_fork}) {
+    plan skip_all => "fork() not supported on $^O";
+} elsif (!defined &Net::SSLeay::export_keying_material) {
+    plan skip_all => "No export_keying_material()";
+} else {
+    plan tests => 36;
 }
-
-my $tests = 36;
-plan tests => $tests;
 
 my $pid;
 alarm(30);

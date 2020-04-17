@@ -1,10 +1,11 @@
-#!/usr/bin/perl
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More tests => 203;
-use File::Spec;
 use Net::SSLeay;
+use Test::Net::SSLeay;
+
+use File::Spec;
+
+plan tests => 203;
 
 sub digest_chunked_f1 {
   my ($file, $digest) = @_;

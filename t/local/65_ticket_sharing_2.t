@@ -1,22 +1,22 @@
-#!/usr/bin/perl
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
-use Socket;
-use File::Spec;
 use Net::SSLeay;
+use Test::Net::SSLeay;
+
 use Config;
+use File::Spec;
+use Socket;
+
+if (!defined &Net::SSLeay::set_session_ticket_ext_cb) {
+    plan skip_all => "no support for session_ticket_ext_cb";
+} else {
+    plan tests => 4;
+}
 
 # for debugging only
 my $DEBUG = 0;
 my $PCAP = 0;
 require Net::PcapWriter if $PCAP;
-
-plan skip_all => "no support for session_ticket_ext_cb"
-    if ! defined &Net::SSLeay::set_session_ticket_ext_cb;
-my $tests = 4;
-plan tests => $tests;
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();
