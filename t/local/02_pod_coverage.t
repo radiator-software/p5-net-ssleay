@@ -12,9 +12,10 @@ eval "use Test::Pod::Coverage 1.00";
 if ($@) {
     plan skip_all => 'Test::Pod::Coverage >= 1.00 required for testing pod coverage';
 } else {
-    plan tests => 3;
+    plan tests => 4;
 }
 
 pod_coverage_ok('Net::SSLeay');
 pod_coverage_ok('Net::SSLeay::Handle');
 pod_coverage_ok('Test::Net::SSLeay');
+pod_coverage_ok('Test::Net::SSLeay::Socket');

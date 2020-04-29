@@ -3,11 +3,10 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay;
+use Test::Net::SSLeay qw(tcp_socket);
 
 use Config;
 use File::Spec;
-use IO::Socket::INET;
 
 plan tests => 103;
 
@@ -84,13 +83,11 @@ my $server;
 SKIP: {
      skip "fork() not supported on $^O", 54, unless $Config{d_fork};
 
-     $server = IO::Socket::INET->new( LocalAddr => '127.0.0.1', Listen => 3)
-	 or BAIL_OUT("failed to create server socket: $!");
+     $server = tcp_socket();
 
      run_server();
-     my $server_addr = $server->sockhost.':'.$server->sockport;
-     close($server);
-     client($server_addr);
+     $server->close();
+     client();
 }
 
 verify_local_trust();
@@ -281,8 +278,6 @@ sub client_get_ssl
 # SSL client - connect to server and test different verification
 # settings
 sub client {
-    my ($server_addr) = @_;
-
     my ($ctx, $cl);
     foreach my $task (qw(
 		      policy_checks_ok policy_checks_fail
@@ -293,7 +288,7 @@ sub client {
 	$ctx = Net::SSLeay::CTX_new();
 	is(Net::SSLeay::CTX_load_verify_locations($ctx, $ca_pem, $ca_dir), 1, "load_verify_locations($ca_pem $ca_dir)");
 
-	$cl = IO::Socket::INET->new($server_addr) or BAIL_OUT("failed to connect to server: $!");
+	$cl = $server->connect();
 
 	test_policy_checks($ctx, $cl, 1)   if $task eq 'policy_checks_ok';
 	test_policy_checks($ctx, $cl, 0)   if $task eq 'policy_checks_fail';
@@ -343,7 +338,7 @@ sub run_server
 
     while (1)
     {
-	my $cl = $server->accept or BAIL_OUT("accept failed: $!");
+	my $cl = $server->accept() or BAIL_OUT("accept failed: $!");
 	my $ssl = Net::SSLeay::new($ctx);
 
 	Net::SSLeay::set_fd($ssl, fileno($cl));

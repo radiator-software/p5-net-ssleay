@@ -38,6 +38,9 @@ my %eumm_args = (
   TEST_REQUIRES => {
     'Carp' => '0',
     'English' => '0',
+    'Scalar::Util' => '0',
+    'SelectSaver' => '0',
+    'Socket' => '0',
     'Test::More' => '0.60_01',
     'base' => '0',
   },

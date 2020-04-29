@@ -18,4 +18,5 @@ all_pod_files_ok(qw(
     blib/lib/Net/SSLeay.pm
     blib/lib/Net/SSLeay/Handle.pm
     inc/Test/Net/SSLeay.pm
+    inc/Test/Net/SSLeay/Socket.pm
 ));
