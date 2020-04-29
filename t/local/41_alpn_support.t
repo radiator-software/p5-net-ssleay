@@ -1,12 +1,10 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay;
+use Test::Net::SSLeay qw(tcp_socket);
 
 use Config;
 use File::Spec;
-use Socket;
-use Symbol qw(gensym);
 
 BEGIN {
     if (Net::SSLeay::SSLeay < 0x10002000) {
@@ -18,12 +16,8 @@ BEGIN {
     }
 }
 
-my $sock;
+my $server = tcp_socket();
 my $pid;
-
-my $port = 40000+int(rand(9999));
-my $ip = "\x7F\0\0\x01";
-my $serv_params  = sockaddr_in($port, $ip);
 
 my $msg = 'ssleay-alpn-test';
 my $cert_pem = File::Spec->catfile('t', 'data', 'testcert_wildcard.crt.pem');
@@ -33,19 +27,10 @@ Net::SSLeay::initialize();
 
 {
     # SSL server
-    $sock = gensym();
-    socket($sock, AF_INET, SOCK_STREAM, 0) or BAIL_OUT("failed to open socket: $!");
-    bind($sock, $serv_params) or BAIL_OUT("failed to bind socket: $!");
-    listen($sock, 3) or BAIL_OUT("failed to listen on socket: $!");
-
     $pid = fork();
     BAIL_OUT("failed to fork: $!") unless defined $pid;
     if ($pid == 0) {
-        my $ns = gensym();
-        my $addr = accept($ns, $sock);
-        my $old_out = select($ns);
-        $| = 1;
-        select($old_out);
+        my $ns = $server->accept();
 
         my $ctx = Net::SSLeay::CTX_tlsv1_new();
         Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem);
@@ -66,19 +51,14 @@ Net::SSLeay::initialize();
         Net::SSLeay::free($ssl);
         Net::SSLeay::CTX_free($ctx);
         close $ns;
-        close $sock;
+        $server->close();
         exit;
     }
 }
 
 {
     # SSL client
-    my $s1 = gensym();
-    socket($s1, AF_INET, SOCK_STREAM, 0) or BAIL_OUT("failed to open socket: $!");
-    connect($s1, $serv_params) or BAIL_OUT("failed to connect: $!");
-    my $old_out = select($s1);
-    $| = 1;
-    select($old_out);
+    my $s1 = $server->connect();
 
     my $ctx1 = Net::SSLeay::CTX_tlsv1_new();
 

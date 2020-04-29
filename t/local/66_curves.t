@@ -5,7 +5,6 @@ use Test::Net::SSLeay;
 
 use Config;
 use File::Spec;
-use Socket;
 
 my @set_list = (
     defined &Net::SSLeay::CTX_set1_groups_list ? (\&Net::SSLeay::CTX_set1_groups_list) : (),

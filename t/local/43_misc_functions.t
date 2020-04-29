@@ -1,12 +1,10 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay;
+use Test::Net::SSLeay qw(tcp_socket);
 
 use Config;
 use File::Spec;
-use IO::Socket::INET;
-use Socket;
 
 if (!$Config{d_fork}) {
     plan skip_all => "fork() not supported on $^O";
@@ -58,7 +56,7 @@ our %version_str2int =
      'TLSv1.3' => sub {return eval {Net::SSLeay::TLS1_3_VERSION();}},
     );
 
-my $server;
+my $server = tcp_socket();
 Net::SSLeay::initialize();
 
 {
@@ -68,12 +66,9 @@ Net::SSLeay::initialize();
     my $cert_pem = File::Spec->catfile('t', 'data', 'testcert_wildcard.crt.pem');
     my $key_pem = File::Spec->catfile('t', 'data', 'testcert_key_2048.pem');
 
-    $server = IO::Socket::INET->new( LocalAddr => '127.0.0.1', Listen => 3)
-	or BAIL_OUT("failed to create server socket: $!");
-
     defined($pid = fork()) or BAIL_OUT("failed to fork: $!");
     if ($pid == 0) {
-	my $cl = $server->accept or BAIL_OUT("accept failed: $!");
+	my $cl = $server->accept();
 	my $ctx = Net::SSLeay::CTX_new();
 	Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem);
 #	my $get_keyblock_size_ciphers = join(':', keys(%cipher_to_keyblock_size));
@@ -106,9 +101,7 @@ sub client {
 
     my ($f_len, $f_len_trunc, $finished_s, $finished_c, $msg, $expected);
 
-    my $saddr = $server->sockhost.':'.$server->sockport;
-    my $cl = IO::Socket::INET->new($saddr)
-	or BAIL_OUT("failed to connect to server: $!");
+    my $cl = $server->connect();
     my $ctx = Net::SSLeay::CTX_new();
     Net::SSLeay::CTX_set_options($ctx, &Net::SSLeay::OP_ALL);
     my $ssl = Net::SSLeay::new($ctx);

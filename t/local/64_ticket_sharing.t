@@ -5,7 +5,6 @@ use Test::Net::SSLeay;
 
 use Config;
 use File::Spec;
-use Socket;
 
 if (!defined &Net::SSLeay::CTX_set_tlsext_ticket_getkey_cb) {
     plan skip_all => "no support for tlsext_ticket_key_cb";

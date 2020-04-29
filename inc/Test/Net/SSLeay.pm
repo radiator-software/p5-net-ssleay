@@ -7,10 +7,11 @@ use base qw(Exporter);
 
 use Carp qw(croak);
 use English qw( $EVAL_ERROR -no_match_vars );
+use Test::Net::SSLeay::Socket;
 
 our $VERSION = '1.89_01';
 
-our @EXPORT_OK = qw();
+our @EXPORT_OK = qw(tcp_socket);
 
 sub import {
     my ( $class, @imports ) = @_;
@@ -29,6 +30,10 @@ sub import {
     __PACKAGE__->export_to_level( 1, $class, @imports );
 
     return 1;
+}
+
+sub tcp_socket {
+    return Test::Net::SSLeay::Socket->new( proto => 'tcp' );
 }
 
 1;
@@ -95,7 +100,22 @@ functions.
 
 =head1 HELPER FUNCTIONS
 
-None implemented yet.
+=head2 tcp_socket
+
+    my $server = tcp_socket();
+
+    # Accept connection from client:
+    my $sock_in = $server->accept();
+
+    # Create connection to server:
+    my $sock_out = $server->connect();
+
+Creates a TCP server socket that listens on localhost on an arbitrarily-chosen
+free port. Convenience methods are provided for accepting, establishing and
+closing connections.
+
+Returns a L<Test::Net::SSLeay::Socket|Test::Net::SSLeay::Socket> object. Dies
+on failure.
 
 =head1 BUGS
 

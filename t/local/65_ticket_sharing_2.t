@@ -5,7 +5,6 @@ use Test::Net::SSLeay;
 
 use Config;
 use File::Spec;
-use Socket;
 
 if (!defined &Net::SSLeay::set_session_ticket_ext_cb) {
     plan skip_all => "no support for session_ticket_ext_cb";
