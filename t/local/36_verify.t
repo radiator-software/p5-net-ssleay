@@ -3,9 +3,8 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(tcp_socket);
+use Test::Net::SSLeay qw(can_fork tcp_socket);
 
-use Config;
 use File::Spec;
 
 plan tests => 103;
@@ -81,13 +80,15 @@ ok(1, "Finished with tests that don't need fork");
 
 my $server;
 SKIP: {
-     skip "fork() not supported on $^O", 54, unless $Config{d_fork};
+    if (not can_fork()) {
+        skip "fork() not supported on this system", 54;
+    }
 
-     $server = tcp_socket();
+    $server = tcp_socket();
 
-     run_server();
-     $server->close();
-     client();
+    run_server();
+    $server->close();
+    client();
 }
 
 verify_local_trust();

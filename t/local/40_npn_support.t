@@ -1,9 +1,8 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(tcp_socket);
+use Test::Net::SSLeay qw(can_fork tcp_socket);
 
-use Config;
 use File::Spec;
 
 BEGIN {
@@ -11,8 +10,8 @@ BEGIN {
         plan skip_all => "OpenSSL 1.0.1 or above required";
     } elsif (Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER")) {
         plan skip_all => "LibreSSL removed support for NPN";
-    } elsif (!$Config{d_fork}) {
-        plan skip_all => "fork() not supported on $^O";
+    } elsif (not can_fork()) {
+        plan skip_all => "fork() not supported on this system";
     } else {
         plan tests => 7;
     }

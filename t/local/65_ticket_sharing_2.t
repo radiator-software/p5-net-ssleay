@@ -3,7 +3,6 @@ use lib 'inc';
 use Net::SSLeay;
 use Test::Net::SSLeay;
 
-use Config;
 use File::Spec;
 
 if (!defined &Net::SSLeay::set_session_ticket_ext_cb) {

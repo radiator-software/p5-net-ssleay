@@ -6,12 +6,13 @@ use warnings;
 use base qw(Exporter);
 
 use Carp qw(croak);
-use English qw( $EVAL_ERROR -no_match_vars );
+use Config;
+use English qw( $EVAL_ERROR $OSNAME $PERL_VERSION -no_match_vars );
 use Test::Net::SSLeay::Socket;
 
 our $VERSION = '1.89_01';
 
-our @EXPORT_OK = qw(tcp_socket);
+our @EXPORT_OK = qw(can_fork can_thread tcp_socket);
 
 sub import {
     my ( $class, @imports ) = @_;
@@ -28,6 +29,45 @@ sub import {
 
     # Import requested Test::Net::SSLeay symbols into the caller's namespace
     __PACKAGE__->export_to_level( 1, $class, @imports );
+
+    return 1;
+}
+
+sub can_fork {
+    return 1 if $Config{d_fork};
+
+    # Some platforms provide fork emulation using ithreads
+    return 1 if $Config{d_pseudofork};
+
+    # d_pseudofork was added in Perl 5.10.0 - this is an approximation for
+    # older Perls
+    if (    ( $OSNAME eq 'Win32' or $OSNAME eq 'NetWare' )
+        and $Config{useithreads}
+        and $Config{ccflags} =~ /-DPERL_IMPLICIT_SYS/ )
+    {
+        return 1;
+    }
+
+    return can_thread();
+}
+
+sub can_thread {
+    return 0 if not $Config{useithreads};
+
+    # Threads are broken in Perl 5.10.0 when compiled with GCC 4.8 or above
+    # (see GH #175)
+    if (    $PERL_VERSION == 5.010000
+        and $Config{ccname} eq 'gcc'
+        and $Config{gccversion} )
+    {
+        my ( $gcc_major, $gcc_minor ) = split /\./, $Config{gccversion};
+
+        return 0
+            if ( $gcc_major > 4 or ( $gcc_major == 4 and $gcc_minor >= 8 ) );
+    }
+
+    # Devel::Cover doesn't (currently) work with threads
+    return 0 if $INC{'Devel/Cover.pm'};
 
     return 1;
 }
@@ -99,6 +139,25 @@ import list; see L</"HELPER FUNCTIONS"> for a list of available helper
 functions.
 
 =head1 HELPER FUNCTIONS
+
+=head2 can_fork
+
+    if (can_fork()) {
+        # Run tests that rely on a working fork() implementation
+    }
+
+Returns true if this system natively supports the C<fork()> system call, or if
+Perl can emulate C<fork()> on this system using interpreter-level threads.
+Otherwise, returns false.
+
+=head2 can_thread
+
+    if (can_thread()) {
+        # Run tests that rely on working threads support
+    }
+
+Returns true if reliable interpreter-level threads support is available in
+this Perl, or false if not.
 
 =head2 tcp_socket
 

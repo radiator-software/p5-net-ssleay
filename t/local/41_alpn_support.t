@@ -1,16 +1,15 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(tcp_socket);
+use Test::Net::SSLeay qw(can_fork tcp_socket);
 
-use Config;
 use File::Spec;
 
 BEGIN {
     if (Net::SSLeay::SSLeay < 0x10002000) {
         plan skip_all => "OpenSSL 1.0.2 or above required";
-    } elsif (!$Config{d_fork}) {
-        plan skip_all => "fork() not supported on $^O";
+    } elsif (not can_fork()) {
+        plan skip_all => "fork() not supported on this system";
     } else {
         plan tests => 6;
     }
