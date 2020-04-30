@@ -1,14 +1,13 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay;
+use Test::Net::SSLeay qw(can_thread);
 
-use Config;
 use File::Spec;
 use FindBin;
 
-if (!$Config{useithreads}) {
-    plan skip_all => "your Perl is not compiled with ithreads";
+if (not can_thread()) {
+    plan skip_all => "Threads not supported on this system";
 } elsif ($^O eq 'cygwin') {
     # XXX-TODO perhaps perl+ithreads related issue (needs more investigation)
     plan skip_all => "this test sometimes crashes on Cygwin";

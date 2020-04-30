@@ -1,15 +1,14 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay;
+use Test::Net::SSLeay qw(can_fork);
 
-use Config;
 use File::Spec;
 use IO::Handle;
 use Symbol qw( gensym );
 
-if ($^O eq 'MSWin32' || !$Config{d_fork}) {
-    plan skip_all => "Either pipes or fork() not supported on $^O";
+if (not can_fork()) {
+    plan skip_all => "fork() not supported on this system";
 } else {
     plan tests => 11;
 }
