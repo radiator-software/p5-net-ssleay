@@ -12,7 +12,7 @@ use Test::Net::SSLeay::Socket;
 
 our $VERSION = '1.89_01';
 
-our @EXPORT_OK = qw(can_fork can_thread tcp_socket);
+our @EXPORT_OK = qw(can_fork can_really_fork can_thread tcp_socket);
 
 sub import {
     my ( $class, @imports ) = @_;
@@ -34,7 +34,7 @@ sub import {
 }
 
 sub can_fork {
-    return 1 if $Config{d_fork};
+    return 1 if can_really_fork();
 
     # Some platforms provide fork emulation using ithreads
     return 1 if $Config{d_pseudofork};
@@ -49,6 +49,12 @@ sub can_fork {
     }
 
     return can_thread();
+}
+
+sub can_really_fork {
+    return 1 if $Config{d_fork};
+
+    return 0;
 }
 
 sub can_thread {
@@ -149,6 +155,15 @@ functions.
 Returns true if this system natively supports the C<fork()> system call, or if
 Perl can emulate C<fork()> on this system using interpreter-level threads.
 Otherwise, returns false.
+
+=head2 can_really_fork
+
+    if (can_really_fork()) {
+        # Run tests that rely on a native fork() implementation
+    }
+
+Returns true if this system natively supports the C<fork()> system call, or
+false if not.
 
 =head2 can_thread
 

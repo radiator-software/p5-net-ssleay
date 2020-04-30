@@ -1,14 +1,16 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(can_fork);
+use Test::Net::SSLeay qw(can_really_fork);
 
 use File::Spec;
 use IO::Handle;
 use Symbol qw( gensym );
 
-if (not can_fork()) {
-    plan skip_all => "fork() not supported on this system";
+if (not can_really_fork()) {
+    # Perl's pseudofork implementation doesn't correctly dup file handles
+    # connected to pipes, so this test requires a native fork() system call
+    plan skip_all => "fork() not natively supported on this system";
 } else {
     plan tests => 11;
 }
