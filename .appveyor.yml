@@ -110,16 +110,16 @@ install:
 # Run make
 build_script:
   - perl Makefile.PL
-  - perl -MConfig -e "system $Config{make}"
+  - perl -MConfig -e "system($Config{make}) and exit($? >> 8)"
 
 # Run make test
 test_script:
-  - perl -MConfig -e "system $Config{make}, 'test'"
+  - perl -MConfig -e "system($Config{make}, 'test') and exit($? >> 8)"
 
 # Build some artifacts
 after_test:
   - tar zcvf Net-SSLeay.tar.gz blib
-  - perl -MConfig -e "system $Config{make}, 'ppd'"
+  - perl -MConfig -e "system($Config{make}, 'ppd') and exit($? >> 8)"
 
 # Make Net-SSLeay-a.bb.tar.gz available for closer looking
 artifacts:
