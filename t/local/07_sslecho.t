@@ -35,6 +35,7 @@ Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();
 Net::SSLeay::ERR_load_crypto_strings();
 Net::SSLeay::library_init();
+Net::SSLeay::OpenSSL_add_all_algorithms();
 
 {
     my $ctx = Net::SSLeay::CTX_new();
