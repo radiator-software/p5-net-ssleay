@@ -6,7 +6,7 @@ use Test::Net::SSLeay;
 use lib '.';
 use File::Spec;
 
-plan tests => 1018;
+plan tests => 1032;
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();
@@ -247,3 +247,45 @@ for my $f (keys (%$dump)) {
   }
 
 }
+
+my $ctx = Net::SSLeay::X509_STORE_CTX_new();
+my $filename = File::Spec->catfile('t', 'data', 'testcert_simple.crt.pem');
+my $bio = Net::SSLeay::BIO_new_file($filename, 'rb');
+my $x509 = Net::SSLeay::PEM_read_bio_X509($bio);
+my $x509_store = Net::SSLeay::X509_STORE_new();
+Net::SSLeay::X509_STORE_CTX_set_cert($ctx,$x509);
+
+my $ca_filename = File::Spec->catfile('t', 'data', 'test_CA1.crt.pem');
+my $ca_bio = Net::SSLeay::BIO_new_file($ca_filename, 'rb');
+my $ca_x509 = Net::SSLeay::PEM_read_bio_X509($ca_bio);
+Net::SSLeay::X509_STORE_add_cert($x509_store,$ca_x509);
+Net::SSLeay::X509_STORE_CTX_init($ctx, $x509_store, $x509);
+ok (my $x509_from_cert = Net::SSLeay::X509_STORE_CTX_get0_cert($ctx),'Get x509 from store ctx');
+Net::SSLeay::X509_verify_cert($ctx);
+ok (my $sk_x509 = Net::SSLeay::X509_STORE_CTX_get1_chain($ctx),'Get STACK_OF(x509) from store ctx');
+my $size;
+ok ($size = Net::SSLeay::sk_X509_num($sk_x509),'STACK_OF(X509) size '.$size);
+ok (Net::SSLeay::sk_X509_value($sk_x509,0),'STACK_OF(X509) value at 0');
+
+my $new_filename  = File::Spec->catfile('t','data','testcert_cdp.crt.pem');
+my $new_bio = Net::SSLeay::BIO_new_file($new_filename,'rb');
+my $new_x509 = Net::SSLeay::PEM_read_bio_X509($new_bio);
+
+ok (Net::SSLeay::sk_X509_insert($sk_x509,$new_x509,3),'STACK_OK(X509) insert');
+my $new_size;
+$new_size = Net::SSLeay::sk_X509_num($sk_x509);
+ok ($new_size == $size+1,'size is correct after insert');
+ok (Net::SSLeay::sk_X509_delete($sk_x509,2),'STACK_OK(X509) delete');
+$new_size = Net::SSLeay::sk_X509_num($sk_x509);
+ok ($new_size == $size,'size is correct after delete');
+ok (Net::SSLeay::sk_X509_unshift($sk_x509,$new_x509),'STACK_OF(X509) unshift');
+$new_size = Net::SSLeay::sk_X509_num($sk_x509);
+ok ($new_size == $size+1,'size is correct after unshift');
+ok (Net::SSLeay::sk_X509_shift($sk_x509),'STACK_OF(X509) shift');
+$new_size = Net::SSLeay::sk_X509_num($sk_x509);
+ok ($new_size == $size,'size is correct after shift');
+ok (Net::SSLeay::sk_X509_pop($sk_x509),'STACK_OF(X509) pop');
+$new_size = Net::SSLeay::sk_X509_num($sk_x509);
+ok ($new_size == $size-1,'size is correct after pop');
+
+

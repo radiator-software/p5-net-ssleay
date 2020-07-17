@@ -6465,6 +6465,82 @@ Pushes an X509 structure onto a STACK_OF(X509) structure.
  #
  # returns: 1 if successful, 0 if unsuccessful
 
+=item * sk_X509_pop
+
+Pops an single X509 structure from a STACK_OF(X509) structure.
+L<https://www.openssl.org/docs/man1.1.1/man3/sk_TYPE_is_sorted.html>
+
+ my $x509 = NetSSLeay::sk_X509_pop($sk_x509)
+ # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
+ #
+ # returns: An pointer to an X509 structure or NULL.
+
+=item * sk_X509_shift
+
+Shifts an single X509 structure onto a STACK_OF(X509) structure.
+L<https://www.openssl.org/docs/man1.1.1/man3/sk_TYPE_is_sorted.html>
+
+ my $rv = NetSSLeay::sk_X509_shift($sk_x509,$x509)
+ # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
+ # $x509 - value corresponding to openssl's X509 structure
+ #
+ # returns: 1 on success, 0 on failure
+
+=item * sk_X509_unshift
+
+Unshifts an single X509 structure from a STACK_OF(X509) structure.
+L<https://www.openssl.org/docs/man1.1.1/man3/sk_TYPE_is_sorted.html>
+
+ my $x509 = NetSSLeay::sk_X509_unshift($sk_x509)
+ # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
+ #
+ # returns: $x509 - value corresponding to openssl's X509 structure, or null
+
+=item * sk_X509_free
+
+Frees the STACK_OF(X509) structure, but not the members contain in the structure.
+L<https://www.openssl.org/docs/man1.1.1/man3/sk_TYPE_is_sorted.html>
+
+ my $rv = Net::SSLeay::sk_X509_pop_free($sk_x509);
+
+=item * sk_X509_insert
+
+Inserts a single X509 struture into a STACK_OF(X509) at the specified index.
+L<https://www.openssl.org/docs/man1.1.1/man3/sk_TYPE_is_sorted.html>
+
+ my $rv = Net::SSLeay::sk_X509_insert($sk_x509,$x509,index);
+ # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
+ # $x509 - value corresponding to openssl's X509 structure
+ # index - integer - 0 based index
+
+=item * sk_X509_delete
+
+Delete a single X509 structure from a STACK_OF(X509) at the specified index.
+
+ my $x509 = Net::SSLeay::sk_X509_delete($sk_x509,index);
+ # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
+ # index - integer - 0 based index
+ #
+ # returns : X509 structure
+
+=item * sk_X509_value
+
+Return a single X509 structure from a STACK_OF(X509) at the specified index.
+
+ my $x509 = Net::SSLeay::sk_X509_value($sk_x509,index)
+ # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
+ # index - integer - 0 based index
+ #
+ # returns : X509 structure
+
+=item * sk_X509_num 
+
+Return the number of X509 elements in a STACK_OF(X509).
+
+ my $num = Net::SSLeay::sk_X509_num($sk_x509);
+ # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
+ #
+ # returns: integer
 =back
 
 =head3 Low level API: X509_REQ_* related functions
