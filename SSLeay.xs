@@ -132,7 +132,10 @@
  */
 
 /* Prevent warnings about strncpy from Windows compilers */
-#define _CRT_SECURE_NO_DEPRECATE
+
+#ifndef _CRT_SECURE_NO_DEPRECATE
+#  define _CRT_SECURE_NO_DEPRECATE
+#endif
 
 #ifdef __cplusplus
 extern "C" {
