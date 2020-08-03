@@ -132,7 +132,10 @@
  */
 
 /* Prevent warnings about strncpy from Windows compilers */
-#define _CRT_SECURE_NO_DEPRECATE
+
+#ifndef _CRT_SECURE_NO_DEPRECATE
+#  define _CRT_SECURE_NO_DEPRECATE
+#endif
 
 /* Silence compound-token-split-by-macro warnings from perl.h when building for
  * Perl < 5.35.2 with Clang >= 12 - see GH-383
