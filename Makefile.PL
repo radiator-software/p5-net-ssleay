@@ -263,6 +263,8 @@ sub find_openssl_prefix {
 	'/usr/sfw/bin/openssl'           => '/usr/sfw', # Open Solaris
 	'C:\OpenSSL\bin\openssl.exe'     => 'C:\OpenSSL',
 	'C:\OpenSSL-Win32\bin\openssl.exe'        => 'C:\OpenSSL-Win32',
+	'C:\Program Files\OpenSSL\bin\openssl.exe'     => 'C:\Program Files\OpenSSL',
+	'C:\Program Files\OpenSSL-Win32\bin\openssl.exe'        => 'C:\Program Files\OpenSSL-Win32',
 	$Config{prefix} . '\bin\openssl.exe'      => $Config{prefix},           # strawberry perl
 	$Config{prefix} . '\..\c\bin\openssl.exe' => $Config{prefix} . '\..\c', # strawberry perl
 	'/sslexe/openssl.exe'            => '/sslroot',  # VMS, openssl.org
