@@ -3209,9 +3209,10 @@ SSL_verify_client_post_handshake(SSL *ssl)
 void
 i2d_SSL_SESSION(sess)
 	SSL_SESSION * sess
-    PPCODE:
+    PREINIT:
 	STRLEN len;
 	unsigned char *pc,*pi;
+    PPCODE:
 	if (!(len = i2d_SSL_SESSION(sess,NULL))) croak("invalid SSL_SESSION");
 	Newx(pc,len,unsigned char);
 	if (!pc) croak("out of memory");
@@ -4479,12 +4480,13 @@ X509_get_fingerprint(cert,type)
 void
 X509_get_subjectAltNames(cert)
 	X509 *      cert
-	PPCODE:
+	PREINIT:
 	int                    i, j, count = 0;
 	X509_EXTENSION         *subjAltNameExt = NULL;
 	STACK_OF(GENERAL_NAME) *subjAltNameDNs = NULL;
 	GENERAL_NAME           *subjAltNameDN  = NULL;
 	int                    num_gnames;
+	PPCODE:
 	if (  (i = X509_get_ext_by_NID(cert, NID_subject_alt_name, -1)) >= 0
 		&& (subjAltNameExt = X509_get_ext(cert, i))
 		&& (subjAltNameDNs = (STACK_OF(GENERAL_NAME) *)X509V3_EXT_d2i(subjAltNameExt)))
@@ -4615,9 +4617,10 @@ P_X509_get_crl_distribution_points(cert)
 void
 P_X509_get_ocsp_uri(cert)
 	X509 * cert
-    PPCODE:
+	PREINIT:
 	AUTHORITY_INFO_ACCESS *info;
 	int i;
+    PPCODE:
 	info = (AUTHORITY_INFO_ACCESS *)X509_get_ext_d2i(cert, NID_info_access, NULL, NULL);
 	if (!info) XSRETURN_UNDEF;
 
@@ -6620,11 +6623,11 @@ EVP_PKEY_assign_EC_KEY(pkey,key)
 EC_KEY *
 EC_KEY_generate_key(curve)
 	SV *curve;
-    CODE:
+	PREINIT:
 	EC_GROUP *group = NULL;
 	EC_KEY *eckey = NULL;
 	int nid;
-
+    CODE:
 	RETVAL = 0;
 	if (SvIOK(curve)) {
 	    nid = SvIV(curve);
@@ -7237,13 +7240,16 @@ SSL_get_server_random(s)
 int
 SSL_get_keyblock_size(s)
      SSL *   s
-     CODE:
+     PREINIT:
 #if (OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
         const SSL_CIPHER *ssl_cipher;
 	int cipher = NID_undef, digest = NID_undef, mac_secret_size = 0;
 	const EVP_CIPHER *c = NULL;
 	const EVP_MD *h = NULL;
+#endif
 
+     CODE:
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
 	ssl_cipher = SSL_get_current_cipher(s);
 	if (ssl_cipher)
 	    cipher = SSL_CIPHER_get_cipher_nid(ssl_cipher);
@@ -7984,10 +7990,11 @@ P_X509_get_pubkey_alg(x)
 void
 X509_get_X509_PUBKEY(x)
    const X509 *x
-   PPCODE:
+   PREINIT:
    X509_PUBKEY *pkey;
    STRLEN len;
    unsigned char *pc, *pi;
+   PPCODE:
    if (!(pkey = X509_get_X509_PUBKEY(x))) croak("invalid certificate");
    if (!(len = i2d_X509_PUBKEY(pkey, NULL))) croak("invalid certificate public key");
    Newx(pc,len,unsigned char);
@@ -8187,9 +8194,10 @@ d2i_OCSP_RESPONSE(pv)
 void
 i2d_OCSP_RESPONSE(r)
 	OCSP_RESPONSE * r
-    PPCODE:
+	PREINIT:
 	STRLEN len;
 	unsigned char *pc,*pi;
+    PPCODE:
 	if (!(len = i2d_OCSP_RESPONSE(r,NULL))) croak("invalid OCSP response");
 	Newx(pc,len,unsigned char);
 	if (!pc) croak("out of memory");
@@ -8220,9 +8228,10 @@ d2i_OCSP_REQUEST(pv)
 void
 i2d_OCSP_REQUEST(r)
 	OCSP_REQUEST * r
-    PPCODE:
+	PREINIT:
 	STRLEN len;
 	unsigned char *pc,*pi;
+    PPCODE:
 	if (!(len = i2d_OCSP_REQUEST(r,NULL))) croak("invalid OCSP request");
 	Newx(pc,len,unsigned char);
 	if (!pc) croak("out of memory");
@@ -8246,7 +8255,7 @@ OCSP_response_status(OCSP_RESPONSE *r)
 void
 SSL_OCSP_cert2ids(ssl,...)
 	SSL *ssl
-    PPCODE:
+PREINIT:
 	SSL_CTX *ctx;
 	X509_STORE *store;
 	STACK_OF(X509) *chain;
@@ -8255,6 +8264,7 @@ SSL_OCSP_cert2ids(ssl,...)
 	int i;
 	STRLEN len;
 	unsigned char *pi;
+    PPCODE:
 
 	if (!ssl) croak("not a SSL object");
 	ctx = SSL_get_SSL_CTX(ssl);
@@ -8285,10 +8295,11 @@ SSL_OCSP_cert2ids(ssl,...)
 
 OCSP_REQUEST *
 OCSP_ids2req(...)
-    CODE:
+	PREINIT:
 	OCSP_REQUEST *req;
 	OCSP_CERTID *id;
 	int i;
+    CODE:
 
 	req = OCSP_REQUEST_new();
 	if (!req) croak("out of memory");
@@ -8380,12 +8391,13 @@ SSL_OCSP_response_verify(ssl,rsp,svreq=NULL,flags=0)
 void
 OCSP_response_results(rsp,...)
 	OCSP_RESPONSE *rsp
-    PPCODE:
+    PREINIT:
 	OCSP_BASICRESP *bsr;
 	int i,want_array;
 	time_t nextupd = 0;
 	time_t gmtoff = -1;
 	int getall,sksn;
+    PPCODE:
 
 	bsr = OCSP_response_get1_basic(rsp);
 	if (!bsr) croak("invalid OCSP response");
