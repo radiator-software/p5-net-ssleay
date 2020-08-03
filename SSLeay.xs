@@ -2559,9 +2559,10 @@ SSL_verify_client_post_handshake(SSL *ssl)
 void
 i2d_SSL_SESSION(sess)
 	SSL_SESSION * sess
-    PPCODE:
+    PREINIT:
 	STRLEN len;
 	unsigned char *pc,*pi;
+    PPCODE:
 	if (!(len = i2d_SSL_SESSION(sess,NULL))) croak("invalid SSL_SESSION");
 	Newx(pc,len,unsigned char);
 	if (!pc) croak("out of memory");
@@ -3784,12 +3785,13 @@ X509_get_fingerprint(cert,type)
 void
 X509_get_subjectAltNames(cert)
 	X509 *      cert
-	PPCODE:
+	PREINIT:
 	int                    i, j, count = 0;
 	X509_EXTENSION         *subjAltNameExt = NULL;
 	STACK_OF(GENERAL_NAME) *subjAltNameDNs = NULL;
 	GENERAL_NAME           *subjAltNameDN  = NULL;
 	int                    num_gnames;
+	PPCODE:
 	if (  (i = X509_get_ext_by_NID(cert, NID_subject_alt_name, -1)) >= 0
 		&& (subjAltNameExt = X509_get_ext(cert, i))
 		&& (subjAltNameDNs = X509V3_EXT_d2i(subjAltNameExt)))
@@ -3910,9 +3912,10 @@ P_X509_get_crl_distribution_points(cert)
 void
 P_X509_get_ocsp_uri(cert)
 	X509 * cert
-    PPCODE:
+	PREINIT:
 	AUTHORITY_INFO_ACCESS *info;
 	int i;
+    PPCODE:
 	info = X509_get_ext_d2i(cert, NID_info_access, NULL, NULL);
 	if (!info) XSRETURN_UNDEF;
 
@@ -5693,11 +5696,11 @@ EVP_PKEY_assign_EC_KEY(pkey,key)
 EC_KEY *
 EC_KEY_generate_key(curve)
 	SV *curve;
-    CODE:
+	PREINIT:
 	EC_GROUP *group = NULL;
 	EC_KEY *eckey = NULL;
 	int nid;
-
+    CODE:
 	RETVAL = 0;
 	if (SvIOK(curve)) {
 	    nid = SvIV(curve);
@@ -5906,7 +5909,6 @@ RSA_generate_key(bits,ee,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
         SV* perl_data
     PREINIT:
         simple_cb_data_t* cb_data = NULL;
-    CODE:
        /* openssl 0.9.8 deprecated RSA_generate_key. */
        /* This equivalent was contributed by Brian Fraser for Android, */
        /* but was not portable to old OpenSSLs where RSA_generate_key_ex is not available. */
@@ -5916,6 +5918,10 @@ RSA_generate_key(bits,ee,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
        int rc;
        RSA * ret;
        BIGNUM *e;
+#if (OPENSSL_VERSION_NUMBER >= 0x1010000fL && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
+       BN_GENCB *new_cb;
+#endif
+    CODE:
        e = BN_new();
        if(!e)
            croak("Net::SSLeay: RSA_generate_key perl function could not create BN structure.\n");
@@ -5929,7 +5935,6 @@ RSA_generate_key(bits,ee,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
            croak("Net::SSLeay: RSA_generate_key perl function could not create RSA structure.\n");
        }
 #if (OPENSSL_VERSION_NUMBER >= 0x1010000fL && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
-       BN_GENCB *new_cb;
        new_cb = BN_GENCB_new();
        if(!new_cb) {
 	   simple_cb_data_free(cb_data);
@@ -6210,13 +6215,16 @@ SSL_get_server_random(s)
 int
 SSL_get_keyblock_size(s)
      SSL *   s
-     CODE:
+     PREINIT:
 #if (OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
         const SSL_CIPHER *ssl_cipher;
 	int cipher = NID_undef, digest = NID_undef, mac_secret_size = 0;
 	const EVP_CIPHER *c = NULL;
 	const EVP_MD *h = NULL;
+#endif
 
+     CODE:
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
 	ssl_cipher = SSL_get_current_cipher(s);
 	if (ssl_cipher)
 	    cipher = SSL_CIPHER_get_cipher_nid(ssl_cipher);
@@ -6885,10 +6893,11 @@ P_X509_get_pubkey_alg(x)
 void
 X509_get_X509_PUBKEY(x)
    const X509 *x
-   PPCODE:
+   PREINIT:
    X509_PUBKEY *pkey;
    STRLEN len;
    unsigned char *pc, *pi;
+   PPCODE:
    if (!(pkey = X509_get_X509_PUBKEY(x))) croak("invalid certificate");
    if (!(len = i2d_X509_PUBKEY(pkey, NULL))) croak("invalid certificate public key");
    Newx(pc,len,unsigned char);
@@ -7088,9 +7097,10 @@ d2i_OCSP_RESPONSE(pv)
 void
 i2d_OCSP_RESPONSE(r)
 	OCSP_RESPONSE * r
-    PPCODE:
+	PREINIT:
 	STRLEN len;
 	unsigned char *pc,*pi;
+    PPCODE:
 	if (!(len = i2d_OCSP_RESPONSE(r,NULL))) croak("invalid OCSP response");
 	Newx(pc,len,unsigned char);
 	if (!pc) croak("out of memory");
@@ -7121,9 +7131,10 @@ d2i_OCSP_REQUEST(pv)
 void
 i2d_OCSP_REQUEST(r)
 	OCSP_REQUEST * r
-    PPCODE:
+	PREINIT:
 	STRLEN len;
 	unsigned char *pc,*pi;
+    PPCODE:
 	if (!(len = i2d_OCSP_REQUEST(r,NULL))) croak("invalid OCSP request");
 	Newx(pc,len,unsigned char);
 	if (!pc) croak("out of memory");
@@ -7147,7 +7158,7 @@ OCSP_response_status(OCSP_RESPONSE *r)
 void
 SSL_OCSP_cert2ids(ssl,...)
 	SSL *ssl
-    PPCODE:
+PREINIT:
 	SSL_CTX *ctx;
 	X509_STORE *store;
 	STACK_OF(X509) *chain;
@@ -7156,6 +7167,7 @@ SSL_OCSP_cert2ids(ssl,...)
 	int i;
 	STRLEN len;
 	unsigned char *pi;
+    PPCODE:
 
 	if (!ssl) croak("not a SSL object");
 	ctx = SSL_get_SSL_CTX(ssl);
@@ -7186,10 +7198,11 @@ SSL_OCSP_cert2ids(ssl,...)
 
 OCSP_REQUEST *
 OCSP_ids2req(...)
-    CODE:
+	PREINIT:
 	OCSP_REQUEST *req;
 	OCSP_CERTID *id;
 	int i;
+    CODE:
 
 	req = OCSP_REQUEST_new();
 	if (!req) croak("out of memory");
@@ -7281,11 +7294,12 @@ SSL_OCSP_response_verify(ssl,rsp,svreq=NULL,flags=0)
 void
 OCSP_response_results(rsp,...)
 	OCSP_RESPONSE *rsp
-    PPCODE:
+    PREINIT:
 	OCSP_BASICRESP *bsr;
 	int i,want_array;
 	time_t nextupd = 0;
 	int getall,sksn;
+    PPCODE:
 
 	bsr = OCSP_response_get1_basic(rsp);
 	if (!bsr) croak("invalid OCSP response");
