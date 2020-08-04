@@ -1,7 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(can_fork tcp_socket);
+use Test::Net::SSLeay qw(can_fork is_libressl tcp_socket);
 
 use File::Spec;
 
@@ -186,7 +186,7 @@ sub client_test_keyblock_size
     if ($keyblock_size == -1)
     {
 	# Accept -1 with AEAD ciphers with LibreSSL
-	like(Net::SSLeay::SSLeay_version(Net::SSLeay::SSLEAY_VERSION()), qr/^LibreSSL/, 'get_keyblock_size returns -1 with LibreSSL');
+	ok(is_libressl(), 'get_keyblock_size returns -1 with LibreSSL');
 	ok(defined $aead_cipher_to_keyblock_size{$cipher}, 'keyblock size is -1 for an AEAD cipher');
     }
     else

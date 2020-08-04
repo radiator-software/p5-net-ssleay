@@ -12,7 +12,11 @@ use Test::Net::SSLeay::Socket;
 
 our $VERSION = '1.89_01';
 
-our @EXPORT_OK = qw(can_fork can_really_fork can_thread tcp_socket);
+our @EXPORT_OK = qw(
+    can_fork can_really_fork can_thread
+    is_libressl is_openssl
+    tcp_socket
+);
 
 sub import {
     my ( $class, @imports ) = @_;
@@ -74,6 +78,29 @@ sub can_thread {
 
     # Devel::Cover doesn't (currently) work with threads
     return 0 if $INC{'Devel/Cover.pm'};
+
+    return 1;
+}
+
+sub is_libressl {
+    eval { require Net::SSLeay; 1; } or croak $EVAL_ERROR;
+
+    # The most foolproof method of checking whether libssl is provided by
+    # LibreSSL is by checking OPENSSL_VERSION_NUMBER: every version of
+    # LibreSSL identifies itself as OpenSSL 2.0.0, which is a version number
+    # that OpenSSL itself will never use (version 3.0.0 follows 1.1.1)
+    return 0
+        if Net::SSLeay::constant('OPENSSL_VERSION_NUMBER') != 0x20000000;
+
+    return 1;
+}
+
+sub is_openssl {
+    eval { require Net::SSLeay; 1; } or croak $EVAL_ERROR;
+
+    # "OpenSSL 2.0.0" is actually LibreSSL
+    return 0
+        if Net::SSLeay::constant('OPENSSL_VERSION_NUMBER') == 0x20000000;
 
     return 1;
 }
@@ -173,6 +200,22 @@ false if not.
 
 Returns true if reliable interpreter-level threads support is available in
 this Perl, or false if not.
+
+=head2 is_libressl
+
+    if (is_libressl()) {
+        # Run LibreSSL-specific tests
+    }
+
+Returns true if libssl is provided by LibreSSL, or false if not.
+
+=head2 is_openssl
+
+    if (is_openssl()) {
+        # Run OpenSSL-specific tests
+    }
+
+Returns true if libssl is provided by OpenSSL, or false if not.
 
 =head2 tcp_socket
 
