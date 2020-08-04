@@ -3,7 +3,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(can_fork tcp_socket);
+use Test::Net::SSLeay qw(can_fork is_libressl is_openssl tcp_socket);
 
 use File::Spec;
 
@@ -168,9 +168,9 @@ sub test_hostname_checks
       my $peername = Net::SSLeay::X509_VERIFY_PARAM_get0_peername($pm2);
       if ($ok) {
 	  is($peername, '*.example.com', 'X509_VERIFY_PARAM_get0_peername returns *.example.com')
-	      if (Net::SSLeay::SSLeay >= 0x10100000 && !Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER"));
+	      if (Net::SSLeay::SSLeay >= 0x10100000 && is_openssl());
 	  is($peername, undef, 'X509_VERIFY_PARAM_get0_peername returns undefined for OpenSSL 1.0.2 and LibreSSL')
-	      if (Net::SSLeay::SSLeay <  0x10100000 ||  Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER"));
+	      if (Net::SSLeay::SSLeay <  0x10100000 || is_libressl());
       } else {
 	  is($peername, undef, 'X509_VERIFY_PARAM_get0_peername returns undefined');
       }
