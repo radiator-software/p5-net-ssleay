@@ -112,7 +112,7 @@ sub ssleay {
     variable accordingly. If it isn't installed yet, get the latest version
     from http://www.openssl.org/.
 EOM
-        exit 0; # according http://wiki.cpantesters.org/wiki/CPANAuthorNotes this is best-practice when "missing library"
+        exit 0; # according https://wiki.cpantesters.org/wiki/CPANAuthorNotes this is best-practice when "missing library"
     }
     check_openssl_version($prefix, $exec);
     my $opts = ssleay_get_build_opts($prefix, $exec);
@@ -328,7 +328,7 @@ EOM
 *** That's too old!
     Please upgrade OpenSSL to the latest version (http://www.openssl.org/)
 EOM
-        exit 0; # according http://wiki.cpantesters.org/wiki/CPANAuthorNotes this is best-practice when "missing library"
+        exit 0; # according https://wiki.cpantesters.org/wiki/CPANAuthorNotes this is best-practice when "missing library"
     }
 
     if ($major == 1.1 && $minor > 1) {
