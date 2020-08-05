@@ -10,6 +10,15 @@ Revision history for Perl extension Net::SSLeay.
 	  supported types with certificate request and signed
 	  certificate. These relate to GitHub issue GH-149 opened by
 	  s482dcaw.
+	- Support for 64-bit Windows versions of OpenSSL from 1.0.0-beta1
+	  through to 1.0.0b has been withdrawn due to malfunctions occurring in
+	  Perl programs that use fork(). This mainly affects users of Strawberry
+	  Perl x64 5.12.3.20180709, which ships with OpenSSL 1.0.0-beta4.
+	  Affected users should build Net-SSLeay against OpenSSL 1.0.0c or
+	  above; users of Strawberry Perl x64 5.12.3.20180709 may instead find
+	  it easier to upgrade to Strawberry Perl x64 5.14.4.1 or above. See
+	  https://github.com/radiator-software/p5-net-ssleay/issues/189 for more
+	  information.
 
 1.89_01 2020-03-22
 	- Fix the repository URL in Makefile.PL (git:// rather than git@),
