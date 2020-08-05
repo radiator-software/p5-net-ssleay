@@ -306,13 +306,13 @@ sub find_openssl_exec {
 
 sub check_openssl_version {
     my ($prefix, $exec) = @_;
-    my ($major, $minor, $letter);
+    my ($output, $major, $minor, $letter);
 
     {
         my $pipe = gensym();
         open($pipe, qq{"$exec" version |})
             or die "Could not execute $exec";
-        my $output = <$pipe>;
+        $output = <$pipe>;
         chomp $output;
         close $pipe;
 
@@ -336,6 +336,18 @@ EOM
     Please upgrade OpenSSL to the latest version (http://www.openssl.org/)
 EOM
         exit 0; # according http://wiki.cpantesters.org/wiki/CPANAuthorNotes this is best-practice when "missing library"
+    }
+
+    # On Windows, 64-bit versions of OpenSSL from 1.0.0-beta1 to 1.0.0b are
+    # known to malfunction when used in conjunction with pseudoforking processes
+    # (see GH-189)
+    if (    $Config{archname} =~ m{^MSWin32-x64}
+         && $output =~ m{^OpenSSL \s+ 1\.0\.0 (?:-beta[1-5]|[ab])}x ) {
+        print <<EOM;
+*** 64-bit versions of OpenSSL from 1.0.0-beta1 to 1.0.0b are broken on Windows.
+    Please upgrade to OpenSSL 1.0.0c or newer.
+EOM
+        exit 0;
     }
 
     if ($major == 1.1 && $minor > 1) {
