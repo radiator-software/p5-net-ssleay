@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-????
+1.89_02 2020-08-07
 	- Add support for the P_X509_CRL_add_extensions function. Thanks to
 	  Manuel Mausz for the patch.
 	- X509_get_subjectAltNames now knows how to return
