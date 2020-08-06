@@ -10,7 +10,7 @@ use Config;
 use English qw( $EVAL_ERROR $OSNAME $PERL_VERSION -no_match_vars );
 use Test::Net::SSLeay::Socket;
 
-our $VERSION = '1.89_01';
+our $VERSION = '1.89_02';
 
 our @EXPORT_OK = qw(
     can_fork can_really_fork can_thread

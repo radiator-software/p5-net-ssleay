@@ -13,7 +13,7 @@ use Socket qw(
     inet_aton inet_ntoa pack_sockaddr_in unpack_sockaddr_in
 );
 
-our $VERSION = '1.89_01';
+our $VERSION = '1.89_02';
 
 my %PROTOS = (
     tcp => SOCK_STREAM,
