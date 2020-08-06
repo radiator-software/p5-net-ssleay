@@ -66,7 +66,12 @@ $Net::SSLeay::slowly = 0;
 $Net::SSLeay::random_device = '/dev/urandom';
 $Net::SSLeay::how_random = 512;
 
-$VERSION = '1.89_01'; # Also update $Net::SSLeay::Handle::VERSION
+# When updating this, also update $VERSION in the following files:
+#   inc/Test/Net/SSLeay.pm
+#   inc/Test/Net/SSLeay/Socket.pm
+#   lib/Net/SSLeay/Handle.pm
+$VERSION = '1.89_01';
+
 @ISA = qw(Exporter);
 
 #BEWARE:

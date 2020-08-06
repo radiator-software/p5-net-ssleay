@@ -64,9 +64,13 @@ environment:
       ssleay_need_cpanm: 1
       ssleay_rename_mingw: 1
 
-# 64 bit Strawberry Perl is not built for all versions
 matrix:
   exclude:
+    # OpenSSL 1.0.0-beta4, bundled with the 64-bit version of Strawberry Perl
+    # 5.12.3.20180709, malfunctions on 64-bit Windows platforms - see GH-189
+    - perl: 5.12.3.20180709
+      platform: x64
+    # There is no 64-bit version of Strawberry Perl for Perl 5.10 and below
     - perl: 5.10.1.5
       platform: x64
     - perl: 5.8.9.5

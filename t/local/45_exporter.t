@@ -1,25 +1,20 @@
-#!/usr/bin/perl
+# Various TLS exporter-related tests
 
-# Various TLS exporter related tests.
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
-use Socket;
-use File::Spec;
 use Net::SSLeay;
-use Config;
-use IO::Socket::INET;
+use Test::Net::SSLeay qw(can_fork tcp_socket);
+
+use File::Spec;
 use Storable;
 
-BEGIN {
-  plan skip_all => "fork() not supported on $^O" unless $Config{d_fork};
-  plan skip_all => "No export_keying_material()" unless defined &Net::SSLeay::export_keying_material;
-
+if (not can_fork()) {
+    plan skip_all => "fork() not supported on this system";
+} elsif (!defined &Net::SSLeay::export_keying_material) {
+    plan skip_all => "No export_keying_material()";
+} else {
+    plan tests => 36;
 }
-
-my $tests = 36;
-plan tests => $tests;
 
 my $pid;
 alarm(30);
@@ -28,8 +23,10 @@ END { kill 9,$pid if $pid }
 my @rounds = qw(TLSv1 TLSv1.1 TLSv1.2 TLSv1.3);
 my (%server_stats, %client_stats);
 
-my ($server, $server_ctx, $client_ctx, $server_ssl, $client_ssl);
+my ($server_ctx, $client_ctx, $server_ssl, $client_ssl);
 Net::SSLeay::initialize();
+
+my $server = tcp_socket();
 
 # Helper for client and server
 sub make_ctx
@@ -69,16 +66,13 @@ sub server
     my $cert_pem = File::Spec->catfile('t', 'data', 'testcert_wildcard.crt.pem');
     my $key_pem = File::Spec->catfile('t', 'data', 'testcert_key_2048.pem');
 
-    $server = IO::Socket::INET->new( LocalAddr => '127.0.0.1', Listen => 3)
-	or BAIL_OUT("failed to create server socket: $!");
-
     defined($pid = fork()) or BAIL_OUT("failed to fork: $!");
     if ($pid == 0) {
 	my ($ctx, $ssl, $ret, $cl);
 
 	foreach my $round (@rounds)
 	{
-	    $cl = $server->accept or BAIL_OUT("accept failed: $!");
+	    $cl = $server->accept();
 
 	    $ctx = make_ctx($round);
 	    next unless $ctx;
@@ -101,14 +95,12 @@ sub server
 sub client {
     # SSL client - connect to server, read, test and repeat
 
-    my $saddr = $server->sockhost.':'.$server->sockport;
     my ($ctx, $ssl, $ret, $cl);
     my $end = "end";
 
     foreach my $round (@rounds)
     {
-	$cl = IO::Socket::INET->new($saddr)
-	    or BAIL_OUT("failed to connect to server: $!");
+	$cl = $server->connect();
 
 	$ctx = make_ctx($round);
 	unless($ctx) {

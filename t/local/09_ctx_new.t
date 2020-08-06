@@ -1,12 +1,11 @@
-#!/usr/bin/perl
+# Test SSL_CTX_new and related functions, and handshake state machine retrieval
 
-# Tests for SSL_CTX_new and related functions
-# Also test handshake state machine retrieval
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More tests => 44;
 use Net::SSLeay;
+use Test::Net::SSLeay;
+
+plan tests => 44;
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();

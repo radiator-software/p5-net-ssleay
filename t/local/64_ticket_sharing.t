@@ -1,21 +1,20 @@
-#!/usr/bin/perl
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
-use Socket;
-use File::Spec;
 use Net::SSLeay;
-use Config;
+use Test::Net::SSLeay;
+
+use File::Spec;
+
+if (!defined &Net::SSLeay::CTX_set_tlsext_ticket_getkey_cb) {
+    plan skip_all => "no support for tlsext_ticket_key_cb";
+} else {
+    plan tests => 15;
+}
 
 # for debugging only
 my $DEBUG = 0;
 my $PCAP = 0;
 require Net::PcapWriter if $PCAP;
-
-plan skip_all => "no support for tlsext_ticket_key_cb"
-    if ! defined &Net::SSLeay::CTX_set_tlsext_ticket_getkey_cb;
-plan tests => 15;
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();

@@ -1,9 +1,12 @@
-BEGIN {
-    unless ($ENV{RELEASE_TESTING})
-    {
-	use Test::More;
-	plan(skip_all => 'these tests are for only for release candidate testing. Enable with RELEASE_TESTING=1');
-    }
+# Ensure module distribution passes Kwalitee checks
+
+use lib 'inc';
+
+use Test::Net::SSLeay;
+
+if (!$ENV{RELEASE_TESTING}) {
+    plan skip_all => 'These tests are for only for release candidate testing. Enable with RELEASE_TESTING=1';
 }
 
-use Test::Kwalitee;
+require Test::Kwalitee;
+Test::Kwalitee::kwalitee_ok();

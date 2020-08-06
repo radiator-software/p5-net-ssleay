@@ -26,6 +26,8 @@ examples/tcpcat.pl
 examples/tcpecho.pl
 examples/x509_cert_details.pl
 helper_script/regen_openssl_constants.pl
+inc/Test/Net/SSLeay.pm
+inc/Test/Net/SSLeay/Socket.pm
 lib/Net/SSLeay.pm
 lib/Net/SSLeay.pod
 lib/Net/SSLeay/Handle.pm

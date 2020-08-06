@@ -1,15 +1,13 @@
-#!/usr/bin/perl
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
 use Net::SSLeay;
+use Test::Net::SSLeay;
 
-BEGIN {
-  plan skip_all => "libressl and OpenSSL 1.1 removed support for ephemeral/temporary RSA private keys" if Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER") || Net::SSLeay::constant("OPENSSL_VERSION_NUMBER") >= 0x10100000;
+if (Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER") || Net::SSLeay::constant("OPENSSL_VERSION_NUMBER") >= 0x10100000) {
+    plan skip_all => "LibreSSL and OpenSSL 1.1.0 removed support for ephemeral/temporary RSA private keys";
+} else {
+    plan tests => 3;
 }
-
-plan tests => 3;
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();

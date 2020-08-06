@@ -1,31 +1,25 @@
-#!/usr/bin/perl
+# Various SSL read and write related tests: SSL_read, SSL_peek, SSL_read_ex,
+# SSL_peek_ex, SSL_write_ex, SSL_pending and SSL_has_pending
 
-# Various SSL read and write related tests:
-# - SSL_read, SSL_peek, SSL_read_ex, SSL_peek_ex,
-# - SSL_write_ex, SSL_pending and SSL_has_pending.
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
-use Socket;
-use File::Spec;
 use Net::SSLeay;
-use Config;
-use IO::Socket::INET;
+use Test::Net::SSLeay qw(can_fork tcp_socket);
+
+use File::Spec;
 use Storable;
 
-BEGIN {
-  plan skip_all => "fork() not supported on $^O" unless $Config{d_fork};
+if (not can_fork()) {
+    plan skip_all => "fork() not supported on this system";
+} else {
+    plan tests => 53;
 }
-
-my $tests = 53;
-plan tests => $tests;
 
 my $pid;
 alarm(30);
 END { kill 9,$pid if $pid }
 
-my $server;
+my $server = tcp_socket();
 Net::SSLeay::initialize();
 
 # See that lengths differ for all msgs
@@ -41,9 +35,6 @@ sub server
     my $cert_pem = File::Spec->catfile('t', 'data', 'testcert_wildcard.crt.pem');
     my $key_pem = File::Spec->catfile('t', 'data', 'testcert_key_2048.pem');
 
-    $server = IO::Socket::INET->new( LocalAddr => '127.0.0.1', Listen => 3)
-	or BAIL_OUT("failed to create server socket: $!");
-
     defined($pid = fork()) or BAIL_OUT("failed to fork: $!");
     if ($pid == 0) {
 	foreach my $round (@rounds)
@@ -52,7 +43,7 @@ sub server
 
 	    next if skip_round($round);
 
-	    $cl = $server->accept or BAIL_OUT("accept failed: $!");
+	    $cl = $server->accept();
 
 	    $ctx = Net::SSLeay::CTX_new();
 	    Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem);
@@ -67,19 +58,18 @@ sub server
 	    my $msg = Net::SSLeay::read($ssl);
 	    Net::SSLeay::write($ssl, $msg);
 	}
+    $server->close();
 	exit(0);
     }
 }
 
 sub client
 {
-    my $saddr = $server->sockhost.':'.$server->sockport;
     foreach my $round (@rounds)
     {
 	my ($ctx, $ssl, $cl);
 
-	$cl = IO::Socket::INET->new($saddr)
-	    or BAIL_OUT("failed to connect to server: $!");
+	$cl = $server->connect();
 
 	$ctx = Net::SSLeay::CTX_new();
 	$ssl = Net::SSLeay::new($ctx);

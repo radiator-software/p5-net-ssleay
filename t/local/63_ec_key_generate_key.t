@@ -1,16 +1,13 @@
-#!/usr/bin/perl
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
 use Net::SSLeay;
+use Test::Net::SSLeay;
 
 if (!defined &Net::SSLeay::EC_KEY_generate_key) {
-    plan skip_all => "no suport for ECC in your OpenSSL";
-    exit(0);
+    plan skip_all => "no support for ECC in your OpenSSL";
+} else {
+    plan tests => 4;
 }
-
-plan tests => 4;
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();

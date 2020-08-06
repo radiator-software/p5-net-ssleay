@@ -1,24 +1,18 @@
-#!/usr/bin/perl
+# Test session-related functions
 
-# Various session related tests. Currently:
-# - SSL_CTX_sess_set_get_cb and related functions
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
-use Socket;
-use File::Spec;
 use Net::SSLeay;
-use Config;
-use IO::Socket::INET;
+use Test::Net::SSLeay qw(can_fork tcp_socket);
+
+use File::Spec;
 use Storable;
 
-BEGIN {
-  plan skip_all => "fork() not supported on $^O" unless $Config{d_fork};
+if (not can_fork()) {
+    plan skip_all => "fork() not supported on this system";
+} else {
+    plan tests => 58;
 }
-
-my $tests = 58;
-plan tests => $tests;
 
 my $pid;
 alarm(30);
@@ -130,8 +124,10 @@ sub server_remove_cb
     return;
 }
 
-my ($server, $server_ctx, $client_ctx, $server_ssl, $client_ssl);
+my ($server_ctx, $client_ctx, $server_ssl, $client_ssl);
 Net::SSLeay::initialize();
+
+my $server = tcp_socket();
 
 # Helper for client and server
 sub make_ctx
@@ -172,16 +168,13 @@ sub server
     my $cert_pem = File::Spec->catfile('t', 'data', 'testcert_wildcard.crt.pem');
     my $key_pem = File::Spec->catfile('t', 'data', 'testcert_key_2048.pem');
 
-    $server = IO::Socket::INET->new( LocalAddr => '127.0.0.1', Listen => 3)
-	or BAIL_OUT("failed to create server socket: $!");
-
     defined($pid = fork()) or BAIL_OUT("failed to fork: $!");
     if ($pid == 0) {
 	my ($ctx, $ssl, $ret, $cl);
 
 	foreach my $round (@rounds)
 	{
-	    $cl = $server->accept or BAIL_OUT("accept failed: $!");
+	    $cl = $server->accept();
 
 	    $ctx = make_ctx($round);
 	    next unless $ctx;
@@ -243,14 +236,12 @@ sub client {
     # SSL client - connect to server and receive information that we
     # compare to our expected values
 
-    my $saddr = $server->sockhost.':'.$server->sockport;
     my ($ctx, $ssl, $ret, $cl);
     my $end = "end";
 
     foreach my $round (@rounds)
     {
-	$cl = IO::Socket::INET->new($saddr)
-	    or BAIL_OUT("failed to connect to server: $!");
+	$cl = $server->connect();
 
 	$ctx = make_ctx($round);
 	next unless $ctx;

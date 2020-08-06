@@ -1,20 +1,19 @@
-#!/usr/bin/perl
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
 use Net::SSLeay;
-use Symbol qw( gensym );
-use IO::Handle;
+use Test::Net::SSLeay qw(can_really_fork);
+
 use File::Spec;
-use Config;
+use IO::Handle;
+use Symbol qw( gensym );
 
-BEGIN {
-  plan skip_all => "Either pipes or fork() not supported on $^O"
-      if ($^O eq 'MSWin32' || !$Config{d_fork});
+if (not can_really_fork()) {
+    # Perl's pseudofork implementation doesn't correctly dup file handles
+    # connected to pipes, so this test requires a native fork() system call
+    plan skip_all => "fork() not natively supported on this system";
+} else {
+    plan tests => 11;
 }
-
-plan tests => 11;
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();

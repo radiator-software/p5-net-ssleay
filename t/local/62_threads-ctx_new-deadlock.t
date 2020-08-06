@@ -1,20 +1,20 @@
-use strict;
-use warnings;
-use Config;
-use Test::More;
+use lib 'inc';
 
-BEGIN {
-  plan skip_all => "your perl is not compiled with ithreads" unless $Config{useithreads};
-  require threads;
-};
-
-#XXX-TODO perhaps perl+ithreads related issue (needs more investigation)
-plan skip_all => "this test sometimes crashes on cygwin" if $^O eq 'cygwin';
-
-plan tests => 1;
+use Net::SSLeay;
+use Test::Net::SSLeay qw(can_thread);
 
 use FindBin;
-use Net::SSLeay;
+
+if (not can_thread()) {
+    plan skip_all => "Threads not supported on this system";
+} elsif ($^O eq 'cygwin') {
+    #XXX-TODO perhaps perl+ithreads related issue (needs more investigation)
+    plan skip_all => "this test sometimes crashes on Cygwin";
+} else {
+    plan tests => 1;
+}
+
+require threads;
 
 my $start_time = time;
 

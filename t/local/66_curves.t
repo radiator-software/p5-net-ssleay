@@ -1,26 +1,25 @@
-#!/usr/bin/perl
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
-use Socket;
-use File::Spec;
 use Net::SSLeay;
-use Config;
+use Test::Net::SSLeay;
 
-# for debugging only
-my $DEBUG = 0;
-my $PCAP = 0;
-require Net::PcapWriter if $PCAP;
+use File::Spec;
 
 my @set_list = (
     defined &Net::SSLeay::CTX_set1_groups_list ? (\&Net::SSLeay::CTX_set1_groups_list) : (),
     defined &Net::SSLeay::CTX_set1_curves_list ? (\&Net::SSLeay::CTX_set1_curves_list) : (),
 );
 
-plan skip_all => "no support for CTX_set_curves_list" if ! @set_list;
-my $tests = 4*@set_list;
-plan tests => $tests;
+if (!@set_list) {
+    plan skip_all => "no support for CTX_set_curves_list";
+} else {
+    plan tests => 4 * @set_list;
+}
+
+# for debugging only
+my $DEBUG = 0;
+my $PCAP = 0;
+require Net::PcapWriter if $PCAP;
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();

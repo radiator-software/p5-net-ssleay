@@ -1,26 +1,21 @@
-#!/usr/bin/perl
+use lib 'inc';
 
-use strict;
-use warnings;
-use Test::More;
-use Socket;
-use File::Spec;
 use Net::SSLeay;
-use Config;
-use IO::Socket::INET;
+use Test::Net::SSLeay qw(can_fork tcp_socket);
 
-BEGIN {
-  plan skip_all => "fork() not supported on $^O" unless $Config{d_fork};
+use File::Spec;
+
+if (not can_fork()) {
+    plan skip_all => "fork() not supported on this system";
+} else {
+    plan tests => 2;
 }
-
-plan tests => 2; 
-
 
 my $pid;
 alarm(30);
 END { kill 9,$pid if $pid }
 
-my $server;
+my $server = tcp_socket();
 Net::SSLeay::initialize();
 
 {
@@ -28,13 +23,10 @@ Net::SSLeay::initialize();
     my $cert_pem = File::Spec->catfile('t', 'data', 'testcert_wildcard.crt.pem');
     my $key_pem = File::Spec->catfile('t', 'data', 'testcert_key_2048.pem');
 
-    $server = IO::Socket::INET->new( LocalAddr => '127.0.0.1', Listen => 3)
-	or BAIL_OUT("failed to create server socket: $!");
-
     defined($pid = fork()) or BAIL_OUT("failed to fork: $!");
     if ($pid == 0) {
 	for(qw(ctx ssl)) {
-	    my $cl = $server->accept or BAIL_OUT("accept failed: $!");
+	    my $cl = $server->accept();
 	    my $ctx = Net::SSLeay::CTX_tlsv1_new();
 	    Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem);
 	    my $ssl = Net::SSLeay::new($ctx);
@@ -59,9 +51,7 @@ sub client {
 	push @states,[$where,$ret];
     };
 
-    my $saddr = $server->sockhost.':'.$server->sockport;
-    my $cl = IO::Socket::INET->new($saddr) 
-	or BAIL_OUT("failed to connect to server: $!");
+    my $cl = $server->connect();
     my $ctx = Net::SSLeay::CTX_tlsv1_new();
     Net::SSLeay::CTX_set_options($ctx, &Net::SSLeay::OP_ALL);
     Net::SSLeay::CTX_set_info_callback($ctx, $infocb) if $where eq 'ctx';
