@@ -100,12 +100,12 @@ install:
   - echo "Install command %sp_install_cmd%"
   - if not exist "C:\strawberry" %sp_install_cmd%
   - set PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
+  - perl -V
   - cd %APPVEYOR_BUILD_FOLDER%
   - if /I "%ssleay_need_cpanm%" == "1" cpan App::cpanminus
   - if /I "%ssleay_rename_mingw%" == "1" if exist C:\MinGW move C:\MinGW C:\MinGW-image
   - if /I "%ssleay_rename_mingw%" == "1" if exist C:\MinGW-W64 move C:\MinGW-W64 C:\MinGW-W64-image
-  - cpanm --no-man-pages --installdeps --notest .
-  - perl -V
+  - cpanm --no-man-pages --installdeps --notest . || type C:\Users\appveyor\.cpanm\work\*\build.log && exit /B 1
 
 # Run make
 build_script:
