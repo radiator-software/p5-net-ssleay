@@ -4808,7 +4808,7 @@ TLSv1_2_client_method()
 #endif
 
 
-#if (OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x20020002L)
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
 
 const SSL_METHOD *
 TLS_method()
@@ -4819,10 +4819,10 @@ TLS_server_method()
 const SSL_METHOD *
 TLS_client_method()
 
-#endif /* OpenSSL 1.1.0 or LibreSSL 2.2.2 */
+#endif /* OpenSSL 1.1.0 */
 
 
-#if  (OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2060000fL)
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
 
 int
 SSL_CTX_set_min_proto_version(ctx, version)
@@ -4844,7 +4844,7 @@ SSL_set_max_proto_version(ssl, version)
      SSL *  ssl
      int    version
 
-#endif /* OpenSSL 1.1.0 or LibreSSL 2.6.0 */
+#endif /* OpenSSL 1.1.0 */
 
 
 #if OPENSSL_VERSION_NUMBER >= 0x1010007fL && !defined(LIBRESSL_VERSION_NUMBER)
