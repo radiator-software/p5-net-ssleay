@@ -1,10 +1,9 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay;
+use Test::Net::SSLeay qw(data_file_path);
 
 use lib '.';
-use File::Spec;
 
 plan tests => 1032;
 
@@ -23,13 +22,16 @@ ok ($hash = 4003674586, "X509_NAME_hash");
 # perl examples/X509_cert_details.pl -dump -pem t/data/cert_paypal.crt.pem > t/data/cert_paypal.crt.pem_dump
 #
 # Caution from perl 25 onwards, need use lib '.'; above in order to 'do' these files
-my $dump = {
-  "cert_paypal.crt.pem"       => do(File::Spec->catfile('t', 'data', 'cert_paypal.crt.pem_dump')),
-  "testcert_extended.crt.pem" => do(File::Spec->catfile('t', 'data', 'testcert_extended.crt.pem_dump')),
-  "testcert_simple.crt.pem"   => do(File::Spec->catfile('t', 'data', 'testcert_simple.crt.pem_dump')),
-  "testcert_strange.crt.pem"  => do(File::Spec->catfile('t', 'data', 'testcert_strange.crt.pem_dump')),
-  "testcert_cdp.crt.pem"      => do(File::Spec->catfile('t', 'data', 'testcert_cdp.crt.pem_dump')),
-};
+my $dump = {};
+for my $cert ( qw(
+    cert_paypal
+    testcert_extended
+    testcert_simple
+    testcert_strange
+    testcert_cdp
+) ) {
+    $dump->{"$cert.crt.pem"} = do( data_file_path("$cert.crt.pem_dump") );
+}
 
 my %available_digests = map {$_=>1} qw( md5 sha1 );
 if (Net::SSLeay::SSLeay >= 0x1000000f) {
@@ -43,7 +45,7 @@ if (Net::SSLeay::SSLeay >= 0x1000000f) {
 }
 
 for my $f (keys (%$dump)) {
-  my $filename = File::Spec->catfile('t', 'data', $f);
+  my $filename = data_file_path($f);
   ok(my $bio = Net::SSLeay::BIO_new_file($filename, 'rb'), "BIO_new_file\t$f");
   ok(my $x509 = Net::SSLeay::PEM_read_bio_X509($bio), "PEM_read_bio_X509\t$f");
   ok(Net::SSLeay::X509_get_pubkey($x509), "X509_get_pubkey\t$f"); #only test whether the function works  

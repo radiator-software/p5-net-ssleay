@@ -1,10 +1,9 @@
 use lib 'inc';
 
 use Net::SSLeay qw(MBSTRING_ASC MBSTRING_UTF8 EVP_PK_RSA EVP_PKT_SIGN EVP_PKT_ENC);
-use Test::Net::SSLeay;
+use Test::Net::SSLeay qw(data_file_path);
 
 use utf8;
-use File::Spec;
 
 plan tests => 139;
 
@@ -13,8 +12,8 @@ Net::SSLeay::load_error_strings();
 Net::SSLeay::ERR_load_crypto_strings();
 Net::SSLeay::SSLeay_add_ssl_algorithms();
 
-my $ca_crt_pem = File::Spec->catfile('t', 'data', 'test_CA1.crt.pem');
-my $ca_key_pem = File::Spec->catfile('t', 'data', 'test_CA1.key.pem');
+my $ca_crt_pem = data_file_path('test_CA1.crt.pem');
+my $ca_key_pem = data_file_path('test_CA1.key.pem');
 
 ok(my $bio1 = Net::SSLeay::BIO_new_file($ca_crt_pem, 'r'), "BIO_new_file 1");
 ok(my $ca_cert = Net::SSLeay::PEM_read_bio_X509($bio1), "PEM_read_bio_X509");
@@ -276,7 +275,7 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
 
 { ### X509 certificate - copy some fields from other certificate
 
-  my $orig_crt_pem = File::Spec->catfile('t', 'data', 'test_leaf.crt.pem');
+  my $orig_crt_pem = data_file_path('test_leaf.crt.pem');
   ok(my $bio = Net::SSLeay::BIO_new_file($orig_crt_pem, 'r'), "BIO_new_file");
   ok(my $orig_cert = Net::SSLeay::PEM_read_bio_X509($bio), "PEM_read_bio_X509");
 
@@ -310,7 +309,7 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
 }
 
 { ### X509 request from file + some special tests
-  my $req_pem = File::Spec->catfile('t', 'data', 'testreq1.pem');
+  my $req_pem = data_file_path('testreq1.pem');
   ok(my $bio = Net::SSLeay::BIO_new_file($req_pem, 'r'), "BIO_new_file");
   ok(my $req = Net::SSLeay::PEM_read_bio_X509_REQ($bio), "PEM_read_bio_X509");
   
@@ -324,11 +323,11 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
 }
 
 { ### X509 + X509_REQ loading DER format
-  my $req_der = File::Spec->catfile('t', 'data', 'testreq1.der');
+  my $req_der = data_file_path('testreq1.der');
   ok(my $bio1 = Net::SSLeay::BIO_new_file($req_der, 'rb'), "BIO_new_file");
   ok(my $req = Net::SSLeay::d2i_X509_REQ_bio($bio1), "d2i_X509_REQ_bio");
   
-  my $x509_der = File::Spec->catfile('t', 'data', 'testcert_simple.crt.der');
+  my $x509_der = data_file_path('testcert_simple.crt.der');
   ok(my $bio2 = Net::SSLeay::BIO_new_file($x509_der, 'rb'), "BIO_new_file");
   ok(my $x509 = Net::SSLeay::d2i_X509_bio($bio2), "d2i_X509_bio");
 }

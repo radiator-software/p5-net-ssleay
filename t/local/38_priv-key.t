@@ -1,9 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay;
-
-use File::Spec;
+use Test::Net::SSLeay qw(data_file_path);
 
 plan tests => 10;
 
@@ -13,8 +11,8 @@ Net::SSLeay::ERR_load_crypto_strings();
 Net::SSLeay::SSLeay_add_ssl_algorithms();
 Net::SSLeay::OpenSSL_add_all_algorithms();
 
-my $key_pem_encrypted       = File::Spec->catfile('t', 'data', 'test_CA1.encrypted_key.pem');
-my $key_pem                 = File::Spec->catfile('t', 'data', 'test_CA1.key.pem');
+my $key_pem_encrypted = data_file_path('test_CA1.encrypted_key.pem');
+my $key_pem           = data_file_path('test_CA1.key.pem');
 
 {
   ok(my $bio_pem                 = Net::SSLeay::BIO_new_file($key_pem, 'r'), "BIO_new_file 3");

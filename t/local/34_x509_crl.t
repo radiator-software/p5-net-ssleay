@@ -1,9 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay;
-
-use File::Spec;
+use Test::Net::SSLeay qw(data_file_path);
 
 plan tests => 42;
 
@@ -12,16 +10,16 @@ Net::SSLeay::load_error_strings();
 Net::SSLeay::ERR_load_crypto_strings();
 Net::SSLeay::SSLeay_add_ssl_algorithms();
 
-my $ca_crt_pem = File::Spec->catfile('t', 'data', 'test_CA1.crt.pem');
-my $ca_key_pem = File::Spec->catfile('t', 'data', 'test_CA1.key.pem');
+my $ca_crt_pem = data_file_path('test_CA1.crt.pem');
+my $ca_key_pem = data_file_path('test_CA1.key.pem');
 ok(my $bio1 = Net::SSLeay::BIO_new_file($ca_crt_pem, 'r'), "BIO_new_file 1");
 ok(my $ca_cert = Net::SSLeay::PEM_read_bio_X509($bio1), "PEM_read_bio_X509");
 ok(my $bio2 = Net::SSLeay::BIO_new_file($ca_key_pem, 'r'), "BIO_new_file 2");
 ok(my $ca_pk = Net::SSLeay::PEM_read_bio_PrivateKey($bio2), "PEM_read_bio_PrivateKey");
 
 { ### X509_CRL show info
-  my $crl_der = File::Spec->catfile('t', 'data', 'verisign.crl.der');
-  my $crl_pem = File::Spec->catfile('t', 'data', 'verisign.crl.pem');
+  my $crl_der = data_file_path('verisign.crl.der');
+  my $crl_pem = data_file_path('verisign.crl.pem');
 
   ok(my $bio1 = Net::SSLeay::BIO_new_file($crl_der, 'rb'), "BIO_new_file 1");
   ok(my $bio2 = Net::SSLeay::BIO_new_file($crl_pem, 'r'), "BIO_new_file 2");
@@ -120,7 +118,7 @@ ok(my $ca_pk = Net::SSLeay::PEM_read_bio_PrivateKey($bio2), "PEM_read_bio_Privat
 }
 
 { ### special tests
-  my $crl_der = File::Spec->catfile('t', 'data', 'test_CA1.crl.der');
+  my $crl_der = data_file_path('test_CA1.crl.der');
   ok(my $bio = Net::SSLeay::BIO_new_file($crl_der, 'rb'), "BIO_new_file");
   ok(my $crl = Net::SSLeay::d2i_X509_CRL_bio($bio), "d2i_X509_CRL_bio");
   is(Net::SSLeay::X509_CRL_verify($crl, Net::SSLeay::X509_get_pubkey($ca_cert)), 1, "X509_CRL_verify");

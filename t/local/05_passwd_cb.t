@@ -3,9 +3,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay;
-
-use File::Spec;
+use Test::Net::SSLeay qw(data_file_path);
 
 plan tests => 36;
 
@@ -14,7 +12,7 @@ Net::SSLeay::load_error_strings();
 Net::SSLeay::add_ssl_algorithms();
 Net::SSLeay::OpenSSL_add_all_algorithms();
 
-my $key_pem = File::Spec->catfile('t', 'data', 'testcert_key_2048.pem.e');
+my $key_pem = data_file_path('testcert_key_2048.pem.e');
 my $key_password = 'secret';
 my $cb_1_calls = 0;
 my $cb_2_calls = 0;

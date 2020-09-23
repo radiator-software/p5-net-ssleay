@@ -1,9 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(can_fork tcp_socket);
-
-use File::Spec;
+use Test::Net::SSLeay qw( can_fork data_file_path tcp_socket );
 
 BEGIN {
     if (not can_fork()) {
@@ -19,9 +17,10 @@ my $server = tcp_socket();
 my $pid;
 
 my $msg = 'ssleay-test';
-my $ca_cert_pem = File::Spec->catfile('t', 'data', 'test_CA1_2048.crt.pem');
-my $cert_pem = File::Spec->catfile('t', 'data', 'testcert_wildcard_CA1_2048.crt.pem');
-my $key_pem = File::Spec->catfile('t', 'data', 'testcert_key_2048.pem');
+
+my $ca_cert_pem = data_file_path('test_CA1_2048.crt.pem');
+my $cert_pem    = data_file_path('testcert_wildcard_CA1_2048.crt.pem');
+my $key_pem     = data_file_path('testcert_key_2048.pem');
 
 my $cert_name = (Net::SSLeay::SSLeay >= 0x0090700f) ?
                 '/C=US/ST=State/L=City/O=Company/OU=Unit/CN=*.example.com/emailAddress=wildcard@example.com' :

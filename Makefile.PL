@@ -39,6 +39,7 @@ my %eumm_args = (
     'Carp' => '0',
     'Config' => '0',
     'English' => '0',
+    'File::Spec::Functions' => '0',
     'Scalar::Util' => '0',
     'SelectSaver' => '0',
     'Socket' => '0',

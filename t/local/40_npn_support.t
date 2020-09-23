@@ -1,9 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(can_fork tcp_socket);
-
-use File::Spec;
+use Test::Net::SSLeay qw(can_fork data_file_path tcp_socket);
 
 BEGIN {
     if (Net::SSLeay::SSLeay < 0x10001000) {
@@ -22,8 +20,9 @@ my $msg = 'ssleay-npn-test';
 
 my $pid;
 
-my $cert_pem = File::Spec->catfile('t', 'data', 'testcert_wildcard.crt.pem');
-my $key_pem = File::Spec->catfile('t', 'data', 'testcert_key_2048.pem');
+my $cert_pem = data_file_path('testcert_wildcard.crt.pem');
+my $key_pem  = data_file_path('testcert_key_2048.pem');
+
 my @results;
 Net::SSLeay::initialize();
 

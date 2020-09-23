@@ -3,9 +3,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(can_fork is_libressl is_openssl tcp_socket);
-
-use File::Spec;
+use Test::Net::SSLeay qw(can_fork data_file_path is_libressl is_openssl tcp_socket);
 
 plan tests => 103;
 
@@ -15,11 +13,10 @@ Net::SSLeay::add_ssl_algorithms();
 Net::SSLeay::OpenSSL_add_all_algorithms();
 
 # Our CA cert and a cert signed with it
-my $ca_pem = File::Spec->catfile('t', 'data', 'test_CA1_2048.crt.pem');
-#my $ca_dir =  File::Spec->catfile('t', 'data');
-my $ca_dir =  '';
-my $cert_pem = File::Spec->catfile('t', 'data', 'testcert_wildcard_CA1_2048.crt.pem');
-my $key_pem = File::Spec->catfile('t', 'data', 'testcert_key_2048.pem');
+my $ca_pem   = data_file_path('test_CA1_2048.crt.pem');
+my $ca_dir   = '';
+my $cert_pem = data_file_path('testcert_wildcard_CA1_2048.crt.pem');
+my $key_pem  = data_file_path('testcert_key_2048.pem');
 
 my $pm;
 my $pm2;
@@ -203,8 +200,8 @@ sub test_wildcard_checks
 }
 
 sub verify_local_trust {
-    my $digicert_ca = File::Spec->catfile('t', 'data', 'test_CA1.crt.pem');
-    my $twitter_chain = File::Spec->catfile('t', 'data', 'chain_leaf.crt.pem');
+    my $digicert_ca   = data_file_path('test_CA1.crt.pem');
+    my $twitter_chain = data_file_path('chain_leaf.crt.pem');
 
     # read in twitter chain
     my $bio = Net::SSLeay::BIO_new_file($twitter_chain, 'r');

@@ -1,9 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay;
-
-use File::Spec;
+use Test::Net::SSLeay qw(data_file_path);
 
 plan tests => 19;
 
@@ -12,9 +10,9 @@ Net::SSLeay::load_error_strings();
 Net::SSLeay::ERR_load_crypto_strings();
 Net::SSLeay::SSLeay_add_ssl_algorithms();
 
-my $filename1 = File::Spec->catfile('t', 'data', 'pkcs12-no-chain.p12');
-my $filename2 = File::Spec->catfile('t', 'data', 'pkcs12-full.p12');
-my $filename3 = File::Spec->catfile('t', 'data', 'pkcs12-no-passwd.p12');
+my $filename1 = data_file_path('pkcs12-no-chain.p12');
+my $filename2 = data_file_path('pkcs12-full.p12');
+my $filename3 = data_file_path('pkcs12-no-passwd.p12');
 
 {
   my($privkey, $cert, @cachain) = Net::SSLeay::P_PKCS12_load_file($filename1, 1, "secret");

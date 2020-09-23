@@ -7,16 +7,22 @@ use base qw(Exporter);
 
 use Carp qw(croak);
 use Config;
+use Cwd qw(abs_path);
 use English qw( $EVAL_ERROR $OSNAME $PERL_VERSION -no_match_vars );
+use File::Basename qw(dirname);
+use File::Spec::Functions qw( abs2rel catfile );
 use Test::Net::SSLeay::Socket;
 
 our $VERSION = '1.89_02';
 
 our @EXPORT_OK = qw(
     can_fork can_really_fork can_thread
+    data_file_path
     is_libressl is_openssl
     tcp_socket
 );
+
+my $data_path = catfile( dirname(__FILE__), '..', '..', '..', 't', 'data' );
 
 sub import {
     my ( $class, @imports ) = @_;
@@ -80,6 +86,18 @@ sub can_thread {
     return 0 if $INC{'Devel/Cover.pm'};
 
     return 1;
+}
+
+sub data_file_path {
+    my ($data_file) = @_;
+
+    my $abs_path = catfile( abs_path($data_path), $data_file );
+    my $rel_path = abs2rel($abs_path);
+
+    croak "$rel_path: data file does not exist"
+        if not -e $abs_path;
+
+    return $rel_path;
 }
 
 sub is_libressl {
@@ -200,6 +218,14 @@ false if not.
 
 Returns true if reliable interpreter-level threads support is available in
 this Perl, or false if not.
+
+=head2 data_file_path
+
+    my $cert_path = data_file_path('wildcard-cert.cert.pem');
+    my $key_path  = data_file_path('wildcard-cert.key.pem');
+
+Returns the relative path to a given file in the test suite data directory
+(C<t/local/>). Dies if the file does not exist.
 
 =head2 is_libressl
 
