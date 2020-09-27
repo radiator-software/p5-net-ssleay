@@ -5911,7 +5911,7 @@ RSA_generate_key(bits,ee,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
        /* This equivalent was contributed by Brian Fraser for Android, */
        /* but was not portable to old OpenSSLs where RSA_generate_key_ex is not available. */
        /* It should now be more versatile. */
-       /* as of openssl 1.1.0 it is not possible anymore to generate the BN_GENCB structure directly. */
+       /* as of openssl 1.1.0-pre1 it is not possible anymore to generate the BN_GENCB structure directly. */
        /* instead BN_EGNCB_new() has to be used. */
        int rc;
        RSA * ret;
@@ -5928,7 +5928,7 @@ RSA_generate_key(bits,ee,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
 	   BN_free(e);
            croak("Net::SSLeay: RSA_generate_key perl function could not create RSA structure.\n");
        }
-#if (OPENSSL_VERSION_NUMBER >= 0x1010000fL && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
+#if (OPENSSL_VERSION_NUMBER >= 0x10100001L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
        BN_GENCB *new_cb;
        new_cb = BN_GENCB_new();
        if(!new_cb) {
