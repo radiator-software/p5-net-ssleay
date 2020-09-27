@@ -1,5 +1,16 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.89_03 ????
+	- Correct the minimum OpenSSL version required for the following functions
+	  to be made available (previously they were all declared to be present in
+	  1.1.0-pre1, which caused Net::SSLeay to crash at run-time when built
+	  against OpenSSL versions between 1.1.0-pre1 and 1.1.0-pre3):
+	  - CTX_set_max_proto_version (added in 1.1.0-pre2)
+	  - CTX_set_min_proto_version (added in 1.1.0-pre2)
+	  - SESSION_up_ref (added in 1.1.0-pre4)
+	  - set_max_proto_version (added in 1.1.0-pre2)
+	  - set_min_proto_version (added in 1.1.0-pre2)
+
 1.89_02 2020-08-07
 	- Add support for the P_X509_CRL_add_extensions function. Thanks to
 	  Manuel Mausz for the patch.

@@ -1855,7 +1855,7 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_SESSION_free.html|http:/
 
 =item * SESSION_up_ref
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.0 or LibreSSL 2.7.0
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.0-pre4 or LibreSSL 2.7.0
 
 Increases the reference counter on a SSL_SESSION structure.
 
@@ -2683,7 +2683,7 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_new.html|http://www.
 
 =item * CTX_set_min_proto_version, CTX_set_max_proto_version, set_min_proto_version and set_max_proto_version,
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.1.0 or LibreSSL 2.6.0
+B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.1.0-pre2 or LibreSSL 2.6.0
 
 Set the minimum and maximum supported protocol for $ctx or $ssl.
 
