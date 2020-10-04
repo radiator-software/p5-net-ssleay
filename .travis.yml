@@ -1,6 +1,5 @@
 os: linux
 dist: trusty
-sudo: false
 
 language: perl
 
@@ -24,7 +23,7 @@ env:
     - PERL_MM_USE_DEFAULT=1
     - AUTOMATED_TESTING=1
     - RELEASE_TESTING=0
-  matrix:
+  jobs:
     - OPENSSL_VERSION=1.1.1g
     - OPENSSL_VERSION=1.1.0l
     - OPENSSL_VERSION=1.0.2u
@@ -38,7 +37,7 @@ env:
     - LIBRESSL_VERSION=2.7.5
     - LIBRESSL_VERSION=2.2.1
 
-matrix:
+jobs:
   exclude:
   - perl: "5.8"
     env: OPENSSL_VERSION=1.1.0l
