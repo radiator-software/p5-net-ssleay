@@ -6494,7 +6494,7 @@ OPENSSL_add_all_algorithms_conf()
 
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x10000000L
+#if OPENSSL_VERSION_NUMBER >= 0x10000003L
 
 int
 SSL_CTX_set1_param(ctx, vpm)
