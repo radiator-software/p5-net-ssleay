@@ -2325,7 +2325,7 @@ Can be used to set some application defined value/data.
 
 =item * CTX_get0_param
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.0.2
+B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.0.2-beta1 or LibreSSL 2.7.0
 
 Returns the current verification parameters.
 
@@ -3510,7 +3510,7 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_free.html|http://www.ope
 
 =item * get0_param
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.0.2
+B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.0.2-beta1 or LibreSSL 2.7.0
 
 Returns the current verification parameters.
 
@@ -7648,7 +7648,7 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_fla
 
 =item * X509_VERIFY_PARAM_add1_host
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.0.2
+B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.0.2-beta2 or LibreSSL 2.7.0
 
 Adds an additional reference identifier that can match the peer's certificate.
 
@@ -7689,7 +7689,7 @@ Frees up the X509_VERIFY_PARAM structure.
 
 =item * X509_VERIFY_PARAM_get0_peername
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.0.2
+B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.0.2-beta2 or LibreSSL 2.7.0
 
 Returns the DNS hostname or subject CommonName from the peer certificate that matched one of the reference identifiers.
 
@@ -7779,7 +7779,7 @@ as the name of X509_VERIFY_PARAM structure $from.
 
 =item * X509_VERIFY_PARAM_set1_email
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.0.2
+B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.0.2-beta1 or LibreSSL 2.7.0
 
 Sets the expected RFC822 email address to email.
 
@@ -7793,7 +7793,7 @@ Check openssl doc L<https://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_fl
 
 =item * X509_VERIFY_PARAM_set1_host
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.0.2
+B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.0.2-beta1 or LibreSSL 2.7.0
 
 Sets the expected DNS hostname to name clearing any previously specified host name or names.
 
@@ -7811,7 +7811,7 @@ Check openssl doc L<https://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_fl
 
 =item * X509_VERIFY_PARAM_set1_ip
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.0.2
+B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.0.2-beta1 or LibreSSL 2.7.0
 
 Sets the expected IP address to ip.
 
@@ -7825,7 +7825,7 @@ Check openssl doc L<https://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_fl
 
 =item * X509_VERIFY_PARAM_set1_ip_asc
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.0.2
+B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.0.2-beta1 or LibreSSL 2.7.0
 
 Sets the expected IP address to ipasc.
 
@@ -7873,6 +7873,8 @@ Sets the maximum verification depth to depth. That is the maximum number of untr
 Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
 
 =item * X509_VERIFY_PARAM_set_hostflags
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.0.2-beta2 or LibreSSL 2.7.0
 
  Net::SSLeay::X509_VERIFY_PARAM_set_hostflags($param, $flags);
  # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
