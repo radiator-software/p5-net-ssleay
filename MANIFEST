@@ -25,6 +25,7 @@ examples/stdio_bulk.pl
 examples/tcpcat.pl
 examples/tcpecho.pl
 examples/x509_cert_details.pl
+helper_script/generate-test-pki
 helper_script/regen_openssl_constants.pl
 inc/Test/Net/SSLeay.pm
 inc/Test/Net/SSLeay/Socket.pm
