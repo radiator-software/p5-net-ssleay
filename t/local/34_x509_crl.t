@@ -1,7 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(data_file_path);
+use Test::Net::SSLeay qw( data_file_path is_openssl );
 
 plan tests => 42;
 
@@ -9,17 +9,21 @@ Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();
 Net::SSLeay::ERR_load_crypto_strings();
 Net::SSLeay::SSLeay_add_ssl_algorithms();
+# SHA-256 isn't loaded by default until OpenSSL 0.9.8o
+if ( is_openssl() && Net::SSLeay::SSLeay < 0x009080ff ) {
+    Net::SSLeay::OpenSSL_add_all_digests();
+}
 
-my $ca_crt_pem = data_file_path('test_CA1.crt.pem');
-my $ca_key_pem = data_file_path('test_CA1.key.pem');
+my $ca_crt_pem = data_file_path('intermediate-ca.cert.pem');
+my $ca_key_pem = data_file_path('intermediate-ca.key.pem');
 ok(my $bio1 = Net::SSLeay::BIO_new_file($ca_crt_pem, 'r'), "BIO_new_file 1");
 ok(my $ca_cert = Net::SSLeay::PEM_read_bio_X509($bio1), "PEM_read_bio_X509");
 ok(my $bio2 = Net::SSLeay::BIO_new_file($ca_key_pem, 'r'), "BIO_new_file 2");
 ok(my $ca_pk = Net::SSLeay::PEM_read_bio_PrivateKey($bio2), "PEM_read_bio_PrivateKey");
 
 { ### X509_CRL show info
-  my $crl_der = data_file_path('verisign.crl.der');
-  my $crl_pem = data_file_path('verisign.crl.pem');
+  my $crl_der = data_file_path('intermediate-ca.crl.der');
+  my $crl_pem = data_file_path('intermediate-ca.crl.pem');
 
   ok(my $bio1 = Net::SSLeay::BIO_new_file($crl_der, 'rb'), "BIO_new_file 1");
   ok(my $bio2 = Net::SSLeay::BIO_new_file($crl_pem, 'r'), "BIO_new_file 2");
@@ -31,19 +35,19 @@ ok(my $ca_pk = Net::SSLeay::PEM_read_bio_PrivateKey($bio2), "PEM_read_bio_Privat
   ok(my $name2 = Net::SSLeay::X509_CRL_get_issuer($crl2), "X509_CRL_get_issuer 2");
   is(Net::SSLeay::X509_NAME_cmp($name1, $name2), 0, "X509_NAME_cmp");
 
-  is(Net::SSLeay::X509_NAME_print_ex($name1), 'CN=VeriSign Class 3 Extended Validation SSL CA,OU=Terms of use at https://www.verisign.com/rpa (c)06,OU=VeriSign Trust Network,O=VeriSign\, Inc.,C=US', "X509_NAME_print_ex");
+  is(Net::SSLeay::X509_NAME_print_ex($name1), 'CN=Intermediate CA,OU=Test Suite,O=Net-SSLeay,C=PL', "X509_NAME_print_ex");
   
   ok(my $time_last = Net::SSLeay::X509_CRL_get_lastUpdate($crl1), "X509_CRL_get_lastUpdate");
   ok(my $time_next = Net::SSLeay::X509_CRL_get_nextUpdate($crl1), "X509_CRL_get_nextUpdate");
   SKIP: {
     skip 'openssl-0.9.7e required', 2 unless Net::SSLeay::SSLeay >= 0x0090705f; 
-    is(Net::SSLeay::P_ASN1_TIME_get_isotime($time_last), "2012-03-08T21:00:13Z", "P_ASN1_TIME_get_isotime last");
-    is(Net::SSLeay::P_ASN1_TIME_get_isotime($time_next), "2012-03-15T21:00:13Z", "P_ASN1_TIME_get_isotime next");
+    is(Net::SSLeay::P_ASN1_TIME_get_isotime($time_last), '2020-07-01T00:00:00Z', "P_ASN1_TIME_get_isotime last");
+    is(Net::SSLeay::P_ASN1_TIME_get_isotime($time_next), '2020-07-08T00:00:00Z', "P_ASN1_TIME_get_isotime next");
   }
   
-  is(Net::SSLeay::X509_CRL_get_version($crl1), 0, "X509_CRL_get_version");
+  is(Net::SSLeay::X509_CRL_get_version($crl1), 1, "X509_CRL_get_version");
   ok(my $sha1_digest = Net::SSLeay::EVP_get_digestbyname("sha1"), "EVP_get_digestbyname");
-  is(unpack("H*",Net::SSLeay::X509_CRL_digest($crl1, $sha1_digest)), "2a49fa78444070d2bce08b2ea5213099b3e065fd", "X509_CRL_digest");  
+  is(unpack("H*",Net::SSLeay::X509_CRL_digest($crl1, $sha1_digest)), 'f0e5c853477a206c03f7347aee09a01d91df0ac5', "X509_CRL_digest");
 }
 
 { ### X509_CRL create
@@ -118,7 +122,7 @@ ok(my $ca_pk = Net::SSLeay::PEM_read_bio_PrivateKey($bio2), "PEM_read_bio_Privat
 }
 
 { ### special tests
-  my $crl_der = data_file_path('test_CA1.crl.der');
+  my $crl_der = data_file_path('intermediate-ca.crl.der');
   ok(my $bio = Net::SSLeay::BIO_new_file($crl_der, 'rb'), "BIO_new_file");
   ok(my $crl = Net::SSLeay::d2i_X509_CRL_bio($bio), "d2i_X509_CRL_bio");
   is(Net::SSLeay::X509_CRL_verify($crl, Net::SSLeay::X509_get_pubkey($ca_cert)), 1, "X509_CRL_verify");
@@ -129,7 +133,7 @@ ok(my $ca_pk = Net::SSLeay::PEM_read_bio_PrivateKey($bio2), "PEM_read_bio_Privat
   SKIP: {
     skip('requires openssl-0.9.7', 2) unless Net::SSLeay::SSLeay >= 0x0090700f;
     ok(my $sn = Net::SSLeay::P_X509_CRL_get_serial($crl), "P_X509_CRL_get_serial");
-    is(Net::SSLeay::ASN1_INTEGER_get($sn), 2, "ASN1_INTEGER_get"); 
+    is(Net::SSLeay::ASN1_INTEGER_get($sn), 1, "ASN1_INTEGER_get");
   }
   
   SKIP: {

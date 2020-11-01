@@ -9,8 +9,6 @@ pm_to_blib
 *.gif
 *.png
 *.jpg
-*.p12
-*.der
 *.tar
 *.gz
 *.tgz

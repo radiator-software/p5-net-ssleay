@@ -164,8 +164,8 @@ sub server
 {
     # SSL server - just handle connections, send information to
     # client and exit
-    my $cert_pem = data_file_path('testcert_wildcard.crt.pem');
-    my $key_pem  = data_file_path('testcert_key_2048.pem');
+    my $cert_pem = data_file_path('simple-cert.cert.pem');
+    my $key_pem  = data_file_path('simple-cert.key.pem');
 
     defined($pid = fork()) or BAIL_OUT("failed to fork: $!");
     if ($pid == 0) {

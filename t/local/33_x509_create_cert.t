@@ -1,7 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay qw(MBSTRING_ASC MBSTRING_UTF8 EVP_PK_RSA EVP_PKT_SIGN EVP_PKT_ENC);
-use Test::Net::SSLeay qw(data_file_path);
+use Test::Net::SSLeay qw( data_file_path is_openssl );
 
 use utf8;
 
@@ -11,9 +11,13 @@ Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();
 Net::SSLeay::ERR_load_crypto_strings();
 Net::SSLeay::SSLeay_add_ssl_algorithms();
+# SHA-256 isn't loaded by default until OpenSSL 0.9.8o
+if ( is_openssl() && Net::SSLeay::SSLeay < 0x009080ff ) {
+    Net::SSLeay::OpenSSL_add_all_digests();
+}
 
-my $ca_crt_pem = data_file_path('test_CA1.crt.pem');
-my $ca_key_pem = data_file_path('test_CA1.key.pem');
+my $ca_crt_pem = data_file_path('root-ca.cert.pem');
+my $ca_key_pem = data_file_path('root-ca.key.pem');
 
 ok(my $bio1 = Net::SSLeay::BIO_new_file($ca_crt_pem, 'r'), "BIO_new_file 1");
 ok(my $ca_cert = Net::SSLeay::PEM_read_bio_X509($bio1), "PEM_read_bio_X509");
@@ -237,7 +241,7 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
 
   ## PHASE3 - check some certificate parameters
   is(Net::SSLeay::X509_NAME_print_ex(Net::SSLeay::X509_get_subject_name($x509ss)), "O=Company Name,C=UK,CN=Common name text X509_REQ", "X509_NAME_print_ex 1");
-  is(Net::SSLeay::X509_NAME_print_ex(Net::SSLeay::X509_get_issuer_name($x509ss)), "CN=CA1,O=Demo1,C=US", "X509_NAME_print_ex 2");
+  is(Net::SSLeay::X509_NAME_print_ex(Net::SSLeay::X509_get_issuer_name($x509ss)), 'CN=Root CA,OU=Test Suite,O=Net-SSLeay,C=PL', "X509_NAME_print_ex 2");
   SKIP: {
     skip 'openssl-0.9.7e required', 2 unless Net::SSLeay::SSLeay >= 0x0090705f; 
     like(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get_notBefore($x509ss)), qr/^\d\d\d\d-\d\d-\d\d/, "X509_get_notBefore");
@@ -275,7 +279,7 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
 
 { ### X509 certificate - copy some fields from other certificate
 
-  my $orig_crt_pem = data_file_path('test_leaf.crt.pem');
+  my $orig_crt_pem = data_file_path('wildcard-cert.cert.pem');
   ok(my $bio = Net::SSLeay::BIO_new_file($orig_crt_pem, 'r'), "BIO_new_file");
   ok(my $orig_cert = Net::SSLeay::PEM_read_bio_X509($bio), "PEM_read_bio_X509");
 
@@ -295,7 +299,7 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
   SKIP: {
     skip 'openssl-0.9.7e required', 2 unless Net::SSLeay::SSLeay >= 0x0090705f;
     ok(Net::SSLeay::P_ASN1_TIME_set_isotime(Net::SSLeay::X509_get_notBefore($x509), "2010-02-01T00:00:00Z") , "P_ASN1_TIME_set_isotime+X509_get_notBefore");
-    ok(Net::SSLeay::P_ASN1_TIME_set_isotime(Net::SSLeay::X509_get_notAfter($x509), "2099-02-01T00:00:00Z"), "P_ASN1_TIME_set_isotime+X509_get_notAfter");
+    ok(Net::SSLeay::P_ASN1_TIME_set_isotime(Net::SSLeay::X509_get_notAfter($x509), "2038-01-01T00:00:00Z"), "P_ASN1_TIME_set_isotime+X509_get_notAfter");
   }
   
   ok(my $sha1_digest = Net::SSLeay::EVP_get_digestbyname("sha1"), "EVP_get_digestbyname");
@@ -309,12 +313,12 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
 }
 
 { ### X509 request from file + some special tests
-  my $req_pem = data_file_path('testreq1.pem');
+  my $req_pem = data_file_path('simple-cert.csr.pem');
   ok(my $bio = Net::SSLeay::BIO_new_file($req_pem, 'r'), "BIO_new_file");
   ok(my $req = Net::SSLeay::PEM_read_bio_X509_REQ($bio), "PEM_read_bio_X509");
   
   ok(my $sha1_digest = Net::SSLeay::EVP_get_digestbyname("sha1"), "EVP_get_digestbyname");
-  is(unpack("H*", Net::SSLeay::X509_REQ_digest($req, $sha1_digest)), "1eda97a279f2bb518f96d1690aa9342c72d1c4ee", "X509_REQ_digest");
+  is(unpack("H*", Net::SSLeay::X509_REQ_digest($req, $sha1_digest)), "372c21a20a6d4e15bf8ecefb487cc604d9a10960", "X509_REQ_digest");
   
   ok(my $req2  = Net::SSLeay::X509_REQ_new(), "X509_REQ_new");  
   ok(my $name = Net::SSLeay::X509_REQ_get_subject_name($req), "X509_REQ_get_subject_name");
@@ -323,11 +327,11 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
 }
 
 { ### X509 + X509_REQ loading DER format
-  my $req_der = data_file_path('testreq1.der');
+  my $req_der = data_file_path('simple-cert.csr.der');
   ok(my $bio1 = Net::SSLeay::BIO_new_file($req_der, 'rb'), "BIO_new_file");
   ok(my $req = Net::SSLeay::d2i_X509_REQ_bio($bio1), "d2i_X509_REQ_bio");
   
-  my $x509_der = data_file_path('testcert_simple.crt.der');
+  my $x509_der = data_file_path('simple-cert.cert.der');
   ok(my $bio2 = Net::SSLeay::BIO_new_file($x509_der, 'rb'), "BIO_new_file");
   ok(my $x509 = Net::SSLeay::d2i_X509_bio($bio2), "d2i_X509_bio");
 }

@@ -18,8 +18,8 @@ Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();
 Net::SSLeay::OpenSSL_add_ssl_algorithms();
 
-my $cert = data_file_path('testcert_wildcard.crt.pem');
-my $key  = data_file_path('testcert_key_2048.pem');
+my $cert = data_file_path('simple-cert.cert.pem');
+my $key  = data_file_path('simple-cert.key.pem');
 
 my $how_much = 1024 ** 2;
 

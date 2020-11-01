@@ -28,8 +28,8 @@ my $set_session_ticket_ext_cb_run = 0;
 
 my $client = _minSSL->new();
 my $server = _minSSL->new( cert => [
-    data_file_path('testcert_wildcard.crt.pem'),
-    data_file_path('testcert_key_2048.pem'),
+    data_file_path('simple-cert.cert.pem'),
+    data_file_path('simple-cert.key.pem'),
 ]);
 
 

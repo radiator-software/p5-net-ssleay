@@ -19,7 +19,7 @@ require threads;
 
 my $start_time = time;
 
-my $file = data_file_path('testcert_key_2048.pem');
+my $file = data_file_path('simple-cert.key.pem');
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();

@@ -29,8 +29,8 @@ my %TRANSFER;  # set in _handshake
 
 my $client = _minSSL->new();
 my $server = _minSSL->new( cert => [
-    data_file_path('testcert_wildcard.crt.pem'),
-    data_file_path('testcert_key_2048.pem'),
+    data_file_path('simple-cert.cert.pem'),
+    data_file_path('simple-cert.key.pem'),
 ]);
 
 

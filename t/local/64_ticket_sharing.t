@@ -24,8 +24,8 @@ my %TRANSFER;  # set in _handshake
 
 my $client = _minSSL->new();
 my $server = _minSSL->new( cert => [
-    data_file_path('testcert_wildcard.crt.pem'),
-    data_file_path('testcert_key_2048.pem'),
+    data_file_path('simple-cert.cert.pem'),
+    data_file_path('simple-cert.key.pem'),
 ]);
 
 
@@ -64,8 +64,8 @@ is( _handshake($client,$server,$reuse),'reuse',"handshake again with reuse");
 # should not be reused
 # ----------------------------------------------
 my $server2 = _minSSL->new( cert => [
-    data_file_path('testcert_wildcard.crt.pem'),
-    data_file_path('testcert_key_2048.pem'),
+    data_file_path('simple-cert.cert.pem'),
+    data_file_path('simple-cert.key.pem'),
 ]);
 is( _handshake($client,$server2,$reuse),'full',"handshake with server2 is full");
 
@@ -257,7 +257,6 @@ sub _handshake {
     sub _reset {
 	my $self = shift;
 	my $ssl = Net::SSLeay::new($self->{ctx});
-	Net::SSLeay::set_security_level($ssl, 1) if exists &Net::SSLeay::set_security_level;
 	my @bio = (
 	    Net::SSLeay::BIO_new(Net::SSLeay::BIO_s_mem()),
 	    Net::SSLeay::BIO_new(Net::SSLeay::BIO_s_mem()),

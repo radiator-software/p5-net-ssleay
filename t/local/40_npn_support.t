@@ -20,8 +20,8 @@ my $msg = 'ssleay-npn-test';
 
 my $pid;
 
-my $cert_pem = data_file_path('testcert_wildcard.crt.pem');
-my $key_pem  = data_file_path('testcert_key_2048.pem');
+my $cert_pem = data_file_path('simple-cert.cert.pem');
+my $key_pem  = data_file_path('simple-cert.key.pem');
 
 my @results;
 Net::SSLeay::initialize();
