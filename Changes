@@ -1,6 +1,11 @@
 Revision history for Perl extension Net::SSLeay.
 
 1.89_03 ????
+	- Expose the following functions:
+	  - X509_STORE_CTX_get0_cert, X509_STORE_CTX_get1_chain
+	  - sk_X509_pop, sk_X509_shift, sk_X509_unshift,
+	  - sk_X509_insert, sk_X509_delete, sk_x509_value, sk_X509_num
+	  Thanks to Dan Freed.
 	- Correct the minimum OpenSSL version required for the following functions
 	  to be made available (previously they were all declared to be present in
 	  1.1.0-pre1, which caused Net::SSLeay to crash at run-time when built

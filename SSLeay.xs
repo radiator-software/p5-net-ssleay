@@ -3714,11 +3714,15 @@ X509 *
 X509_STORE_CTX_get_current_cert(x509_store_ctx)
      X509_STORE_CTX * 	x509_store_ctx
 
-int 
+#if (OPENSSL_VERSION_NUMBER >= 0x10100005L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL) /* OpenSSL 1.1.0-pre5, LibreSSL 2.7.0 */
+
+X509 *
 X509_STORE_CTX_get0_cert(x509_store_ctx)
     X509_STORE_CTX *x509_store_ctx
 
-STACK_OF(X509) * 
+#endif
+
+STACK_OF(X509) *
 X509_STORE_CTX_get1_chain(x509_store_ctx)
     X509_STORE_CTX *x509_store_ctx
 
@@ -6075,15 +6079,15 @@ sk_X509_push(stack, data)
 
 X509 *
 sk_X509_pop(stack)
-    STACK_OF(X509) * stack    
+    STACK_OF(X509) * stack
 
 X509 *
 sk_X509_shift(stack)
-    STACK_OF(X509) * stack    
+    STACK_OF(X509) * stack
 
-int 
+int
 sk_X509_unshift(stack,x509)
-    STACK_OF(X509) * stack    
+    STACK_OF(X509) * stack
     X509 * x509
 
 int
@@ -6092,7 +6096,7 @@ sk_X509_insert(stack,x509,index)
     X509 * x509
     int index
 
-int
+X509 *
 sk_X509_delete(stack,index)
     STACK_OF(X509) * stack
     int index

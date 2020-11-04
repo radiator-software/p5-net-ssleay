@@ -260,7 +260,10 @@ my $ca_bio = Net::SSLeay::BIO_new_file($ca_filename, 'rb');
 my $ca_x509 = Net::SSLeay::PEM_read_bio_X509($ca_bio);
 Net::SSLeay::X509_STORE_add_cert($x509_store,$ca_x509);
 Net::SSLeay::X509_STORE_CTX_init($ctx, $x509_store, $x509);
-ok (my $x509_from_cert = Net::SSLeay::X509_STORE_CTX_get0_cert($ctx),'Get x509 from store ctx');
+SKIP: {
+    skip('X509_STORE_CTX_get0_cert requires OpenSSL 1.1.0-pre5+ or LibreSSL 2.7.0+', 1) unless defined (&Net::SSLeay::X509_STORE_CTX_get0_cert);
+    ok (my $x509_from_cert = Net::SSLeay::X509_STORE_CTX_get0_cert($ctx),'Get x509 from store ctx');
+};
 Net::SSLeay::X509_verify_cert($ctx);
 ok (my $sk_x509 = Net::SSLeay::X509_STORE_CTX_get1_chain($ctx),'Get STACK_OF(x509) from store ctx');
 my $size;
@@ -287,5 +290,3 @@ ok ($new_size == $size,'size is correct after shift');
 ok (Net::SSLeay::sk_X509_pop($sk_x509),'STACK_OF(X509) pop');
 $new_size = Net::SSLeay::sk_X509_num($sk_x509);
 ok ($new_size == $size-1,'size is correct after pop');
-
-
