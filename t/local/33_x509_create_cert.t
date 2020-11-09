@@ -325,16 +325,10 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
 
 { ### X509 + X509_REQ loading DER format
   my $req_der = File::Spec->catfile('t', 'data', 'testreq1.der');
-  ok(my $bio1 = Net::SSLeay::BIO_new_file($req_der, 'r'), "BIO_new_file");
+  ok(my $bio1 = Net::SSLeay::BIO_new_file($req_der, 'rb'), "BIO_new_file");
   ok(my $req = Net::SSLeay::d2i_X509_REQ_bio($bio1), "d2i_X509_REQ_bio");
   
   my $x509_der = File::Spec->catfile('t', 'data', 'testcert_simple.crt.der');
-  ok(my $bio2 = Net::SSLeay::BIO_new_file($x509_der, 'r'), "BIO_new_file");
-
-
- SKIP: 
-  {
-      skip 'd2i_X509_bio fails for openssl-1.1.0e and later', 1 unless Net::SSLeay::SSLeay < 0x1010005f or Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER");
-      ok(my $x509 = Net::SSLeay::d2i_X509_bio($bio2), "d2i_X509_bio");
-  }
+  ok(my $bio2 = Net::SSLeay::BIO_new_file($x509_der, 'rb'), "BIO_new_file");
+  ok(my $x509 = Net::SSLeay::d2i_X509_bio($bio2), "d2i_X509_bio");
 }
