@@ -6463,7 +6463,89 @@ Pushes an X509 structure onto a STACK_OF(X509) structure.
  # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
  # $x509 - value corresponding to openssl's X509 structure
  #
- # returns: 1 if successful, 0 if unsuccessful
+ # returns: total number of elements after the operation, 0 on failure
+
+=item * sk_X509_pop
+
+Pops an single X509 structure from a STACK_OF(X509) structure.
+
+ my $x509 = NetSSLeay::sk_X509_pop($sk_x509)
+ # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
+ #
+ # returns: a pointer to an X509 structure, undef on failure
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/sk_TYPE_pop.html>
+
+=item * sk_X509_shift
+
+Shifts an single X509 structure onto a STACK_OF(X509) structure.
+
+ my $x509 = NetSSLeay::sk_X509_shift($sk_x509, $x509)
+ # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
+ # $x509 - value corresponding to openssl's X509 structure
+ #
+ # returns: a pointer to an X509 structure, undef on failure
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/sk_TYPE_shift.html>
+
+=item * sk_X509_unshift
+
+Unshifts an single X509 structure from a STACK_OF(X509) structure.
+
+ my $rv = NetSSLeay::sk_X509_unshift($sk_x509)
+ # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
+ #
+ # returns: total number of elements after the operation, 0 on failure
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/sk_TYPE_unshift.html>
+
+=item * sk_X509_insert
+
+Inserts a single X509 structure into a STACK_OF(X509) at the specified index.
+
+ my $rv = Net::SSLeay::sk_X509_insert($sk_x509, $x509, index);
+ # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
+ # $x509 - value corresponding to openssl's X509 structure
+ # index - integer - 0 based index
+ #
+ # returns: total number of elements after the operation, 0 on failure
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/sk_TYPE_insert.html>
+
+=item * sk_X509_delete
+
+Delete a single X509 structure from a STACK_OF(X509) at the specified index.
+
+ my $x509 = Net::SSLeay::sk_X509_delete($sk_x509, index);
+ # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
+ # index - integer - 0 based index
+ #
+ # returns: a pointer to an X509 structure, undef on failure
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/sk_TYPE_delete.html>
+
+=item * sk_X509_value
+
+Return a single X509 structure from a STACK_OF(X509) at the specified index.
+
+ my $x509 = Net::SSLeay::sk_X509_value($sk_x509, index)
+ # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
+ # index - integer - 0 based index
+ #
+ # returns: a pointer to an X509 structure, undef on failure
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/sk_TYPE_value.html>
+
+=item * sk_X509_num
+
+Return the number of X509 elements in a STACK_OF(X509).
+
+ my $num = Net::SSLeay::sk_X509_num($sk_x509);
+ # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
+ #
+ # returns: the number of elements in the stack, -1 if the passed stack is NULL
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/sk_TYPE_num.html>
 
 =back
 
@@ -7396,6 +7478,30 @@ Returns the certificate in ctx which caused the error or 0 if no certificate is 
  # returns: value corresponding to openssl's X509 structure (0 on failure)
 
 Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html|http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html>
+
+=item * X509_STORE_CTX_get0_cert
+
+COMPATIBILITY: not available in Net-SSLeay-1.88 and before; requires at least OpenSSL 1.1.0pre6 or LibreSSL 2.7.0
+
+Returns an internal pointer to the certificate being verified by the ctx.
+
+ my $x509 = Net::SSLeay::X509_STORE_CTX_get0_cert($x509_store_ctx);
+ # $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
+ #
+ # returns: value corresponding to openssl's X509 structure
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_STORE_CTX_get0_cert.html|https://www.openssl.org/docs/manmaster/man3/X509_STORE_CTX_get0_cert.html>
+
+=item * X509_STORE_CTX_get1_chain
+
+Returns a returns a complete validate chain if a previous call to X509_verify_cert() is successful.
+
+ my $rv = Net::SSLeay::X509_STORE_CTX_get1_chain($x509_store_ctx);
+ # $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
+ #
+ # returns: value corresponding to openssl's STACK_OF(X509) structure
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_STORE_CTX_get1_chain.html|https://www.openssl.org/docs/manmaster/man3/X509_STORE_CTX_get1_chain.html>
 
 =item * X509_STORE_CTX_get_error
 
