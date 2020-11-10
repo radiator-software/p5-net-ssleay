@@ -183,8 +183,16 @@ sub server
 	    Net::SSLeay::CTX_set_session_cache_mode($ctx, Net::SSLeay::SESS_CACHE_SERVER());
 	    # Need OP_NO_TICKET to enable server side (Session ID based) resumption.
 	    # See also SSL_CTX_set_options documenation about its use with TLSv1.3
-	    Net::SSLeay::CTX_set_options($ctx, Net::SSLeay::OP_ALL() | Net::SSLeay::OP_NO_TICKET())
-		if ($round !~ /^TLSv1\.3/);
+	    if ( $round !~ /^TLSv1\.3/ ) {
+		my $ctx_options = Net::SSLeay::OP_ALL();
+
+		# OP_NO_TICKET requires OpenSSL 0.9.8f or above
+		if ( eval { Net::SSLeay::OP_NO_TICKET(); 1; } ) {
+		    $ctx_options |= Net::SSLeay::OP_NO_TICKET();
+		}
+
+		Net::SSLeay::CTX_set_options($ctx, $ctx_options);
+	    }
 
 	    Net::SSLeay::CTX_sess_set_new_cb($ctx, sub {server_new_cb(@_, $ctx, $round);});
 	    Net::SSLeay::CTX_sess_set_remove_cb($ctx, sub {server_remove_cb(@_, $ctx, $round);});
