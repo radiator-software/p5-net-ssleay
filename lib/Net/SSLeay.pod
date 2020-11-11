@@ -3534,6 +3534,8 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_SSL_CTX.html|http://
 
 =item * set_SSL_CTX
 
+B<COMPATIBILITY:> requires at least OpenSSL 0.9.8f
+
 Sets the SSL_CTX the corresponds to an SSL session.
 
  my $the_ssl_ctx = Net::SSLeay::set_SSL_CTX($ssl, $ssl_ctx);
