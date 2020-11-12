@@ -3,9 +3,8 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(can_fork tcp_socket);
+use Test::Net::SSLeay qw(can_fork data_file_path tcp_socket);
 
-use File::Spec;
 use Storable;
 
 if (not can_fork()) {
@@ -63,8 +62,8 @@ sub make_ctx
 sub server
 {
     # SSL server - just handle connections, write, wait for read and repeat
-    my $cert_pem = File::Spec->catfile('t', 'data', 'testcert_wildcard.crt.pem');
-    my $key_pem = File::Spec->catfile('t', 'data', 'testcert_key_2048.pem');
+    my $cert_pem = data_file_path('simple-cert.cert.pem');
+    my $key_pem  = data_file_path('simple-cert.key.pem');
 
     defined($pid = fork()) or BAIL_OUT("failed to fork: $!");
     if ($pid == 0) {

@@ -1,9 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay;
-
-use File::Spec;
+use Test::Net::SSLeay qw(data_file_path);
 
 if (!defined &Net::SSLeay::set_session_ticket_ext_cb) {
     plan skip_all => "no support for session_ticket_ext_cb";
@@ -30,8 +28,8 @@ my $set_session_ticket_ext_cb_run = 0;
 
 my $client = _minSSL->new();
 my $server = _minSSL->new( cert => [
-    File::Spec->catfile('t','data','testcert_wildcard.crt.pem'),
-    File::Spec->catfile('t','data','testcert_key_2048.pem')
+    data_file_path('simple-cert.cert.pem'),
+    data_file_path('simple-cert.key.pem'),
 ]);
 
 

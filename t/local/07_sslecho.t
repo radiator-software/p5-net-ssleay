@@ -1,9 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(can_fork tcp_socket);
-
-use File::Spec;
+use Test::Net::SSLeay qw( can_fork data_file_path tcp_socket );
 
 BEGIN {
     if (not can_fork()) {
@@ -19,15 +17,14 @@ my $server = tcp_socket();
 my $pid;
 
 my $msg = 'ssleay-test';
-my $ca_cert_pem = File::Spec->catfile('t', 'data', 'test_CA1_2048.crt.pem');
-my $cert_pem = File::Spec->catfile('t', 'data', 'testcert_wildcard_CA1_2048.crt.pem');
-my $key_pem = File::Spec->catfile('t', 'data', 'testcert_key_2048.pem');
 
-my $cert_name = (Net::SSLeay::SSLeay >= 0x0090700f) ?
-                '/C=US/ST=State/L=City/O=Company/OU=Unit/CN=*.example.com/emailAddress=wildcard@example.com' :
-                '/C=US/ST=State/L=City/O=Company/OU=Unit/CN=*.example.com/Email=wildcard@example.com';
-my $cert_issuer = '/C=US/O=Demo1/CN=CA1';
-my $cert_sha1_fp = '91:41:FD:7D:99:02:2E:70:91:53:EF:C6:F3:F8:9D:E2:CF:B0:5F:0C';
+my $ca_cert_pem = data_file_path('intermediate-ca.certchain.pem');
+my $cert_pem    = data_file_path('simple-cert.cert.pem');
+my $key_pem     = data_file_path('simple-cert.key.pem');
+
+my $cert_name    = '/C=PL/O=Net-SSLeay/OU=Test Suite/CN=simple-cert.net-ssleay.example';
+my $cert_issuer  = '/C=PL/O=Net-SSLeay/OU=Test Suite/CN=Intermediate CA';
+my $cert_sha1_fp = '9C:2E:90:B9:A7:84:7A:3A:2B:BE:FD:A5:D1:46:EA:31:75:E9:03:26';
 
 $ENV{RND_SEED} = '1234567890123456789012345678901234567890';
 

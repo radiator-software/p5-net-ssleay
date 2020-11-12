@@ -3,9 +3,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(can_fork is_libressl is_openssl tcp_socket);
-
-use File::Spec;
+use Test::Net::SSLeay qw(can_fork data_file_path is_libressl is_openssl tcp_socket);
 
 plan tests => 103;
 
@@ -14,12 +12,15 @@ Net::SSLeay::load_error_strings();
 Net::SSLeay::add_ssl_algorithms();
 Net::SSLeay::OpenSSL_add_all_algorithms();
 
-# Our CA cert and a cert signed with it
-my $ca_pem = File::Spec->catfile('t', 'data', 'test_CA1_2048.crt.pem');
-#my $ca_dir =  File::Spec->catfile('t', 'data');
-my $ca_dir =  '';
-my $cert_pem = File::Spec->catfile('t', 'data', 'testcert_wildcard_CA1_2048.crt.pem');
-my $key_pem = File::Spec->catfile('t', 'data', 'testcert_key_2048.pem');
+my $root_ca_pem   = data_file_path('root-ca.cert.pem');
+my $ca_pem        = data_file_path('verify-ca.certchain.pem');
+my $ca_dir        = '';
+my $cert_pem      = data_file_path('verify-cert.cert.pem');
+my $certchain_pem = data_file_path('verify-cert.certchain.pem');
+my $key_pem       = data_file_path('verify-cert.key.pem');
+
+# The above certificate must specify the following policy OID:
+my $required_oid = '1.2.3.4.5';
 
 my $pm;
 my $pm2;
@@ -102,7 +103,7 @@ sub test_policy_checks
     # Certificate must have this policy
     Net::SSLeay::X509_VERIFY_PARAM_set_flags($pm, Net::SSLeay::X509_V_FLAG_POLICY_CHECK() | Net::SSLeay::X509_V_FLAG_EXPLICIT_POLICY());
 
-    my $oid = $ok ? '1.1.3.4' : '1.1.3.3.99.88.77';
+    my $oid = $ok ? $required_oid : ( $required_oid . '.1' );
     my $pobject = Net::SSLeay::OBJ_txt2obj($oid, 1);
     ok($pobject, "OBJ_txt2obj($oid)");
     is(Net::SSLeay::X509_VERIFY_PARAM_add0_policy($pm, $pobject), 1, "X509_VERIFY_PARAM_add0_policy($oid)");
@@ -132,15 +133,15 @@ sub test_hostname_checks
       $pm = Net::SSLeay::X509_VERIFY_PARAM_new();
 
       # Note: wildcards are supported by default
-      is(Net::SSLeay::X509_VERIFY_PARAM_set1_host($pm, 'server.example.com'), 1, 'X509_VERIFY_PARAM_set1_host(server.example.com)') if $ok;
-      is(Net::SSLeay::X509_VERIFY_PARAM_add1_host($pm, 'server.not.example.com'), 1, 'X509_VERIFY_PARAM_add1_host(server.not.example.com)') if !$ok;
+      is(Net::SSLeay::X509_VERIFY_PARAM_set1_host($pm, 'test.johndoe.net-ssleay.example'), 1, 'X509_VERIFY_PARAM_set1_host(test.johndoe.net-ssleay.example)') if $ok;
+      is(Net::SSLeay::X509_VERIFY_PARAM_add1_host($pm, 'invalid.net-ssleay.example'), 1, 'X509_VERIFY_PARAM_add1_host(invalid.net-ssleay.example)') if !$ok;
 
-      is(Net::SSLeay::X509_VERIFY_PARAM_set1_email($pm, 'wildcard@example.com'), 1, 'X509_VERIFY_PARAM_set1_email');
+      is(Net::SSLeay::X509_VERIFY_PARAM_set1_email($pm, 'john.doe@net-ssleay.example'), 1, 'X509_VERIFY_PARAM_set1_email(john.doe@net-ssleay.example)');
 
       # Note: 'set' means that only one successfully set can be active
       # set1_ip:      IPv4 or IPv6 address as 4 or 16 octet binary.
       # setip_ip_asc: IPv4 or IPv6 address as ASCII string
-      is(Net::SSLeay::X509_VERIFY_PARAM_set1_ip($pm, pack('CCCC', 10, 20, 30, 40)), 1, 'X509_VERIFY_PARAM_set1_ip(10.20.30.40)');
+      is(Net::SSLeay::X509_VERIFY_PARAM_set1_ip($pm, pack('CCCC', 192, 168, 0, 3)), 1, 'X509_VERIFY_PARAM_set1_ip(192.168.0.3)');
 #      is(Net::SSLeay::X509_VERIFY_PARAM_set1_ip($pm, pack('NNNN', hex('20010db8'), hex('01480100'), 0, hex('31'))), 1, 'X509_VERIFY_PARAM_set1_ip(2001:db8:148:100::31)');
 #      is(Net::SSLeay::X509_VERIFY_PARAM_set1_ip_asc($pm, '10.20.30.40'), 1, 'X509_VERIFY_PARAM_set1_ip_asc(10.20.30.40)');
 #      is(Net::SSLeay::X509_VERIFY_PARAM_set1_ip_asc($pm, '2001:db8:148:100::31'), 1, 'X509_VERIFY_PARAM_set1_ip_asc(2001:db8:148:100::31))');
@@ -167,7 +168,7 @@ sub test_hostname_checks
       $pm2 = Net::SSLeay::get0_param($ssl);
       my $peername = Net::SSLeay::X509_VERIFY_PARAM_get0_peername($pm2);
       if ($ok) {
-	  is($peername, '*.example.com', 'X509_VERIFY_PARAM_get0_peername returns *.example.com')
+	  is($peername, '*.johndoe.net-ssleay.example', 'X509_VERIFY_PARAM_get0_peername returns *.johndoe.net-ssleay.example')
 	      if (Net::SSLeay::SSLeay >= 0x10100000 && is_openssl());
 	  is($peername, undef, 'X509_VERIFY_PARAM_get0_peername returns undefined for OpenSSL 1.0.2 and LibreSSL')
 	      if (Net::SSLeay::SSLeay <  0x10100000 || is_libressl());
@@ -189,7 +190,7 @@ sub test_wildcard_checks
       $pm = Net::SSLeay::X509_VERIFY_PARAM_new();
 
       # Wildcards are allowed by default: disallow
-      is(Net::SSLeay::X509_VERIFY_PARAM_set1_host($pm, 'www.example.com'), 1, 'X509_VERIFY_PARAM_set1_host');
+      is(Net::SSLeay::X509_VERIFY_PARAM_set1_host($pm, 'test.johndoe.net-ssleay.example'), 1, 'X509_VERIFY_PARAM_set1_host');
       is(Net::SSLeay::X509_VERIFY_PARAM_set_hostflags($pm, Net::SSLeay::X509_CHECK_FLAG_NO_WILDCARDS()), undef, 'X509_VERIFY_PARAM_set_hostflags(X509_CHECK_FLAG_NO_WILDCARDS)');
 
       my $ssl = client_get_ssl($ctx, $cl, $pm);
@@ -203,26 +204,23 @@ sub test_wildcard_checks
 }
 
 sub verify_local_trust {
-    my $digicert_ca = File::Spec->catfile('t', 'data', 'test_CA1.crt.pem');
-    my $twitter_chain = File::Spec->catfile('t', 'data', 'chain_leaf.crt.pem');
-
-    # read in twitter chain
-    my $bio = Net::SSLeay::BIO_new_file($twitter_chain, 'r');
+    # Read entire certificate chain
+    my $bio = Net::SSLeay::BIO_new_file($certchain_pem, 'r');
     ok(my $x509_info_sk = Net::SSLeay::PEM_X509_INFO_read_bio($bio), "PEM_X509_INFO_read_bio able to read in entire chain");
     Net::SSLeay::BIO_free($bio);
-    # read in just twitter certificate
-    $bio = Net::SSLeay::BIO_new_file($twitter_chain, 'r');
+    # Read just the leaf certificate from the chain
+    $bio = Net::SSLeay::BIO_new_file($certchain_pem, 'r');
     ok(my $cert = Net::SSLeay::PEM_read_bio_X509($bio), "PEM_read_bio_X509 able to read in single cert from chain");
     Net::SSLeay::BIO_free($bio);
-    # read in root CA (digicert CA)
-    $bio = Net::SSLeay::BIO_new_file($digicert_ca, 'r');
+    # Read root CA certificate
+    $bio = Net::SSLeay::BIO_new_file($root_ca_pem, 'r');
     ok(my $ca = Net::SSLeay::PEM_read_bio_X509($bio), "PEM_read_bio_X509 able to read in root CA");
     Net::SSLeay::BIO_free($bio);
 
     ok(my $x509_sk = Net::SSLeay::sk_X509_new_null(), "sk_X509_new_null creates STACK_OF(X509) successfully");
     ok(my $num = Net::SSLeay::sk_X509_INFO_num($x509_info_sk), "sk_X509_INFO_num is nonzero");
 
-    # set up STORE_CTX and verify twitter cert using only root CA, should fail due to incomplete chain
+    # Set up STORE_CTX and verify leaf certificate using only root CA (should fail due to incomplete chain)
     ok(my $store = Net::SSLeay::X509_STORE_new(), "X509_STORE_new creates new store");
     ok(Net::SSLeay::X509_STORE_add_cert($store, $ca), "X509_STORE_add_cert CA cert");
     ok(my $ctx = Net::SSLeay::X509_STORE_CTX_new(), "X509_STORE_CTX_new creates new store context");
@@ -233,14 +231,14 @@ sub verify_local_trust {
     Net::SSLeay::X509_STORE_free($store);
     Net::SSLeay::X509_STORE_CTX_free($ctx);
 
-    # add all certificates from twitter chain to X509 stack
+    # Add all certificates from entire certificate chain to X509 stack
     for (my $i = 0; $i < $num; $i++) {
         ok(my $x509_info = Net::SSLeay::sk_X509_INFO_value($x509_info_sk, $i), "sk_X509_INFO_value");
         ok(my $x509 = Net::SSLeay::P_X509_INFO_get_x509($x509_info), "P_X509_INFO_get_x509");
         ok(Net::SSLeay::sk_X509_push($x509_sk, $x509), "sk_X509_push");
     }
 
-    # set up STORE_CTX and verify twitter cert using root CA and chain, should succeed
+    # set up STORE_CTX and verify leaf certificate using root CA and chain (should succeed)
     ok($store = Net::SSLeay::X509_STORE_new(), "X509_STORE_new creates new store");
     ok(Net::SSLeay::X509_STORE_add_cert($store, $ca), "X509_STORE_add_cert CA cert");
     ok($ctx = Net::SSLeay::X509_STORE_CTX_new(), "X509_STORE_CTX_new creates new store context");

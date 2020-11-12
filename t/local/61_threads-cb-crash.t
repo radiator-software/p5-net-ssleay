@@ -1,9 +1,8 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(can_thread);
+use Test::Net::SSLeay qw(can_thread data_file_path);
 
-use File::Spec;
 use FindBin;
 
 if (not can_thread()) {
@@ -19,7 +18,8 @@ if (not can_thread()) {
 require threads;
 
 my $start_time = time;
-my $file = File::Spec->catfile('t', 'data', 'testcert_key_2048.pem');
+
+my $file = data_file_path('simple-cert.key.pem');
 
 Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();

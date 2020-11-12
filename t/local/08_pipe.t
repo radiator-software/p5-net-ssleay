@@ -1,9 +1,8 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(can_really_fork);
+use Test::Net::SSLeay qw( can_really_fork data_file_path );
 
-use File::Spec;
 use IO::Handle;
 use Symbol qw( gensym );
 
@@ -19,8 +18,8 @@ Net::SSLeay::randomize();
 Net::SSLeay::load_error_strings();
 Net::SSLeay::OpenSSL_add_ssl_algorithms();
 
-my $cert = File::Spec->catfile('t', 'data', 'testcert_wildcard.crt.pem');
-my $key  = File::Spec->catfile('t', 'data', 'testcert_key_2048.pem');
+my $cert = data_file_path('simple-cert.cert.pem');
+my $key  = data_file_path('simple-cert.key.pem');
 
 my $how_much = 1024 ** 2;
 

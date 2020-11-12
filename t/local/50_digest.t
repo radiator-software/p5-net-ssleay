@@ -1,9 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay;
-
-use File::Spec;
+use Test::Net::SSLeay qw(data_file_path);
 
 plan tests => 203;
 
@@ -178,7 +176,8 @@ SKIP: {
   isnt(scalar(keys %all_digests), 0, 'non-empty digest list');
 }
 
-my $file = File::Spec->catfile('t', 'data', 'binary-test.file'); 
+my $file = data_file_path('binary-test.file');
+
 my $file_digests = {
         md2       => '67ae6d821be6898101414c56b1fb4f46',
         md4       => '480438696e7d9a6ab3ecc1e2a3419f78',
