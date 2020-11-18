@@ -3,14 +3,11 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay;
+use Test::Net::SSLeay qw(initialise_libssl);
 
 plan tests => 44;
 
-Net::SSLeay::randomize();
-Net::SSLeay::load_error_strings();
-Net::SSLeay::add_ssl_algorithms();
-Net::SSLeay::OpenSSL_add_all_algorithms();
+initialise_libssl();
 
 sub is_known_proto_version {
     return 1 if $_[0] == 0x0000;                            # Automatic version selection

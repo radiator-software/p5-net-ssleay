@@ -1,9 +1,12 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(data_file_path);
+use Test::Net::SSLeay qw( data_file_path initialise_libssl );
 
 plan tests => 203;
+
+initialise_libssl();
+Net::SSLeay::OpenSSL_add_all_digests();
 
 sub digest_chunked_f1 {
   my ($file, $digest) = @_;
@@ -154,8 +157,6 @@ sub digest_strings {
 my %all_digests;
 
 eval {
-  Net::SSLeay::initialize();
-  Net::SSLeay::OpenSSL_add_all_digests();
   if (Net::SSLeay::SSLeay >= 0x1000000f) {
 	my $ctx = Net::SSLeay::EVP_MD_CTX_create();
     %all_digests = map { $_=>1 } grep {

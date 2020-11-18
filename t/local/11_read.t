@@ -4,7 +4,9 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw( can_fork data_file_path tcp_socket );
+use Test::Net::SSLeay qw(
+    can_fork data_file_path initialise_libssl tcp_socket
+);
 
 use Storable;
 
@@ -14,12 +16,13 @@ if (not can_fork()) {
     plan tests => 53;
 }
 
+initialise_libssl();
+
 my $pid;
 alarm(30);
 END { kill 9,$pid if $pid }
 
 my $server = tcp_socket();
-Net::SSLeay::initialize();
 
 # See that lengths differ for all msgs
 my $msg1 = "1 first message from server";

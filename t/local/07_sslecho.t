@@ -1,7 +1,9 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw( can_fork data_file_path tcp_socket );
+use Test::Net::SSLeay qw(
+    can_fork data_file_path initialise_libssl tcp_socket
+);
 
 BEGIN {
     if (not can_fork()) {
@@ -10,6 +12,8 @@ BEGIN {
         plan tests => 122;
     }
 }
+
+initialise_libssl();
 
 $SIG{'PIPE'} = 'IGNORE';
 
@@ -27,12 +31,6 @@ my $cert_issuer  = '/C=PL/O=Net-SSLeay/OU=Test Suite/CN=Intermediate CA';
 my $cert_sha1_fp = '9C:2E:90:B9:A7:84:7A:3A:2B:BE:FD:A5:D1:46:EA:31:75:E9:03:26';
 
 $ENV{RND_SEED} = '1234567890123456789012345678901234567890';
-
-Net::SSLeay::randomize();
-Net::SSLeay::load_error_strings();
-Net::SSLeay::ERR_load_crypto_strings();
-Net::SSLeay::library_init();
-Net::SSLeay::OpenSSL_add_all_algorithms();
 
 {
     my $ctx = Net::SSLeay::CTX_new();

@@ -1,7 +1,9 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw( data_file_path is_libressl is_openssl );
+use Test::Net::SSLeay qw(
+    data_file_path initialise_libssl is_libressl is_openssl
+);
 
 use lib '.';
 
@@ -11,10 +13,7 @@ my $tests =   ( is_openssl() && Net::SSLeay::SSLeay < 0x10100003 ) || is_libress
 
 plan tests => $tests;
 
-Net::SSLeay::randomize();
-Net::SSLeay::load_error_strings();
-Net::SSLeay::ERR_load_crypto_strings();
-Net::SSLeay::SSLeay_add_ssl_algorithms();
+initialise_libssl();
 
 # Check some basic X509 features added in 1.54:
 my $name = Net::SSLeay::X509_NAME_new();

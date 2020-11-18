@@ -1,7 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(data_file_path);
+use Test::Net::SSLeay qw( data_file_path initialise_libssl );
 
 if (!defined &Net::SSLeay::CTX_set_tlsext_ticket_getkey_cb) {
     plan skip_all => "no support for tlsext_ticket_key_cb";
@@ -9,15 +9,12 @@ if (!defined &Net::SSLeay::CTX_set_tlsext_ticket_getkey_cb) {
     plan tests => 15;
 }
 
+initialise_libssl();
+
 # for debugging only
 my $DEBUG = 0;
 my $PCAP = 0;
 require Net::PcapWriter if $PCAP;
-
-Net::SSLeay::randomize();
-Net::SSLeay::load_error_strings();
-Net::SSLeay::ERR_load_crypto_strings();
-Net::SSLeay::SSLeay_add_ssl_algorithms();
 
 my $SSL_ERROR; # set in _minSSL
 my %TRANSFER;  # set in _handshake

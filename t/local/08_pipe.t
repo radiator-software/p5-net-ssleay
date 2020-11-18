@@ -1,7 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw( can_really_fork data_file_path );
+use Test::Net::SSLeay qw( can_really_fork data_file_path initialise_libssl );
 
 use IO::Handle;
 use Symbol qw( gensym );
@@ -14,9 +14,7 @@ if (not can_really_fork()) {
     plan tests => 11;
 }
 
-Net::SSLeay::randomize();
-Net::SSLeay::load_error_strings();
-Net::SSLeay::OpenSSL_add_ssl_algorithms();
+initialise_libssl();
 
 my $cert = data_file_path('simple-cert.cert.pem');
 my $key  = data_file_path('simple-cert.key.pem');

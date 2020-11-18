@@ -1,14 +1,11 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(data_file_path);
+use Test::Net::SSLeay qw( data_file_path initialise_libssl );
 
 plan tests => 19;
 
-Net::SSLeay::randomize();
-Net::SSLeay::load_error_strings();
-Net::SSLeay::ERR_load_crypto_strings();
-Net::SSLeay::SSLeay_add_ssl_algorithms();
+initialise_libssl();
 
 # Encrypted PKCS#12 archive, no chain:
 my $filename1          = data_file_path('simple-cert.enc.p12');

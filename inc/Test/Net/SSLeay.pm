@@ -18,6 +18,7 @@ our $VERSION = '1.89_02';
 our @EXPORT_OK = qw(
     can_fork can_really_fork can_thread
     data_file_path
+    initialise_libssl
     is_libressl is_openssl
     tcp_socket
 );
@@ -100,6 +101,35 @@ sub data_file_path {
     return $rel_path;
 }
 
+sub initialise_libssl {
+    eval { require Net::SSLeay; 1; } or croak $EVAL_ERROR;
+
+    Net::SSLeay::randomize();
+
+    # Error strings aren't loaded by default until OpenSSL 1.1.0, but it's safe
+    # to load them unconditionally because these functions are simply no-ops in
+    # later OpenSSL versions
+    Net::SSLeay::load_error_strings();
+    Net::SSLeay::ERR_load_crypto_strings();
+
+    Net::SSLeay::library_init();
+
+    # The test suite makes heavy use of SHA-256, but SHA-256 isn't registered by
+    # default in all OpenSSL versions - register it manually when Net::SSLeay is
+    # built against the following OpenSSL versions:
+
+    # OpenSSL 0.9.8 series < 0.9.8o
+    Net::SSLeay::OpenSSL_add_all_digests()
+        if Net::SSLeay::constant('OPENSSL_VERSION_NUMBER') < 0x009080ff;
+
+    # OpenSSL 1.0.0 series < 1.0.0a
+    Net::SSLeay::OpenSSL_add_all_digests()
+        if    Net::SSLeay::constant('OPENSSL_VERSION_NUMBER') >= 0x10000000
+           && Net::SSLeay::constant('OPENSSL_VERSION_NUMBER') < 0x1000001f;
+
+    return 1;
+}
+
 sub is_libressl {
     eval { require Net::SSLeay; 1; } or croak $EVAL_ERROR;
 
@@ -147,8 +177,9 @@ In a Net-SSLeay test script:
 
     use lib 'inc';
 
-    use Net::SSLeay;        # if required by the tests
-    use Test::Net::SSLeay;  # also importing helper functions if required
+    use Net::SSLeay;                              # if required by the tests
+    use Test::Net::SSLeay qw(initialise_libssl);  # import other helper
+                                                  # functions if required
 
     # Imports of other modules specific to this test script
 
@@ -159,7 +190,10 @@ In a Net-SSLeay test script:
         plan tests => ...;
     }
 
-    # One or more Test::More-based tests
+    # If this script tests Net::SSLeay functionality:
+    initialise_libssl();
+
+    # Perform one or more Test::More-based tests
 
 =head1 DESCRIPTION
 
@@ -226,6 +260,19 @@ this Perl, or false if not.
 
 Returns the relative path to a given file in the test suite data directory
 (C<t/local/>). Dies if the file does not exist.
+
+=head2 initialise_libssl
+
+    # In the preamble
+    initialise_libssl();
+
+    # Run tests that call Net::SSLeay functions
+
+Initialises libssl (and libcrypto) by seeding the pseudorandom number generator,
+loading error strings, and registering the default TLS ciphers and digest
+functions. All digest functions are explicitly registered when Net::SSLeay is
+built against a libssl version that does not register SHA-256 by default, since
+SHA-256 is used heavily in the test suite PKI.
 
 =head2 is_libressl
 

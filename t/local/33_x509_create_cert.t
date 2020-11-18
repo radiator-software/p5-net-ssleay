@@ -1,20 +1,13 @@
 use lib 'inc';
 
 use Net::SSLeay qw(MBSTRING_ASC MBSTRING_UTF8 EVP_PK_RSA EVP_PKT_SIGN EVP_PKT_ENC);
-use Test::Net::SSLeay qw( data_file_path is_openssl );
+use Test::Net::SSLeay qw( data_file_path initialise_libssl is_openssl );
 
 use utf8;
 
 plan tests => 139;
 
-Net::SSLeay::randomize();
-Net::SSLeay::load_error_strings();
-Net::SSLeay::ERR_load_crypto_strings();
-Net::SSLeay::SSLeay_add_ssl_algorithms();
-# SHA-256 isn't loaded by default until OpenSSL 0.9.8o
-if ( is_openssl() && Net::SSLeay::SSLeay < 0x009080ff ) {
-    Net::SSLeay::OpenSSL_add_all_digests();
-}
+initialise_libssl();
 
 my $ca_crt_pem = data_file_path('root-ca.cert.pem');
 my $ca_key_pem = data_file_path('root-ca.key.pem');
@@ -104,12 +97,6 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
   like(my $key_pem1 = Net::SSLeay::PEM_get_string_PrivateKey($pk), qr/-----BEGIN (RSA )?PRIVATE KEY-----/, "PEM_get_string_PrivateKey+nopasswd");        
   like(my $key_pem2 = Net::SSLeay::PEM_get_string_PrivateKey($pk,"password"), qr/-----BEGIN (ENCRYPTED|RSA) PRIVATE KEY-----/, "PEM_get_string_PrivateKey+passwd");
   
-  Net::SSLeay::OpenSSL_add_all_algorithms();
-  if (Net::SSLeay::SSLeay >= 0x0090700f) {
-    #just test whether we can call the following functions
-    Net::SSLeay::OPENSSL_add_all_algorithms_conf();
-    Net::SSLeay::OPENSSL_add_all_algorithms_noconf();
-  }
   ok(my $alg1 = Net::SSLeay::EVP_get_cipherbyname("DES-EDE3-CBC"), "EVP_get_cipherbyname");
   like(my $key_pem3 = Net::SSLeay::PEM_get_string_PrivateKey($pk,"password",$alg1), qr/-----BEGIN (ENCRYPTED|RSA) PRIVATE KEY-----/, "PEM_get_string_PrivateKey+passwd+enc_alg");
 

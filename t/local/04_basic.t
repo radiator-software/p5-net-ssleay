@@ -5,14 +5,16 @@ use lib 'inc';
 use Net::SSLeay;
 use Test::Net::SSLeay;
 
-plan tests => 14;
+plan tests => 16;
 
 eval "use Test::Exception;";
 SKIP: {
-    skip 'Need Test::Exception for the some tests', 6 if $@;
-    lives_ok( sub { Net::SSLeay::randomize() }, 'randomizing' );
-    lives_ok( sub { Net::SSLeay::load_error_strings() }, 'loading error strings' );
-    lives_ok( sub { Net::SSLeay::SSLeay_add_ssl_algorithms() }, 'adding ssl algorithms' );
+    skip 'Test::Exception required for some tests', 8 if $@;
+    lives_ok( sub { Net::SSLeay::randomize() }, 'seed pseudorandom number generator' );
+    lives_ok( sub { Net::SSLeay::ERR_load_crypto_strings() }, 'load libcrypto error strings' );
+    lives_ok( sub { Net::SSLeay::load_error_strings() }, 'load libssl error strings' );
+    lives_ok( sub { Net::SSLeay::library_init() }, 'register default TLS ciphers and digest functions' );
+    lives_ok( sub { Net::SSLeay::OpenSSL_add_all_digests() }, 'register all digest functions' );
     #version numbers: 0x00903100 ~ 0.9.3, 0x0090600f ~ 0.6.9
     ok( Net::SSLeay::SSLeay() >= 0x00903100, 'SSLeay (version min 0.9.3)' );
     isnt( Net::SSLeay::SSLeay_version(), '', 'SSLeay (version string)' );

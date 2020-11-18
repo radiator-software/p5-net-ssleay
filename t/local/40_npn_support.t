@@ -1,7 +1,9 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(can_fork data_file_path tcp_socket);
+use Test::Net::SSLeay qw(
+    can_fork data_file_path initialise_libssl tcp_socket
+);
 
 BEGIN {
     if (Net::SSLeay::SSLeay < 0x10001000) {
@@ -15,6 +17,8 @@ BEGIN {
     }
 }
 
+initialise_libssl();
+
 my $server = tcp_socket();
 my $msg = 'ssleay-npn-test';
 
@@ -24,7 +28,6 @@ my $cert_pem = data_file_path('simple-cert.cert.pem');
 my $key_pem  = data_file_path('simple-cert.key.pem');
 
 my @results;
-Net::SSLeay::initialize();
 
 {
     # SSL server
