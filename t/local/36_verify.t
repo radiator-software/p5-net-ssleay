@@ -3,14 +3,13 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(can_fork data_file_path is_libressl is_openssl tcp_socket);
+use Test::Net::SSLeay qw(
+    can_fork data_file_path initialise_libssl is_libressl is_openssl tcp_socket
+);
 
 plan tests => 103;
 
-Net::SSLeay::randomize();
-Net::SSLeay::load_error_strings();
-Net::SSLeay::add_ssl_algorithms();
-Net::SSLeay::OpenSSL_add_all_algorithms();
+initialise_libssl();
 
 my $root_ca_pem   = data_file_path('root-ca.cert.pem');
 my $ca_pem        = data_file_path('verify-ca.certchain.pem');

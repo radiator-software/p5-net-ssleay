@@ -1,7 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay;
+use Test::Net::SSLeay qw(initialise_libssl);
 
 if (Net::SSLeay::SSLeay < 0x10100001) {
     plan skip_all => 'OpenSSL 1.1.0 required';
@@ -10,6 +10,8 @@ if (Net::SSLeay::SSLeay < 0x10100001) {
 } else {
     plan tests => 20;
 }
+
+initialise_libssl();
 
 my $ctx = Net::SSLeay::CTX_new();
 ok( defined Net::SSLeay::CTX_get_security_level($ctx),

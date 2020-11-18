@@ -1,7 +1,9 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(data_file_path);
+use Test::Net::SSLeay qw( data_file_path initialise_libssl );
+
+initialise_libssl();
 
 my @set_list = (
     defined &Net::SSLeay::CTX_set1_groups_list ? (\&Net::SSLeay::CTX_set1_groups_list) : (),
@@ -18,11 +20,6 @@ if (!@set_list) {
 my $DEBUG = 0;
 my $PCAP = 0;
 require Net::PcapWriter if $PCAP;
-
-Net::SSLeay::randomize();
-Net::SSLeay::load_error_strings();
-Net::SSLeay::ERR_load_crypto_strings();
-Net::SSLeay::SSLeay_add_ssl_algorithms();
 
 my $SSL_ERROR; # set in _minSSL
 my %TRANSFER;  # set in _handshake

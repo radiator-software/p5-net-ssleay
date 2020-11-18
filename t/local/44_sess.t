@@ -3,7 +3,9 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(can_fork data_file_path tcp_socket);
+use Test::Net::SSLeay qw(
+    can_fork data_file_path initialise_libssl tcp_socket
+);
 
 use Storable;
 
@@ -12,6 +14,8 @@ if (not can_fork()) {
 } else {
     plan tests => 58;
 }
+
+initialise_libssl();
 
 my $pid;
 alarm(30);
@@ -124,7 +128,6 @@ sub server_remove_cb
 }
 
 my ($server_ctx, $client_ctx, $server_ssl, $client_ssl);
-Net::SSLeay::initialize();
 
 my $server = tcp_socket();
 

@@ -23,6 +23,7 @@ Revision history for Perl extension Net::SSLeay.
 	  RSA private keys and CSRs, certificates and CRLs with SHA-256 digests,
 	  allowing the test suite to execute under OpenSSL security level 2 (now the
 	  default security level for OpenSSL in many Linux distributions).
+	- Initialise libssl consistently in the test suite.
 
 1.89_02 2020-08-07
 	- Add support for the P_X509_CRL_add_extensions function. Thanks to

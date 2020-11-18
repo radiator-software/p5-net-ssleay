@@ -1,15 +1,11 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(data_file_path);
+use Test::Net::SSLeay qw( data_file_path initialise_libssl );
 
 plan tests => 10;
 
-Net::SSLeay::randomize();
-Net::SSLeay::load_error_strings();
-Net::SSLeay::ERR_load_crypto_strings();
-Net::SSLeay::SSLeay_add_ssl_algorithms();
-Net::SSLeay::OpenSSL_add_all_algorithms();
+initialise_libssl();
 
 my $key_pem           = data_file_path('simple-cert.key.pem');
 my $key_pem_encrypted = data_file_path('simple-cert.key.enc.pem');

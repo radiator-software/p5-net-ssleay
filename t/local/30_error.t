@@ -1,7 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay;
+use Test::Net::SSLeay qw(initialise_libssl);
 
 eval "use Test::Exception; use Test::Warn; use Test::NoWarnings; 1;";
 if ($@) {
@@ -10,7 +10,7 @@ if ($@) {
     plan tests => 11;
 }
 
-Net::SSLeay::load_error_strings();
+initialise_libssl();
 
 # Note, die_now usually just prints the process id and the argument string eg:
 # 57611: test

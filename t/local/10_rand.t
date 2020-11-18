@@ -3,9 +3,11 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(data_file_path);
+use Test::Net::SSLeay qw( data_file_path initialise_libssl );
 
 plan tests => 52;
+
+initialise_libssl();
 
 is(Net::SSLeay::RAND_status(), 1, 'RAND_status');
 is(Net::SSLeay::RAND_poll(), 1, 'RAND_poll');

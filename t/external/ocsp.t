@@ -1,6 +1,6 @@
 use lib 'inc';
 
-use Test::Net::SSLeay;
+use Test::Net::SSLeay qw(initialise_libssl);
 
 use IO::Socket::INET;
 
@@ -38,14 +38,11 @@ my @tests = (
 my $release_tests = $ENV{RELEASE_TESTING} ? 1:0;
 plan tests => $release_tests + @tests;
 
+initialise_libssl();
 
 my $timeout = 10; # used to TCP connect and SSL connect
 my $http_ua = eval { require HTTP::Tiny } && HTTP::Tiny->new(verify_SSL => 0);
 
-Net::SSLeay::randomize();
-Net::SSLeay::load_error_strings();
-Net::SSLeay::ERR_load_crypto_strings();
-Net::SSLeay::SSLeay_add_ssl_algorithms();
 my $sha1 = Net::SSLeay::EVP_get_digestbyname('sha1');
 
 

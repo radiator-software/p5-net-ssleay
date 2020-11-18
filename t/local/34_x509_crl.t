@@ -1,18 +1,11 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw( data_file_path is_openssl );
+use Test::Net::SSLeay qw( data_file_path initialise_libssl is_openssl );
 
 plan tests => 42;
 
-Net::SSLeay::randomize();
-Net::SSLeay::load_error_strings();
-Net::SSLeay::ERR_load_crypto_strings();
-Net::SSLeay::SSLeay_add_ssl_algorithms();
-# SHA-256 isn't loaded by default until OpenSSL 0.9.8o
-if ( is_openssl() && Net::SSLeay::SSLeay < 0x009080ff ) {
-    Net::SSLeay::OpenSSL_add_all_digests();
-}
+initialise_libssl();
 
 my $ca_crt_pem = data_file_path('intermediate-ca.cert.pem');
 my $ca_key_pem = data_file_path('intermediate-ca.key.pem');

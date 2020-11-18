@@ -1,7 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(can_thread);
+use Test::Net::SSLeay qw( can_thread initialise_libssl );
 
 use FindBin;
 
@@ -16,11 +16,9 @@ if (not can_thread()) {
 
 require threads;
 
-my $start_time = time;
+initialise_libssl();
 
-Net::SSLeay::randomize();
-Net::SSLeay::load_error_strings();
-Net::SSLeay::SSLeay_add_ssl_algorithms();
+my $start_time = time;
 
 #exit the whole program if it runs too long
 threads->new( sub { sleep 20; warn "FATAL: TIMEOUT!"; exit } )->detach;

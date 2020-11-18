@@ -1,7 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay;
+use Test::Net::SSLeay qw(initialise_libssl);
 
 if (!defined &Net::SSLeay::EC_KEY_generate_key) {
     plan skip_all => "no support for ECC in your OpenSSL";
@@ -9,10 +9,7 @@ if (!defined &Net::SSLeay::EC_KEY_generate_key) {
     plan tests => 4;
 }
 
-Net::SSLeay::randomize();
-Net::SSLeay::load_error_strings();
-Net::SSLeay::ERR_load_crypto_strings();
-Net::SSLeay::SSLeay_add_ssl_algorithms();
+initialise_libssl();
 
 my $ec = Net::SSLeay::EC_KEY_generate_key('prime256v1');
 ok($ec,'EC key created');

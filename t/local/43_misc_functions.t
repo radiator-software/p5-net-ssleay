@@ -1,13 +1,17 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(can_fork data_file_path is_libressl tcp_socket);
+use Test::Net::SSLeay qw(
+    can_fork data_file_path initialise_libssl is_libressl tcp_socket
+);
 
 if (not can_fork()) {
     plan skip_all => "fork() not supported on this system";
 } else {
     plan tests => 34;
 }
+
+initialise_libssl();
 
 my $pid;
 alarm(30);
@@ -54,7 +58,6 @@ our %version_str2int =
     );
 
 my $server = tcp_socket();
-Net::SSLeay::initialize();
 
 {
     # SSL server - just handle single connect, send information to

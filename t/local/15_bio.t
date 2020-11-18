@@ -1,9 +1,11 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay;
+use Test::Net::SSLeay qw(initialise_libssl);
 
 plan tests => 7;
+
+initialise_libssl();
 
 my $data = '0123456789' x 100;
 my $len  = length $data;

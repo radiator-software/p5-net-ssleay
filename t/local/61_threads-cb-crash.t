@@ -1,7 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(can_thread data_file_path);
+use Test::Net::SSLeay qw( can_thread data_file_path initialise_libssl );
 
 use FindBin;
 
@@ -17,13 +17,11 @@ if (not can_thread()) {
 
 require threads;
 
+initialise_libssl();
+
 my $start_time = time;
 
 my $file = data_file_path('simple-cert.key.pem');
-
-Net::SSLeay::randomize();
-Net::SSLeay::load_error_strings();
-Net::SSLeay::SSLeay_add_ssl_algorithms();
 
 #exit the whole program if it runs too long
 threads->new( sub { sleep 20; warn "FATAL: TIMEOUT!"; exit } )->detach;

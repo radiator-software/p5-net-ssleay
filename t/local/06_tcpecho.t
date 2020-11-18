@@ -1,7 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(can_fork tcp_socket);
+use Test::Net::SSLeay qw( can_fork initialise_libssl tcp_socket );
 
 BEGIN {
     if (not can_fork()) {
@@ -10,6 +10,8 @@ BEGIN {
         plan tests => 4;
     }
 }
+
+initialise_libssl();
 
 my $server = tcp_socket();
 my $msg = 'ssleay-tcp-test';
