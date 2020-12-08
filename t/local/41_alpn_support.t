@@ -2,7 +2,7 @@ use lib 'inc';
 
 use Net::SSLeay;
 use Test::Net::SSLeay qw(
-    can_fork data_file_path initialise_libssl tcp_socket
+    can_fork data_file_path initialise_libssl new_ctx tcp_socket
 );
 
 BEGIN {
@@ -34,8 +34,19 @@ my @results;
     if ($pid == 0) {
         my $ns = $server->accept();
 
-        my $ctx = Net::SSLeay::CTX_tlsv1_new();
+        my ( $ctx, $proto ) = new_ctx();
         Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem);
+
+        # TLSv1.3 servers send session tickets after the handshake; if a client
+        # closes the connection before the server sends the tickets, accept()
+        # fails with SSL_ERROR_SYSCALL and errno=EPIPE, which will cause this
+        # process to receive a SIGPIPE signal and exit unsuccessfully
+        if (
+               $proto eq 'TLSv1.3'
+            && defined &Net::SSLeay::CTX_set_num_tickets
+        ) {
+            Net::SSLeay::CTX_set_num_tickets( $ctx, 0 );
+        }
 
         my $rv = Net::SSLeay::CTX_set_alpn_select_cb($ctx, ['http/1.1','spdy/2']);
         is($rv, 1, 'CTX_set_alpn_select_cb');
@@ -62,7 +73,7 @@ my @results;
     # SSL client
     my $s1 = $server->connect();
 
-    my $ctx1 = Net::SSLeay::CTX_tlsv1_new();
+    my $ctx1 = new_ctx();
 
     my $rv = Net::SSLeay::CTX_set_alpn_protos($ctx1, ['spdy/2','http/1.1']);
     push @results, [ $rv==0, 'CTX_set_alpn_protos'];
