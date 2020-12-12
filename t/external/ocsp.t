@@ -1,5 +1,6 @@
 use lib 'inc';
 
+use Net::SSLeay;
 use Test::Net::SSLeay qw(initialise_libssl);
 
 use IO::Socket::INET;
