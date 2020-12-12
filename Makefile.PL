@@ -113,6 +113,8 @@ SSLeay$Config{'obj_ext'} : constants.c $constants_t
 MAKE
 }
 
+my $ac;
+
 sub ssleay {
     my $prefix = find_openssl_prefix();
     my $exec   = find_openssl_exec($prefix);
@@ -131,7 +133,7 @@ EOM
         CCCDLFLAGS => $opts->{cccdlflags},
         OPTIMIZE => $opts->{optimize},
         INC => join(' ', map qq{-I"$_"}, @{$opts->{inc_paths}}),
-        LIBS => join(' ', (map '-L'.maybe_quote($_), @{$opts->{lib_paths}}), (map {"-l$_"} @{$opts->{lib_links}})),
+        LIBS => $opts->{libs} ? $opts->{libs} : join(' ', (map '-L'.maybe_quote($_), @{$opts->{lib_paths}}), (map {"-l$_"} @{$opts->{lib_links}})),
     );
     # From HMBRAND to handle multple version of OPENSSL installed
     if (my $lp = join " " => map '-L'.maybe_quote($_), @{$opts->{lib_paths} || []})
@@ -150,6 +152,13 @@ sub ssleay_get_build_opts {
         lib_links  => [],
         cccdlflags => '',
     };
+
+    if($ac) {
+        $opts->{libs} = $ac->_get_extra_linker_flags;
+        $opts->{cccdlflags} = $ac->_get_extra_compiler_flags;
+        return $opts;
+    }
+
     for ("$prefix/include", "$prefix/inc32", '/usr/kerberos/include') {
       push @{$opts->{inc_paths}}, $_ if -f "$_/openssl/ssl.h";
     }
@@ -255,6 +264,11 @@ sub check_no_path {            # On OS/2 it would be typically on default paths
 sub find_openssl_prefix {
     my ($dir) = @_;
 
+    $ac = eval "use Config::AutoConf 0.317; Config::AutoConf->new;";
+    if($ac) {
+        $ac->check_prog_pkg_config and $ac->pkg_config_package_flags("openssl") and return "<AC>";
+    }
+
     if (defined $ENV{OPENSSL_PREFIX}) {
         return $ENV{OPENSSL_PREFIX};
     }
@@ -295,6 +309,7 @@ sub find_openssl_prefix {
 
 sub find_openssl_exec {
     my ($prefix) = @_;
+    return $ac->{cache}->{$ac->_cache_name("prog", "PKG_CONFIG")} if $ac;
 
     my $exe_path;
     for my $subdir (qw( bin sbin out32dll ia64_exe alpha_exe )) {
@@ -312,7 +327,13 @@ sub check_openssl_version {
     my ($prefix, $exec) = @_;
     my ($output, $major, $minor, $letter);
 
-    {
+    if($ac) {
+        my $vers_str = Config::AutoConf->can("capture")->( sub { system($exec, "openssl", "-modversion") } );
+        chomp $vers_str;
+        ($major, $minor, $letter) = $vers_str =~ m/(\d+\.\d+)\.(\d+)([a-z]?)/;
+    }
+    
+    unless(defined $major) {
         my $pipe = gensym();
         open($pipe, qq{"$exec" version |})
             or die "Could not execute $exec";
