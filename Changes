@@ -24,6 +24,12 @@ Revision history for Perl extension Net::SSLeay.
 	  allowing the test suite to execute under OpenSSL security level 2 (now the
 	  default security level for OpenSSL in many Linux distributions).
 	- Initialise libssl consistently in the test suite.
+	- Don't rely on the availability of specific SSL/TLS protocol versions or
+	  cipher suites in the test suite; instead, dynamically select from any of
+	  the available protocol versions and cipher suites permitted by libssl.
+	  Fixes RT#132425. Thanks to Graham Ollis for the initial report of the test
+	  suite failing on Ubuntu 20.04 with the Ubuntu-packaged OpenSSL, whose
+	  configuration forbids the use of TLSv1.1 and below at run-time by default.
 
 1.89_02 2020-08-07
 	- Add support for the P_X509_CRL_add_extensions function. Thanks to

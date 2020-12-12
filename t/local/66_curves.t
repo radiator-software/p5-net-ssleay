@@ -94,9 +94,12 @@ sub _handshake {
 
 {
     package _minSSL;
+
+    use Test::Net::SSLeay qw(new_ctx);
+
     sub new {
 	my ($class,%args) = @_;
-	my $ctx = Net::SSLeay::CTX_tlsv1_new();
+	my $ctx = new_ctx();
 	Net::SSLeay::CTX_set_options($ctx,Net::SSLeay::OP_ALL());
 	Net::SSLeay::CTX_set_cipher_list($ctx,'ECDHE');
 	Net::SSLeay::CTX_set_ecdh_auto($ctx,1)

@@ -45,6 +45,7 @@ my %eumm_args = (
     'Scalar::Util' => '0',
     'SelectSaver' => '0',
     'Socket' => '0',
+    'Storable' => '0',
     'Test::More' => '0.60_01',
     'base' => '0',
   },

@@ -2,7 +2,7 @@ use lib 'inc';
 
 use Net::SSLeay;
 use Test::Net::SSLeay qw(
-    can_fork data_file_path initialise_libssl tcp_socket
+    can_fork data_file_path initialise_libssl new_ctx tcp_socket
 );
 
 BEGIN {
@@ -12,6 +12,10 @@ BEGIN {
         plan skip_all => "LibreSSL removed support for NPN";
     } elsif (not can_fork()) {
         plan skip_all => "fork() not supported on this system";
+    } elsif ( !eval { new_ctx( undef, 'TLSv1.2' ); 1 } ) {
+        # NPN isn't well-defined for TLSv1.3, so these tests can't be run if
+        # that's the only available protocol version
+        plan skip_all => 'TLSv1.2 or below not available in this libssl';
     } else {
         plan tests => 7;
     }
@@ -36,7 +40,7 @@ my @results;
     if ($pid == 0) {
         my $ns = $server->accept();
 
-        my $ctx = Net::SSLeay::CTX_tlsv1_new();
+        my ( $ctx, $proto ) = new_ctx( undef, 'TLSv1.2' );
         Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem);
 
         my $rv = Net::SSLeay::CTX_set_next_protos_advertised_cb($ctx, ['spdy/2','http1.1']);
@@ -64,7 +68,7 @@ my @results;
     # SSL client
     my $s1 = $server->connect();
 
-    my $ctx1 = Net::SSLeay::CTX_tlsv1_new();
+    my $ctx1 = new_ctx( undef, 'TLSv1.2' );
 
     my $rv = Net::SSLeay::CTX_set_next_proto_select_cb($ctx1, ['http1.1','spdy/2']);
     push @results, [ $rv==1, 'CTX_set_next_proto_select_cb'];

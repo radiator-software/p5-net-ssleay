@@ -2,7 +2,7 @@ use lib 'inc';
 
 use Net::SSLeay;
 use Test::Net::SSLeay qw(
-    can_fork data_file_path initialise_libssl tcp_socket
+    can_fork data_file_path initialise_libssl new_ctx tcp_socket
 );
 
 if (not can_fork()) {
@@ -28,7 +28,7 @@ my $server = tcp_socket();
     if ($pid == 0) {
 	for(qw(ctx ssl)) {
 	    my $cl = $server->accept();
-	    my $ctx = Net::SSLeay::CTX_tlsv1_new();
+	    my $ctx = new_ctx();
 	    Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem);
 	    my $ssl = Net::SSLeay::new($ctx);
 	    Net::SSLeay::set_fd($ssl, fileno($cl));
@@ -53,7 +53,7 @@ sub client {
     };
 
     my $cl = $server->connect();
-    my $ctx = Net::SSLeay::CTX_tlsv1_new();
+    my $ctx = new_ctx();
     Net::SSLeay::CTX_set_options($ctx, &Net::SSLeay::OP_ALL);
     Net::SSLeay::CTX_set_info_callback($ctx, $infocb) if $where eq 'ctx';
     my $ssl = Net::SSLeay::new($ctx);

@@ -1,11 +1,27 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw( data_file_path initialise_libssl );
+use Test::Net::SSLeay qw( data_file_path initialise_libssl new_ctx );
 
-if (!defined &Net::SSLeay::CTX_set_tlsext_ticket_getkey_cb) {
+use English qw( $EVAL_ERROR -no_match_vars );
+
+if ( !defined &Net::SSLeay::CTX_set_tlsext_ticket_getkey_cb ) {
     plan skip_all => "no support for tlsext_ticket_key_cb";
-} else {
+}
+elsif ( !eval { Net::SSLeay::CTX_free( new_ctx( 'TLSv1', 'TLSv1.2' ) ); 1 } ) {
+    my $err = $EVAL_ERROR;
+    # This test only reflects the session protocol found in TLSv1.2 and below
+    # (https://wiki.openssl.org/index.php/TLS1.3#Sessions), and relies on a
+    # cipher suite only present from TLSv1 onwards
+    # TODO(GH-224): write an equivalent test for TLSv1.3
+    if ( $err =~ /no usable protocol versions/ ) {
+        plan skip_all => 'TLSv1-TLSv1.2 not available in this libssl';
+    }
+    else {
+        die $err;
+    }
+}
+else {
     plan tests => 15;
 }
 
@@ -187,11 +203,17 @@ sub _handshake {
 
 {
     package _minSSL;
+
+    use Test::Net::SSLeay qw(new_ctx);
+
     sub new {
 	my ($class,%args) = @_;
-	my $ctx = Net::SSLeay::CTX_tlsv1_new();
+	my $ctx = new_ctx( 'TLSv1', 'TLSv1.2' );
+	# AES128-SHA must be used, otherwise the "no more data from client to
+	# server" test fails on Win32 with OpenSSL 1.0.1 and 1.0.2 (this behaviour
+    # has been observed with OpenSSL 1.0.1e, 1.0.1g and 1.0.2o)
+	Net::SSLeay::CTX_set_cipher_list( $ctx, 'AES128-SHA' );
 	Net::SSLeay::CTX_set_options($ctx,Net::SSLeay::OP_ALL());
-	Net::SSLeay::CTX_set_cipher_list($ctx,'AES128-SHA');
 	my $id = 'client';
 	if ($args{cert}) {
 	    my ($cert,$key) = @{ delete $args{cert} };
