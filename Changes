@@ -1,5 +1,11 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.89_04 ????-??-??
+	- Fix a crash in CTX_set_next_proto_select_cb() caused by the use of a
+	  pointer returned by SSL_select_next_proto() which may already have been
+	  freed under certain circumstances. Fixes GH-222. Thanks to dylc5190 for
+	  the report and patch.
+
 1.89_03 2020-12-12
 	- Expose the following functions:
 	  - X509_STORE_CTX_get0_cert, X509_STORE_CTX_get1_chain

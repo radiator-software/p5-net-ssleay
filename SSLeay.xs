@@ -1129,7 +1129,7 @@ int next_proto_helper_protodata2AV(AV * list, const unsigned char *in, unsigned 
 int next_proto_select_cb_invoke(SSL *ssl, unsigned char **out, unsigned char *outlen,
                                 const unsigned char *in, unsigned int inlen, void *arg)
 {
-    SV *cb_func, *cb_data;
+    SV *cb_func, *cb_data, *tmpsv;
     unsigned char *next_proto_data;
     size_t next_proto_len;
     int next_proto_status;
@@ -1147,7 +1147,6 @@ int next_proto_select_cb_invoke(SSL *ssl, unsigned char **out, unsigned char *ou
     if (SvROK(cb_func) && (SvTYPE(SvRV(cb_func)) == SVt_PVCV)) {
         int count = -1;
         AV *list = newAV();
-        SV *tmpsv;
         dSP;
         
         if (!next_proto_helper_protodata2AV(list, in, inlen)) return SSL_TLSEXT_ERR_ALERT_FATAL;
@@ -1189,6 +1188,8 @@ int next_proto_select_cb_invoke(SSL *ssl, unsigned char **out, unsigned char *ou
         next_proto_len = next_proto_helper_AV2protodata((AV*)SvRV(cb_data), next_proto_data);
 
         next_proto_status = SSL_select_next_proto(out, outlen, in, inlen, next_proto_data, next_proto_len);
+        tmpsv = newSVpv((const char*)*out, *outlen);
+        *out = (unsigned char *)SvPVX(tmpsv);
 
         /* store last_status + last_negotiated into global hash */
         cb_data_advanced_put(ssl, "next_proto_select_cb!!last_status", newSViv(next_proto_status));
