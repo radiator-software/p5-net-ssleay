@@ -1189,11 +1189,15 @@ int next_proto_select_cb_invoke(SSL *ssl, unsigned char **out, unsigned char *ou
         next_proto_len = next_proto_helper_AV2protodata((AV*)SvRV(cb_data), next_proto_data);
 
         next_proto_status = SSL_select_next_proto(out, outlen, in, inlen, next_proto_data, next_proto_len);
+        Safefree(next_proto_data);
+        if (next_proto_status != OPENSSL_NPN_NEGOTIATED) {
+            *outlen = *in;
+            *out = (unsigned char *)in+1;
+        }
 
         /* store last_status + last_negotiated into global hash */
         cb_data_advanced_put(ssl, "next_proto_select_cb!!last_status", newSViv(next_proto_status));
         cb_data_advanced_put(ssl, "next_proto_select_cb!!last_negotiated", newSVpv((const char*)*out, *outlen));
-        Safefree(next_proto_data);
         return SSL_TLSEXT_ERR_OK;
     }
     return SSL_TLSEXT_ERR_ALERT_FATAL;
@@ -1320,6 +1324,10 @@ int alpn_select_cb_invoke(SSL *ssl, const unsigned char **out, unsigned char *ou
         /* This is the same function that is used for NPN. */
         status = SSL_select_next_proto((unsigned char **)out, outlen, in, inlen, alpn_data, alpn_len);
         Safefree(alpn_data);
+        if (status != OPENSSL_NPN_NEGOTIATED) {
+            *outlen = *in;
+            *out = in+1;
+        }
         return status == OPENSSL_NPN_NEGOTIATED ? SSL_TLSEXT_ERR_OK : SSL_TLSEXT_ERR_NOACK;
     }
     return SSL_TLSEXT_ERR_ALERT_FATAL;
