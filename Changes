@@ -5,6 +5,9 @@ Revision history for Perl extension Net::SSLeay.
 	  pointer returned by SSL_select_next_proto() which may already have been
 	  freed under certain circumstances. Fixes GH-222. Thanks to dylc5190 for
 	  the report and patch.
+	- Fix a potential crash in the default callback function for
+	  CTX_set_alpn_select_cb() caused by the same use-after-free bug as the
+	  one in CTX_set_next_proto_select_cb().
 
 1.89_03 2020-12-12
 	- Expose the following functions:
