@@ -1129,7 +1129,7 @@ int next_proto_helper_protodata2AV(AV * list, const unsigned char *in, unsigned 
 int next_proto_select_cb_invoke(SSL *ssl, unsigned char **out, unsigned char *outlen,
                                 const unsigned char *in, unsigned int inlen, void *arg)
 {
-    SV *cb_func, *cb_data, *tmpsv;
+    SV *cb_func, *cb_data;
     unsigned char *next_proto_data;
     size_t next_proto_len;
     int next_proto_status;
@@ -1147,6 +1147,7 @@ int next_proto_select_cb_invoke(SSL *ssl, unsigned char **out, unsigned char *ou
     if (SvROK(cb_func) && (SvTYPE(SvRV(cb_func)) == SVt_PVCV)) {
         int count = -1;
         AV *list = newAV();
+        SV *tmpsv;
         dSP;
         
         if (!next_proto_helper_protodata2AV(list, in, inlen)) return SSL_TLSEXT_ERR_ALERT_FATAL;
@@ -1188,13 +1189,15 @@ int next_proto_select_cb_invoke(SSL *ssl, unsigned char **out, unsigned char *ou
         next_proto_len = next_proto_helper_AV2protodata((AV*)SvRV(cb_data), next_proto_data);
 
         next_proto_status = SSL_select_next_proto(out, outlen, in, inlen, next_proto_data, next_proto_len);
-        tmpsv = newSVpv((const char*)*out, *outlen);
-        *out = (unsigned char *)SvPVX(tmpsv);
+        Safefree(next_proto_data);
+        if (next_proto_status != OPENSSL_NPN_NEGOTIATED) {
+          *outlen = *in;
+          *out = (unsigned char *)in+1;
+        }
 
         /* store last_status + last_negotiated into global hash */
         cb_data_advanced_put(ssl, "next_proto_select_cb!!last_status", newSViv(next_proto_status));
         cb_data_advanced_put(ssl, "next_proto_select_cb!!last_negotiated", newSVpv((const char*)*out, *outlen));
-        Safefree(next_proto_data);
         return SSL_TLSEXT_ERR_OK;
     }
     return SSL_TLSEXT_ERR_ALERT_FATAL;
@@ -1261,7 +1264,7 @@ int next_protos_advertised_cb_invoke(SSL *ssl, const unsigned char **out, unsign
 int alpn_select_cb_invoke(SSL *ssl, const unsigned char **out, unsigned char *outlen,
                                 const unsigned char *in, unsigned int inlen, void *arg)
 {
-    SV *cb_func, *cb_data, *tmpsv;
+    SV *cb_func, *cb_data;
     unsigned char *alpn_data;
     size_t alpn_len;
     SSL_CTX *ctx = SSL_get_SSL_CTX(ssl);
@@ -1273,6 +1276,7 @@ int alpn_select_cb_invoke(SSL *ssl, const unsigned char **out, unsigned char *ou
     if (SvROK(cb_func) && (SvTYPE(SvRV(cb_func)) == SVt_PVCV)) {
         int count = -1;
         AV *list = newAV();
+        SV *tmpsv;
         SV *alpn_data_sv;
         dSP;
 
@@ -1319,9 +1323,11 @@ int alpn_select_cb_invoke(SSL *ssl, const unsigned char **out, unsigned char *ou
 
         /* This is the same function that is used for NPN. */
         status = SSL_select_next_proto((unsigned char **)out, outlen, in, inlen, alpn_data, alpn_len);
-        tmpsv = newSVpv((const char*)*out, *outlen);
-        *out = (unsigned char *)SvPVX(tmpsv);
         Safefree(alpn_data);
+        if (status != OPENSSL_NPN_NEGOTIATED) {
+          *outlen = *in;
+          *out = in+1;
+        }
         return status == OPENSSL_NPN_NEGOTIATED ? SSL_TLSEXT_ERR_OK : SSL_TLSEXT_ERR_NOACK;
     }
     return SSL_TLSEXT_ERR_ALERT_FATAL;
