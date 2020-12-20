@@ -5,6 +5,8 @@ Revision history for Perl extension Net::SSLeay.
 	  CTX_set_alpn_select_cb() caused by the use of a pointer returned by
 	  SSL_select_next_proto() which may already have been freed under certain
 	  circumstances. Fixes GH-222. Thanks to dylc5190 for the report.
+	- Remove the dependency on the AES128-SHA cipher suite in the test script
+	  64_ticket_sharing.t. Fixes GH-231.
 
 1.89_03 2020-12-12
 	- Expose the following functions:
