@@ -5,9 +5,9 @@ use lib 'inc';
 
 use Test::Net::SSLeay;
 
-plan tests => 1;
-
 BEGIN {
+    plan tests => 1;
+
     use_ok('Net::SSLeay');
 }
 
