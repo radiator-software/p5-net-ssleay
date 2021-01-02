@@ -8650,6 +8650,7 @@ This function is used in a server to support Server side Server Name Indication 
  # $code - reference to a subroutine that will be called when a new connection is being initiated
  #
  # returns: no return value
+
 On the client side:
 use set_tlsext_host_name($ssl, $servername) before initiating the SSL connection.
 
