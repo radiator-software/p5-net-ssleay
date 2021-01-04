@@ -1,0 +1,110 @@
+# The CI workflow tests Net-SSLeay against the following setups:
+#
+# - OS: Ubuntu 20.04
+#
+# - Perl: the latest patch release of every minor release since 5.8
+#
+# - libssl: the latest patch release of every minor release between:
+#   - OpenSSL: 0.9.8 and 1.1.1
+#   - LibreSSL: 2.2 and 3.1
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+env:
+  AUTOMATED_TESTING: 1
+  PERL_MM_USE_DEFAULT: 1
+  RELEASE_TESTING: 0
+
+jobs:
+  ubuntu:
+    name: 'Ubuntu 20.04 (Perl ${{ matrix.perl }}, ${{ matrix.libssl.display_name }} ${{ matrix.libssl.version }})'
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        perl:
+          - '5.32'
+          - '5.30'
+          - '5.28'
+          - '5.26'
+          - '5.24'
+          - '5.22'
+          - '5.20'
+          - '5.18'
+          - '5.16'
+          - '5.14'
+          - '5.12'
+          - '5.10'
+          - '5.8'
+        libssl:
+          - { name: 'openssl', display_name: 'OpenSSL', version: '1.1.1h' }
+          - { name: 'openssl', display_name: 'OpenSSL', version: '1.1.0l' }
+          - { name: 'openssl', display_name: 'OpenSSL', version: '1.0.2u' }
+          - { name: 'openssl', display_name: 'OpenSSL', version: '1.0.1u' }
+          - { name: 'openssl', display_name: 'OpenSSL', version: '1.0.0t' }
+          - { name: 'openssl', display_name: 'OpenSSL', version: '0.9.8zh' }
+          - { name: 'libressl', display_name: 'LibreSSL', version: '3.1.5' }
+          - { name: 'libressl', display_name: 'LibreSSL', version: '3.0.2' }
+          - { name: 'libressl', display_name: 'LibreSSL', version: '2.9.2' }
+          - { name: 'libressl', display_name: 'LibreSSL', version: '2.8.3' }
+          - { name: 'libressl', display_name: 'LibreSSL', version: '2.7.5' }
+          - { name: 'libressl', display_name: 'LibreSSL', version: '2.6.5' }
+          - { name: 'libressl', display_name: 'LibreSSL', version: '2.5.5' }
+          - { name: 'libressl', display_name: 'LibreSSL', version: '2.4.5' }
+          - { name: 'libressl', display_name: 'LibreSSL', version: '2.3.10' }
+          - { name: 'libressl', display_name: 'LibreSSL', version: '2.2.9' }
+    steps:
+      - name: Check out
+        uses: actions/checkout@v2
+
+      - name: Install Perl ${{ matrix.perl }}
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl }}
+
+      - name: 'Install libssl: ${{ matrix.libssl.display_name }} ${{ matrix.libssl.version }}'
+        run: |
+          os="ubuntu-20.04"
+          libssl_name="${{ matrix.libssl.name }}"
+          ver="${{ matrix.libssl.version }}"
+
+          GH_APP_INSTALLATION_TOKEN="$(npx obtain-github-app-installation-access-token ci ${{ secrets.GH_APP_TEMP_TOKEN }})"
+          echo "::add-mask::$GH_APP_INSTALLATION_TOKEN"
+
+          tar_url="$( \
+            curl \
+              -H "Authorization: Bearer $GH_APP_INSTALLATION_TOKEN" \
+              "https://api.github.com/repos/p5-net-ssleay/ci-libssl-$os/git/trees/master?recursive=0" \
+            | jq -r ".tree | map(select(.path == \"$libssl_name-$ver.tar.xz\")) | first.url" \
+          )"
+
+          curl \
+            -H "Authorization: Bearer $GH_APP_INSTALLATION_TOKEN" \
+            -H 'Accept: application/vnd.github.VERSION.raw' \
+            "$tar_url" \
+          | tar -Jx
+
+      - name: Install dependencies
+        run: cpanm --quiet --installdeps --notest .
+
+      - name: Create makefile
+        run: |
+          LD_LIBRARY_PATH="$(pwd)/libssl/lib" \
+          OPENSSL_PREFIX="$(pwd)/libssl" \
+            perl Makefile.PL
+
+      - name: Build
+        run: |
+          LD_LIBRARY_PATH="$(pwd)/libssl/lib" \
+            make
+
+      - name: Run test suite
+        run: |
+          LD_LIBRARY_PATH="$(pwd)/libssl/lib" \
+            make test
