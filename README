@@ -92,24 +92,6 @@ OS X:
 ---------------------------------	
 You should also be able to use CPAN.pm to install this module if you like.
 
-Linking with RSAref is no longer supported (the patent issue is moot
-due to patent expiring). If you want to try it, you are on your own,
-but here's how it used to work...
-
-  For linking against RSAref the the OPENSSL_RSAREF environment variable like this:
-
-	OPENSSL_RSAREF=1 ./Makefile.PL -t  # builds and tests it, link against RSAref
-
-  You must previously have built OpenSSL with RSAref support (which
-  implies first building rsaref itself), I use the RSAglue method. File
-  librsaref.a must be found in one of the locations searched by linker
-  (-L switches). Usually this means that you have to rename rsaref.a to
-  librsaref.a and copy it to suitable directory, e.g. /usr/local/ssl/lib.
-
-  N.B. AFAIK the patent that made using RSAref necessary has expired, so
-  this should be nonissue by now.
-
-
 Problems (read this before sending mail)
 ----------------------------------------
 

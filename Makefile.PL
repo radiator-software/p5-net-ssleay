@@ -157,15 +157,12 @@ sub ssleay_get_build_opts {
       push @{$opts->{lib_paths}}, $_ if -d $_;
     }
 
-    my $rsaref  = ssleay_is_rsaref();
-
     print <<EOM;
 *** Be sure to use the same compiler and options to compile your OpenSSL, perl,
     and Net::SSLeay. Mixing and matching compilers is not supported.
 EOM
 
     if ($^O eq 'MSWin32') {
-        print "*** RSAREF build on Windows not supported out of box" if $rsaref;
         if ($win_link_statically) {
             # Link to static libs
             push @{ $opts->{lib_paths} }, "$prefix/lib/VC/static" if -d "$prefix/lib/VC/static";
@@ -211,11 +208,7 @@ EOM
         @{ $opts->{lib_links} } = map { $_ =~ s/32\b//g } @{ $opts->{lib_links} } if $Config{use64bitall};
     }
     else {
-        push @{ $opts->{lib_links} },
-             ($rsaref
-              ? qw( ssl crypto RSAglue rsaref z )
-              : qw( ssl crypto z )
-             );
+        push @{ $opts->{lib_links} }, qw( ssl crypto z );
 
         if (($Config{cc} =~ /aCC/i) && $^O eq 'hpux') {
             print "*** Enabling HPUX aCC options (+e)\n";
@@ -228,10 +221,6 @@ EOM
         }
     }
     return $opts;
-}
-
-sub ssleay_is_rsaref {
-    return $ENV{OPENSSL_RSAREF};
 }
 
 my $other_try = 0;

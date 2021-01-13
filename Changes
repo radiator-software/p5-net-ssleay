@@ -7,6 +7,8 @@ Revision history for Perl extension Net::SSLeay.
 	  circumstances. Fixes GH-222. Thanks to dylc5190 for the report.
 	- Remove the dependency on the AES128-SHA cipher suite in the test script
 	  64_ticket_sharing.t. Fixes GH-231.
+	- Remove checks and warnings in Makefile.PL relating to the use of RSAref,
+	  which was removed from OpenSSL in version 0.9.7.
 
 1.89_03 2020-12-12
 	- Expose the following functions:
