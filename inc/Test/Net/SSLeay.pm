@@ -13,7 +13,7 @@ use File::Basename qw(dirname);
 use File::Spec::Functions qw( abs2rel catfile );
 use Test::Net::SSLeay::Socket;
 
-our $VERSION = '1.89_03';
+our $VERSION = '1.89_04';
 
 our @EXPORT_OK = qw(
     can_fork can_really_fork can_thread
@@ -372,7 +372,7 @@ Test::Net::SSLeay - Helper module for the Net-SSLeay test suite
 
 =head1 VERSION
 
-This document describes version 1.89_03 of Test::Net::SSLeay.
+This document describes version 1.89_04 of Test::Net::SSLeay.
 
 =head1 SYNOPSIS
 

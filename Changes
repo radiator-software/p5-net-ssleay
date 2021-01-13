@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.89_04 ????-??-??
+1.89_04 2021-01-13
 	- Fix crashes in the callback functions CTX_set_next_proto_select_cb() and
 	  CTX_set_alpn_select_cb() caused by the use of a pointer returned by
 	  SSL_select_next_proto() which may already have been freed under certain
