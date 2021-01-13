@@ -71,40 +71,26 @@ jobs:
       - name: 'Install libssl: ${{ matrix.libssl.display_name }} ${{ matrix.libssl.version }}'
         run: |
           os="ubuntu-20.04"
-          libssl_name="${{ matrix.libssl.name }}"
-          ver="${{ matrix.libssl.version }}"
+          ver="${{ matrix.libssl.name }}-${{ matrix.libssl.version }}"
 
-          GH_APP_INSTALLATION_TOKEN="$(npx obtain-github-app-installation-access-token ci ${{ secrets.GH_APP_TEMP_TOKEN }})"
-          echo "::add-mask::$GH_APP_INSTALLATION_TOKEN"
-
-          tar_url="$( \
-            curl \
-              -H "Authorization: Bearer $GH_APP_INSTALLATION_TOKEN" \
-              "https://api.github.com/repos/p5-net-ssleay/ci-libssl-$os/git/trees/master?recursive=0" \
-            | jq -r ".tree | map(select(.path == \"$libssl_name-$ver.tar.xz\")) | first.url" \
-          )"
-
-          curl \
-            -H "Authorization: Bearer $GH_APP_INSTALLATION_TOKEN" \
-            -H 'Accept: application/vnd.github.VERSION.raw' \
-            "$tar_url" \
-          | tar -Jx
+          curl -L "https://github.com/p5-net-ssleay/ci-libssl/releases/download/$ver/$ver-$os.tar.xz" \
+            | tar -C $HOME -Jx
 
       - name: Install dependencies
         run: cpanm --quiet --installdeps --notest .
 
       - name: Create makefile
         run: |
-          LD_LIBRARY_PATH="$(pwd)/libssl/lib" \
-          OPENSSL_PREFIX="$(pwd)/libssl" \
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+          OPENSSL_PREFIX="$HOME/libssl" \
             perl Makefile.PL
 
       - name: Build
         run: |
-          LD_LIBRARY_PATH="$(pwd)/libssl/lib" \
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
             make
 
       - name: Run test suite
         run: |
-          LD_LIBRARY_PATH="$(pwd)/libssl/lib" \
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
             make test
