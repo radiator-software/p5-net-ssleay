@@ -1,11 +1,12 @@
-use 5.8.1;
-
+use 5.008001;
+use utf8;
 use strict;
 use warnings;
-use ExtUtils::MakeMaker;
+
 use Config;
-use File::Spec;
+use ExtUtils::MakeMaker;
 use File::Basename ();
+use File::Spec;
 use Symbol qw(gensym);
 
 # Define this to one if you want to link the openssl libraries statically into 
