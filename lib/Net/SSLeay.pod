@@ -5718,7 +5718,7 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/X509_new.html|http://www.
 B<COMPATIBILITY:> not available in Net-SSLeay-1.68 and before; requires at
 least OpenSSL 1.0.2. X509_CHECK_FLAG_NEVER_CHECK_SUBJECT requires OpenSSL 1.1.0.
 
-Checks f the certificate Subject Alternative Name (SAN) or Subject CommonName
+Checks if the certificate Subject Alternative Name (SAN) or Subject CommonName
 (CN) matches the specified host name.
 
  my $rv = Net::SSLeay::X509_check_host($cert, $name, $flags, $peername);
