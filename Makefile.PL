@@ -312,7 +312,12 @@ sub check_openssl_version {
 
 	if ( ($major, $minor, $letter) = $output =~ /^OpenSSL\s+(\d+\.\d+)\.(\d+)([a-z]?)/ ) {
 	    print "*** Found OpenSSL-${major}.${minor}${letter} installed in $prefix\n";
-	} elsif ( ($major, $minor) = $output =~ /^LibreSSL\s+(\d+\.\d+)\.(\d+)/ ) {
+	} elsif ( ($major, $minor) = $output =~ /^LibreSSL\s+(\d+\.\d+)(?:\.(\d+))?/ ) {
+	    # LibreSSL 2.0.x releases only identify themselves as "LibreSSL 2.0",
+	    # with no patch release number
+	    if ( !defined $minor ) {
+	        $minor = "x";
+	    }
 	    print "*** Found LibreSSL-${major}.${minor} installed in $prefix\n";
 	} else {
             die <<EOM
@@ -324,7 +329,7 @@ EOM
         }
     }
 
-    if ($major < 0.9 || ($major == 0.9 && $minor < 3)) {
+    if ($major < 0.9 || ($major == 0.9 && $minor < 8)) {
         print <<EOM;
 *** That's too old!
     Please upgrade OpenSSL to the latest version (http://www.openssl.org/)

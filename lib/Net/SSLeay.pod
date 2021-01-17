@@ -38,13 +38,57 @@ Net::SSLeay - Perl extension for using OpenSSL
 
 =head1 DESCRIPTION
 
-L<Net::SSLeay> module contains perl bindings to openssl (L<http://www.openssl.org|http://www.openssl.org>) library.
+This module provides Perl bindings for libssl (an SSL/TLS API) and libcrypto (a
+cryptography API).
 
-B<COMPATIBILITY NOTE:> L<Net::SSLeay> cannot be built with pre-0.9.3 openssl. It is strongly recommended
-to use at least 0.9.7 (as older versions are not tested during development). Some low level API functions
-may be available with certain openssl versions.
+=head1 COMPATIBILITY
 
-It is compatible with OpenSSL 1.0 and 1.1. Some functions are not available under OpenSSL 1.1.
+Net::SSLeay supports the following libssl implementations:
+
+=over
+
+=item *
+
+Any stable release of L<OpenSSL|https://www.openssl.org> in the 0.9.8 - 1.1.1
+branches, except for OpenSSL 0.9.8 - 0.9.8b.
+
+=item *
+
+Any stable release of L<LibreSSL|https://www.libressl.org> in the 2.0 - 3.1
+series.
+
+=back
+
+Net::SSLeay may not function as expected with newer releases than the ones
+listed above due to libssl API incompatibilities, or, in the case of LibreSSL,
+because of deviations from the libssl API.
+
+Net::SSLeay is only as secure as the underlying libssl implementation you use.
+Although Net::SSLeay maintains compatibility with old versions of OpenSSL and
+LibreSSL, it is B<strongly recommended> that you use a version of OpenSSL or
+LibreSSL that is supported by the OpenSSL/LibreSSL developers and/or your
+operating system vendor. Many unsupported versions of OpenSSL and LibreSSL are
+known to contain severe security vulnerabilities. Refer to the
+L<OpenSSL Release Strategy|https://www.openssl.org/policies/releasestrat.html>
+and L<LibreSSL Support Schedule|https://www.libressl.org/releases.html> for
+information on which versions are currently supported.
+
+The libssl API has changed significantly since OpenSSL 0.9.8: hundreds of
+functions have been added, deprecated or removed in the intervening versions.
+Although this documentation lists all of the functions and constants that
+Net::SSLeay may expose, they will not be available for use if they are missing
+from the underlying libssl implementation. Refer to the compatibility notes in
+this documentation, as well as the OpenSSL/LibreSSL manual pages, for
+information on which OpenSSL/LibreSSL versions support each function or
+constant. At run-time, you can check whether a function or constant is exposed
+before calling it using the following convention:
+
+    if ( defined &Net::SSLeay::libssl_function ) {
+        # libssl_function() (or SSL_libssl_function()) is available
+        Net::SSLeay::libssl_function(...);
+    }
+
+=head1 OVERVIEW
 
 L<Net::SSLeay> module basically comprise of:
 
