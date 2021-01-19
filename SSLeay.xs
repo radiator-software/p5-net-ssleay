@@ -45,11 +45,11 @@
  *    for example: there already exists: PEM_get_string_X509_CRL + PEM_get_string_X509_REQ and you want
  *    to add PEM_get_string_SOMETHING - then no need to follow 3/ (do not prefix with "P_")
  *
- * Support for different openssl versions, different platforms, different compilers:
+ * Support for different Perl versions, libssl implementations, platforms, and compilers:
  *
- * 1/ SSleay.xs is expected to build/pass test suite
- *    - with openssl 0.9.6 and newer versions
- *    - with perl 5.8 and newer versions
+ * 1/ Net-SSLeay has a version support policy for Perl and OpenSSL/LibreSSL (described in the
+ *    "Prerequisites" section in the README file). The test suite must pass when run on any
+ *    of those version combinations.
  *
  * 2/ Fix all compiler warnings - we expect 100% clean build
  *
