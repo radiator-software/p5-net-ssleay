@@ -8,7 +8,7 @@ use Test::Net::SSLeay qw(
 if (not can_fork()) {
     plan skip_all => "fork() not supported on this system";
 } else {
-    plan tests => 34;
+    plan tests => 46;
 }
 
 initialise_libssl();
@@ -57,6 +57,11 @@ our %version_str2int =
      'TLSv1.3' => sub {return eval {Net::SSLeay::TLS1_3_VERSION();}},
     );
 
+# Tests that don't need a connection
+client_test_ciphersuites();
+test_cipher_funcs();
+
+# Tests that need a connection
 my $server = tcp_socket();
 
 {
@@ -111,7 +116,6 @@ sub client {
     client_test_finished($ssl);
     client_test_keyblock_size($ssl);
     client_test_version_funcs($ssl);
-    client_test_ciphersuites();
 
     # Tell the server to quit and see that our connection is still up
     my $end = "end";
@@ -271,6 +275,69 @@ sub client_test_ciphersuites
     is($rv, 0, 'SSL set partially bad ciphersuites');
     $rv = Net::SSLeay::set_ciphersuites($ssl, 'nosuchthing:');
     is($rv, 0, 'SSL set bad ciphersuites');
+
+    return;
+}
+
+sub test_cipher_funcs
+{
+
+    my ($ctx, $rv, $ssl);
+    $ctx = Net::SSLeay::CTX_new();
+    $ssl = Net::SSLeay::new($ctx);
+
+    # OpenSSL API says these can accept NULL ssl
+    {
+	no warnings 'uninitialized';
+	my @a = Net::SSLeay::get_ciphers(undef);
+	is(@a, 0, 'SSL_get_ciphers with undefined ssl');
+
+	is(Net::SSLeay::get_cipher_list(undef, 0), undef, 'SSL_get_cipher_list with undefined ssl');
+	is(Net::SSLeay::CIPHER_get_name(undef), '(NONE)', 'SSL_CIPHER_get_name with undefined ssl');
+	is(Net::SSLeay::CIPHER_get_bits(undef), 0, 'SSL_CIPHER_get_bits with undefined ssl');
+	is(Net::SSLeay::CIPHER_get_version(undef), '(NONE)', 'SSL_CIPHER_get_version with undefined ssl');
+    }
+
+    # 10 is based on experimentation. Lowest count seen was 15 in
+    # OpenSSL 0.9.8zh.
+    my @ciphers = Net::SSLeay::get_ciphers($ssl);
+    cmp_ok(@ciphers, '>=', 10, 'SSL_get_ciphers: number of ciphers: ' . @ciphers);
+
+    my $first;
+    my ($name_failed, $desc_failed, $vers_failed, $bits_failed, $alg_bits_failed) = (0, 0, 0, 0, 0);
+    foreach my $c (@ciphers)
+    {
+	# Shortest seen: RC4-MD5
+	my $name = Net::SSLeay::CIPHER_get_name($c);
+	$name_failed++ if $name !~ m/^[A-Z0-9_-]{7,}\z/s;
+	$first = $name unless $first;
+
+	# Cipher description should begin with its name
+	my $desc = Net::SSLeay::CIPHER_description($c);
+	$desc_failed++ if $desc !~ m/^$name\s+/s;
+
+	# For example: TLSv1/SSLv3, SSLv2
+	my $vers = Net::SSLeay::CIPHER_get_version($c);
+	$vers_failed++ if length($vers) < 5;
+
+	# See that get_bits returns the same no matter how it's called
+	my $alg_bits;
+	my $bits = Net::SSLeay::CIPHER_get_bits($c, $alg_bits);
+	$bits_failed++ if $bits ne Net::SSLeay::CIPHER_get_bits($c);
+
+	# Once again, a value that should be reasonable
+	$alg_bits_failed++ if $alg_bits < 56;
+    }
+
+    is($name_failed, 0, 'CIPHER_get_name');
+    is($desc_failed, 0, 'CIPHER_description matches with CIPHER_name');
+    is($vers_failed, 0, 'CIPHER_get_version');
+    is($bits_failed, 0, 'CIPHER_get_bits');
+    is($alg_bits_failed, 0, 'CIPHER_get_bits with alg_bits');
+    is($first, Net::SSLeay::get_cipher_list($ssl, 0), 'SSL_get_cipher_list');
+
+    Net::SSLeay::free($ssl);
+    Net::SSLeay::CTX_free($ctx);
 
     return;
 }

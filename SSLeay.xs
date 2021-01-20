@@ -2454,6 +2454,23 @@ SSL_CTX_set_cipher_list(s,str)
      SSL_CTX *              s
      char *             str
 
+void
+SSL_get_ciphers(s)
+        SSL *              s
+    PREINIT:
+        STACK_OF(SSL_CIPHER) *sk = NULL;
+        const SSL_CIPHER *c;
+        int i;
+    PPCODE:
+        sk = SSL_get_ciphers(s);
+        if( sk == NULL ) {
+            XSRETURN_EMPTY;
+        }
+        for (i=0; i<sk_SSL_CIPHER_num(sk); i++) {
+            c = sk_SSL_CIPHER_value(sk, i);
+            XPUSHs(sv_2mortal(newSViv(PTR2IV(c))));
+        }
+
 const char *
 SSL_get_cipher_list(s,n)
      SSL *              s
@@ -5014,47 +5031,36 @@ int
 SSL_check_private_key(ctx)
      SSL *	ctx
 
-#if OPENSSL_VERSION_NUMBER < 0x009080dfL
-#define REM8 "NOTE: before 0.9.8m"
-
-char *
-SSL_CIPHER_description(cipher,buf,size)
-     SSL_CIPHER *	cipher
-     char *	buf
-     int 	size
-
-#else
-
-char *
-SSL_CIPHER_description(cipher,buf,size)
-     const SSL_CIPHER *  cipher
-     char *	buf
-     int 	size
-
-#endif
-
-#if OPENSSL_VERSION_NUMBER < 0x0090707fL
-#define REM9 "NOTE: before 0.9.7g"
-
-const char *
-SSL_CIPHER_get_name(SSL_CIPHER *c)
-
-int
-SSL_CIPHER_get_bits(c,alg_bits=NULL)
-     SSL_CIPHER *	c
-     int *	alg_bits
-
-#else
+# /* buf and size were required with Net::SSLeay 1.88 and earlier. */
+# /* With OpenSSL 0.9.8l and older compile can warn about discarded const. */
+void
+SSL_CIPHER_description(const SSL_CIPHER *cipher, char *unused_buf=NULL, int unused_size=0)
+    PREINIT:
+        char *description;
+        char buf[512];
+    PPCODE:
+        description = SSL_CIPHER_description(cipher, buf, sizeof(buf));
+        if(description == NULL) {
+            XSRETURN_EMPTY;
+        }
+        XPUSHs(sv_2mortal(newSVpv(description, 0)));
 
 const char *
 SSL_CIPHER_get_name(const SSL_CIPHER *c)
 
 int
-SSL_CIPHER_get_bits(c,alg_bits=NULL)
-     const SSL_CIPHER *	c
-     int *	alg_bits
+SSL_CIPHER_get_bits(c, ...)
+        const SSL_CIPHER *      c
+    CODE:
+        int alg_bits;
+        RETVAL = SSL_CIPHER_get_bits(c, &alg_bits);
+        if (items > 2) croak("SSL_CIPHER_get_bits: Need to call with one or two parameters");
+        if (items > 1) sv_setsv(ST(1), sv_2mortal(newSViv(alg_bits)));
+    OUTPUT:
+        RETVAL
 
-#endif
+const char *
+SSL_CIPHER_get_version(const SSL_CIPHER *cipher)
 
 #ifndef OPENSSL_NO_COMP
 

@@ -3639,6 +3639,26 @@ Obtain the number of secret/algorithm bits used.
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_current_cipher.html|http://www.openssl.org/docs/ssl/SSL_get_current_cipher.html>
 and L<http://www.openssl.org/docs/ssl/SSL_CIPHER_get_name.html|http://www.openssl.org/docs/ssl/SSL_CIPHER_get_name.html>
 
+=item * get_ciphers
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.88 and before
+
+Returns a list of SSL_CIPHER structures available for $ssl sorted by preference
+
+ my @ciphers = Net::SSLeay::get_ciphers($ssl);
+ # $ssl - value corresponding to openssl's SSL structure
+ #
+ # returns: (list) SSL_CIPHER structures or nothing when $ssl is undefined or no ciphers are available
+
+Example:
+
+ my @ciphers = Net::SSLeay::get_ciphers($ssl);
+ foreach my $c (@ciphers) {
+   print Net::SSLeay::CIPHER_get_name($c) . "\n";
+ }
+
+Check openssl doc L<https://www.openssl.org/docs/ssl/SSL_get_ciphers.html|https://www.openssl.org/docs/ssl/SSL_get_ciphers.html>
+
 =item * get_cipher_list
 
 Returns the name (string) of the SSL_CIPHER listed for $ssl with priority $n.
@@ -3647,10 +3667,10 @@ Returns the name (string) of the SSL_CIPHER listed for $ssl with priority $n.
  # $ssl - value corresponding to openssl's SSL structure
  # $n - (integer) priority
  #
- # returns: (string) cipher name e.g. 'EDH-DSS-DES-CBC3-SHA' or '' in case of error
+ # returns: (string) cipher name e.g. 'EDH-DSS-DES-CBC3-SHA' or undef in case of error
 
 Call Net::SSLeay::get_cipher_list with priority starting from 0 to obtain
-the sorted list of available ciphers, until '' is returned:
+the sorted list of available ciphers, until undef is returned:
 
  my $priority = 0;
  while (my $c = Net::SSLeay::get_cipher_list($ssl, $priority)) {
@@ -3658,7 +3678,7 @@ the sorted list of available ciphers, until '' is returned:
    $priority++;
  }
 
-Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_ciphers.html|http://www.openssl.org/docs/ssl/SSL_get_ciphers.html>
+Check openssl doc L<https://www.openssl.org/docs/ssl/SSL_get_cipher_list.html|https://www.openssl.org/docs/ssl/SSL_get_cipher_list.html>
 
 =item * get_client_CA_list
 
@@ -7527,7 +7547,7 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.
 
 =item * X509_STORE_CTX_get0_cert
 
-COMPATIBILITY: not available in Net-SSLeay-1.88 and before; requires at least OpenSSL 1.1.0pre6 or LibreSSL 2.7.0
+B<COMPATIBILITY>: not available in Net-SSLeay-1.88 and before; requires at least OpenSSL 1.1.0pre6 or LibreSSL 2.7.0
 
 Returns an internal pointer to the certificate being verified by the ctx.
 
@@ -8405,12 +8425,12 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
 
 Returns name of the cipher used.
 
- my $rv = Net::SSLeay::CIPHER_description($cipher);
+ my $rv = Net::SSLeay::CIPHER_get_name($cipher);
  # $cipher - value corresponding to openssl's SSL_CIPHER structure
  #
- # returns: (string) cipher name e.g. 'DHE-RSA-AES256-SHA'
+ # returns: (string) cipher name e.g. 'DHE-RSA-AES256-SHA', '(NONE)' if $cipher is undefined.
 
-Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CIPHER_get_name.html|http://www.openssl.org/docs/ssl/SSL_CIPHER_get_name.html>
+Check openssl doc L<https://www.openssl.org/docs/ssl/SSL_CIPHER_get_name.html|https://www.openssl.org/docs/ssl/SSL_CIPHER_get_name.html>
 
 Example:
 
@@ -8419,30 +8439,54 @@ Example:
 
 =item * CIPHER_description
 
+B<COMPATIBILITY:> doesn't work correctly in Net-SSLeay-1.88 and before
+
 Returns a textual description of the cipher used.
 
-??? (does this function really work?)
-
- my $rv = Net::SSLeay::CIPHER_description($cipher, $buf, $size);
+ my $rv = Net::SSLeay::CIPHER_description($cipher);
  # $cipher - value corresponding to openssl's SSL_CIPHER structure
- # $bufer - (string/buffer) ???
- # $size - (integer) ???
  #
  # returns: (string) cipher description e.g. 'DHE-RSA-AES256-SHA SSLv3 Kx=DH Au=RSA Enc=AES(256) Mac=SHA1'
 
-Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CIPHER_get_name.html|http://www.openssl.org/docs/ssl/SSL_CIPHER_get_name.html>
+Check openssl doc L<https://www.openssl.org/docs/ssl/SSL_CIPHER_description.html|https://www.openssl.org/docs/ssl/SSL_CIPHER_description.html>
 
 =item * CIPHER_get_bits
 
+B<COMPATIBILITY:> $alg_bits doesn't work correctly in Net-SSLeay-1.88 and before
+
 Returns the number of secret bits used for cipher.
 
- my $rv = Net::SSLeay::CIPHER_get_bits($c);
- # $c - value corresponding to openssl's SSL_CIPHER structure
+ my $rv = Net::SSLeay::CIPHER_get_bits($cipher, $alg_bits);
+ # $cipher - value corresponding to openssl's SSL_CIPHER structure
+ # $alg_bits - [optional] empty scalar for storing additional return value
  #
- # returns: (integert) number of secret bits, 0 on error
+ # returns: (integer) number of secret bits, 0 on error
+ #          (integer) in $alg_bits for bits processed by the chosen algorithm
+
+Check openssl doc L<https://www.openssl.org/docs/ssl/SSL_CIPHER_get_bits.html|https://www.openssl.org/docs/ssl/SSL_CIPHER_get_bits.html>
+
+Example:
+
+ # bits and alg_bits are not equal for e.g., TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,
+ # RFC 8422 name TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA
+ my $alg_bits;
+ my $bits = Net::SSLeay::CIPHER_get_bits($cipher, $alg_bits);
+ #my $bits = Net::SSLeay::CIPHER_get_bits($cipher);
+ print "bits: $bits, alg_bits: $alg_bits\n";
 
 
-Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CIPHER_get_name.html|http://www.openssl.org/docs/ssl/SSL_CIPHER_get_name.html>
+=item * CIPHER_get_version
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.88 and before
+
+Returns version of SSL/TLS protocol that first defined the cipher
+
+ my $rv = Net::SSLeay::CIPHER_get_version($cipher);
+ # $cipher - value corresponding to openssl's SSL_CIPHER structure
+ #
+ # returns: (string) cipher name e.g. 'TLSv1/SSLv3' with some libraries, 'TLSv1.0' or 'TLSv1.3', '(NONE)' if $cipher is undefined.
+
+Check openssl doc L<https://www.openssl.org/docs/ssl/SSL_CIPHER_get_version.html|https://www.openssl.org/docs/ssl/SSL_CIPHER_get_version.html>
 
 =back
 
