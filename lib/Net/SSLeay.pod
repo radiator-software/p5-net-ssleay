@@ -5828,7 +5828,7 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.68 and before; requires at least
 
 Checks if the certificate matches the specified IPv4 or IPv6 address.
 
- my $rv = Net::SSLeay::X509_check_email($cert, $address, $flags);
+ my $rv = Net::SSLeay::X509_check_ip($cert, $address, $flags);
  # $cert - value corresponding to openssl's X509 structure
  # $address - IP address to check in binary format, in network byte order
  # $flags (optional, default: 0) - see X509_check_host()
@@ -5843,7 +5843,7 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.68 and before; requires at least
 
 Checks if the certificate matches the specified IPv4 or IPv6 address.
 
- my $rv = Net::SSLeay::X509_check_email($cert, $address, $flags);
+ my $rv = Net::SSLeay::X509_check_ip_asc($cert, $address, $flags);
  # $cert - value corresponding to openssl's X509 structure
  # $address - IP address to check in text representation
  # $flags (optional, default: 0) - see X509_check_host()
