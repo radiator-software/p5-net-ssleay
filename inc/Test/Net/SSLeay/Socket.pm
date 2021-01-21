@@ -13,7 +13,7 @@ use Socket qw(
     inet_aton inet_ntoa pack_sockaddr_in unpack_sockaddr_in
 );
 
-our $VERSION = '1.89_04';
+our $VERSION = '1.89_05';
 
 my %PROTOS = (
     tcp => SOCK_STREAM,
@@ -134,7 +134,7 @@ Test::Net::SSLeay::Socket - Socket class for the Net-SSLeay test suite
 
 =head1 VERSION
 
-This document describes version 1.89_04 of Test::Net::SSLeay::Socket.
+This document describes version 1.89_05 of Test::Net::SSLeay::Socket.
 
 =head1 SYNOPSIS
 
