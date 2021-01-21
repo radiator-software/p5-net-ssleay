@@ -11,15 +11,13 @@ Net::SSLeay is Module::Install Perl module. Module::Install is not
 needed when building from release packages.
 
 ## Issue tracking
-Issues can be currently reported using CPAN [bug
-tracker](https://rt.cpan.org/Public/Dist/Display.html?Name=net-ssleay)
-or [GitHub](https://github.com/radiator-software/p5-net-ssleay)
-
-Choose the method that is more convenient for you.
+Please open an [issue](https://github.com/radiator-software/p5-net-ssleay/issues)
+on GitHub to report any bugs or installation issues you encounter.
 
 ## Patches and code contributions
-GitHub pull requests are preferred, but please do not hesitate to use
-the CPAN bug tracker or any other means to send your contribution.
+Bug fixes, feature additions and other contributions to Net-SSLeay are
+welcomed - please open a [pull request](https://github.com/radiator-software/p5-net-ssleay/pulls)
+on GitHub.
 
 All contributions to Net-SSLeay are assumed to be provided under the
 terms of the Artistic License 2.0. See [`LICENSE`](LICENSE) for details.

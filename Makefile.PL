@@ -75,7 +75,7 @@ my %eumm_args = (
         web => 'https://github.com/radiator-software/p5-net-ssleay',
       },
       bugtracker  => {
-        web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=net-ssleay',
+        web => 'https://github.com/radiator-software/p5-net-ssleay/issues',
       },
     },
     no_index => { directory => [ qw(helper_script examples) ] },

@@ -8,6 +8,8 @@ Revision history for Perl extension Net::SSLeay.
 	- Clarify libssl version support policy: all stable versions of OpenSSL in
 	  the 0.9.8 - 1.1.1 branches (with the exception of 0.9.8 - 0.9.8b) and all
 	  stable releases of LibreSSL in the 2.0 - 3.1 series are supported.
+	- Direct bug reports to the GitHub repository, since rt.cpan.org will shut
+	  down on 2021-03-01.
 
 1.89_04 2021-01-13
 	- Fix crashes in the callback functions CTX_set_next_proto_select_cb() and

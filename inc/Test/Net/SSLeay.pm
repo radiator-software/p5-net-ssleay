@@ -569,28 +569,9 @@ on failure.
 =head1 BUGS
 
 If you encounter a problem with this module that you believe is a bug, please
-report it in one of the following ways:
-
-=over 4
-
-=item *
-
-create a new issue under the
-L<Net-SSLeay GitHub project|https://github.com/radiator-software/p5-net-ssleay/issues/new>;
-
-=item *
-
-open a ticket using the
-L<CPAN RT bug tracker's web interface|https://rt.cpan.org/Public/Bug/Report.html?Queue=Net-SSLeay>;
-
-=item *
-
-send an email to the
-L<CPAN RT bug tracker's bug-reporting system|mailto:bug-Net-SSLeay@rt.cpan.org>.
-
-=back
-
-Please make sure your bug report includes the following information:
+L<create a new issue|https://github.com/radiator-software/p5-net-ssleay/issues/new>
+in the Net-SSLeay GitHub repository. Please make sure your bug report includes
+the following information:
 
 =over
 
