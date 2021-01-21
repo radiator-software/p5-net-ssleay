@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.89_05 ????-??-??
+1.89_05 2021-01-21
 	- Expose SSL_get_ciphers. Thanks to github user dylc5190.
 	- Expose SSL_CIPHER_get_version and fix SSL_CIPHER_description
 	  and SSL_CIPHER_get_bits. Also fixed and enhanced
