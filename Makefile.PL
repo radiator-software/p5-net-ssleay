@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Config;
+use English qw( $OSNAME -no_match_vars );
 use ExtUtils::MakeMaker;
 use File::Basename ();
 use File::Spec;
@@ -34,6 +35,7 @@ my %eumm_args = (
   VERSION_FROM => 'lib/Net/SSLeay.pm',
   MIN_PERL_VERSION => '5.8.1',
   CONFIGURE_REQUIRES => {
+    'English' => '0',
     'ExtUtils::MakeMaker' => '0',
   },
   TEST_REQUIRES => {
@@ -131,7 +133,7 @@ EOM
     my %args = (
         CCCDLFLAGS => $opts->{cccdlflags},
         OPTIMIZE => $opts->{optimize},
-        INC => join(' ', map qq{-I"$_"}, @{$opts->{inc_paths}}),
+        INC => qq{-I"$opts->{inc_path}"},
         LIBS => join(' ', (map '-L'.maybe_quote($_), @{$opts->{lib_paths}}), (map {"-l$_"} @{$opts->{lib_links}})),
     );
     # From HMBRAND to handle multple version of OPENSSL installed
@@ -151,9 +153,22 @@ sub ssleay_get_build_opts {
         lib_links  => [],
         cccdlflags => '',
     };
-    for ("$prefix/include", "$prefix/inc32", '/usr/kerberos/include') {
-      push @{$opts->{inc_paths}}, $_ if -f "$_/openssl/ssl.h";
+
+    my @try_includes = (
+        'include' => sub { 1 },
+        'inc32'   => sub { $OSNAME eq 'MSWin32' },
+    );
+
+    while (
+           !defined $opts->{inc_path}
+        && defined( my $dir = shift @try_includes )
+        && defined( my $cond = shift @try_includes )
+    ) {
+        if ( $cond->() && -f "$prefix/$dir/openssl/ssl.h" ) {
+            $opts->{inc_path} = "$prefix/$dir";
+        }
     }
+
     for ($prefix, "$prefix/lib64", "$prefix/lib", "$prefix/out32dll") {
       push @{$opts->{lib_paths}}, $_ if -d $_;
     }
