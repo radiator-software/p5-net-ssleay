@@ -66,7 +66,9 @@ sub server
 
 	    Net::SSLeay::shutdown($ssl);
 	    Net::SSLeay::free($ssl);
+	    close($cl) || die("server close: $!");
 	}
+	$server->close() || die("server listen socket close: $!");
 	exit(0);
     }
 }
@@ -90,6 +92,7 @@ sub client {
 
             Net::SSLeay::shutdown($ssl);
             Net::SSLeay::free($ssl);
+            close($cl) || die("client close: $!");
         }
         else {
             SKIP: {
@@ -97,6 +100,7 @@ sub client {
             }
         }
     }
+    $server->close() || die("client listen socket close: $!");
 
     return 1;
 }

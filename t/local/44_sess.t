@@ -212,6 +212,7 @@ sub server
 
 	    Net::SSLeay::SESSION_free($sess) unless $ret; # Not cached, undo get1
 	    Net::SSLeay::free($ssl);
+	    close($cl) || die("server close: $!");
 	}
 
 	$cl = $server->accept();
@@ -219,9 +220,8 @@ sub server
 	print $cl "end\n";
 	print $cl unpack( 'H*', Storable::freeze(\%server_stats) ), "\n";
 
-	close $cl;
-
-	$server->close();
+	close($cl) || die("server close stats socket: $!");
+	$server->close() || die("server listen socket close: $!");
 
 	#use Data::Dumper; print "Server:\n" . Dumper(\%server_stats);
 	exit(0);
@@ -267,6 +267,7 @@ sub client {
 
 	Net::SSLeay::shutdown($ssl);
 	Net::SSLeay::free($ssl);
+	close($cl) || die("client close: $!");
     }
 
     $cl = $server->connect();
@@ -276,7 +277,9 @@ sub client {
     # Stats from server
     chomp( my $server_stats = <$cl> );
     my $server_stats_ref = Storable::thaw( pack( 'H*', $server_stats ) );
-    close $cl;
+
+    close($cl) || die("client close stats socket: $!");
+    $server->close() || die("client listen socket close: $!");
 
     test_stats($server_stats_ref, \%client_stats);
 

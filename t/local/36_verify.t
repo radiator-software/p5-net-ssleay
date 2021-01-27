@@ -86,8 +86,8 @@ SKIP: {
 
     $server = tcp_socket();
 
-    run_server();
-    $server->close();
+    run_server(); # Forks: child does not return
+    $server->close() || die("client listen socket close: $!");
     client();
 }
 
@@ -295,7 +295,7 @@ sub client {
 	test_wildcard_checks($ctx, $cl) if $task eq 'wildcard_checks';
 	last if $task eq 'finish'; # Leaves $cl alive
 
-	close($cl);
+	close($cl) || die("client close: $!");;
     }
 
     # Tell the server to quit and see that our connection is still up
@@ -307,6 +307,8 @@ sub client {
     Net::SSLeay::ssl_write_all($ssl, $end);
     Net::SSLeay::shutdown($ssl);
     ok($end eq Net::SSLeay::ssl_read_all($ssl), 'Successful termination');
+    Net::SSLeay::free($ssl);
+    close($cl) || die("client final close: $!");;
     return;
 }
 
@@ -348,6 +350,10 @@ sub run_server
 	if (defined $msg and $msg eq 'end')
 	{
 	    Net::SSLeay::ssl_write_all($ssl, 'end');
+	    Net::SSLeay::shutdown($ssl);
+	    Net::SSLeay::free($ssl);
+	    close($cl) || die("server close: $!");
+	    $server->close() || die("server listen socket close: $!");
 	    exit (0);
 	}
     }

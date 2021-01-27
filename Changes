@@ -1,5 +1,11 @@
 Revision history for Perl extension Net::SSLeay.
 
+????
+	- Update tests to call close() to avoid problems seen with
+	  test 44_sess.t, and possibly other tests, running on older
+	  Windows Perl versions. Also add some missing calls in tests
+	  to shutdown and free ssl structures.
+
 1.90 2021-01-21
 	- New stable release incorporating all changes from developer releases
 	  1.89_01 to 1.89_05.

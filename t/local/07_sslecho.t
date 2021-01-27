@@ -94,11 +94,11 @@ $ENV{RND_SEED} = '1234567890123456789012345678901234567890';
 	    }
 
             Net::SSLeay::free($ssl);
-            close $ns;
+            close($ns) || die("server close: $!");
         }
 
         Net::SSLeay::CTX_free($ctx);
-        $server->close();
+	$server->close() || die("server listen socket close: $!");
 
         exit;
     }
@@ -133,7 +133,7 @@ my @results;
     Net::SSLeay::CTX_free($ctx);
 
     shutdown($s, 2);
-    close $s;
+    close($s) || die("client close: $!");;
 
 }
 
@@ -199,9 +199,9 @@ my @results;
 	    push @results, [Net::SSLeay::shutdown($ssl3) >= 0, 'client side ssl3 shutdown' ];
             shutdown $s3, 2;
 
-            close $s1;
-            close $s2;
-            close $s3;
+            close($s1) || die("client close s1: $!");;
+            close($s2) || die("client close s2: $!");;
+            close($s3) || die("client close s3: $!");;
 
             Net::SSLeay::free($ssl1);
             Net::SSLeay::free($ssl2);
@@ -314,8 +314,10 @@ my @results;
     Net::SSLeay::free($ssl);
     Net::SSLeay::CTX_free($ctx);
 
-    close $s;
+    close($s) || die("client close: $!");
 }
+
+$server->close() || die("client listen socket close: $!");
 
 waitpid $pid, 0;
 push @results, [ $? == 0, 'server exited with 0' ];

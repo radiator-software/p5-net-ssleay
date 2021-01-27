@@ -59,8 +59,11 @@ sub server
 
 	    my $msg = Net::SSLeay::read($ssl);
 	    Net::SSLeay::write($ssl, $msg);
+	    Net::SSLeay::shutdown($ssl);
+	    Net::SSLeay::free($ssl);
+	    close($cl) || die("client close: $!");
 	}
-    $server->close();
+	$server->close() || die("server listen socket close: $!");
 	exit(0);
     }
 }
@@ -90,7 +93,9 @@ sub client
 
 	Net::SSLeay::shutdown($ssl);
 	Net::SSLeay::free($ssl);
+	close($cl) || die("client close: $!");
     }
+    $server->close() || die("client listen socket close: $!");
     return;
 }
 
