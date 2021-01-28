@@ -926,6 +926,7 @@ a session secret callback can be set up to be called when a session secret is se
 by openssl.
 
 Establish it like this:
+
     Net::SSLeay::set_session_secret_cb($ssl, \&session_secret_cb, $somedata);
 
 It will be called like this:
@@ -2576,7 +2577,7 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_timeout.html|htt
 
 =item * CTX_get_verify_depth
 
-Returns the verification depth limit currently set in $ctx. If no limit has been explicitly set, -1 is returned and the default value will be used.",
+Returns the verification depth limit currently set in $ctx. If no limit has been explicitly set, -1 is returned and the default value will be used.
 
  my $rv = Net::SSLeay::CTX_get_verify_depth($ctx);
  # $ctx - value corresponding to openssl's SSL_CTX structure
@@ -4709,13 +4710,13 @@ Setup pre-shared secret session resumption function.
  # returns: no return value
 
 The callback function will be called like:
-callback_function($secret, $ciphers, $pref_cipher, $data);
 
-# $secret is the current master session key, usually all 0s at the beginning of a session
-# $ciphers is ref to an array of peer cipher names
-# $pref_cipher is a ref to an index into the list of cipher names of 
-#  the preferred cipher. Set it if you want to specify a preferred cipher
-# $data is the data passed to set_session_secret_cb
+ callback_function($secret, $ciphers, $pref_cipher, $data);
+ # $secret is the current master session key, usually all 0s at the beginning of a session
+ # $ciphers is ref to an array of peer cipher names
+ # $pref_cipher is a ref to an index into the list of cipher names of 
+ #  the preferred cipher. Set it if you want to specify a preferred cipher
+ # $data is the data passed to set_session_secret_cb
 
 The callback function should return 1 if it likes the suggested cipher (or has selected an alternative 
 by setting pref_cipher), else it should return 0 (in which case OpenSSL will select its own preferred cipher).
@@ -4735,12 +4736,12 @@ Setup encryption for TLS session tickets (stateless session reuse).
  # returns: no return value
 
 The callback function will be called like:
-getkey($data,[$key_name]) -> ($key,$current_key_name)
 
-# $data is the data passed to set_session_secret_cb
-# $key_name is the name of the key OpenSSL has extracted from the session ticket
-# $key is the requested key for ticket encryption + HMAC
-# $current_key_name is the name for the currently valid key
+ getkey($data,[$key_name]) -> ($key,$current_key_name)
+ # $data is the data passed to set_session_secret_cb
+ # $key_name is the name of the key OpenSSL has extracted from the session ticket
+ # $key is the requested key for ticket encryption + HMAC
+ # $current_key_name is the name for the currently valid key
 
 OpenSSL will call the function without a key name if it generates a new ticket.
 It then needs the callback to return the encryption+HMAC key and an identifier
@@ -4805,12 +4806,12 @@ Setup callback for TLS session tickets (stateless session reuse).
  # returns: no return value
 
 The callback function will be called like:
-getticket($ssl,$ticket,$data) -> $return_value
 
-# $ssl is a value corresponding to openssl's SSL structure
-# $ticket is a value of received TLS session ticket (can also be empty)
-# $data is the data passed to set_session_ticket_ext_cb
-# $return_value is either 0 (failure) or 1 (success)
+ getticket($ssl,$ticket,$data) -> $return_value
+ # $ssl is a value corresponding to openssl's SSL structure
+ # $ticket is a value of received TLS session ticket (can also be empty)
+ # $data is the data passed to set_session_ticket_ext_cb
+ # $return_value is either 0 (failure) or 1 (success)
 
 This function is based on the OpenSSL function SSL_set_session_ticket_ext_cb.
 
@@ -4825,12 +4826,12 @@ Set TLS session ticket (stateless session reuse).
  # returns: no return value
 
 The callback function will be called like:
-getticket($ssl,$ticket,$data) -> $return_value
 
-# $ssl is a value corresponding to openssl's SSL structure
-# $ticket is a value of received TLS session ticket (can also be empty)
-# $data is the data passed to set_session_ticket_ext_cb
-# $return_value is either 0 (failure) or 1 (success)
+ getticket($ssl,$ticket,$data) -> $return_value
+ # $ssl is a value corresponding to openssl's SSL structure
+ # $ticket is a value of received TLS session ticket (can also be empty)
+ # $data is the data passed to set_session_ticket_ext_cb
+ # $return_value is either 0 (failure) or 1 (success)
 
 This function is based on the OpenSSL function SSL_set_session_ticket_ext_cb.
 
@@ -7501,12 +7502,13 @@ returns a newly initialised X509_STORE_CTX structure.
 X509_STORE_CTX_init() sets up an X509_STORE_CTX for a subsequent verification operation.
 It must be called before each call to X509_verify_cert().
 
-Net::SSLeay::X509_STORE_CTX_init($x509_store_ctx, $x509_store, $x509, $chain);
-
-# $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure (required)
-# $x509_store - value corresponding to openssl's X509_STORE structure (optional)
-# $x509 - value corresponding to openssl's X509 structure (optional)
-# $chain - value corresponding to openssl's STACK_OF(X509) structure (optional)
+ my $rv = Net::SSLeay::X509_STORE_CTX_init($x509_store_ctx, $x509_store, $x509, $chain);
+ # $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure (required)
+ # $x509_store - value corresponding to openssl's X509_STORE structure (optional)
+ # $x509 - value corresponding to openssl's X509 structure (optional)
+ # $chain - value corresponding to openssl's STACK_OF(X509) structure (optional)
+ #
+ # returns: 1 on success, 0 on failure
 
 Check openssl doc L<https://www.openssl.org/docs/man1.0.2/crypto/X509_STORE_CTX_init.html|https://www.openssl.org/docs/man1.0.2/crypto/X509_STORE_CTX_init.html>
 
@@ -7514,7 +7516,7 @@ Check openssl doc L<https://www.openssl.org/docs/man1.0.2/crypto/X509_STORE_CTX_
 
 Frees an X509_STORE_CTX structure.
 
-Net::SSLeay::X509_STORE_CTX_free($x509_store_ctx);
+ Net::SSLeay::X509_STORE_CTX_free($x509_store_ctx);
 
 # $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
 
@@ -7527,10 +7529,10 @@ of the process is contained in the verify(1) manual page.
 If this function returns 0, use X509_STORE_CTX_get_error to get additional error
 information.
 
-my $rv = Net::SSLeay::X509_verify_cert($x509_store_ctx);
-# $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
-#
-# returns: 1 if a complete chain can be built and validated, otherwise 0
+ my $rv = Net::SSLeay::X509_verify_cert($x509_store_ctx);
+ # $x509_store_ctx - value corresponding to openssl's X509_STORE_CTX structure
+ #
+ # returns: 1 if a complete chain can be built and validated, otherwise 0
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_verify_cert.html|https://www.openssl.org/docs/manmaster/man3/X509_verify_cert.html>
 
@@ -7633,27 +7635,27 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_new.html|h
 
 Returns a newly initialized X509_STORE structure.
 
-my $rv = Net::SSLeay::X509_STORE_new();
-#
-# returns: value corresponding to openssl's X509_STORE structure (0 on failure)
+ my $rv = Net::SSLeay::X509_STORE_new();
+ #
+ # returns: value corresponding to openssl's X509_STORE structure (0 on failure)
 
 =item * X509_STORE_free
 
 Frees an X509_STORE structure
 
-Net::SSLeay::X509_STORE_free($x509_store);
-# $x509_store - value corresponding to openssl's X509_STORE structure
+ Net::SSLeay::X509_STORE_free($x509_store);
+ # $x509_store - value corresponding to openssl's X509_STORE structure
 
 =item * X509_STORE_add_lookup
 
 Adds a lookup to an X509_STORE for a given lookup method.
 
-my $method = &Net::SSLeay::X509_LOOKUP_hash_dir;
-my $rv = Net::SSLeay::X509_STORE_add_lookup($x509_store, $method);
-# $method - value corresponding to openssl's X509_LOOKUP_METHOD structure
-# $x509_store - value corresponding to openssl's X509_STORE structure
-#
-# returns: value corresponding to openssl's X509_LOOKUP structure
+ my $method = &Net::SSLeay::X509_LOOKUP_hash_dir;
+ my $rv = Net::SSLeay::X509_STORE_add_lookup($x509_store, $method);
+ # $method - value corresponding to openssl's X509_LOOKUP_METHOD structure
+ # $x509_store - value corresponding to openssl's X509_STORE structure
+ #
+ # returns: value corresponding to openssl's X509_LOOKUP structure
 
 Check openssl doc L<https://www.openssl.org/docs/man1.1.1/man3/X509_load_crl_file.html|https://www.openssl.org/docs/man1.1.1/man3/X509_load_crl_file.html>
 
@@ -7705,9 +7707,9 @@ Returns an X509_LOOKUP structure that instructs an X509_STORE to
 load files from a directory containing certificates with filenames
 in the format I<hash.N> or crls with filenames in the format I<hash.>B<r>I<N>
 
-my $rv = Net::SSLeay::X509_LOOKUP_hash_dir();
-#
-# returns: value corresponding to openssl's X509_LOOKUP_METHOD structure, with the hashed directory method
+ my $rv = Net::SSLeay::X509_LOOKUP_hash_dir();
+ #
+ # returns: value corresponding to openssl's X509_LOOKUP_METHOD structure, with the hashed directory method
 
 Check openssl doc L<https://www.openssl.org/docs/man1.1.1/man3/X509_load_crl_file.html|https://www.openssl.org/docs/man1.1.1/man3/X509_load_crl_file.html>
 
@@ -7716,13 +7718,13 @@ Check openssl doc L<https://www.openssl.org/docs/man1.1.1/man3/X509_load_crl_fil
 Add a directory to an X509_LOOKUP structure, usually obtained from
 X509_STORE_add_lookup.
 
-my $method = &Net::SSLeay::X509_LOOKUP_hash_dir;
-my $lookup = Net::SSLeay::X509_STORE_add_lookup($x509_store, $method);
-my $type = &Net::SSLeay::X509_FILETYPE_PEM;
-Net::SSLeay::X509_LOOKUP_add_dir($lookup, $dir, $type);
-# $lookup - value corresponding to openssl's X509_LOOKUP structure
-# $dir - string path to a directory
-s# $type - constant corresponding to the type of file in the directory - can be X509_FILETYPE_PEM, X509_FILETYPE_DEFAULT, or X509_FILETYPE_ASN1
+ my $method = &Net::SSLeay::X509_LOOKUP_hash_dir;
+ my $lookup = Net::SSLeay::X509_STORE_add_lookup($x509_store, $method);
+ my $type = &Net::SSLeay::X509_FILETYPE_PEM;
+ Net::SSLeay::X509_LOOKUP_add_dir($lookup, $dir, $type);
+ # $lookup - value corresponding to openssl's X509_LOOKUP structure
+ # $dir - string path to a directory
+ # $type - constant corresponding to the type of file in the directory - can be X509_FILETYPE_PEM, X509_FILETYPE_DEFAULT, or X509_FILETYPE_ASN1
 
 =item * X509_STORE_set_flags
 
@@ -8525,9 +8527,10 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/RSA_new.html|http://www.o
 Returns a list of pointers to BIGNUMs representing the parameters of the key in
 this order:
 (n, e, d, p, q, dmp1, dmq1, iqmp)
+
 Caution: returned list consists of SV pointers to BIGNUMs, which would need to be blessed as Crypt::OpenSSL::Bignum for further use
 
-my (@params) = RSA_get_key_parameters($r);
+ my (@params) = RSA_get_key_parameters($r);
 
 =back
 
@@ -9128,7 +9131,7 @@ broader binary compatibility, e.g. make application work with both 1.0.2
 and prior version (in which case call to SSL_ctrl with new code
 returning error would have to be ignored when running with prior version).
 
-Net::SSLeay::get_tlsa_record_byname($name, $port, $type);
+ Net::SSLeay::get_tlsa_record_byname($name, $port, $type);
 
 =back
 
