@@ -30,7 +30,7 @@ my $pid;
         ok(Net::SSLeay::tcp_write_all(uc($got)), 'tcp_write_all');
 
         close Net::SSLeay::SSLCAT_S;
-        $server->close();
+        $server->close() || die("server listen socket close: $!");
 
         exit;
     }
@@ -41,6 +41,8 @@ my @results;
     my ($got) = Net::SSLeay::tcpcat($server->get_addr(), $server->get_port(), $msg);
     push @results, [ $got eq uc($msg), 'sent and received correctly' ];
 }
+
+$server->close() || die("client listen socket close: $!");
 
 waitpid $pid, 0;
 push @results, [ $? == 0, 'server exited with 0' ];

@@ -63,8 +63,8 @@ my @results;
         Net::SSLeay::ssl_write_all($ssl, uc($got));
         Net::SSLeay::free($ssl);
         Net::SSLeay::CTX_free($ctx);
-        close $ns;
-        $server->close();
+        close($ns) || die("server close: $!");
+        $server->close() || die("server listen socket close: $!");
         exit;
     }
 }
@@ -88,7 +88,8 @@ my @results;
 
     Net::SSLeay::free($ssl1);
     Net::SSLeay::CTX_free($ctx1);
-    close $s1;
+    close($s1) || die("client close: $!");
+    $server->close() || die("client listen socket close: $!");
 }
 
 waitpid $pid, 0;

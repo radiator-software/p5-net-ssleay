@@ -96,6 +96,10 @@ my $server = tcp_socket();
 	# Echo back the termination request from client
 	my $end = Net::SSLeay::read($ssl);
 	Net::SSLeay::write($ssl, $end);
+	Net::SSLeay::shutdown($ssl);
+	Net::SSLeay::free($ssl);
+	close($cl) || die("server close: $!");
+	$server->close() || die("server listen socket close: $!");
 	exit(0);
     }
 }
@@ -121,6 +125,10 @@ sub client {
     my $end = "end";
     Net::SSLeay::write($ssl, $end);
     ok($end eq Net::SSLeay::read($ssl),  'Successful termination');
+    Net::SSLeay::shutdown($ssl);
+    Net::SSLeay::free($ssl);
+    close($cl) || die("client close: $!");
+    $server->close() || die("client listen socket close: $!");
     return;
 }
 

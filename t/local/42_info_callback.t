@@ -36,7 +36,9 @@ my $server = tcp_socket();
 	    for(1,2) {
 		last if Net::SSLeay::shutdown($ssl)>0;
 	    }
+	    close($cl) || die("server close: $!");
 	}
+	$server->close() || die("server listen socket close: $!");
         exit;
     }
 }
@@ -90,6 +92,8 @@ sub client {
     } else {
 	fail("$where: @states");
     }
+    close($cl) || die("client close: $!");
+
 }
 
 my $expect = qr{^
@@ -101,5 +105,6 @@ my $expect = qr{^
 
 client('ctx',$expect);
 client('ssl',$expect);
+$server->close() || die("client listen socket close: $!");
 waitpid $pid, 0;
 
