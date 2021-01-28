@@ -295,7 +295,7 @@ sub client {
 	test_wildcard_checks($ctx, $cl) if $task eq 'wildcard_checks';
 	last if $task eq 'finish'; # Leaves $cl alive
 
-	close($cl) || die("client close: $!");;
+	close($cl) || die("client close: $!");
     }
 
     # Tell the server to quit and see that our connection is still up
@@ -308,7 +308,7 @@ sub client {
     Net::SSLeay::shutdown($ssl);
     ok($end eq Net::SSLeay::ssl_read_all($ssl), 'Successful termination');
     Net::SSLeay::free($ssl);
-    close($cl) || die("client final close: $!");;
+    close($cl) || die("client final close: $!");
     return;
 }
 

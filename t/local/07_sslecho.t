@@ -133,7 +133,7 @@ my @results;
     Net::SSLeay::CTX_free($ctx);
 
     shutdown($s, 2);
-    close($s) || die("client close: $!");;
+    close($s) || die("client close: $!");
 
 }
 
@@ -199,9 +199,9 @@ my @results;
 	    push @results, [Net::SSLeay::shutdown($ssl3) >= 0, 'client side ssl3 shutdown' ];
             shutdown $s3, 2;
 
-            close($s1) || die("client close s1: $!");;
-            close($s2) || die("client close s2: $!");;
-            close($s3) || die("client close s3: $!");;
+            close($s1) || die("client close s1: $!");
+            close($s2) || die("client close s2: $!");
+            close($s3) || die("client close s3: $!");
 
             Net::SSLeay::free($ssl1);
             Net::SSLeay::free($ssl2);
