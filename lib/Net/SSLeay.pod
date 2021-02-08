@@ -6130,7 +6130,7 @@ Returns X509_EXTENSION from $x509 based on given NID.
 Returns fingerprint of certificate $cert.
 
 B<NOTE:> Does not exactly correspond to any low level API function. The implementation
-is basen on openssl's C<X509_digest()>.
+is based on openssl's C<X509_digest()>.
 
  Net::SSLeay::X509_get_fingerprint($x509, $type);
  # $x509 - value corresponding to openssl's X509 structure
