@@ -7,7 +7,7 @@ use Test::Net::SSLeay qw(
     can_fork data_file_path initialise_libssl is_libressl is_openssl tcp_socket
 );
 
-plan tests => 103;
+plan tests => 105;
 
 initialise_libssl();
 
@@ -223,7 +223,7 @@ sub verify_local_trust {
     ok(my $store = Net::SSLeay::X509_STORE_new(), "X509_STORE_new creates new store");
     ok(Net::SSLeay::X509_STORE_add_cert($store, $ca), "X509_STORE_add_cert CA cert");
     ok(my $ctx = Net::SSLeay::X509_STORE_CTX_new(), "X509_STORE_CTX_new creates new store context");
-    Net::SSLeay::X509_STORE_CTX_init($ctx, $store, $cert);
+    is(Net::SSLeay::X509_STORE_CTX_init($ctx, $store, $cert), 1, 'X509_STORE_CTX_init succeeds');
     ok(!Net::SSLeay::X509_verify_cert($ctx), 'X509_verify_cert correctly fails');
     is(Net::SSLeay::X509_STORE_CTX_get_error($ctx),
         Net::SSLeay::X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY(), "X509_STORE_CTX_get_error returns unable to get local issuer certificate");
@@ -241,7 +241,7 @@ sub verify_local_trust {
     ok($store = Net::SSLeay::X509_STORE_new(), "X509_STORE_new creates new store");
     ok(Net::SSLeay::X509_STORE_add_cert($store, $ca), "X509_STORE_add_cert CA cert");
     ok($ctx = Net::SSLeay::X509_STORE_CTX_new(), "X509_STORE_CTX_new creates new store context");
-    Net::SSLeay::X509_STORE_CTX_init($ctx, $store, $cert, $x509_sk);
+    is(Net::SSLeay::X509_STORE_CTX_init($ctx, $store, $cert, $x509_sk), 1, 'X509_STORE_CTX_init succeeds');
     ok(Net::SSLeay::X509_verify_cert($ctx), 'X509_verify_cert correctly succeeds');
     is(Net::SSLeay::X509_STORE_CTX_get_error($ctx), Net::SSLeay::X509_V_OK(), "X509_STORE_CTX_get_error returns ok");
     Net::SSLeay::X509_STORE_free($store);

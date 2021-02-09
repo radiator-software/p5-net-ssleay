@@ -1,6 +1,8 @@
 Revision history for Perl extension Net::SSLeay.
 
 ????
+	- Correct X509_STORE_CTX_init() return value to integer. Previous
+	  versions of Net::SSLeay return nothing.
 	- Update tests to call close() to avoid problems seen with
 	  test 44_sess.t, and possibly other tests, running on older
 	  Windows Perl versions. Also add some missing calls in tests

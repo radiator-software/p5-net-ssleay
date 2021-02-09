@@ -4103,7 +4103,7 @@ X509V3_EXT_d2i(ext)
 X509_STORE_CTX *
 X509_STORE_CTX_new()
 
-void
+int
 X509_STORE_CTX_init(ctx, store=NULL, x509=NULL, chain=NULL)
      X509_STORE_CTX * ctx
      X509_STORE * store

@@ -8,8 +8,8 @@ use Test::Net::SSLeay qw(
 use lib '.';
 
 my $tests =   ( is_openssl() && Net::SSLeay::SSLeay < 0x10100003 ) || is_libressl()
-            ? 721
-            : 724;
+            ? 723
+            : 726;
 
 plan tests => $tests;
 
@@ -373,8 +373,8 @@ Net::SSLeay::X509_STORE_CTX_set_cert($ctx,$x509);
 my $ca_filename = data_file_path('root-ca.cert.pem');
 my $ca_bio = Net::SSLeay::BIO_new_file($ca_filename, 'rb');
 my $ca_x509 = Net::SSLeay::PEM_read_bio_X509($ca_bio);
-Net::SSLeay::X509_STORE_add_cert($x509_store,$ca_x509);
-Net::SSLeay::X509_STORE_CTX_init($ctx, $x509_store, $x509);
+is (Net::SSLeay::X509_STORE_add_cert($x509_store,$ca_x509), 1, 'X509_STORE_add_cert');
+is (Net::SSLeay::X509_STORE_CTX_init($ctx, $x509_store, $x509), 1, 'X509_STORE_CTX_init');
 SKIP: {
     skip('X509_STORE_CTX_get0_cert requires OpenSSL 1.1.0-pre5+ or LibreSSL 2.7.0+', 1) unless defined (&Net::SSLeay::X509_STORE_CTX_get0_cert);
     ok (my $x509_from_cert = Net::SSLeay::X509_STORE_CTX_get0_cert($ctx),'Get x509 from store ctx');

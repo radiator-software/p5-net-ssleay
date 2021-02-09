@@ -7509,6 +7509,8 @@ It must be called before each call to X509_verify_cert().
  # $chain - value corresponding to openssl's STACK_OF(X509) structure (optional)
  #
  # returns: 1 on success, 0 on failure
+ #
+ # Note: returns nothing with Net::SSLeay 1.90 and earlier.
 
 Check openssl doc L<https://www.openssl.org/docs/man1.0.2/crypto/X509_STORE_CTX_init.html|https://www.openssl.org/docs/man1.0.2/crypto/X509_STORE_CTX_init.html>
 
