@@ -41,7 +41,6 @@ platform:
 #   Strawberry Perl's MinGW.
 # - See 1.86 developer builds for config that did more with cpanm.
 environment:
-  AUTOMATED_TESTING: 1
   PERL_MM_USE_DEFAULT: 1
   RELEASE_TESTING: 0
   OPENSSL_PREFIX: C:\strawberry\c

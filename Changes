@@ -9,6 +9,9 @@ Revision history for Perl extension Net::SSLeay.
 	  to shutdown and free ssl structures.
 	- Fix multiple formatting errors in the documentation for Net::SSLeay.
 	  Thanks to John Jetmore.
+	- Check for presence of libssl headers in Makefile.PL, and exit with an
+	  error instead of generating an invalid Makefile if they cannot be found.
+	  Fixes RT#105189. Thanks to James E Keenan for the report.
 
 1.90 2021-01-21
 	- New stable release incorporating all changes from developer releases
