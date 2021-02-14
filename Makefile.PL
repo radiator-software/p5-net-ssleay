@@ -8,7 +8,18 @@ use English qw( $OSNAME -no_match_vars );
 use ExtUtils::MakeMaker;
 use File::Basename ();
 use File::Spec;
+use File::Spec::Functions qw(catfile);
 use Symbol qw(gensym);
+use Text::Wrap;
+
+# According to http://cpanwiki.grango.org/wiki/CPANAuthorNotes, the ideal
+# behaviour to exhibit when a prerequisite does not exist is to use exit code 0
+# to ensure smoke testers stop immediately without reporting a FAIL; in all
+# other environments, we want to fail more loudly
+use constant MISSING_PREREQ => ( $ENV{AUTOMATED_TESTING} ? 0 : 1 );
+
+# Error messages displayed with alert() will be this many columns wide
+use constant ALERT_WIDTH => 78;
 
 # Define this to one if you want to link the openssl libraries statically into 
 # the Net-SSLeay loadable object on Windows
@@ -37,6 +48,9 @@ my %eumm_args = (
   CONFIGURE_REQUIRES => {
     'English' => '0',
     'ExtUtils::MakeMaker' => '0',
+    'File::Spec::Functions' => '0',
+    'Text::Wrap' => '0',
+    'constant' => '0',
   },
   TEST_REQUIRES => {
     'Carp' => '0',
@@ -128,8 +142,34 @@ sub ssleay {
 EOM
         exit 0; # according https://wiki.cpantesters.org/wiki/CPANAuthorNotes this is best-practice when "missing library"
     }
+
+    my $opts = ssleay_get_build_opts($prefix);
+
+    # Ensure libssl headers exist before continuing - compilation will fail
+    # without them
+    if ( !defined $opts->{inc_path} ) {
+        my $detail =
+              'The libssl header files are required to build Net-SSLeay, but '
+            . 'they are missing from ' . $prefix . '. They would typically '
+            . 'reside in ' . catfile( $prefix, 'include', 'openssl' ) . '.';
+
+        if ( $OSNAME eq 'linux' ) {
+            $detail .=
+                  "\n\n"
+                . 'If you are using the version of OpenSSL/LibreSSL packaged '
+                . 'by your Linux distribution, you may need to install the '
+                . 'corresponding "development" package via your package '
+                . 'manager (e.g. libssl-dev for OpenSSL on Debian and Ubuntu, '
+                . 'or openssl-devel for OpenSSL on Red Hat Enterprise Linux '
+                . 'and Fedora).';
+        }
+
+        alert( 'Could not find libssl headers', $detail );
+
+        exit MISSING_PREREQ;
+    }
+
     check_openssl_version($prefix, $exec);
-    my $opts = ssleay_get_build_opts($prefix, $exec);
     my %args = (
         CCCDLFLAGS => $opts->{cccdlflags},
         OPTIMIZE => $opts->{optimize},
@@ -147,7 +187,7 @@ EOM
 sub maybe_quote { $_[0] =~ / / ? qq{"$_[0]"} : $_[0] }
 
 sub ssleay_get_build_opts {
-    my ($prefix, $exec) = @_;
+    my ($prefix) = @_;
 
     my $opts = {
         lib_links  => [],
@@ -378,4 +418,22 @@ sub fixpath {
     my $sep = File::Spec->catdir('');
     $text =~ s{\b/}{$sep}g;
     return $text;
+}
+
+sub alert {
+    my ( $err, $detail ) = @_;
+
+    local $Text::Wrap::columns = ALERT_WIDTH - 4;
+
+    print "\n";
+
+    print '*' x ALERT_WIDTH, "\n";
+    print '* ', uc($err), ' ' x ( ALERT_WIDTH - length($err) - 4 ), ' *', "\n";
+    print '*', ' ' x ( ALERT_WIDTH - 2 ), '*', "\n";
+
+    for ( split /\n/, Text::Wrap::wrap( '', '', $detail ) ) {
+        print '* ', $_, ' ' x ( ALERT_WIDTH - length($_) - 4 ), ' *', "\n";
+    }
+
+    print '*' x ALERT_WIDTH, "\n";
 }
