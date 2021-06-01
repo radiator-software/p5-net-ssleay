@@ -1712,7 +1712,7 @@ Converts public key $pk into PEM formatted string (optionally protected with pas
  my $rv = Net::SSLeay::PEM_get_string_PrivateKey($pk, $passwd, $enc_alg);
  # $pk - value corresponding to openssl's EVP_PKEY structure
  # $passwd - [optional] (string) password to use for key encryption
- # $enc_alg - [optional] algorithm to use for key encryption (default: DES_CBC) - value corresponding to openssl's EVP_CIPHER structure
+ # $enc_alg - [optional] algorithm to use for key encryption (default: DES_EDE) - value corresponding to openssl's EVP_CIPHER structure
  #
  # returns: PEM formatted string
 

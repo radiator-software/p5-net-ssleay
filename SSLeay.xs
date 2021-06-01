@@ -4556,7 +4556,7 @@ PEM_get_string_PrivateKey(pk,passwd=NULL,enc_alg=NULL)
             if (passwd_len>0) {
                 /* encrypted key */
                 if (!enc_alg)
-                    PEM_write_bio_PrivateKey(bp,pk,EVP_des_cbc(),(unsigned char *)passwd,passwd_len,cb,u);
+                    PEM_write_bio_PrivateKey(bp,pk,EVP_des_ede(),(unsigned char *)passwd,passwd_len,cb,u);
                 else
                     PEM_write_bio_PrivateKey(bp,pk,enc_alg,(unsigned char *)passwd,passwd_len,cb,u);
             }
