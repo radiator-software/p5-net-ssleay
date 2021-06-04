@@ -3,7 +3,7 @@ use lib 'inc';
 use Net::SSLeay;
 use Test::Net::SSLeay qw( data_file_path initialise_libssl );
 
-plan tests => 19;
+plan tests => 18;
 
 initialise_libssl();
 
@@ -38,11 +38,20 @@ my $filename3 = data_file_path('simple-cert.p12');
   is(Net::SSLeay::X509_NAME_oneline($subj_name), '/C=PL/O=Net-SSLeay/OU=Test Suite/CN=simple-cert.net-ssleay.example', "X509_NAME_oneline [2/1]");
   like(Net::SSLeay::X509_NAME_oneline($ca1_subj_name), qr/C=.*CN=.*/, "X509_NAME_oneline [2/2]");
   like(Net::SSLeay::X509_NAME_oneline($ca2_subj_name), qr/C=.*CN=.*/, "X509_NAME_oneline [2/3]");
-  SKIP: {
-    skip("cert order in CA chain is different in openssl pre-1.0.0", 2) unless Net::SSLeay::SSLeay >= 0x01000000;
-    is(Net::SSLeay::X509_NAME_oneline($ca1_subj_name), '/C=PL/O=Net-SSLeay/OU=Test Suite/CN=Root CA', "X509_NAME_oneline [2/4]");
-    is(Net::SSLeay::X509_NAME_oneline($ca2_subj_name), '/C=PL/O=Net-SSLeay/OU=Test Suite/CN=Intermediate CA', "X509_NAME_oneline [2/5]");
-  }
+
+  # Different order in CA chain in some versions (e.g. openssl pre-1.0.0, openssl 3.0.0 alpha17)
+  my @x509_ascii_names = sort { $a cmp $b } (
+    Net::SSLeay::X509_NAME_oneline($ca1_subj_name),
+    Net::SSLeay::X509_NAME_oneline($ca2_subj_name),
+  );
+  is_deeply(
+    \@x509_ascii_names,
+    [
+      '/C=PL/O=Net-SSLeay/OU=Test Suite/CN=Intermediate CA',
+      '/C=PL/O=Net-SSLeay/OU=Test Suite/CN=Root CA',
+    ],
+    'X509_NAME_oneline [2/4]',
+  );
 }
 
 {
