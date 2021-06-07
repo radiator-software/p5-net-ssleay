@@ -190,7 +190,7 @@ for my $f (keys (%$dump)) {
                           Net::SSLeay::SSLeay < 0x30000000
                           || (
                                   Net::SSLeay::SSLeay == 0x30000000
-                               && Net::SSLeay::SSLeay_version( Net::SSLeay::SSLEAY_VERSION() ) =~ /-alpha1/
+                               && Net::SSLeay::SSLeay_version( Net::SSLeay::SSLEAY_VERSION() ) =~ /-alpha1\ /
                           )
                       )
                   ) {
