@@ -5,7 +5,12 @@ use lib 'inc';
 use Net::SSLeay;
 use Test::Net::SSLeay qw( data_file_path initialise_libssl );
 
-plan tests => 36;
+my $callback_double_use_in_pem_read_bio_key = check_callback_double_use_in_pem_read_bio_key();
+if (! $callback_double_use_in_pem_read_bio_key) {
+    plan tests => 36;
+} else {
+    plan tests => 40;
+}
 
 initialise_libssl();
 
@@ -99,7 +104,13 @@ $key_password = 'incorrect';
 ok( !Net::SSLeay::CTX_use_PrivateKey_file($ctx_1, $key_pem, &Net::SSLeay::FILETYPE_PEM),
         'CTX_use_PrivateKey_file doesn\'t work with wrong passphrase' );
 
-is($cb_1_calls, 2, 'callback1 called 2 times');
+my $right_cb_1_calls;
+if (! $callback_double_use_in_pem_read_bio_key) {
+    $right_cb_1_calls = 2;
+} else {
+    $right_cb_1_calls = 3;
+}
+is($cb_1_calls, $right_cb_1_calls, 'callback1 called '.$right_cb_1_calls.' times');
 
 
 # OpenSSL 1.1.0 has SSL_set_default_passwd_cb, but the callback is not
@@ -177,5 +188,29 @@ sub test_ssl_funcs
     ok( !Net::SSLeay::use_PrivateKey_file($ssl_1, $key_pem, &Net::SSLeay::FILETYPE_PEM),
         'use_PrivateKey_file doesn\'t work with wrong passphrase' );
 
-    is($cb_1_calls, 2, 'callback1 called 2 times');
+    my $right_cb_1_calls;
+    if (! $callback_double_use_in_pem_read_bio_key) {
+        $right_cb_1_calls = 2;
+    } else {
+        $right_cb_1_calls = 3;
+    }
+
+    is($cb_1_calls, $right_cb_1_calls, 'callback1 called '.$right_cb_1_calls.' times');
+}
+
+# In OpenSSL between alpha16 and alpha17 was change (7bc027d73bc51cfa0ae23fbfd91134be9464d694)
+# which add one callback call in case of failing pem_read_bio_key_decoder()
+sub check_callback_double_use_in_pem_read_bio_key {
+    my $ssleay_version = Net::SSLeay::SSLeay_version( Net::SSLeay::SSLEAY_VERSION() );
+    my $openssl_alpha_version;
+    if (Net::SSLeay::SSLeay == 0x30000000 && $ssleay_version =~ /-alpha(\d+)\ /) {
+        $openssl_alpha_version = $1;
+    }
+    if ((Net::SSLeay::SSLeay == 0x30000000 && defined $openssl_alpha_version && $openssl_alpha_version < 17)
+        || Net::SSLeay::SSLeay < 0x30000000) {
+
+        return 0;
+    } else {
+        return 1;
+    }
 }
