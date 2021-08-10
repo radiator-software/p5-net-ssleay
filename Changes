@@ -12,6 +12,7 @@ Revision history for Perl extension Net::SSLeay.
 	- Check for presence of libssl headers in Makefile.PL, and exit with an
 	  error instead of generating an invalid Makefile if they cannot be found.
 	  Fixes RT#105189. Thanks to James E Keenan for the report.
+    - Added support for SSL_CTX_set_msg_callback/SSL_set_msg_callback
 
 1.90 2021-01-21
 	- New stable release incorporating all changes from developer releases
