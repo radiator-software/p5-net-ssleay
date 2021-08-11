@@ -53,13 +53,24 @@ sub client {
         my ($ssl,$write_p,$version,$content_type,$buf,$len) = @_;
         # buffer is of course randomized/timestamped, this is hard to test, so
         # skip this
-        $buf = unpack("H*", $buf);
+        my $hex_buf = unpack("H*", $buf||'');
 
         # version appears to be different running in different test envs that
         # have a different openssl version, so we skip that too. This isn't a
         # good test for that, and it's not up to Net::SSLeay to make all
         # openssl implementations look the same
-        push @states,[$write_p,$content_type,$len];
+
+        # the 3 things this sub needs to do:
+        #  1. not die
+        #  2. no memory leak
+        #  3. provide information
+        #
+        # The validness of the buffer can be checked, so we use this as a
+        # validation instead. This selftest is not here to validate the
+        # protocol and the intricacies of the possible implementation or 
+        # version (ssl3 vs tls1 etc)
+
+        push @states,(defined $buf and length($buf) == $len)||0;
     };
 
     my $cl = $server->connect();
@@ -74,10 +85,7 @@ sub client {
 	last if Net::SSLeay::shutdown($ssl)>0;
     }
     close($cl) || die("client close: $!");
-
-    is_deeply(\@states, [
-    [1,256,5],[1,22,210],[0,256,5],[0,22,122],[0,256,5],[0,256,5],[0,257,1],[0,22,6],[0,256,5],[0,257,1],[0,22,905],[0,256,5],[0,257,1],[0,22,264],[0,256,5],[0,257,1],[0,22,52],[1,256,5],[1,20,1],[1,256,5],[1,257,1],[1,22,52],[1,256,5],[1,257,1],[1,21,2],[0,256,5],[0,257,1],[0,22,217],[0,256,5],[0,257,1],[0,22,217],[0,256,5],[0,257,1],[0,21,2]
-    ], "state ok");
+    is_deeply(\@states, [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], "state ok");
 }
 
 client('ctx');
