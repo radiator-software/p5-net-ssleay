@@ -50,9 +50,16 @@ sub client {
 
     my @states;
     my $infocb = sub {
-	my ($ssl,$write_p,$version,$content_type,$buf,$len) = @_;
-    $buf = unpack("H*", $buf);
-	push @states,[$write_p,$version,$content_type,$len];
+        my ($ssl,$write_p,$version,$content_type,$buf,$len) = @_;
+        # buffer is of course randomized/timestamped, this is hard to test, so
+        # skip this
+        $buf = unpack("H*", $buf);
+
+        # version appears to be different running in different test envs that
+        # have a different openssl version, so we skip that too. This isn't a
+        # good test for that, and it's not up to Net::SSLeay to make all
+        # openssl implementations look the same
+        push @states,[$write_p,$content_type,$len];
     };
 
     my $cl = $server->connect();
@@ -69,7 +76,7 @@ sub client {
     close($cl) || die("client close: $!");
 
     is_deeply(\@states, [
-    [1,0,256,5],[1,772,22,210],[0,0,256,5],[0,772,22,122],[0,0,256,5],[0,0,256,5],[0,772,257,1],[0,772,22,6],[0,0,256,5],[0,772,257,1],[0,772,22,905],[0,0,256,5],[0,772,257,1],[0,772,22,264],[0,0,256,5],[0,772,257,1],[0,772,22,52],[1,0,256,5],[1,772,20,1],[1,0,256,5],[1,772,257,1],[1,772,22,52],[1,0,256,5],[1,772,257,1],[1,772,21,2],[0,0,256,5],[0,772,257,1],[0,772,22,217],[0,0,256,5],[0,772,257,1],[0,772,22,217],[0,0,256,5],[0,772,257,1],[0,772,21,2]
+    [1,256,5],[1,22,210],[0,256,5],[0,22,122],[0,256,5],[0,256,5],[0,257,1],[0,22,6],[0,256,5],[0,257,1],[0,22,905],[0,256,5],[0,257,1],[0,22,264],[0,256,5],[0,257,1],[0,22,52],[1,256,5],[1,20,1],[1,256,5],[1,257,1],[1,22,52],[1,256,5],[1,257,1],[1,21,2],[0,256,5],[0,257,1],[0,22,217],[0,256,5],[0,257,1],[0,22,217],[0,256,5],[0,257,1],[0,21,2]
     ], "state ok");
 }
 
