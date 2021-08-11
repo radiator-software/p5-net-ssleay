@@ -8,7 +8,7 @@ use Test::Net::SSLeay qw(
 if (not can_fork()) {
     plan skip_all => "fork() not supported on this system";
 } else {
-    plan tests => 2;
+    plan tests => 4;
 }
 
 initialise_libssl();
@@ -44,7 +44,7 @@ my $server = tcp_socket();
 }
 
 sub client {
-    my ($where,$expect) = @_;
+    my ($where) = @_;
     # SSL client - connect and shutdown, all the while getting state updates
     #  with info callback
 
@@ -85,7 +85,10 @@ sub client {
 	last if Net::SSLeay::shutdown($ssl)>0;
     }
     close($cl) || die("client close: $!");
-    is_deeply(\@states, [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], "state ok");
+    ok(scalar(@states) > 1, "at least 2 messages logged: $where");
+    my $all_ok = 1;
+    $all_ok &= $_ for @states;
+    is($all_ok, 1, "all states are OK: length(buf) = len for $where");
 }
 
 client('ctx');
