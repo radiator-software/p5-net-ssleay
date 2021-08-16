@@ -1,6 +1,8 @@
 Revision history for Perl extension Net::SSLeay.
 
 ????
+	- Adjust time in ASN1_TIME_timet based on current offset to GMT to
+	  address GH-148. Thanks to Steffen Ullrich.
 	- Correct X509_STORE_CTX_init() return value to integer. Previous
 	  versions of Net::SSLeay return nothing.
 	- Update tests to call close() to avoid problems seen with
