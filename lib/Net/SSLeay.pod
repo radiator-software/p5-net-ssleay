@@ -4636,7 +4636,7 @@ When callback is undef, the callback setting currently valid for ctx is used.
  #
  # returns: no return value
 
-Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_set_msg_callback.html|http://www.openssl.org/docs/ssl/SSL_set_msg_callback.html>
+Check openssl doc L<http://www.openssl.org/docs/manmaster/man3/SSL_set_msg_callback.html|http://www.openssl.org/docs/manmaster/man3/SSL_set_msg_callback.html>
 
 =item * CTX_set_msg_callback
 
@@ -4649,7 +4649,7 @@ When callback is undef, the existing callback will be disabled.
  #
  # returns: no return value
 
-Check openssl doc L<http://www.openssl.org/docs/ssl/CTX_SSL_set_msg_callback.html|http://www.openssl.org/docs/ssl/CTX_SSL_set_msg_callback.html>
+Check openssl doc L<http://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_msg_callback.html|http://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_msg_callback.html>
 
 =item * set_pref_cipher
 
