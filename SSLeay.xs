@@ -1479,8 +1479,8 @@ void ssleay_msg_cb_invoke(int write_p, int version, int content_type, const void
     dSP;
     SV *cb_func, *cb_data;
 
-    cb_func = cb_data_advanced_get((void*)ssl, "ssleay_msg_cb!!func");
-    cb_data = cb_data_advanced_get((void*)ssl, "ssleay_msg_cb!!data");
+    cb_func = cb_data_advanced_get(ssl, "ssleay_msg_cb!!func");
+    cb_data = cb_data_advanced_get(ssl, "ssleay_msg_cb!!data");
 
     if ( ! SvROK(cb_func) || (SvTYPE(SvRV(cb_func)) != SVt_PVCV))
     croak ("Net::SSLeay: ssleay_msg_cb_invoke called, but not set to point to any perl function.\n");
