@@ -4632,7 +4632,7 @@ When callback is undef, the callback setting currently valid for ctx is used.
 
  Net::SSLeay::set_msg_callback($ssl, $cb, [$data]);
  # $ssl - value corresponding to openssl's SSL structure
- # $cb - sub { my ($ssl,$write_p,$version,$content_type,$buffer,$len,$data) = @_; ... }
+ # $cb - sub { my ($ssl,$write_p,$version,$content_type,$buf,$len,$data) = @_; ... }
  #
  # returns: no return value
 
@@ -4645,7 +4645,7 @@ When callback is undef, the existing callback will be disabled.
 
  Net::SSLeay::CTX_set_msg_callback($ssl, $cb, [$data]);
  # $ssl - value corresponding to openssl's SSL structure
- # $cb - sub { my ($ssl,$write_p,$version,$content_type,$buffer,$len,$data) = @_; ... }
+ # $cb - sub { my ($ssl,$write_p,$version,$content_type,$buf,$len,$data) = @_; ... }
  #
  # returns: no return value
 
