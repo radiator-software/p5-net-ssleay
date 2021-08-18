@@ -8,7 +8,7 @@ use Test::Net::SSLeay qw(
 if (not can_fork()) {
     plan skip_all => "fork() not supported on this system";
 } else {
-    plan tests => 4;
+    plan tests => 10;
 }
 
 initialise_libssl();
@@ -48,9 +48,10 @@ sub client {
     # SSL client - connect and shutdown, all the while getting state updates
     #  with info callback
 
+    my @cb_data;
     my @states;
-    my $infocb = sub {
-        my ($ssl,$write_p,$version,$content_type,$buf,$len) = @_;
+    my $msgcb = sub {
+        my ($write_p,$version,$content_type,$buf,$len,$ssl,$cb_data) = @_;
         # buffer is of course randomized/timestamped, this is hard to test, so
         # skip this
         my $hex_buf = unpack("H*", $buf||'');
@@ -71,24 +72,39 @@ sub client {
         # version (ssl3 vs tls1 etc)
 
         push @states,(defined $buf and length($buf) == $len)||0;
+
+        # cb_data can act as a check
+        push @cb_data, $cb_data;
     };
 
     my $cl = $server->connect();
     my $ctx = new_ctx();
     Net::SSLeay::CTX_set_options($ctx, &Net::SSLeay::OP_ALL);
-    Net::SSLeay::CTX_set_msg_callback($ctx, $infocb) if $where eq 'ctx';
+    Net::SSLeay::CTX_set_msg_callback($ctx, $msgcb, "CB_DATA") if $where eq 'ctx';
     my $ssl = Net::SSLeay::new($ctx);
     Net::SSLeay::set_fd($ssl, $cl);
-    Net::SSLeay::set_msg_callback($ssl, $infocb) if $where eq 'ssl';
+    Net::SSLeay::set_msg_callback($ssl, $msgcb, "CB_DATA") if $where eq 'ssl';
     Net::SSLeay::connect($ssl);
     for(1,2) {
 	last if Net::SSLeay::shutdown($ssl)>0;
     }
     close($cl) || die("client close: $!");
+
     ok(scalar(@states) > 1, "at least 2 messages logged: $where");
     my $all_ok = 1;
     $all_ok &= $_ for @states;
     is($all_ok, 1, "all states are OK: length(buf) = len for $where");
+
+    ok(scalar(@cb_data) > 1, "all cb data SV's are OK for $where (at least 2)");
+    my $all_cb_data_ok = 0;
+    $all_cb_data_ok++ for grep {$_ eq "CB_DATA"} grep {defined} @cb_data;
+    is(scalar(@cb_data), $all_cb_data_ok, "all cb data SV's are OK for $where");
+
+    eval {
+        Net::SSLeay::CTX_set_msg_callback($ctx, undef) if $where eq 'ctx';
+        Net::SSLeay::set_msg_callback($ssl, undef) if $where eq 'ssl';
+    };
+    is($@, '', "no error during set_msg_callback() for $where");
 }
 
 client('ctx');

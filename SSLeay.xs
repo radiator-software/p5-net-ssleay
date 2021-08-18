@@ -1489,12 +1489,12 @@ void ssleay_msg_cb_invoke(int write_p, int version, int content_type, const void
     SAVETMPS;
 
     PUSHMARK(SP);
-    XPUSHs(sv_2mortal(newSViv(PTR2IV(ssl))));
     XPUSHs(sv_2mortal(newSViv(write_p)));
     XPUSHs(sv_2mortal(newSViv(version)));
     XPUSHs(sv_2mortal(newSViv(content_type)));
     XPUSHs(sv_2mortal(newSVpv((const char*)buf, len)));
     XPUSHs(sv_2mortal(newSViv(len)));
+    XPUSHs(sv_2mortal(newSViv(PTR2IV(ssl))));
     XPUSHs(sv_2mortal(newSVsv(cb_data)));
     PUTBACK;
 
@@ -1522,12 +1522,12 @@ void ssleay_ctx_msg_cb_invoke(int write_p, int version, int content_type, const 
     SAVETMPS;
 
     PUSHMARK(SP);
-    XPUSHs(sv_2mortal(newSViv(PTR2IV(ssl))));
     XPUSHs(sv_2mortal(newSViv(write_p)));
     XPUSHs(sv_2mortal(newSViv(version)));
     XPUSHs(sv_2mortal(newSViv(content_type)));
     XPUSHs(sv_2mortal(newSVpv((const char*)buf, len)));
     XPUSHs(sv_2mortal(newSViv(len)));
+    XPUSHs(sv_2mortal(newSViv(PTR2IV(ssl))));
     XPUSHs(sv_2mortal(newSVsv(cb_data)));
     PUTBACK;
 
