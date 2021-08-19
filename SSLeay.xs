@@ -1474,6 +1474,71 @@ void ssleay_ctx_info_cb_invoke(const SSL *ssl, int where, int ret)
     LEAVE;
 }
 
+void ssleay_msg_cb_invoke(int write_p, int version, int content_type, const void *buf, size_t len, SSL *ssl, void *arg)
+{
+    dSP;
+    SV *cb_func, *cb_data;
+
+    cb_func = cb_data_advanced_get(ssl, "ssleay_msg_cb!!func");
+    cb_data = cb_data_advanced_get(ssl, "ssleay_msg_cb!!data");
+
+    if ( ! SvROK(cb_func) || (SvTYPE(SvRV(cb_func)) != SVt_PVCV))
+    croak ("Net::SSLeay: ssleay_msg_cb_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    XPUSHs(sv_2mortal(newSViv(write_p)));
+    XPUSHs(sv_2mortal(newSViv(version)));
+    XPUSHs(sv_2mortal(newSViv(content_type)));
+    XPUSHs(sv_2mortal(newSVpv((const char*)buf, len)));
+    XPUSHs(sv_2mortal(newSViv(len)));
+    XPUSHs(sv_2mortal(newSViv(PTR2IV(ssl))));
+    XPUSHs(sv_2mortal(newSVsv(cb_data)));
+    PUTBACK;
+
+    call_sv(cb_func, G_VOID);
+
+    SPAGAIN;
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+}
+
+void ssleay_ctx_msg_cb_invoke(int write_p, int version, int content_type, const void *buf, size_t len, SSL *ssl, void *arg)
+{
+    dSP;
+    SV *cb_func, *cb_data;
+    SSL_CTX *ctx = SSL_get_SSL_CTX(ssl);
+
+    cb_func = cb_data_advanced_get(ctx, "ssleay_ctx_msg_cb!!func");
+    cb_data = cb_data_advanced_get(ctx, "ssleay_ctx_msg_cb!!data");
+
+    if ( ! SvROK(cb_func) || (SvTYPE(SvRV(cb_func)) != SVt_PVCV))
+    croak ("Net::SSLeay: ssleay_ctx_msg_cb_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    XPUSHs(sv_2mortal(newSViv(write_p)));
+    XPUSHs(sv_2mortal(newSViv(version)));
+    XPUSHs(sv_2mortal(newSViv(content_type)));
+    XPUSHs(sv_2mortal(newSVpv((const char*)buf, len)));
+    XPUSHs(sv_2mortal(newSViv(len)));
+    XPUSHs(sv_2mortal(newSViv(PTR2IV(ssl))));
+    XPUSHs(sv_2mortal(newSVsv(cb_data)));
+    PUTBACK;
+
+    call_sv(cb_func, G_VOID);
+
+    SPAGAIN;
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+}
+
 /* 
  * Support for tlsext_ticket_key_cb_invoke was already in 0.9.8 but it was
  * broken in various ways during the various 1.0.0* versions.
@@ -5446,6 +5511,39 @@ SSL_CTX_set_info_callback(ctx,callback,data=&PL_sv_undef)
             cb_data_advanced_put(ctx, "ssleay_ctx_info_cb!!data", newSVsv(data));
             SSL_CTX_set_info_callback(ctx, ssleay_ctx_info_cb_invoke);
         }
+
+void
+SSL_set_msg_callback(ssl,callback,data=&PL_sv_undef)
+        SSL * ssl
+        SV * callback
+    SV * data
+    CODE:
+        if (callback==NULL || !SvOK(callback)) {
+            SSL_set_msg_callback(ssl, NULL);
+            cb_data_advanced_put(ssl, "ssleay_msg_cb!!func", NULL);
+            cb_data_advanced_put(ssl, "ssleay_msg_cb!!data", NULL);
+        } else {
+            cb_data_advanced_put(ssl, "ssleay_msg_cb!!func", newSVsv(callback));
+            cb_data_advanced_put(ssl, "ssleay_msg_cb!!data", newSVsv(data));
+            SSL_set_msg_callback(ssl, ssleay_msg_cb_invoke);
+        }
+
+void
+SSL_CTX_set_msg_callback(ctx,callback,data=&PL_sv_undef)
+        SSL_CTX * ctx
+        SV * callback
+    SV * data
+    CODE:
+        if (callback==NULL || !SvOK(callback)) {
+            SSL_CTX_set_msg_callback(ctx, NULL);
+            cb_data_advanced_put(ctx, "ssleay_ctx_msg_cb!!func", NULL);
+            cb_data_advanced_put(ctx, "ssleay_ctx_msg_cb!!data", NULL);
+        } else {
+            cb_data_advanced_put(ctx, "ssleay_ctx_msg_cb!!func", newSVsv(callback));
+            cb_data_advanced_put(ctx, "ssleay_ctx_msg_cb!!data", newSVsv(data));
+            SSL_CTX_set_msg_callback(ctx, ssleay_ctx_msg_cb_invoke);
+        }
+
 
 int
 SSL_set_purpose(s,purpose)

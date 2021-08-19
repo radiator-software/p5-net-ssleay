@@ -4625,6 +4625,34 @@ When callback is undef, an existing callback will be disabled.
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_info_callback.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_info_callback.html>
 
+=item * set_msg_callback
+
+Sets the callback function, that can be used to obtain protocol messages information for $ssl during connection setup and use.
+When callback is undef, the callback setting currently valid for ctx is used.
+Note that set_msg_callback_arg is not provided as there is no need to explicitly set $arg, this is handled by set_msg_callback.
+
+ Net::SSLeay::set_msg_callback($ssl, $cb, [$arg]);
+ # $ssl - value corresponding to openssl's SSL structure
+ # $cb - sub { my ($write_p,$version,$content_type,$buf,$len,$ssl,$arg) = @_; ... }
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/manmaster/man3/SSL_set_msg_callback.html|http://www.openssl.org/docs/manmaster/man3/SSL_set_msg_callback.html>
+
+=item * CTX_set_msg_callback
+
+Sets the callback function on ctx, that can be used to obtain protocol messages information for ssl connection setup and use.
+When callback is undef, the existing callback will be disabled.
+Note that CTX_set_msg_callback_arg is not provided as there is no need to explicitly set $arg, this is handled by CTX_set_msg_callback.
+
+ Net::SSLeay::CTX_set_msg_callback($ssl, $cb, [$arg]);
+ # $ssl - value corresponding to openssl's SSL structure
+ # $cb - sub { my ($write_p,$version,$content_type,$buf,$len,$ssl,$arg) = @_; ... }
+ #
+ # returns: no return value
+
+Check openssl doc L<http://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_msg_callback.html|http://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_msg_callback.html>
+
 =item * set_pref_cipher
 
 Sets the list of available ciphers for $ssl using the control string $str.
