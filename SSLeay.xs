@@ -1719,7 +1719,7 @@ void ssleay_ssl_ctx_sess_remove_cb_invoke(SSL_CTX *ctx, SSL_SESSION *sess)
 
 /* ============= end of callback stuff, begin helper functions ============== */
 
-time_t ASN1_TIME_timet(ASN1_TIME *asn1t) {
+time_t ASN1_TIME_timet(ASN1_TIME *asn1t, time_t *gmtoff) {
     struct tm t;
     const char *p = (const char*) asn1t->data;
     size_t msec = 0, tz = 0, i, l;
@@ -1785,7 +1785,14 @@ time_t ASN1_TIME_timet(ASN1_TIME *asn1t) {
 
     result = mktime(&t);
     if (result == -1) return 0; /* broken time */
-    return result + adj + ( t.tm_isdst ? 3600:0 );
+    result += adj;
+    if (gmtoff && *gmtoff == -1) {
+	*gmtoff = result - mktime(gmtime(&result));
+	result += *gmtoff;
+    } else {
+	result += result - mktime(gmtime(&result));
+    }
+    return result;
 }
 
 X509 * find_issuer(X509 *cert,X509_STORE *store, STACK_OF(X509) *chain) {
@@ -4401,6 +4408,10 @@ ASN1_TIME_free(s)
 time_t
 ASN1_TIME_timet(s)
      ASN1_TIME *s
+     CODE:
+     RETVAL = ASN1_TIME_timet(s,NULL);
+     OUTPUT:
+     RETVAL
 
 ASN1_TIME *
 ASN1_TIME_new()
@@ -7446,6 +7457,7 @@ OCSP_response_results(rsp,...)
 	OCSP_BASICRESP *bsr;
 	int i,want_array;
 	time_t nextupd = 0;
+	time_t gmtoff = -1;
 	int getall,sksn;
 
 	bsr = OCSP_response_get1_basic(rsp);
@@ -7538,15 +7550,15 @@ OCSP_response_results(rsp,...)
 		    hv_store(details,"statusType",10,
 			newSViv(status),0);
 		    if (nextupdate) hv_store(details,"nextUpdate",10,
-			newSViv(ASN1_TIME_timet(nextupdate)),0);
+			newSViv(ASN1_TIME_timet(nextupdate, &gmtoff)),0);
 		    if (thisupdate) hv_store(details,"thisUpdate",10,
-			newSViv(ASN1_TIME_timet(thisupdate)),0);
+			newSViv(ASN1_TIME_timet(thisupdate, &gmtoff)),0);
 		    if (status == V_OCSP_CERTSTATUS_REVOKED) {
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 			OCSP_REVOKEDINFO *rev = sir->certStatus->value.revoked;
 			revocationReason = ASN1_ENUMERATED_get(rev->revocationReason);
 #endif
-			hv_store(details,"revocationTime",14,newSViv(ASN1_TIME_timet(revocationTime)),0);
+			hv_store(details,"revocationTime",14,newSViv(ASN1_TIME_timet(revocationTime, &gmtoff)),0);
 			hv_store(details,"revocationReason",16,newSViv(revocationReason),0);
 			hv_store(details,"revocationReason_str",20,newSVpv(
 		            OCSP_crl_reason_str(revocationReason),0),0);
@@ -7555,7 +7567,7 @@ OCSP_response_results(rsp,...)
 		XPUSHs(sv_2mortal(newRV_noinc((SV*)idav)));
 	    } else if (!error) {
 		/* compute lowest nextUpdate */
-		time_t nu = ASN1_TIME_timet(nextupdate);
+		time_t nu = ASN1_TIME_timet(nextupdate, &gmtoff);
 		if (!nextupd || nextupd>nu) nextupd = nu;
 	    }
 
