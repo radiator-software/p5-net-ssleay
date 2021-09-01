@@ -82,7 +82,10 @@ sub client {
             my $ctx = new_ctx( $round, $round );
             my $ssl = Net::SSLeay::new($ctx);
             Net::SSLeay::set_fd( $ssl, $cl );
-            Net::SSLeay::connect($ssl);
+            my $ret = Net::SSLeay::connect($ssl);
+            if ($ret <= 0) {
+                diag("Protocol $round, connect() returns $ret, Error: ".Net::SSLeay::ERR_error_string(Net::SSLeay::ERR_get_error()));
+            }
 
             my $msg = Net::SSLeay::read($ssl);
 
