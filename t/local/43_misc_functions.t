@@ -253,17 +253,14 @@ sub client_test_ciphersuites
 
     my $ciphersuites = join(':', keys(%tls_1_3_aead_cipher_to_keyblock_size));
 
-    # In OpenSSL 3.0.0 alpha 11 (commit c1e8a0c66e32b4144fdeb49bd5ff7acb76df72b9) was
-    # changed api of set_ciphersuites to ignore unknown ciphers.
-    my $ret_partially_bad_ciphersuites;
-    my $ssleay_version = Net::SSLeay::SSLeay_version( Net::SSLeay::SSLEAY_VERSION() );
-    my $openssl_alpha_version;
-    if (Net::SSLeay::SSLeay == 0x30000000 && $ssleay_version =~ /-alpha(\d+)\ /) {
-	$openssl_alpha_version = $1;
-    }
-    if (Net::SSLeay::SSLeay >= 0x30000000 && defined $openssl_alpha_version && $openssl_alpha_version > 10) {
-	$ret_partially_bad_ciphersuites = 1;
-    } else {
+    # In OpenSSL 3.0.0 alpha 11 (commit c1e8a0c66e32b4144fdeb49bd5ff7acb76df72b9)
+    # SSL_CTX_set_ciphersuites() and SSL_set_ciphersuites() were
+    # changed to ignore unknown ciphers
+    my $ret_partially_bad_ciphersuites = 1;
+    if (Net::SSLeay::SSLeay() == 0x30000000) {
+	my $ssleay_version = Net::SSLeay::SSLeay_version(Net::SSLeay::SSLEAY_VERSION());
+	$ret_partially_bad_ciphersuites = 0 if ($ssleay_version =~ m/-alpha(\d+)/s) && $1 < 11;
+    } elsif (Net::SSLeay::SSLeay() < 0x30000000) {
 	$ret_partially_bad_ciphersuites = 0;
     }
 
