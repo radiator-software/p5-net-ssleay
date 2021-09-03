@@ -163,6 +163,8 @@ sub server
 
 	    $ctx = new_ctx( $proto, $proto );
 
+	    Net::SSLeay::CTX_set_security_level($ctx, 0)
+		if Net::SSLeay::SSLeay() >= 0x30000000 && ($proto eq 'TLSv1' || $proto eq 'TLSv1.1');
 	    Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem);
 	    Net::SSLeay::CTX_set_session_cache_mode($ctx, Net::SSLeay::SESS_CACHE_SERVER());
 	    # Need OP_NO_TICKET to enable server side (Session ID based) resumption.
@@ -243,6 +245,8 @@ sub client {
 
 	$ctx = new_ctx( $proto, $proto );
 
+	Net::SSLeay::CTX_set_security_level($ctx, 0)
+	    if Net::SSLeay::SSLeay() >= 0x30000000 && ($proto eq 'TLSv1' || $proto eq 'TLSv1.1');
 	Net::SSLeay::CTX_set_session_cache_mode($ctx, Net::SSLeay::SESS_CACHE_CLIENT());
         Net::SSLeay::CTX_set_options($ctx, Net::SSLeay::OP_ALL());
 	Net::SSLeay::CTX_sess_set_new_cb($ctx, sub {client_new_cb(@_, $ctx, $round);});
