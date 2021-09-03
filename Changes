@@ -1,8 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
 ????
-	- Adjust time in ASN1_TIME_timet based on current offset to GMT to
-	  address GH-148. Thanks to Steffen Ullrich.
 	- Correct X509_STORE_CTX_init() return value to integer. Previous
 	  versions of Net::SSLeay return nothing.
 	- Update tests to call close() to avoid problems seen with
@@ -16,6 +14,16 @@ Revision history for Perl extension Net::SSLeay.
 	  Fixes RT#105189. Thanks to James E Keenan for the report.
 	- Added support for SSL_CTX_set_msg_callback/SSL_set_msg_callback
 	  Thanks to Tim Aerts.
+	- Adjust time in ASN1_TIME_timet based on current offset to GMT to
+	  address GH-148. Thanks to Steffen Ullrich.
+	- Multiple updates to tests to match OpenSSL 3.0 behaviour.
+	  Thanks to Michal Josef Špaček.
+	- OpenSSL 3.0 related changes in tests include:
+	  - TLSv1 and TLSv1.1 require security level 0 starting with 3.0 alpha 5.
+	  - SSL_CTX_set_ciphersuites() and SSL_set_ciphersuites() ignore
+	    unknown ciphersuites starting with 3.0 alpha 11.
+	- See OpenSSL manual page migration_guide(7) for more information about
+	  changes in OpenSSL 3.0.
 
 1.90 2021-01-21
 	- New stable release incorporating all changes from developer releases

@@ -56,6 +56,8 @@ sub server
 
 	    $ctx = new_ctx( $round, $round );
 
+	    Net::SSLeay::CTX_set_security_level($ctx, 0)
+		if Net::SSLeay::SSLeay() >= 0x30000000 && ($round eq 'TLSv1' || $round eq 'TLSv1.1');
 	    Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem);
 	    $ssl = Net::SSLeay::new($ctx);
 	    Net::SSLeay::set_fd($ssl, fileno($cl));
@@ -80,6 +82,8 @@ sub client {
             my $cl = $server->connect();
 
             my $ctx = new_ctx( $round, $round );
+	    Net::SSLeay::CTX_set_security_level($ctx, 0)
+		if Net::SSLeay::SSLeay() >= 0x30000000 && ($round eq 'TLSv1' || $round eq 'TLSv1.1');
             my $ssl = Net::SSLeay::new($ctx);
             Net::SSLeay::set_fd( $ssl, $cl );
             my $ret = Net::SSLeay::connect($ssl);
