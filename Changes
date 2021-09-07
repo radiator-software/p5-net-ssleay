@@ -22,6 +22,7 @@ Revision history for Perl extension Net::SSLeay.
 	  - TLSv1 and TLSv1.1 require security level 0 starting with 3.0 alpha 5.
 	  - SSL_CTX_set_ciphersuites() and SSL_set_ciphersuites() ignore
 	    unknown ciphersuites starting with 3.0 alpha 11.
+	  - Error code and error string packing and formatting changes.
 	- See OpenSSL manual page migration_guide(7) for more information about
 	  changes in OpenSSL 3.0.
 
