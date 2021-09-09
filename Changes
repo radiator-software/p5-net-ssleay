@@ -25,6 +25,8 @@ Revision history for Perl extension Net::SSLeay.
 	  - Error code and error string packing and formatting changes.
 	- See OpenSSL manual page migration_guide(7) for more information about
 	  changes in OpenSSL 3.0.
+	- Automatically detect OpenSSL installed via Homebrew on ARM-based macOS
+	  systems. Thanks to Graham Knop for the patch.
 
 1.90 2021-01-21
 	- New stable release incorporating all changes from developer releases
