@@ -35,12 +35,19 @@ our %tls_1_2_aead_cipher_to_keyblock_size = (
      'AES256-GCM-SHA384' => 88,
     );
 
-our %tls_1_3_aead_cipher_to_keyblock_size = (
-     # Only in TLS 1.3
-     'TLS_AES_128_GCM_SHA256' => 56,
-     'TLS_AES_256_GCM_SHA384' => 88,
-     'TLS_CHACHA20_POLY1305_SHA256' => 88,
-    );
+# LibreSSL uses different names for the TLSv1.3 ciphersuites:
+our %tls_1_3_aead_cipher_to_keyblock_size =
+      is_libressl()
+    ? (
+          'AEAD-AES128-GCM-SHA256'        => 56,
+          'AEAD-AES256-GCM-SHA384'        => 88,
+          'AEAD-CHACHA20-POLY1305-SHA256' => 88,
+      )
+    : (
+         'TLS_AES_128_GCM_SHA256'       => 56,
+         'TLS_AES_256_GCM_SHA384'       => 88,
+         'TLS_CHACHA20_POLY1305_SHA256' => 88,
+      );
 
 # Combine the AEAD hashes
 our %aead_cipher_to_keyblock_size = (%tls_1_2_aead_cipher_to_keyblock_size, %tls_1_3_aead_cipher_to_keyblock_size);
