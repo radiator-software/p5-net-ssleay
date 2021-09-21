@@ -40,9 +40,18 @@ SKIP: {
 
 SKIP: {
   skip 'openssl-0.9.8a required', 3 unless Net::SSLeay::SSLeay >= 0x0090801f;
-  ok(Net::SSLeay::X509_VERIFY_PARAM_get_flags($pm) == Net::SSLeay::X509_V_FLAG_ALLOW_PROXY_CERTS(), 'X509_VERIFY_PARAM_get_flags');
+
+  # From version 3.3.2, LibreSSL signals the use of its legacy X.509 verifier
+  # via the X509_V_FLAG_LEGACY_VERIFY flag; this flag persists even after
+  # X509_VERIFY_PARAM_clear_flags() is called
+  my $base_flags =
+      is_libressl() && Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER") >= 0x3030200f
+    ? Net::SSLeay::X509_V_FLAG_LEGACY_VERIFY()
+    : 0;
+
+  ok(Net::SSLeay::X509_VERIFY_PARAM_get_flags($pm) == ($base_flags | Net::SSLeay::X509_V_FLAG_ALLOW_PROXY_CERTS()), 'X509_VERIFY_PARAM_get_flags');
   ok(Net::SSLeay::X509_VERIFY_PARAM_clear_flags($pm, Net::SSLeay::X509_V_FLAG_ALLOW_PROXY_CERTS()), 'X509_VERIFY_PARAM_clear_flags');
-  ok(Net::SSLeay::X509_VERIFY_PARAM_get_flags($pm) == 0, 'X509_VERIFY_PARAM_get_flags');
+  ok(Net::SSLeay::X509_VERIFY_PARAM_get_flags($pm) == ($base_flags | 0), 'X509_VERIFY_PARAM_get_flags');
 };
 
 SKIP: {
