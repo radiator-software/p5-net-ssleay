@@ -55,14 +55,14 @@ our %aead_cipher_to_keyblock_size = (%tls_1_2_aead_cipher_to_keyblock_size, %tls
 # Combine the hashes
 our %cipher_to_keyblock_size = (%non_aead_cipher_to_keyblock_size, %aead_cipher_to_keyblock_size);
 
-our %version_str2int =
-    (
-     'SSLv3'   => sub {return eval {Net::SSLeay::SSL3_VERSION();}},
-     'TLSv1'   => sub {return eval {Net::SSLeay::TLS1_VERSION();}},
-     'TLSv1.1' => sub {return eval {Net::SSLeay::TLS1_1_VERSION();}},
-     'TLSv1.2' => sub {return eval {Net::SSLeay::TLS1_2_VERSION();}},
-     'TLSv1.3' => sub {return eval {Net::SSLeay::TLS1_3_VERSION();}},
-    );
+our %version_str2int = (
+    'SSLv3'   => sub { return eval { Net::SSLeay::SSL3_VERSION(); } },
+    'TLSv1'   => sub { return eval { Net::SSLeay::TLS1_VERSION(); } },
+    'TLSv1.1' => sub { return eval { Net::SSLeay::TLS1_1_VERSION(); } },
+    'TLSv1.2' => sub { return eval { Net::SSLeay::TLS1_2_VERSION(); } },
+    # LibreSSL >= 3.2.0 implements TLSv1.3, but doesn't define TLS1_3_VERSION
+    'TLSv1.3' => sub { return is_libressl() ? 0x0304 : eval { Net::SSLeay::TLS1_3_VERSION(); } },
+);
 
 # Tests that don't need a connection
 client_test_ciphersuites();
