@@ -55,11 +55,11 @@ branches, except for OpenSSL 0.9.8 - 0.9.8b.
 =item *
 
 Any stable release of L<LibreSSL|https://www.libressl.org> in the 2.0 - 3.1
-series.
+series or 3.3 series.
 
 =back
 
-Net::SSLeay may not function as expected with newer releases than the ones
+Net::SSLeay may not function as expected with releases other than the ones
 listed above due to libssl API incompatibilities, or, in the case of LibreSSL,
 because of deviations from the libssl API.
 
