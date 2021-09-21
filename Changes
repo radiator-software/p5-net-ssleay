@@ -32,6 +32,8 @@ Revision history for Perl extension Net::SSLeay.
 	- In 36_verify.t, account for the presence of the X509_V_FLAG_LEGACY_VERIFY
 	  flag (signalling the use of the legacy X.509 verifier) in LibreSSL 3.3.2 and
 	  above.
+	- In 43_misc_functions.t, account for the fact that LibreSSL 3.2.0 and above
+	  implement TLSv1.3 without exposing a TLS1_3_VERSION constant.
 
 1.90 2021-01-21
 	- New stable release incorporating all changes from developer releases
