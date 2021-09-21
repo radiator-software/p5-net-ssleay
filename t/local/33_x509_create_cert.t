@@ -9,6 +9,13 @@ plan tests => 139;
 
 initialise_libssl();
 
+if (defined &Net::SSLeay::OSSL_PROVIDER_load)
+{
+    my $provider = Net::SSLeay::OSSL_PROVIDER_load(undef, 'legacy');
+    diag('Failed to load legacy provider: PEM_get_string_PrivateKey may fail')
+	unless $provider;
+}
+
 my $ca_crt_pem = data_file_path('root-ca.cert.pem');
 my $ca_key_pem = data_file_path('root-ca.key.pem');
 

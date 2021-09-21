@@ -9277,6 +9277,129 @@ These functions are only available since OpenSSL 1.1.1.
 =back
 
 
+=head3 Low level API: OSSL_LIB_CTX and OSSL_PROVIDER related functions
+
+=over
+
+=item * OSSL_LIB_CTX_get0_global_default
+
+Returns a concrete (non NULL) reference to the global default library context.
+
+ my $libctx = Net::SSLeay::OSSL_LIB_CTX_get0_global_default();
+ # returns: a value corresponding to OSSL_LIB_CTX structure or false on failure
+
+Typically it's simpler to use undef with functions that take an
+OSSL_LIB_CTX argument when global default library context is needed.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OSSL_LIB_CTX_get0_global_default.html|https://www.openssl.org/docs/manmaster/man3/OSSL_LIB_CTX_get0_global_default.html>
+
+=item * OSSL_PROVIDER_load
+
+Loads and initializes a provider
+
+ my $provider = Net::SSLeay::OSSL_PROVIDER_load($libctx, $name);
+ # $libctx - value corresponding to OSSL_LIB_CTX structure or undef
+ # $name - (string) provider name, e.g., 'legacy'
+ #
+ # returns: a value corresponding to OSSL_PROVIDER or false on failure
+
+Using undef loads the provider within the global default library context.
+
+ my $provider = Net::SSLeay::OSSL_PROVIDER_load(undef, 'legacy');
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OSSL_PROVIDER_load.html|https://www.openssl.org/docs/manmaster/man3/OSSL_PROVIDER_load.html>
+
+=item * OSSL_PROVIDER_try_load
+
+Loads and initializes a provider similar to OSSL_PROVIDER_load with additional fallback control.
+
+ my $provider = Net::SSLeay::OSSL_PROVIDER_try_load($libctx, $name, $retain_fallbacks);
+ # $libctx - value corresponding to OSSL_LIB_CTX structure or undef
+ # $name - (string) provider name, e.g., 'legacy'
+ # $retain_fallbacks - (integer) 0 or 1
+ #
+ # returns: a value corresponding to OSSL_PROVIDER or false on failure
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OSSL_PROVIDER_try_load.html|https://www.openssl.org/docs/manmaster/man3/OSSL_PROVIDER_try_load.html>
+
+=item * OSSL_PROVIDER_unload
+
+Unloads the given provider.
+
+ my $rv = Net::SSLeay::OSSL_PROVIDER_unload($provider);
+ # $provider - a value corresponding to OSSL_PROVIDER
+ #
+ # returns: (integer) 1 on success, 0 on error
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OSSL_PROVIDER_unload.html|https://www.openssl.org/docs/manmaster/man3/OSSL_PROVIDER_unload.html>
+
+=item * OSSL_PROVIDER_available
+
+Checks if a named provider is available for use.
+
+ my $rv = Net::SSLeay::OSSL_PROVIDER_available($libctx, $name);
+ # $libctx - value corresponding to OSSL_LIB_CTX structure or undef
+ # $name - (string) provider name, e.g., 'legacy'
+ #
+ # returns: (integer) 1 if the named provider is available, otherwise 0.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OSSL_PROVIDER_available.html|https://www.openssl.org/docs/manmaster/man3/OSSL_PROVIDER_available.html>
+
+=item * OSSL_PROVIDER_do_all
+
+Iterates over all loaded providers. A callback is called for each provider.
+
+ my $rv = Net::SSLeay::OSSL_PROVIDER_do_all($libctx, $cb, $cbdata);
+ # $libctx - value corresponding to OSSL_LIB_CTX structure or undef
+ # $cb - reference to a perl callback function
+ $ $cbdata - data that will be passed to callback function
+ #
+ # returns: (integer) 1 if all callbacks returned 1, 0 the first time a callback returns 0.
+
+Example:
+
+ sub do_all_cb {
+     my ($provider, $cbdata) = @_;
+
+     my $name = Net::SSLeay::OSSL_PROVIDER_get0_name($provider);
+     print "Callback for provider: '$name', cbdata: '$cbdata'\n";
+     return 1;
+  }
+  my $data_for_cb = 'Hello';
+
+  # Triggers default provider automatic loading.
+  Net::SSLeay::OSSL_PROVIDER_available(undef, 'default') || die 'default provider not available';
+  Net::SSLeay::OSSL_PROVIDER_load(undef, 'legacy') || die 'load legacy';
+  Net::SSLeay::OSSL_PROVIDER_load(undef, 'null')   || die 'load null';
+  Net::SSLeay::OSSL_PROVIDER_do_all(undef, \&do_all_cb, $data_for_cb) || die 'a callback failed';
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OSSL_PROVIDER_do_all.html|https://www.openssl.org/docs/manmaster/man3/OSSL_PROVIDER_do_all.html>
+
+=item * OSSL_PROVIDER_get0_name
+
+Returns the name of the given provider.
+
+ my $name = Net::SSLeay::OSSL_PROVIDER_get0_name($provider);
+ # $provider - a value corresponding to OSSL_PROVIDER
+ #
+ # returns: (string) provider name, e.g., 'legacy'
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OSSL_PROVIDER_get0_name.html|https://www.openssl.org/docs/manmaster/man3/OSSL_PROVIDER_get0_name.html>
+
+=item * OSSL_PROVIDER_self_test
+
+Runs the provider's self tests.
+
+ my $rv = Net::SSLeay::OSSL_PROVIDER_self_test($provider);
+ # $libctx - value corresponding to OSSL_LIB_CTX structure or undef
+ # $provider - a value corresponding to OSSL_PROVIDER
+ #
+ # returns: (integer) returns 1 if the self tests pass, 0 on error
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OSSL_PROVIDER_self_test.html|https://www.openssl.org/docs/manmaster/man3/OSSL_PROVIDER_self_test.html>
+
+=back
+
 =head2 Constants
 
 There are many openssl constants available in L<Net::SSLeay>. You can use them like this:

@@ -81,6 +81,9 @@ cb_ssl_int_int_ret_void *  T_PTR
 cb_ssl_int_int_ret_RSA *  T_PTR
 cb_ssl_int_int_ret_DH  *  T_PTR
 perl_filehandle_t T_PERL_IO_HANDLE
+OSSL_LIB_CTX * T_PTR
+OSSL_PROVIDER * T_PTR
+const OSSL_PROVIDER * T_PTR
 
 INPUT
 
