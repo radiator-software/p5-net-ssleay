@@ -4712,9 +4712,10 @@ constant (const char *name, size_t len) {
        V_OCSP_CERTSTATUS_UNKNOWN X509_V_ERR_CA_MD_TOO_WEAK
        X509_V_ERR_CERT_UNTRUSTED X509_V_ERR_EMAIL_MISMATCH
        X509_V_ERR_INVALID_NON_CA X509_V_ERR_SUBTREE_MINMAX
-       X509_V_FLAG_CRL_CHECK_ALL X509_V_FLAG_NOTIFY_POLICY
-       X509_V_FLAG_NO_ALT_CHAINS X509_V_FLAG_NO_CHECK_TIME
-       X509_V_FLAG_PARTIAL_CHAIN X509_V_FLAG_TRUSTED_FIRST */
+       X509_V_FLAG_CRL_CHECK_ALL X509_V_FLAG_LEGACY_VERIFY
+       X509_V_FLAG_NOTIFY_POLICY X509_V_FLAG_NO_ALT_CHAINS
+       X509_V_FLAG_NO_CHECK_TIME X509_V_FLAG_PARTIAL_CHAIN
+       X509_V_FLAG_TRUSTED_FIRST */
     /* Offset 20 gives the best switch position.  */
     switch (name[20]) {
     case '2':
@@ -4781,6 +4782,16 @@ constant (const char *name, size_t len) {
         
 #ifdef SSL_OP_NETSCAPE_CHALLENGE_BUG
         return SSL_OP_NETSCAPE_CHALLENGE_BUG;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "X509_V_FLAG_LEGACY_VERIFY", 25)) {
+      /*                                     ^           */
+        
+#ifdef X509_V_FLAG_LEGACY_VERIFY
+        return X509_V_FLAG_LEGACY_VERIFY;
 #else
         goto not_there;
 #endif
