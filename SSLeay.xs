@@ -195,6 +195,9 @@ which conflicts with perls
 #if OPENSSL_VERSION_NUMBER >= 0x10000000L
 #include <openssl/ocsp.h>
 #endif
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/provider.h>
+#endif
 #undef BLOCK
 
 /* Debugging output - to enable use:
@@ -1716,6 +1719,42 @@ void ssleay_ssl_ctx_sess_remove_cb_invoke(SSL_CTX *ctx, SSL_SESSION *sess)
     FREETMPS;
     LEAVE;
 }
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+int ossl_provider_do_all_cb_invoke(OSSL_PROVIDER *provider, void *cbdata) {
+    dSP;
+    int ret = 1;
+    int count = -1;
+    simple_cb_data_t *cb = cbdata;
+
+    PR1("STARTED: ossl_provider_do_all_cb_invoke\n");
+    if (cb->func && SvOK(cb->func)) {
+        ENTER;
+        SAVETMPS;
+
+        PUSHMARK(SP);
+        XPUSHs(sv_2mortal(newSViv(PTR2IV(provider))));
+        if (cb->data) XPUSHs(cb->data);
+
+        PUTBACK;
+
+        count = call_sv(cb->func, G_SCALAR);
+
+        SPAGAIN;
+
+        if (count != 1)
+          croak("Net::SSLeay: ossl_provider_do_all_cb_invoke perl function did not return a scalar\n");
+
+        ret = POPi;
+
+        PUTBACK;
+        FREETMPS;
+        LEAVE;
+    }
+
+    return ret;
+}
+#endif
 
 /* ============= end of callback stuff, begin helper functions ============== */
 
@@ -7706,6 +7745,73 @@ SSL_export_keying_material(ssl, outlen, label, context=&PL_sv_undef)
         PUSHs(sv_2mortal(ret>0 ? newSVpvn((const char *)out, outlen) : newSV(0)));
         EXTEND(SP, 1);
 	Safefree(out);
+
+#endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+
+OSSL_LIB_CTX *
+OSSL_LIB_CTX_get0_global_default()
+
+
+OSSL_PROVIDER *
+OSSL_PROVIDER_load(SV *libctx, const char *name)
+    CODE:
+        OSSL_LIB_CTX *ctx = NULL;
+        if (libctx != &PL_sv_undef)
+	    ctx = INT2PTR(OSSL_LIB_CTX *, SvIV(libctx));
+        RETVAL = OSSL_PROVIDER_load(ctx, name);
+        if (RETVAL == NULL)
+	    XSRETURN_UNDEF;
+    OUTPUT:
+	  RETVAL
+
+OSSL_PROVIDER *
+OSSL_PROVIDER_try_load(SV *libctx, const char *name, int retain_fallbacks)
+    CODE:
+        OSSL_LIB_CTX *ctx = NULL;
+        if (libctx != &PL_sv_undef)
+	    ctx = INT2PTR(OSSL_LIB_CTX *, SvIV(libctx));
+        RETVAL = OSSL_PROVIDER_try_load(ctx, name, retain_fallbacks);
+        if (RETVAL == NULL)
+	    XSRETURN_UNDEF;
+    OUTPUT:
+	  RETVAL
+
+int
+OSSL_PROVIDER_unload(OSSL_PROVIDER *prov)
+
+int
+OSSL_PROVIDER_available(SV *libctx, const char *name)
+    CODE:
+        OSSL_LIB_CTX *ctx = NULL;
+        if (libctx != &PL_sv_undef)
+	    ctx = INT2PTR(OSSL_LIB_CTX *, SvIV(libctx));
+        RETVAL = OSSL_PROVIDER_available(ctx, name);
+    OUTPUT:
+	  RETVAL
+
+int
+OSSL_PROVIDER_do_all(SV *libctx, SV *perl_cb, SV *perl_cbdata = &PL_sv_undef)
+    PREINIT:
+        simple_cb_data_t* cbdata = NULL;
+    CODE:
+        OSSL_LIB_CTX *ctx = NULL;
+        if (libctx != &PL_sv_undef)
+	    ctx = INT2PTR(OSSL_LIB_CTX *, SvIV(libctx));
+
+        /* setup our callback */
+        cbdata = simple_cb_data_new(perl_cb, perl_cbdata);
+        RETVAL = OSSL_PROVIDER_do_all(ctx, ossl_provider_do_all_cb_invoke, cbdata);
+        simple_cb_data_free(cbdata);
+    OUTPUT:
+        RETVAL
+
+const char *
+OSSL_PROVIDER_get0_name(const OSSL_PROVIDER *prov)
+
+int
+OSSL_PROVIDER_self_test(const OSSL_PROVIDER *prov)
 
 #endif
 
