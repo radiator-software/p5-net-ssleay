@@ -22,7 +22,7 @@ Perl 5.8.1 or higher.
 One of the following libssl implementations:
 
 * Any stable release of OpenSSL (https://www.openssl.org) in the
-  0.9.8 - 1.1.1 branches, except for OpenSSL 0.9.8 - 0.9.8b.
+  0.9.8 - 3.0 branches, except for OpenSSL 0.9.8 - 0.9.8b.
 * Any stable release of LibreSSL (https://www.libressl.org) in the
   2.0 - 3.1 series or 3.3 series.
 
