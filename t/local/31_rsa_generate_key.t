@@ -1,14 +1,9 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(initialise_libssl);
+use Test::Net::SSLeay qw( dies_like initialise_libssl lives_ok );
 
-eval 'use Test::Exception';
-if ($@) {
-    plan skip_all => 'Test::Exception required';
-} else {
-    plan tests => 14;
-}
+plan tests => 14;
 
 initialise_libssl();
 
@@ -16,9 +11,9 @@ lives_ok(sub {
         Net::SSLeay::RSA_generate_key(2048, 0x10001);
 }, 'RSA_generate_key with valid callback');
 
-dies_ok(sub {
+dies_like(sub {
         Net::SSLeay::RSA_generate_key(2048, 0x10001, 1);
-}, 'RSA_generate_key with invalid callback');
+}, qr/Undefined subroutine &main::1 called/, 'RSA_generate_key with invalid callback');
 
 {
     my $called = 0;

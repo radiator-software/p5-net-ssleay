@@ -11,6 +11,7 @@ use Cwd qw(abs_path);
 use English qw( $EVAL_ERROR $OSNAME $PERL_VERSION -no_match_vars );
 use File::Basename qw(dirname);
 use File::Spec::Functions qw( abs2rel catfile );
+use Test::Builder;
 use Test::Net::SSLeay::Socket;
 
 our $VERSION = '1.90';
@@ -18,13 +19,20 @@ our $VERSION = '1.90';
 our @EXPORT_OK = qw(
     can_fork can_really_fork can_thread
     data_file_path
+    dies_like
+    dies_ok
+    doesnt_warn
     initialise_libssl
     is_libressl is_openssl
     is_protocol_usable
+    lives_ok
     new_ctx
     protocols
     tcp_socket
+    warns_like
 );
+
+my $tester = Test::Builder->new();
 
 my $data_path = catfile( dirname(__FILE__), '..', '..', '..', 't', 'data' );
 
@@ -63,6 +71,47 @@ my %protos = (
     },
 );
 
+my ( $test_no_warnings, $test_no_warnings_name, @warnings );
+
+END {
+    _test_no_warnings() if $test_no_warnings;
+}
+
+sub _compare_like {
+    my ( $got, $expected ) = @_;
+
+    my @got =   ref $got eq 'ARRAY'
+              ? @$got
+              : ($got);
+
+    my @expected =   ref $expected eq 'ARRAY'
+                   ? @$expected
+                   : ($expected);
+
+    return 0 if scalar @got != scalar @expected;
+
+    for ( 0 .. $#got ) {
+        return 0 if $got[$_] !~ $expected[$_];
+    }
+
+    return 1;
+}
+
+sub _diag_like {
+    my ( $got, $type, $expected ) = @_;
+
+    my $got_str =   ref $got eq 'ARRAY'
+                  ? join q{, }, map { qq{'$_'} } @$got
+                  : qq{'$got'};
+
+    my $expected_str =   ref $expected eq 'ARRAY'
+                       ? join q{, }, map { qq{'$_'} } @$expected
+                       : qq{'$expected'};
+
+    $tester->diag( ' ' x 9, "got: $type $got_str" );
+    $tester->diag( ' ' x 4, "expected: $type matching $expected_str" );
+}
+
 sub _libssl_fatal {
     my ($context) = @_;
 
@@ -74,6 +123,19 @@ sub _load_net_ssleay {
     eval { require Net::SSLeay; 1; } or croak $EVAL_ERROR;
 
     return 1;
+}
+
+sub _test_no_warnings {
+    my $got_str = join q{, }, map { qq{'$_'} } @warnings;
+    my $got_type = @warnings == 1 ? 'warning' : 'warnings';
+
+    my $ok = $tester->ok( @warnings == 0, $test_no_warnings_name )
+        or do {
+            $tester->diag( ' ' x 9, "got: $got_type $got_str" );
+            $tester->diag( ' ' x 4, 'expected: no warnings' );
+        };
+
+    return $ok;
 }
 
 sub import {
@@ -150,6 +212,45 @@ sub data_file_path {
         if not -e $abs_path;
 
     return $rel_path;
+}
+
+sub dies_like {
+    my ( $sub, $expected, $name ) = @_;
+
+    eval { $sub->() };
+    my $got = $EVAL_ERROR;
+
+    my $test = _compare_like( $got, $expected );
+    my $ok   = $tester->ok( $test, $name )
+        or _diag_like( $got, 'exception string', $expected );
+
+    $EVAL_ERROR = $got;
+
+    return $ok;
+}
+
+sub dies_ok {
+    my ( $sub, $name ) = @_;
+
+    eval { $sub->() };
+    my $got = $EVAL_ERROR;
+
+    my $ok = $tester->ok( $got ne '', $name )
+        or do {
+            $tester->diag( ' ' x 9, q{got: exception string ''} );
+            $tester->diag( ' ' x 4, 'expected: non-empty exception string' );
+        };
+
+    $EVAL_ERROR = $got;
+
+    return $ok;
+}
+
+sub doesnt_warn {
+    $test_no_warnings      = 1;
+    $test_no_warnings_name = shift;
+
+    $SIG{__WARN__} = sub { push @warnings, shift };
 }
 
 sub initialise_libssl {
@@ -304,6 +405,23 @@ sub is_protocol_usable {
     croak 'Unexpected TLS state machine sequence: ' . join( ', ', @states );
 }
 
+sub lives_ok {
+    my ( $sub, $name ) = @_;
+
+    eval { $sub->() };
+    my $got = $EVAL_ERROR;
+
+    my $ok = $tester->ok( $got eq '', $name )
+        or do {
+            $tester->diag( ' ' x 9, qq{got: exception string '$got'} );
+            $tester->diag( ' ' x 4, 'expected: empty exception string' );
+        };
+
+    $EVAL_ERROR = $got;
+
+    return $ok;
+}
+
 sub new_ctx {
     my ( $min_proto, $max_proto ) = @_;
 
@@ -360,6 +478,29 @@ sub protocols {
 
 sub tcp_socket {
     return Test::Net::SSLeay::Socket->new( proto => 'tcp' );
+}
+
+sub warns_like {
+    my ( $sub, $expected, $name ) = @_;
+
+    my @expected =   ref $expected eq 'ARRAY'
+                   ? @$expected
+                   : ($expected);
+
+    my $type =   ref $expected eq 'ARRAY'
+               ? 'warnings'
+               : 'warning';
+
+    my @got;
+    local $SIG{__WARN__} = sub { push @got, shift };
+
+    $sub->();
+
+    my $test = _compare_like( \@got, \@expected );
+    my $ok   = $tester->ok( $test, $name )
+        or _diag_like( \@got, $type, \@expected );
+
+    return $ok;
 }
 
 1;
@@ -466,6 +607,46 @@ this Perl, or false if not.
 Returns the relative path to a given file in the test suite data directory
 (C<t/local/>). Dies if the file does not exist.
 
+=head2 dies_like
+
+    dies_like(
+        sub { die 'This subroutine always dies' },
+        qr/always/,
+        'A test that always passes'
+    );
+
+Performs a L<Test::Builder> test that passes if a given subroutine dies with an
+exception string that matches a given pattern, or fails if the subroutine does
+not die or dies with an exception string that does not match the given pattern.
+
+This function preserves the value of <$@> set by the given subroutine, so (for
+example) other tests can be performed on the value of C<$@> afterwards.
+
+=head2 dies_ok
+
+    dies_ok(
+        sub { my $x = 1 },
+        'A test that always fails'
+    );
+
+Performs a L<Test::Builder> test that passes if a given subroutine dies, or
+fails if it does not.
+
+This function preserves the value of <$@> set by the given subroutine, so (for
+example) other tests can be performed on the value of C<$@> afterwards.
+
+=head2 doesnt_warn
+
+    doesnt_warn('Test script outputs no unexpected warnings');
+
+Performs a L<Test::Builder> test at the end of the test script that passes if
+the test script executes from this point onwards without emitting any unexpected
+warnings, or fails if warnings are emitted before the test script ends.
+
+Warnings omitted by subroutines that are executed as part of a L</warns_like>
+test are not considered to be unexpected (even if the L</warns_like> test
+fails), and will therefore not cause this test to fail.
+
 =head2 initialise_libssl
 
     initialise_libssl();
@@ -513,6 +694,19 @@ was compiled (e.g., OpenSSL will not support SSLv3 if it was built with
 C<no-ssl3>), or run-time configuration (e.g., the use of TLSv1.0 will be
 forbidden if the OpenSSL configuration sets the default security level to 3 or
 higher; see L<SSL_CTX_set_security_level(3)>).
+
+=head2 lives_ok
+
+    lives_ok(
+        sub { die 'Whoops' },
+        'A test that always fails'
+    );
+
+Performs a L<Test::Builder> test that passes if a given subroutine executes
+without dying, or fails if it dies during execution.
+
+This function preserves the value of <$@> set by the given subroutine, so (for
+example) other tests can be performed on the value of C<$@> afterwards.
 
 =head2 new_ctx
 
@@ -565,6 +759,26 @@ closing connections.
 
 Returns a L<Test::Net::SSLeay::Socket|Test::Net::SSLeay::Socket> object. Dies
 on failure.
+
+=head2 warns_like
+
+    warns_like(
+        sub {
+            warn 'First warning';
+            warn 'Second warning';
+        },
+        [
+            qr/First/,
+            qr/Second/,
+        ],
+        'A test that always passes'
+    );
+
+Performs a L<Test::Builder> test that passes if a given subroutine emits a
+series of warnings that match the given sequence of patterns, or fails if the
+subroutine emits any other sequence of warnings (or no warnings at all). If a
+pattern is given instead of an array reference, the subroutine will be expected
+to emit a single warning matching the pattern.
 
 =head1 BUGS
 
