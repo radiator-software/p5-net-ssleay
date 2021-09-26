@@ -4,14 +4,12 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay;
+use Test::Net::SSLeay qw(dies_like);
 
-eval "use Test::Exception;";
-if ($@) {
-    plan skip_all => 'Some tests need Test::Exception';
-} else {
-    plan tests => 554;
-}
+# We rely on symbolic references to run the dies_like() tests:
+no strict 'refs';
+
+plan tests => 554;
 
 my @c = (qw/
  ASN1_STRFLGS_ESC_CTRL           NID_netscape_base_url                     R_X509_LIB
@@ -205,9 +203,12 @@ my @c = (qw/
 my @missing;
 my %h = map { $_=>1 } @Net::SSLeay::EXPORT_OK;
 
-for (@c) {
-  like(eval("&Net::SSLeay::$_; 'ok'") || $@, qr/^(ok|Your vendor has not defined SSLeay macro.*)$/, "$_");
-  push(@missing, $_) unless $h{$_};
+for my $c (@c) {
+    dies_like(sub {
+        "Net::SSLeay::$c"->();
+        die "ok\n";
+    }, qr/^(ok\n|Your vendor has not defined SSLeay macro.*)$/, "$c");
+    push(@missing, $c) unless $h{$c};
 }
 
 is(join(",", sort @missing), '', 'constants missing in @EXPORT_OK count='.scalar(@missing));

@@ -94,14 +94,12 @@ sub t_file {
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay;
+use Test::Net::SSLeay qw(dies_like);
 
-eval "use Test::Exception;";
-if (\$@) {
-    plan skip_all => 'Some tests need Test::Exception';
-} else {
-    plan tests => $count;
-}
+# We rely on symbolic references to run the dies_like() tests:
+no strict 'refs';
+
+plan tests => $count;
 
 my \@c = (qw/
 $list
@@ -110,9 +108,12 @@ $list
 my \@missing;
 my \%h = map { \$_=>1 } \@Net::SSLeay::EXPORT_OK;
 
-for (\@c) {
-  like(eval("&Net::SSLeay::\$_; 'ok'") || \$\@, qr/^(ok|Your vendor has not defined SSLeay macro.*)\$/, "\$_");
-  push(\@missing, \$_) unless \$h{\$_};
+for my \$c (\@c) {
+    dies_like(sub {
+        "Net::SSLeay::\$c"->();
+        die "ok\\n";
+    }, qr/^(ok\\n|Your vendor has not defined SSLeay macro.*)\$/, "\$c");
+    push(\@missing, \$c) unless \$h{\$c};
 }
 
 is(join(",", sort \@missing), '', 'constants missing in \@EXPORT_OK count='.scalar(\@missing));
