@@ -11,7 +11,6 @@ use Cwd qw(abs_path);
 use English qw( $EVAL_ERROR $OSNAME $PERL_VERSION -no_match_vars );
 use File::Basename qw(dirname);
 use File::Spec::Functions qw( abs2rel catfile );
-use List::Util qw(all);
 use Test::Builder;
 use Test::Net::SSLeay::Socket;
 
@@ -76,6 +75,16 @@ my ( $test_no_warnings, $test_no_warnings_name, @warnings );
 
 END {
     _test_no_warnings() if $test_no_warnings;
+}
+
+sub _all {
+    my ( $sub, @list ) = @_;
+
+    for (@list) {
+        $sub->() or return 0;
+    }
+
+    return 1;
 }
 
 sub _diag {
@@ -493,7 +502,7 @@ sub warns_like {
     $SIG{__WARN__} = 'DEFAULT';
 
     my $test =    scalar @got == scalar @expected
-               && all { $got[$_] =~ $expected[$_] } ( 0 .. $#got );
+               && _all( sub { $got[$_] =~ $expected[$_] }, 0 .. $#got );
 
     $tester->ok( $test, $name )
         or do {

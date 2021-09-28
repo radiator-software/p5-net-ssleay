@@ -59,7 +59,6 @@ my %eumm_args = (
     'English' => '0',
     'File::Basename' => '0',
     'File::Spec::Functions' => '0',
-    'List::Util' => '0',
     'Scalar::Util' => '0',
     'SelectSaver' => '0',
     'Socket' => '0',
