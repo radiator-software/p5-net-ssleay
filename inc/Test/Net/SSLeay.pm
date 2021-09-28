@@ -197,7 +197,7 @@ sub data_file_path {
 sub dies_like {
     my ( $sub, $expected, $name ) = @_;
 
-    my $got;
+    my $got = '';
 
     if ( eval { $sub->(); 1 } ) {
         $tester->ok ( 0, $name );
