@@ -11,6 +11,7 @@ use Cwd qw(abs_path);
 use English qw( $EVAL_ERROR $OSNAME $PERL_VERSION -no_match_vars );
 use File::Basename qw(dirname);
 use File::Spec::Functions qw( abs2rel catfile );
+use List::Util qw(all);
 use Test::Builder;
 use Test::Net::SSLeay::Socket;
 
@@ -77,39 +78,11 @@ END {
     _test_no_warnings() if $test_no_warnings;
 }
 
-sub _compare_like {
-    my ( $got, $expected ) = @_;
+sub _diag {
+    my (%args) = @_;
 
-    my @got =   ref $got eq 'ARRAY'
-              ? @$got
-              : ($got);
-
-    my @expected =   ref $expected eq 'ARRAY'
-                   ? @$expected
-                   : ($expected);
-
-    return 0 if scalar @got != scalar @expected;
-
-    for ( 0 .. $#got ) {
-        return 0 if $got[$_] !~ $expected[$_];
-    }
-
-    return 1;
-}
-
-sub _diag_like {
-    my ( $got, $type, $expected ) = @_;
-
-    my $got_str =   ref $got eq 'ARRAY'
-                  ? join q{, }, map { qq{'$_'} } @$got
-                  : qq{'$got'};
-
-    my $expected_str =   ref $expected eq 'ARRAY'
-                       ? join q{, }, map { qq{'$_'} } @$expected
-                       : qq{'$expected'};
-
-    $tester->diag( ' ' x 9, "got: $type $got_str" );
-    $tester->diag( ' ' x 4, "expected: $type matching $expected_str" );
+    $tester->diag( ' ' x 9, 'got: ', $args{got} );
+    $tester->diag( ' ' x 4, 'expected: ', $args{expected} );
 }
 
 sub _libssl_fatal {
@@ -129,13 +102,11 @@ sub _test_no_warnings {
     my $got_str = join q{, }, map { qq{'$_'} } @warnings;
     my $got_type = @warnings == 1 ? 'warning' : 'warnings';
 
-    my $ok = $tester->ok( @warnings == 0, $test_no_warnings_name )
-        or do {
-            $tester->diag( ' ' x 9, "got: $got_type $got_str" );
-            $tester->diag( ' ' x 4, 'expected: no warnings' );
-        };
-
-    return $ok;
+    $tester->ok( @warnings == 0, $test_no_warnings_name )
+        or _diag(
+            got      => "$got_type $got_str",
+            expected => 'no warnings',
+        );
 }
 
 sub import {
@@ -217,33 +188,53 @@ sub data_file_path {
 sub dies_like {
     my ( $sub, $expected, $name ) = @_;
 
-    eval { $sub->() };
-    my $got = $EVAL_ERROR;
+    my $got;
 
-    my $test = _compare_like( $got, $expected );
-    my $ok   = $tester->ok( $test, $name )
-        or _diag_like( $got, 'exception string', $expected );
+    if ( eval { $sub->(); 1 } ) {
+        $tester->ok ( 0, $name );
+
+        _diag(
+            got      => 'subroutine lived',
+            expected => "subroutine died with exception matching $expected",
+        );
+    }
+    else {
+        $got = $EVAL_ERROR;
+
+        my $test = $got =~ $expected;
+
+        my $ok = $tester->ok( $test, $name )
+            or _diag(
+                got      => qq{subroutine died with exception '$got'},
+                expected => "subroutine died with exception matching $expected",
+            );
+    }
 
     $EVAL_ERROR = $got;
-
-    return $ok;
 }
 
 sub dies_ok {
     my ( $sub, $name ) = @_;
 
-    eval { $sub->() };
-    my $got = $EVAL_ERROR;
+    my $got;
 
-    my $ok = $tester->ok( $got ne '', $name )
-        or do {
-            $tester->diag( ' ' x 9, q{got: exception string ''} );
-            $tester->diag( ' ' x 4, 'expected: non-empty exception string' );
-        };
+    if ( eval { $sub->(); 1 } ) {
+        $got = $EVAL_ERROR;
+
+        $tester->ok ( 0, $name );
+
+        _diag(
+            got      => 'subroutine lived',
+            expected => 'subroutine died',
+        );
+    }
+    else {
+        $got = $EVAL_ERROR;
+
+        $tester->ok( 1, $name );
+    }
 
     $EVAL_ERROR = $got;
-
-    return $ok;
 }
 
 sub doesnt_warn {
@@ -408,18 +399,25 @@ sub is_protocol_usable {
 sub lives_ok {
     my ( $sub, $name ) = @_;
 
-    eval { $sub->() };
-    my $got = $EVAL_ERROR;
+    my $got;
 
-    my $ok = $tester->ok( $got eq '', $name )
-        or do {
-            $tester->diag( ' ' x 9, qq{got: exception string '$got'} );
-            $tester->diag( ' ' x 4, 'expected: empty exception string' );
-        };
+    if ( !eval { $sub->(); 1 } ) {
+        $got = $EVAL_ERROR;
+
+        $tester->ok ( 0, $name );
+
+        _diag(
+            got      => qq{subroutine died with exception '$got'},
+            expected => 'subroutine lived',
+        );
+    }
+    else {
+        $got = $EVAL_ERROR;
+
+        $tester->ok( 1, $name );
+    }
 
     $EVAL_ERROR = $got;
-
-    return $ok;
 }
 
 sub new_ctx {
@@ -487,20 +485,29 @@ sub warns_like {
                    ? @$expected
                    : ($expected);
 
-    my $type =   ref $expected eq 'ARRAY'
-               ? 'warnings'
-               : 'warning';
-
     my @got;
     local $SIG{__WARN__} = sub { push @got, shift };
 
     $sub->();
 
-    my $test = _compare_like( \@got, \@expected );
-    my $ok   = $tester->ok( $test, $name )
-        or _diag_like( \@got, $type, \@expected );
+    $SIG{__WARN__} = 'DEFAULT';
 
-    return $ok;
+    my $test =    scalar @got == scalar @expected
+               && all { $got[$_] =~ $expected[$_] } ( 0 .. $#got );
+
+    $tester->ok( $test, $name )
+        or do {
+            my $got_str      = join q{, }, map { qq{'$_'} } @got;
+            my $expected_str = join q{, }, map { qq{'$_'} } @expected;
+
+            my $got_plural      = @got == 1 ? '' : 's';
+            my $expected_plural = @expected == 1 ? '' : 's';
+
+            _diag(
+                got      => "warning$got_plural $got_str",
+                expected => "warning$expected_plural matching $expected_str",
+            );
+        };
 }
 
 1;
@@ -615,11 +622,12 @@ Returns the relative path to a given file in the test suite data directory
         'A test that always passes'
     );
 
-Performs a L<Test::Builder> test that passes if a given subroutine dies with an
+Similar to L<C<throws_ok> in Test::Exception|Test::Exception/throws_ok>:
+performs a L<Test::Builder> test that passes if a given subroutine dies with an
 exception string that matches a given pattern, or fails if the subroutine does
 not die or dies with an exception string that does not match the given pattern.
 
-This function preserves the value of <$@> set by the given subroutine, so (for
+This function preserves the value of C<$@> set by the given subroutine, so (for
 example) other tests can be performed on the value of C<$@> afterwards.
 
 =head2 dies_ok
@@ -629,19 +637,21 @@ example) other tests can be performed on the value of C<$@> afterwards.
         'A test that always fails'
     );
 
-Performs a L<Test::Builder> test that passes if a given subroutine dies, or
-fails if it does not.
+Similar to L<C<dies_ok> in Test::Exception|Test::Exception/dies_ok>: performs a
+L<Test::Builder> test that passes if a given subroutine dies, or fails if it
+does not.
 
-This function preserves the value of <$@> set by the given subroutine, so (for
+This function preserves the value of C<$@> set by the given subroutine, so (for
 example) other tests can be performed on the value of C<$@> afterwards.
 
 =head2 doesnt_warn
 
     doesnt_warn('Test script outputs no unexpected warnings');
 
-Performs a L<Test::Builder> test at the end of the test script that passes if
-the test script executes from this point onwards without emitting any unexpected
-warnings, or fails if warnings are emitted before the test script ends.
+Offers similar functionality to L<Test::NoWarnings>: performs a L<Test::Builder>
+test at the end of the test script that passes if the test script executes from
+this point onwards without emitting any unexpected warnings, or fails if
+warnings are emitted before the test script ends.
 
 Warnings omitted by subroutines that are executed as part of a L</warns_like>
 test are not considered to be unexpected (even if the L</warns_like> test
@@ -702,10 +712,11 @@ higher; see L<SSL_CTX_set_security_level(3)>).
         'A test that always fails'
     );
 
-Performs a L<Test::Builder> test that passes if a given subroutine executes
-without dying, or fails if it dies during execution.
+Similar to L<C<lives_ok> in Test::Exception|Test::Exception/lives_ok>: performs
+a L<Test::Builder> test that passes if a given subroutine executes without
+dying, or fails if it dies during execution.
 
-This function preserves the value of <$@> set by the given subroutine, so (for
+This function preserves the value of C<$@> set by the given subroutine, so (for
 example) other tests can be performed on the value of C<$@> afterwards.
 
 =head2 new_ctx
@@ -774,11 +785,12 @@ on failure.
         'A test that always passes'
     );
 
-Performs a L<Test::Builder> test that passes if a given subroutine emits a
-series of warnings that match the given sequence of patterns, or fails if the
-subroutine emits any other sequence of warnings (or no warnings at all). If a
-pattern is given instead of an array reference, the subroutine will be expected
-to emit a single warning matching the pattern.
+Similar to L<C<warnings_like> in Test::Warn|Test::Warn/warnings_like>: performs
+a L<Test::Builder> test that passes if a given subroutine emits a series of
+warnings that match the given sequence of patterns, or fails if the subroutine
+emits any other sequence of warnings (or no warnings at all). If a pattern is
+given instead of an array reference, the subroutine will be expected to emit a
+single warning matching the pattern.
 
 =head1 BUGS
 

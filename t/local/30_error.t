@@ -2,7 +2,7 @@ use lib 'inc';
 
 use Net::SSLeay;
 use Test::Net::SSLeay qw(
-    doesnt_warn dies_like initialise_libssl lives_ok warns_like
+    dies_like doesnt_warn initialise_libssl lives_ok warns_like
 );
 
 plan tests => 11;
