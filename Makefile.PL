@@ -63,6 +63,7 @@ my %eumm_args = (
     'SelectSaver' => '0',
     'Socket' => '0',
     'Storable' => '0',
+    'Test::Builder' => '0',
     'Test::More' => '0.60_01',
     'base' => '0',
   },

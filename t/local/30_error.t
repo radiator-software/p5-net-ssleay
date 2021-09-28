@@ -1,14 +1,13 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw(initialise_libssl);
+use Test::Net::SSLeay qw(
+    dies_like doesnt_warn initialise_libssl lives_ok warns_like
+);
 
-eval "use Test::Exception; use Test::Warn; use Test::NoWarnings; 1;";
-if ($@) {
-    plan skip_all => 'Requires Test::Exception, Test::Warn and Test::NoWarnings';
-} else {
-    plan tests => 11;
-}
+plan tests => 11;
+
+doesnt_warn('tests run without outputting unexpected warnings');
 
 initialise_libssl();
 
@@ -28,7 +27,7 @@ $err_string    = "foo $$: 1 - error:2006D080:BIO routines:"
 # therefore the qr match strings below have been chnaged so they dont have tooccur at the 
 # beginning of the line.
 {
-    throws_ok(sub {
+    dies_like(sub {
             Net::SSLeay::die_now('test')
     }, qr/$$: test\n$/, 'die_now dies without errors');
 
@@ -37,12 +36,12 @@ $err_string    = "foo $$: 1 - error:2006D080:BIO routines:"
     }, 'die_if_ssl_error lives without errors');
 
     put_err();
-    throws_ok(sub {
+    dies_like(sub {
             Net::SSLeay::die_now('test');
     }, qr/$$: test\n$/, 'die_now dies with errors');
 
     put_err();
-    throws_ok(sub {
+    dies_like(sub {
             Net::SSLeay::die_if_ssl_error('test');
     }, qr/$$: test\n$/, 'die_if_ssl_error dies with errors');
 }
@@ -50,7 +49,7 @@ $err_string    = "foo $$: 1 - error:2006D080:BIO routines:"
 {
     local $Net::SSLeay::trace = 1;
 
-    throws_ok(sub {
+    dies_like(sub {
             Net::SSLeay::die_now('foo');
     }, qr/$$: foo\n$/, 'die_now dies without arrors and with trace');
 
@@ -59,15 +58,15 @@ $err_string    = "foo $$: 1 - error:2006D080:BIO routines:"
     }, 'die_if_ssl_error lives without errors and with trace');
 
     put_err();
-    warning_like(sub {
-            throws_ok(sub {
+    warns_like(sub {
+            dies_like(sub {
                     Net::SSLeay::die_now('foo');
             }, qr/^$$: foo\n$/, 'die_now dies with errors and trace');
     }, qr/$err_string/i, 'die_now raises warnings about the occurred error when tracing');
 
     put_err();
-    warning_like(sub {
-            throws_ok(sub {
+    warns_like(sub {
+            dies_like(sub {
                 Net::SSLeay::die_if_ssl_error('foo');
             }, qr/^$$: foo\n$/, 'die_if_ssl_error dies with errors and trace');
     }, qr/$err_string/i, 'die_if_ssl_error raises warnings about the occurred error when tracing');

@@ -46,6 +46,10 @@ Revision history for Perl extension Net::SSLeay.
 	  33_x509_create_cert.t to allow PEM_get_string_PrivateKey to
 	  continue working until its default encryption method is
 	  updated. Fixes GH-272 and closes GH-273.
+	- Remove the test suite's optional dependency on the non-core modules
+	  Test::Exception, Test::NoWarnings and Test::Warn. Tests that verify
+	  Net::SSLeay's behaviour when errors occur are now executed regardless of the
+	  availability of these modules.
 
 1.90 2021-01-21
 	- New stable release incorporating all changes from developer releases
