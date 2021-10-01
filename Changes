@@ -50,6 +50,8 @@ Revision history for Perl extension Net::SSLeay.
 	  Test::Exception, Test::NoWarnings and Test::Warn. Tests that verify
 	  Net::SSLeay's behaviour when errors occur are now executed regardless of the
 	  availability of these modules.
+	- Fully automate the process of changing the list of constants exported by
+	  Net::SSLeay. Fixes GH-313.
 
 1.90 2021-01-21
 	- New stable release incorporating all changes from developer releases

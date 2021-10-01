@@ -117,16 +117,8 @@ delete $eumm_args{TEST_REQUIRES} unless eval { ExtUtils::MakeMaker->VERSION(6.64
 WriteMakefile(%eumm_args);
 
 sub MY::postamble {
-my $regen_script = File::Spec->catfile('helper_script', 'regen_openssl_constants.pl');
-my $constants_t = File::Spec->catfile('t', 'local', '21_constants.t');
 <<"MAKE";
-constants.c : $regen_script
-	\$(ABSPERLRUN) $regen_script -gen-c constants.c
-
-$constants_t : $regen_script
-	\$(ABSPERLRUN) $regen_script -gen-t $constants_t
-
-SSLeay$Config{'obj_ext'} : constants.c $constants_t
+SSLeay$Config{'obj_ext'} : constants.c
 
 MAKE
 }
