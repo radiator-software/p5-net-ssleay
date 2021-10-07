@@ -146,6 +146,12 @@ sub generate_constants_c {
             breakout => ~0,
             indent   => 20,
         },
+        map {
+            {
+                name  => $_->{exported_name},
+                value => $_->{name},
+            }
+        }
         @constants
     );
 
