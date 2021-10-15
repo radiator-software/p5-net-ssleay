@@ -52,6 +52,7 @@ Revision history for Perl extension Net::SSLeay.
 	  availability of these modules.
 	- Fully automate the process of changing the list of constants exported by
 	  Net::SSLeay. Fixes GH-313.
+	- Perform function autoloading tests in the test suite. Fixes GH-311.
 
 1.90 2021-01-21
 	- New stable release incorporating all changes from developer releases

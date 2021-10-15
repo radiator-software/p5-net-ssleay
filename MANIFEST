@@ -198,7 +198,7 @@ t/local/09_ctx_new.t
 t/local/10_rand.t
 t/local/11_read.t
 t/local/15_bio.t
-t/local/20_autoload.t
+t/local/20_functions.t
 t/local/21_constants.t
 t/local/22_provider.t
 t/local/22_provider_try_load.t
