@@ -6259,7 +6259,7 @@ constant (const char *name, size_t len) {
     /* OP_NETSCAPE_REUSE_CIPHER_CHANGE_BUG R_PEER_DID_NOT_RETURN_A_CERTIFICATE
        X509_CHECK_FLAG_NEVER_CHECK_SUBJECT X509_V_ERR_APPLICATION_VERIFICATION
        X509_V_ERR_INVALID_POLICY_EXTENSION X509_V_ERR_UNABLE_TO_GET_CRL_ISSUER
-       */
+       _NET_SSLEAY_TEST_UNDEFINED_CONSTANT */
     /* Offset 29 gives the best switch position.  */
     switch (name[29]) {
     case 'C':
@@ -6316,6 +6316,18 @@ constant (const char *name, size_t len) {
         
 #ifdef X509_V_ERR_UNABLE_TO_GET_CRL_ISSUER
         return X509_V_ERR_UNABLE_TO_GET_CRL_ISSUER;
+#else
+        goto not_there;
+#endif
+
+      }
+      break;
+    case 'N':
+      if (!memcmp(name, "_NET_SSLEAY_TEST_UNDEFINED_CONSTANT", 35)) {
+      /*                                              ^            */
+        
+#ifdef _NET_SSLEAY_TEST_UNDEFINED_CONSTANT
+        return _NET_SSLEAY_TEST_UNDEFINED_CONSTANT;
 #else
         goto not_there;
 #endif
