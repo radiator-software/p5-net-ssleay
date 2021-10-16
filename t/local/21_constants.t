@@ -11,7 +11,7 @@ use Test::Net::SSLeay qw(dies_like);
 # We rely on symbolic references in the dies_like() tests:
 no strict 'refs';
 
-plan tests => 554;
+plan tests => 555;
 
 my @constants = qw(
     ASN1_STRFLGS_ESC_CTRL
@@ -585,4 +585,10 @@ is(
     join( q{,}, sort @missing ),
     '',
     'no constants missing from @EXPORT_OK (total missing: ' . scalar(@missing) . ')'
+);
+
+dies_like(
+    sub { Net::SSLeay::_NET_SSLEAY_TEST_UNDEFINED_CONSTANT() },
+    qr/^Your vendor has not defined SSLeay macro _NET_SSLEAY_TEST_UNDEFINED_CONSTANT/,
+    'referencing an undefined constant raises an exception'
 );
