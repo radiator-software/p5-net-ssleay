@@ -50,7 +50,7 @@ jobs:
           - { name: 'openssl', display_name: 'OpenSSL', version: '1.0.1u' }
           - { name: 'openssl', display_name: 'OpenSSL', version: '1.0.0t' }
           - { name: 'openssl', display_name: 'OpenSSL', version: '0.9.8zh' }
-          - { name: 'libressl', display_name: 'LibreSSL', version: '3.3.4' }
+          - { name: 'libressl', display_name: 'LibreSSL', version: '3.3.5' }
           - { name: 'libressl', display_name: 'LibreSSL', version: '3.1.5' }
           - { name: 'libressl', display_name: 'LibreSSL', version: '3.0.2' }
           - { name: 'libressl', display_name: 'LibreSSL', version: '2.9.2' }
