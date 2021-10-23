@@ -21,8 +21,8 @@ env:
   RELEASE_TESTING: 0
 
 jobs:
-  ubuntu:
-    name: 'Ubuntu 20.04 (Perl ${{ matrix.perl }}, ${{ matrix.libssl.display_name }} ${{ matrix.libssl.version }})'
+  ubuntu-openssl:
+    name: 'Ubuntu 20.04 (Perl ${{ matrix.perl }}, OpenSSL ${{ matrix.openssl }})'
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
@@ -42,25 +42,14 @@ jobs:
           - '5.12'
           - '5.10'
           - '5.8'
-        libssl:
-          - { name: 'openssl', display_name: 'OpenSSL', version: '3.0.0' }
-          - { name: 'openssl', display_name: 'OpenSSL', version: '1.1.1l' }
-          - { name: 'openssl', display_name: 'OpenSSL', version: '1.1.0l' }
-          - { name: 'openssl', display_name: 'OpenSSL', version: '1.0.2u' }
-          - { name: 'openssl', display_name: 'OpenSSL', version: '1.0.1u' }
-          - { name: 'openssl', display_name: 'OpenSSL', version: '1.0.0t' }
-          - { name: 'openssl', display_name: 'OpenSSL', version: '0.9.8zh' }
-          - { name: 'libressl', display_name: 'LibreSSL', version: '3.3.5' }
-          - { name: 'libressl', display_name: 'LibreSSL', version: '3.1.5' }
-          - { name: 'libressl', display_name: 'LibreSSL', version: '3.0.2' }
-          - { name: 'libressl', display_name: 'LibreSSL', version: '2.9.2' }
-          - { name: 'libressl', display_name: 'LibreSSL', version: '2.8.3' }
-          - { name: 'libressl', display_name: 'LibreSSL', version: '2.7.5' }
-          - { name: 'libressl', display_name: 'LibreSSL', version: '2.6.5' }
-          - { name: 'libressl', display_name: 'LibreSSL', version: '2.5.5' }
-          - { name: 'libressl', display_name: 'LibreSSL', version: '2.4.5' }
-          - { name: 'libressl', display_name: 'LibreSSL', version: '2.3.10' }
-          - { name: 'libressl', display_name: 'LibreSSL', version: '2.2.9' }
+        openssl:
+          - '3.0.0'
+          - '1.1.1l'
+          - '1.1.0l'
+          - '1.0.2u'
+          - '1.0.1u'
+          - '1.0.0t'
+          - '0.9.8zh'
     steps:
       - name: Check out
         uses: actions/checkout@v2
@@ -70,10 +59,79 @@ jobs:
         with:
           perl-version: ${{ matrix.perl }}
 
-      - name: 'Install libssl: ${{ matrix.libssl.display_name }} ${{ matrix.libssl.version }}'
+      - name: 'Install OpenSSL ${{ matrix.openssl }}'
         run: |
           os="ubuntu-20.04"
-          ver="${{ matrix.libssl.name }}-${{ matrix.libssl.version }}"
+          ver="openssl-${{ matrix.openssl }}"
+
+          curl -L "https://github.com/p5-net-ssleay/ci-libssl/releases/download/$ver/$ver-$os.tar.xz" \
+            | tar -C $HOME -Jx
+
+      - name: Install dependencies
+        run: cpanm --quiet --installdeps --notest .
+
+      - name: Create makefile
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+          OPENSSL_PREFIX="$HOME/libssl" \
+            perl Makefile.PL
+
+      - name: Build
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+            make
+
+      - name: Run test suite
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+            make test
+
+  ubuntu-libressl:
+    name: 'Ubuntu 20.04 (Perl ${{ matrix.perl }}, LibreSSL ${{ matrix.libressl }})'
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        perl:
+          - '5.34'
+          - '5.32'
+          - '5.30'
+          - '5.28'
+          - '5.26'
+          - '5.24'
+          - '5.22'
+          - '5.20'
+          - '5.18'
+          - '5.16'
+          - '5.14'
+          - '5.12'
+          - '5.10'
+          - '5.8'
+        libressl:
+          - '3.3.5'
+          - '3.1.5'
+          - '3.0.2'
+          - '2.9.2'
+          - '2.8.3'
+          - '2.7.5'
+          - '2.6.5'
+          - '2.5.5'
+          - '2.4.5'
+          - '2.3.10'
+          - '2.2.9'
+    steps:
+      - name: Check out
+        uses: actions/checkout@v2
+
+      - name: Install Perl ${{ matrix.perl }}
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl }}
+
+      - name: 'Install LibreSSL ${{ matrix.libressl }}'
+        run: |
+          os="ubuntu-20.04"
+          ver="libressl-${{ matrix.libressl }}"
 
           curl -L "https://github.com/p5-net-ssleay/ci-libssl/releases/download/$ver/$ver-$os.tar.xz" \
             | tar -C $HOME -Jx
