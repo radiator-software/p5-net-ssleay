@@ -41,11 +41,13 @@ SKIP: {
 SKIP: {
   skip 'openssl-0.9.8a required', 3 unless Net::SSLeay::SSLeay >= 0x0090801f;
 
-  # From version 3.3.2, LibreSSL signals the use of its legacy X.509 verifier
-  # via the X509_V_FLAG_LEGACY_VERIFY flag; this flag persists even after
-  # X509_VERIFY_PARAM_clear_flags() is called
+  # Between versions 3.3.2 and 3.4.0, LibreSSL signals the use of its legacy
+  # X.509 verifier via the X509_V_FLAG_LEGACY_VERIFY flag; this flag persists
+  # even after X509_VERIFY_PARAM_clear_flags() is called
   my $base_flags =
-      is_libressl() && Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER") >= 0x3030200f
+      is_libressl()
+          && Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER") >= 0x3030200f
+          && Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER") <= 0x3040000f
     ? Net::SSLeay::X509_V_FLAG_LEGACY_VERIFY()
     : 0;
 
