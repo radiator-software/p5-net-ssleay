@@ -53,6 +53,9 @@ Revision history for Perl extension Net::SSLeay.
 	- Fully automate the process of changing the list of constants exported by
 	  Net::SSLeay. Fixes GH-313.
 	- Perform function autoloading tests in the test suite. Fixes GH-311.
+	- In 36_verify.t, account for the fact that the X509_V_FLAG_LEGACY_VERIFY flag
+	  (signalling the use of the legacy X.509 verifier) is no longer exposed as of
+	  LibreSSL 3.4.1. Fixes GH-324.
 
 1.90 2021-01-21
 	- New stable release incorporating all changes from developer releases
