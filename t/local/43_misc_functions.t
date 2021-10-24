@@ -2,7 +2,7 @@ use lib 'inc';
 
 use Net::SSLeay;
 use Test::Net::SSLeay qw(
-    can_fork data_file_path initialise_libssl is_libressl tcp_socket
+    can_fork data_file_path initialise_libssl is_libressl new_ctx tcp_socket
 );
 
 if (not can_fork()) {
@@ -60,8 +60,7 @@ our %version_str2int = (
     'TLSv1'   => sub { return eval { Net::SSLeay::TLS1_VERSION(); } },
     'TLSv1.1' => sub { return eval { Net::SSLeay::TLS1_1_VERSION(); } },
     'TLSv1.2' => sub { return eval { Net::SSLeay::TLS1_2_VERSION(); } },
-    # LibreSSL >= 3.2.0 implements TLSv1.3, but doesn't define TLS1_3_VERSION
-    'TLSv1.3' => sub { return is_libressl() ? 0x0304 : eval { Net::SSLeay::TLS1_3_VERSION(); } },
+    'TLSv1.3' => sub { return eval { Net::SSLeay::TLS1_3_VERSION(); } },
 );
 
 # Tests that don't need a connection
@@ -81,7 +80,7 @@ my $server = tcp_socket();
     defined($pid = fork()) or BAIL_OUT("failed to fork: $!");
     if ($pid == 0) {
 	my $cl = $server->accept();
-	my $ctx = Net::SSLeay::CTX_new();
+	my $ctx = new_ctx();
 	Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem);
 #	my $get_keyblock_size_ciphers = join(':', keys(%cipher_to_keyblock_size));
 	my $get_keyblock_size_ciphers = join(':', keys(%non_aead_cipher_to_keyblock_size));
@@ -118,7 +117,7 @@ sub client {
     my ($f_len, $f_len_trunc, $finished_s, $finished_c, $msg, $expected);
 
     my $cl = $server->connect();
-    my $ctx = Net::SSLeay::CTX_new();
+    my $ctx = new_ctx();
     Net::SSLeay::CTX_set_options($ctx, &Net::SSLeay::OP_ALL);
     my $ssl = Net::SSLeay::new($ctx);
 
@@ -272,7 +271,7 @@ sub client_test_ciphersuites
     }
 
     my ($ctx, $rv, $ssl);
-    $ctx = Net::SSLeay::CTX_new();
+    $ctx = new_ctx();
     $rv = Net::SSLeay::CTX_set_ciphersuites($ctx, $ciphersuites);
     is($rv, 1, 'CTX set good ciphersuites');
     $rv = Net::SSLeay::CTX_set_ciphersuites($ctx, '');
@@ -309,7 +308,7 @@ sub test_cipher_funcs
 {
 
     my ($ctx, $rv, $ssl);
-    $ctx = Net::SSLeay::CTX_new();
+    $ctx = new_ctx();
     $ssl = Net::SSLeay::new($ctx);
 
     # OpenSSL API says these can accept NULL ssl

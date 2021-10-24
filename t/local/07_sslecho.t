@@ -2,7 +2,7 @@ use lib 'inc';
 
 use Net::SSLeay;
 use Test::Net::SSLeay qw(
-    can_fork data_file_path initialise_libssl tcp_socket
+    can_fork data_file_path initialise_libssl new_ctx tcp_socket
 );
 
 BEGIN {
@@ -33,8 +33,8 @@ my $cert_sha1_fp = '9C:2E:90:B9:A7:84:7A:3A:2B:BE:FD:A5:D1:46:EA:31:75:E9:03:26'
 $ENV{RND_SEED} = '1234567890123456789012345678901234567890';
 
 {
-    my $ctx = Net::SSLeay::CTX_new();
-    ok($ctx, 'CTX_new');
+    my ( $ctx, $ctx_protocol ) = new_ctx();
+    ok($ctx, 'new CTX');
     ok(Net::SSLeay::CTX_set_cipher_list($ctx, 'ALL'), 'CTX_set_cipher_list');
     my ($dummy, $errs) = Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem);
     ok($errs eq '', "set_cert_and_key: $errs");
@@ -48,6 +48,25 @@ $ENV{RND_SEED} = '1234567890123456789012345678901234567890';
         # SIGPIPE signal. <https://github.com/openssl/openssl/issues/6904>
 	ok(Net::SSLeay::CTX_set_num_tickets($ctx, 0), 'Session tickets disabled');
     }
+
+    # The client side of this test uses Net::SSLeay::sslcat(), which by default
+    # will attempt to auto-negotiate the SSL/TLS protocol version to use when it
+    # connects to the server. This conflicts with the server-side SSL_CTX
+    # created by Test::Net::SSLeay::new_ctx(), which only accepts the most recent
+    # SSL/TLS protocol version supported by libssl; atempts to negotiate the
+    # version will fail. We need to force sslcat() to communicate with the server
+    # using the same protocol version that was chosen for the server SSL_CTX,
+    # which is done by setting a specific value for $Net::SSLeay::ssl_version
+    my %ssl_versions = (
+        'SSLv2'   => 2,
+        'SSLv3'   => 3,
+        'TLSv1'   => 10,
+        'TLSv1.1' => 11,
+        'TLSv1.2' => 12,
+        'TLSv1.3' => 13,
+    );
+
+    $Net::SSLeay::ssl_version = $ssl_versions{$ctx_protocol};
 
     $pid = fork();
     BAIL_OUT("failed to fork: $!") unless defined $pid;
@@ -114,7 +133,7 @@ my @results;
 {
     my $s = $server->connect();
 
-    push @results, [ my $ctx = Net::SSLeay::CTX_new(), 'CTX_new' ];
+    push @results, [ my $ctx = new_ctx(), 'new CTX' ];
     push @results, [ my $ssl = Net::SSLeay::new($ctx), 'new' ];
 
     push @results, [ Net::SSLeay::set_fd($ssl, $s), 'set_fd using glob ref' ];
@@ -142,11 +161,11 @@ my @results;
     my $verify_cb_2_called = 0;
     my $verify_cb_3_called = 0;
     {
-        my $ctx = Net::SSLeay::CTX_new();
+        my $ctx = new_ctx();
         push @results, [ Net::SSLeay::CTX_load_verify_locations($ctx, $ca_cert_pem, ''), 'CTX_load_verify_locations' ];
         Net::SSLeay::CTX_set_verify($ctx, &Net::SSLeay::VERIFY_PEER, \&verify);
 
-        my $ctx2 = Net::SSLeay::CTX_new();
+        my $ctx2 = new_ctx();
         Net::SSLeay::CTX_set_cert_verify_callback($ctx2, \&verify4, 1);
 
         {
@@ -282,7 +301,7 @@ my @results;
 {
     my $s = $server->connect();
 
-    my $ctx = Net::SSLeay::CTX_new();
+    my $ctx = new_ctx();
     my $ssl = Net::SSLeay::new($ctx);
 
     Net::SSLeay::set_fd($ssl, fileno($s));
