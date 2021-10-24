@@ -14,7 +14,7 @@ use File::Temp;
 use Getopt::Long qw(GetOptionsFromArray);
 use IPC::Run qw( start finish timeout );
 
-our $VERSION = '1.90';
+our $VERSION = '1.91_01';
 
 local $SIG{__DIE__} = sub {
     my ($cause) = @_;
@@ -1254,7 +1254,7 @@ C<generate-test-pki> - Generate a PKI for the Net-SSLeay test suite
 
 =head1 VERSION
 
-This document describes version 1.90 of C<generate-test-pki>.
+This document describes version 1.91_01 of C<generate-test-pki>.
 
 =head1 USAGE
 
