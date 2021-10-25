@@ -6,6 +6,9 @@ Revision history for Perl extension Net::SSLeay.
     const/non-const mismatch warning that broke the build on OpenVMS.
 	- Create SSL_CTXs with Test::Net::SSLeay's new_ctx() function for tests that
 	  are broken with LibreSSL 3.2. Partially fixes GH-232.
+	- In 36_verify.t, account for the presence of the X509_V_FLAG_LEGACY_VERIFY
+	  flag (signalling the use of the legacy X.509 verifier) in LibreSSL 3.2
+	  versions from 3.2.4 onwards. Fixes the remainder of GH-232.
 
 1.91_01 2021-10-24
 	- Correct X509_STORE_CTX_init() return value to integer. Previous
