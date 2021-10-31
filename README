@@ -24,7 +24,7 @@ One of the following libssl implementations:
 * Any stable release of OpenSSL (https://www.openssl.org) in the
   0.9.8 - 3.0 branches, except for OpenSSL 0.9.8 - 0.9.8b.
 * Any stable release of LibreSSL (https://www.libressl.org) in the
-  2.0 - 3.1 series or 3.3 - 3.4 series.
+  2.0 - 3.4 series, except for LibreSSL 3.2.2 and 3.2.3.
 
 Net-SSLeay may not compile or pass its tests against releases other
 than the ones listed above due to libssl API incompatibilities, or, in
