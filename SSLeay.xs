@@ -7562,7 +7562,7 @@ OCSP_response_results(rsp,...)
 		    /* getall: create new SV with OCSP_CERTID */
 		    unsigned char *pi,*pc;
 #if OPENSSL_VERSION_NUMBER >= 0x10100003L && !defined(LIBRESSL_VERSION_NUMBER)
-		    int len = i2d_OCSP_CERTID(OCSP_SINGLERESP_get0_id(sir),NULL);
+		    int len = i2d_OCSP_CERTID((OCSP_CERTID *)OCSP_SINGLERESP_get0_id(sir),NULL);
 #else
 		    int len = i2d_OCSP_CERTID(sir->certId,NULL);
 #endif
@@ -7571,7 +7571,7 @@ OCSP_response_results(rsp,...)
 		    if (!pc) croak("out of memory");
 		    pi = pc;
 #if OPENSSL_VERSION_NUMBER >= 0x10100003L && !defined(LIBRESSL_VERSION_NUMBER)
-		    i2d_OCSP_CERTID(OCSP_SINGLERESP_get0_id(sir),&pi);
+		    i2d_OCSP_CERTID((OCSP_CERTID *)OCSP_SINGLERESP_get0_id(sir),&pi);
 #else
 		    i2d_OCSP_CERTID(sir->certId,&pi);
 #endif
