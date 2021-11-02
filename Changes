@@ -4,6 +4,15 @@ Revision history for Perl extension Net::SSLeay.
   - On OpenVMS, detect vendor SSL111 product based on OpenSSL 1.1.x.
   - Cast the return value of OCSP_SINGLERESP_get0_id to fix a
     const/non-const mismatch warning that broke the build on OpenVMS.
+	- Create SSL_CTXs with Test::Net::SSLeay's new_ctx() function for tests that
+	  are broken with LibreSSL 3.2. Partially fixes GH-232.
+	- In 36_verify.t, account for the presence of the X509_V_FLAG_LEGACY_VERIFY
+	  flag (signalling the use of the legacy X.509 verifier) in LibreSSL 3.2
+	  versions from 3.2.4 onwards. Fixes the remainder of GH-232.
+	- Note in the Net::SSLeay documentation that the TLS 1.3 implementation in
+	  LibreSSL 3.1 - 3.3, parts of which are enabled by default, is not
+	  libssl-compatible. See the "KNOWN BUGS AND CAVEATS" section of
+	  lib/Net/SSLeay.pod for details.
 
 1.91_01 2021-10-24
 	- Correct X509_STORE_CTX_init() return value to integer. Previous

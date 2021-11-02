@@ -4,7 +4,8 @@ use lib 'inc';
 
 use Net::SSLeay;
 use Test::Net::SSLeay qw(
-    can_fork data_file_path initialise_libssl is_libressl is_openssl tcp_socket
+    can_fork data_file_path initialise_libssl is_libressl is_openssl new_ctx
+    tcp_socket
 );
 
 plan tests => 105;
@@ -41,12 +42,12 @@ SKIP: {
 SKIP: {
   skip 'openssl-0.9.8a required', 3 unless Net::SSLeay::SSLeay >= 0x0090801f;
 
-  # Between versions 3.3.2 and 3.4.0, LibreSSL signals the use of its legacy
+  # Between versions 3.2.4 and 3.4.0, LibreSSL signals the use of its legacy
   # X.509 verifier via the X509_V_FLAG_LEGACY_VERIFY flag; this flag persists
   # even after X509_VERIFY_PARAM_clear_flags() is called
   my $base_flags =
       is_libressl()
-          && Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER") >= 0x3030200f
+          && Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER") >= 0x3020400f
           && Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER") <= 0x3040000f
     ? Net::SSLeay::X509_V_FLAG_LEGACY_VERIFY()
     : 0;
@@ -294,7 +295,7 @@ sub client {
 		      wildcard_checks
 		      finish))
     {
-	$ctx = Net::SSLeay::CTX_new();
+	$ctx = new_ctx();
 	is(Net::SSLeay::CTX_load_verify_locations($ctx, $ca_pem, $ca_dir), 1, "load_verify_locations($ca_pem $ca_dir)");
 
 	$cl = $server->connect();
@@ -310,7 +311,7 @@ sub client {
     }
 
     # Tell the server to quit and see that our connection is still up
-    $ctx = Net::SSLeay::CTX_new();
+    $ctx = new_ctx();
     my $ssl = Net::SSLeay::new($ctx);
     Net::SSLeay::set_fd($ssl, $cl);
     Net::SSLeay::connect($ssl);
@@ -333,7 +334,7 @@ sub run_server
     return if $pid != 0;
 
     $SIG{'PIPE'} = 'IGNORE';
-    my $ctx = Net::SSLeay::CTX_new();
+    my $ctx = new_ctx();
     Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem);
     my $ret = Net::SSLeay::CTX_check_private_key($ctx);
     BAIL_OUT("Server: CTX_check_private_key failed: $cert_pem, $key_pem") unless $ret == 1;

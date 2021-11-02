@@ -54,8 +54,8 @@ branches, except for OpenSSL 0.9.8 - 0.9.8b.
 
 =item *
 
-Any stable release of L<LibreSSL|https://www.libressl.org> in the 2.0 - 3.1
-series or 3.3 - 3.4 series.
+Any stable release of L<LibreSSL|https://www.libressl.org> in the 2.0 - 3.4
+series, except for LibreSSL 3.2.2 and 3.2.3.
 
 =back
 
@@ -9932,6 +9932,17 @@ Or alternatively you can just use the following convenience functions:
     $got = Net::SSLeay::ssl_read_all($ssl) or die "ssl read failure";
 
 =head1 KNOWN BUGS AND CAVEATS
+
+LibreSSL versions in the 3.1 - 3.3 series contain a TLS 1.3 implementation that
+is not fully compatible with the libssl API, but is still advertised during
+protocol auto-negotiation. If you encounter problems or unexpected behaviour
+with SSL or SSL_CTX objects whose protocol version was automatically negotiated
+and libssl is provided by any of these versions of LibreSSL, it could be because
+the peers negotiated to use TLS 1.3 - try setting the maximum protocol version
+to TLS 1.2 (via C<Net::SSLeay::set_max_proto_version()> or
+C<Net::SSLeay::CTX_set_max_proto_version()>) before establishing the connection.
+The first stable LibreSSL version with a fully libssl-compatible TLS 1.3
+implementation is 3.4.1.
 
 An OpenSSL bug CVE-2015-0290 "OpenSSL Multiblock Corrupted Pointer Issue" 
 can cause POST requests of over 90kB to fail or crash. This bug is reported to be fixed in
