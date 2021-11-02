@@ -197,7 +197,8 @@ sub ssleay_get_build_opts {
         && defined( my $dir = shift @try_includes )
         && defined( my $cond = shift @try_includes )
     ) {
-        if ( $cond->() && -f "$prefix/$dir/openssl/ssl.h" ) {
+        if ( $cond->() && (-f "$prefix/$dir/openssl/ssl.h"
+                           || -f "$prefix/$dir/ssl.h")) {
             $opts->{inc_path} = "$prefix/$dir";
         }
     }
@@ -245,6 +246,10 @@ EOM
         if (-r 'sslroot:[000000]openssl.cnf') {      # openssl.org source install
           @{ $opts->{lib_paths} } = 'SSLLIB';
           @{ $opts->{lib_links} } = qw( ssl_libssl32.olb ssl_libcrypto32.olb );
+        }
+        elsif (-r 'ssl111$root:[000000]openssl.cnf') {  # VSI SSL111 install
+            @{ $opts->{lib_paths} } = 'SYS$SHARE';
+            @{ $opts->{lib_links} } = qw( SSL111$LIBSSL_SHR32 SSL111$LIBCRYPTO_SHR32 );
         }
         elsif (-r 'ssl1$root:[000000]openssl.cnf') {  # VSI or HPE SSL1 install
             @{ $opts->{lib_paths} } = 'SYS$SHARE';
@@ -316,6 +321,7 @@ sub find_openssl_prefix {
 	$Config{prefix} . '\bin\openssl.exe'      => $Config{prefix},           # strawberry perl
 	$Config{prefix} . '\..\c\bin\openssl.exe' => $Config{prefix} . '\..\c', # strawberry perl
 	'/sslexe/openssl.exe'            => '/sslroot',  # VMS, openssl.org
+	'/ssl111$exe/openssl.exe'        => '/ssl111$root',# VMS, VSI install
 	'/ssl1$exe/openssl.exe'          => '/ssl1$root',# VMS, VSI or HPE install
 	'/ssl$exe/openssl.exe'           => '/ssl$root', # VMS, HP install
     );
@@ -336,7 +342,7 @@ sub find_openssl_exec {
     my ($prefix) = @_;
 
     my $exe_path;
-    for my $subdir (qw( bin sbin out32dll ia64_exe alpha_exe )) {
+    for my $subdir (qw( bin sbin out32dll x86_64_exe ia64_exe alpha_exe )) {
         my $path = File::Spec->catfile($prefix, $subdir, "openssl$Config{_exe}");
         if ( -x $path ) {
             return $path;
