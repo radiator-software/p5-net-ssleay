@@ -16,7 +16,10 @@ use Text::Wrap;
 # behaviour to exhibit when a prerequisite does not exist is to use exit code 0
 # to ensure smoke testers stop immediately without reporting a FAIL; in all
 # other environments, we want to fail more loudly
-use constant MISSING_PREREQ => ( $ENV{AUTOMATED_TESTING} ? 0 : 1 );
+use constant {
+    MISSING_PREREQ     => ( $ENV{AUTOMATED_TESTING} ? 0 : 1 ),
+    UNSUPPORTED_LIBSSL => ( $ENV{AUTOMATED_TESTING} ? 0 : 1 ),
+};
 
 # Error messages displayed with alert() will be this many columns wide
 use constant ALERT_WIDTH => 78;
@@ -355,7 +358,7 @@ sub find_openssl_exec {
 
 sub check_openssl_version {
     my ($prefix, $exec) = @_;
-    my ($output, $major, $minor, $letter);
+    my ( $output, $libssl, $major, $minor, $letter );
 
     {
         my $pipe = gensym();
@@ -367,6 +370,7 @@ sub check_openssl_version {
 
 	if ( ($major, $minor, $letter) = $output =~ /^OpenSSL\s+(\d+\.\d+)\.(\d+)([a-z]?)/ ) {
 	    print "*** Found OpenSSL-${major}.${minor}${letter} installed in $prefix\n";
+	    $libssl = 'openssl';
 	} elsif ( ($major, $minor) = $output =~ /^LibreSSL\s+(\d+\.\d+)(?:\.(\d+))?/ ) {
 	    # LibreSSL 2.0.x releases only identify themselves as "LibreSSL 2.0",
 	    # with no patch release number
@@ -374,6 +378,7 @@ sub check_openssl_version {
 	        $minor = "x";
 	    }
 	    print "*** Found LibreSSL-${major}.${minor} installed in $prefix\n";
+	    $libssl = 'libressl';
 	} else {
             die <<EOM
 *** OpenSSL version test failed
@@ -402,6 +407,16 @@ EOM
     Please upgrade to OpenSSL 1.0.0c or newer.
 EOM
         exit 0;
+    }
+
+    # In the LibreSSL 3.2 series, versions below 3.2.4 are not supported because
+    # of their libssl-incompatible X.509 verification behaviour (see GH-232)
+    if ( $libssl eq 'libressl' && $major eq '3.2' && $minor < 4 ) {
+        print <<EOM;
+*** LibreSSL 3.2 releases prior to version 3.2.4 are not supported.
+    Upgrade to a newer version of LibreSSL.
+EOM
+        exit UNSUPPORTED_LIBSSL;
     }
 
     if ($major == 1.1 && $minor > 1) {
