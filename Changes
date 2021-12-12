@@ -14,11 +14,11 @@ Revision history for Perl extension Net::SSLeay.
 	  libssl-compatible. See the "KNOWN BUGS AND CAVEATS" section of
 	  lib/Net/SSLeay.pod for details.
 	- Add constants for, but not limited to,
-          SSL_CTX_set_msg_callback and SSL_set_msg_callback functions:
-          SSL3_RT_* for record content types, SSL3_MT_* for Handshake
-          and ChangeCipherSpec message types, SSL2_VERSION to
-          complement the list of existing SSL and TLS version
-          constants and SSL2_MT_* for SSLv2 Handshake messages.
+	  SSL_CTX_set_msg_callback and SSL_set_msg_callback functions:
+	  SSL3_RT_* for record content types, SSL3_MT_* for Handshake
+	  and ChangeCipherSpec message types, SSL2_VERSION to
+	  complement the list of existing SSL and TLS version
+	  constants and SSL2_MT_* for SSLv2 Handshake messages.
 
 1.91_01 2021-10-24
 	- Correct X509_STORE_CTX_init() return value to integer. Previous
