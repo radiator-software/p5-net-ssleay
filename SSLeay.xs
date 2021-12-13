@@ -427,16 +427,16 @@ static void handler_list_md_fn(const EVP_MD *m, const char *from, const char *to
  *
  * There are basically 2 types of callbacks used in SSLeay:
  *
- * 1/ "one-time" callbacks - these are created+used+destroyed within one perl function implemented in XS
- *    these callbacks use a cpecial C structupe simple_cb_data_t to pass necessary data
- *    there are 2 related helper functions: simple_cb_data_new() + simple_cb_data_free
- *    for example see implementation of these functions:
+ * 1/ "one-time" callbacks - these are created+used+destroyed within one perl function implemented in XS.
+ *    These callbacks use a special C structure simple_cb_data_t to pass necessary data.
+ *    There are 2 related helper functions: simple_cb_data_new() + simple_cb_data_free()
+ *    For example see implementation of these functions:
  *    - RSA_generate_key
  *    - PEM_read_bio_PrivateKey
  *
- * 2/ "advanced" callbacks - these are setup/destroyed by one function but used by another function; these
- *    callbacks use global hash MY_CXT.global_cb_data to store perl functions + data to be uset at callback time
- *    there are 2 related helper functions: cb_data_advanced_put() + cb_data_advanced_get for manipulating
+ * 2/ "advanced" callbacks - these are setup/destroyed by one function but used by another function. These
+ *    callbacks use global hash MY_CXT.global_cb_data to store perl functions + data to be uset at callback time.
+ *    There are 2 related helper functions: cb_data_advanced_put() + cb_data_advanced_get() for manipulating
  *    global hash MY_CXT.global_cb_data which work like this:
  *        cb_data_advanced_put(<pointer>, "data_name", dataSV)
  *        >>>
@@ -445,7 +445,7 @@ static void handler_list_md_fn(const EVP_MD *m, const char *from, const char *to
  *        data = cb_data_advanced_get(<pointer>, "data_name")
  *        >>>
  *        my $data = global_cb_data->{"ptr_<pointer>"}->{"data_name"}
- *    for example see implementation of these functions:
+ *    For example see implementation of these functions:
  *    - SSL_CTX_set_verify
  *    - SSL_set_verify
  *    - SSL_CTX_set_cert_verify_callback
@@ -496,7 +496,7 @@ void simple_cb_data_free(simple_cb_data_t* cb)
     Safefree(cb);
 }
 
-int cb_data_advanced_put(void *ptr, const char* data_name, SV* data)
+int cb_data_advanced_put(const void *ptr, const char* data_name, SV* data)
 {
     HV * L2HV;
     SV ** svtmp;
@@ -535,7 +535,7 @@ int cb_data_advanced_put(void *ptr, const char* data_name, SV* data)
     return 1;
 }
 
-SV* cb_data_advanced_get(void *ptr, const char* data_name)
+SV* cb_data_advanced_get(const void *ptr, const char* data_name)
 {
     HV * L2HV;
     SV ** svtmp;
@@ -565,7 +565,7 @@ SV* cb_data_advanced_get(void *ptr, const char* data_name)
     return *svtmp;
 }
 
-int cb_data_advanced_drop(void *ptr)
+int cb_data_advanced_drop(const void *ptr)
 {
     int len;
     char key_name[500];
