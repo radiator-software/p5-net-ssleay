@@ -1756,6 +1756,39 @@ int ossl_provider_do_all_cb_invoke(OSSL_PROVIDER *provider, void *cbdata) {
 }
 #endif
 
+#if OPENSSL_VERSION_NUMBER >= 0x10101001 && !defined(LIBRESSL_VERSION_NUMBER)
+void ssl_ctx_keylog_cb_func_invoke(const SSL *ssl, const char *line)
+{
+    dSP;
+    SV *cb_func, *cb_data;
+    SSL_CTX *ctx = SSL_get_SSL_CTX(ssl);
+
+    PR1("STARTED: ssl_ctx_keylog_cb_func_invoke\n");
+    cb_func = cb_data_advanced_get(ctx, "ssleay_ssl_ctx_keylog_callback!!func");
+
+    if(!SvOK(cb_func))
+	croak ("Net::SSLeay: ssl_ctx_keylog_cb_func_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    XPUSHs(sv_2mortal(newSViv(PTR2IV(ssl))));
+    XPUSHs(sv_2mortal(newSVpv(line, 0)));
+
+    PUTBACK;
+
+    call_sv(cb_func, G_VOID);
+
+    SPAGAIN;
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return;
+}
+#endif
+
 /* ============= end of callback stuff, begin helper functions ============== */
 
 time_t ASN1_TIME_timet(ASN1_TIME *asn1t, time_t *gmtoff) {
@@ -5593,6 +5626,32 @@ SSL_CTX_set_msg_callback(ctx,callback,data=&PL_sv_undef)
             cb_data_advanced_put(ctx, "ssleay_ctx_msg_cb!!data", newSVsv(data));
             SSL_CTX_set_msg_callback(ctx, ssleay_ctx_msg_cb_invoke);
         }
+
+
+#if OPENSSL_VERSION_NUMBER >= 0x10101001 && !defined(LIBRESSL_VERSION_NUMBER)
+
+void
+SSL_CTX_set_keylog_callback(SSL_CTX *ctx, SV *callback)
+    CODE:
+	if (callback==NULL || !SvOK(callback)) {
+	    SSL_CTX_set_keylog_callback(ctx, NULL);
+	    cb_data_advanced_put(ctx, "ssleay_ssl_ctx_keylog_callback!!func", NULL);
+	} else {
+	    cb_data_advanced_put(ctx, "ssleay_ssl_ctx_keylog_callback!!func", newSVsv(callback));
+	    SSL_CTX_set_keylog_callback(ctx, ssl_ctx_keylog_cb_func_invoke);
+	}
+
+SV *
+SSL_CTX_get_keylog_callback(const SSL_CTX *ctx)
+    CODE:
+	SV *func = cb_data_advanced_get(ctx, "ssleay_ssl_ctx_keylog_callback!!func");
+	/* without increment the reference will go away and ssl_ctx_keylog_cb_func_invoke croaks */
+	SvREFCNT_inc(func);
+	RETVAL = func;
+    OUTPUT:
+	RETVAL
+
+#endif
 
 
 int
