@@ -3428,7 +3428,7 @@ Retrieve the previously set TLS key logging callback.
  my $cb = Net::SSLeay::CTX_get_keylog_callback($ctx);
  # $ctx  - value corresponding to openssl's SSL_CTX structure
  #
- # returns: a reference to a perl callback function or undef is no callback is set
+ # returns: a reference to a perl callback function or undef if no callback is set
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_get_keylog_callback.html>
 

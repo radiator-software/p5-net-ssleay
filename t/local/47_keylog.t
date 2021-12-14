@@ -132,9 +132,7 @@ sub client {
             close($cl) || die("client close: $!");
         }
         else {
-            SKIP: {
-                skip( "$round not available in this libssl", 9 );
-            }
+	    diag("$round not available in this libssl but required by test");
         }
     }
     $server->close() || die("client listen socket close: $!");
@@ -169,8 +167,8 @@ sub client {
 	my $c_kl = delete $client_keylog{$round};
 	is_deeply($s_kl, $c_kl, "Client and Server have equal keylog for $round");
     }
-    is_deeply(\%server_keylog, {}, 'Server keylog have no unexpected entries');
-    is_deeply(\%client_keylog, {}, 'Client keylog have no unexpected entries');
+    is_deeply(\%server_keylog, {}, 'Server keylog has no unexpected entries');
+    is_deeply(\%client_keylog, {}, 'Client keylog has no unexpected entries');
 
     return 1;
 }
