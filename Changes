@@ -19,6 +19,9 @@ Revision history for Perl extension Net::SSLeay.
 	  and ChangeCipherSpec message types, SSL2_VERSION to
 	  complement the list of existing SSL and TLS version
 	  constants and SSL2_MT_* for SSLv2 Handshake messages.
+	- Expose SSL_CTX_set_keylog_callback and
+	  SSL_CTX_get_keylog_callback available with OpenSSL 1.1.1pre1
+	  and later.
 
 1.91_01 2021-10-24
 	- Correct X509_STORE_CTX_init() return value to integer. Previous

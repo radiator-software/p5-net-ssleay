@@ -3399,6 +3399,39 @@ Get number of TLSv1.3 session tickets that will be sent to a client.
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_get_num_tickets.html|https://www.openssl.org/docs/manmaster/man3/SSL_CTX_get_num_tickets.html>
 
+=item * CTX_set_keylog_callback
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.90 and before; requires at least OpenSSL 1.1.1pre1, not in LibreSSL
+
+Set the TLS key logging callback.
+
+ Net::SSLeay::CTX_set_keylog_callback($ctx, $cb);
+ # $ctx  - value corresponding to openssl's SSL_CTX structure
+ # $cb - reference to a perl callback function
+ #
+ # returns: no return value
+
+The callback function will be called like this:
+
+ keylog_cb_func($ssl, $line);
+ # $ssl - value corresponding to OpenSSL's SSL object associated with the connection
+ # $line - a string containing the key material in the format used by NSS for its SSLKEYLOGFILE debugging output
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_keylog_callback.html>
+
+=item * CTX_get_keylog_callback
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.90 and before; requires at least OpenSSL 1.1.1pre1, not in LibreSSL
+
+Retrieve the previously set TLS key logging callback.
+
+ my $cb = Net::SSLeay::CTX_get_keylog_callback($ctx);
+ # $ctx  - value corresponding to openssl's SSL_CTX structure
+ #
+ # returns: a reference to a perl callback function or undef if no callback is set
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_get_keylog_callback.html>
+
 =back
 
 =head3 Low level API: SSL_* related functions
