@@ -61,6 +61,10 @@ sub test_rand_file_name_openssl
     local %ENV = %ENV;
     delete $ENV{RANDFILE};
 
+    # NOTE: If there are tests failures, are you using some type of
+    # setuid environment? If so, this may affect usability of
+    # environment variables.
+
     $ENV{HOME} = '/nosuchdir-1/home';
     $file_name = Net::SSLeay::RAND_file_name(300);
     if (Net::SSLeay::SSLeay() >= 0x10100006 && Net::SSLeay::SSLeay() <= 0x1010000f)
@@ -74,7 +78,14 @@ sub test_rand_file_name_openssl
     my $randfile = '/nosuchdir-2/randfile';
     $ENV{RANDFILE} = $randfile;
     $file_name = Net::SSLeay::RAND_file_name(300);
-    is($file_name, $randfile, "RAND_file_name return value '$file_name' is RANDFILE environment value");
+    if (Net::SSLeay::SSLeay() < 0x1010001f) {
+	# On Windows, and possibly other non-Unix systems, 1.0.2
+	# series and earlier did not honour RANDFILE. 1.1.0a is an
+	# educated guess when it starts working with all platforms.
+	isnt($file_name, q{}, "RAND_file_name returns non-empty string when RANDFILE is set: $file_name");
+    } else {
+	is($file_name, $randfile, "RAND_file_name return value '$file_name' is RANDFILE environment value");
+    }
 
     # RANDFILE is longer than 2 octets. OpenSSL 1.1.0a and later
     # return undef with short buffer

@@ -22,11 +22,16 @@ Revision history for Perl extension Net::SSLeay.
 	- Expose SSL_CTX_set_keylog_callback and
 	  SSL_CTX_get_keylog_callback available with OpenSSL 1.1.1pre1
 	  and later.
-	- Enhance 10_rand.t tests so that they don't depend on the
-	  runtime environment variables, such as HOME and
-	  RANDFILE. Address differences between OpenSSL versions. Note
-	  in SSLeay.pod that RAND_file_name() can return undef with
-	  LibreSSL and recent OpenSSL versions. Fixes GH-152.
+	- Enhance 10_rand.t RAND_file_name tests: tests are no longer
+	  affected by the runtime environment variables, HOME and
+	  RANDFILE. These variables are insted controlled by the tests
+	  with local %ENV. Problems related to RAND_file_name were
+	  discussed in Github issues GH-152, and there might still be
+	  cases when, for example, setuid is used because of OpenSSL's
+	  use of glibc secure_getenv() and related functions. Address
+	  RAND_file_name differences between OpenSSL versions. Note in
+	  SSLeay.pod that RAND_file_name() can return undef with
+	  LibreSSL and recent OpenSSL versions.
 
 1.91_01 2021-10-24
 	- Correct X509_STORE_CTX_init() return value to integer. Previous
