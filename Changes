@@ -26,7 +26,7 @@ Revision history for Perl extension Net::SSLeay.
 	  affected by the runtime environment variables, HOME and
 	  RANDFILE. These variables are insted controlled by the tests
 	  with local %ENV. Problems related to RAND_file_name were
-	  discussed in Github issues GH-152, and there might still be
+	  discussed in Github issue GH-152, and there might still be
 	  cases when, for example, setuid is used because of OpenSSL's
 	  use of glibc secure_getenv() and related functions. Address
 	  RAND_file_name differences between OpenSSL versions. Note in

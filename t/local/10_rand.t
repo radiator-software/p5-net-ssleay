@@ -54,14 +54,15 @@ sub test_rand_file_name_libressl
 # RAND_file_name return value. Note: we override environment variables
 # temporarily because some environments do not have HOME set or may
 # already have RANDFILE set. We do not try to trigger a failure which
-# happens if there's no HOME nor RANDFILE. This is because
+# happens if there's no HOME nor RANDFILE in order to keep the test
+# from becoming overly complicated.
 sub test_rand_file_name_openssl
 {
     my $file_name;
     local %ENV = %ENV;
     delete $ENV{RANDFILE};
 
-    # NOTE: If there are tests failures, are you using some type of
+    # NOTE: If there are test failures, are you using some type of
     # setuid environment? If so, this may affect usability of
     # environment variables.
 
