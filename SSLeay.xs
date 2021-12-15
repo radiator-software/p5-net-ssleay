@@ -3258,7 +3258,7 @@ RAND_file_name(num)
     PREINIT:
         char *buf;
     CODE:
-        New(0, buf, num, char);
+        Newxz(buf, num, char);
         if (!RAND_file_name(buf, num)) {
             Safefree(buf);
             XSRETURN_UNDEF;
