@@ -86,7 +86,15 @@ OSSL_LIB_CTX * T_PTR
 OSSL_PROVIDER * T_PTR
 const OSSL_PROVIDER * T_PTR
 
+uint64_t T_UINT64
+
+OUTPUT
+T_UINT64
+    sv_setuv($arg, (UV)$var);
+
 INPUT
+T_UINT64
+    $var = (uint64_t)SvUV($arg)
 
 T_PERL_IO_HANDLE
 	if ($arg && SvOK($arg) && SvROK($arg)) {

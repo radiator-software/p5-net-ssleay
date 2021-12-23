@@ -5,7 +5,11 @@
  * helper_script/update-exported-constants.
  */
 
+#ifdef NET_SSLEAY_32BIT_CONSTANTS
 static double
+#else
+static uint64_t
+#endif
 constant (const char *name, size_t len) {
   /* Initially switch on the length of the name.  */
   switch (len) {
