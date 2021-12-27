@@ -17,6 +17,9 @@ if (defined &Net::SSLeay::OSSL_PROVIDER_load) {
     plan(skip_all => "no support for providers");
 }
 
+# Supplied OpenSSL configuration file may load unwanted providers.
+local $ENV{OPENSSL_CONF} = '';
+
 my ($null_provider, $default_avail, $null_avail);
 
 $null_provider = Net::SSLeay::OSSL_PROVIDER_try_load(undef, 'null', 1);
