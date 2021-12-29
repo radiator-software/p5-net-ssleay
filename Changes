@@ -53,6 +53,11 @@ Revision history for Perl extension Net::SSLeay.
 	  functions return double and options functions return
 	  long. This partially fixes GH-315, 32bit integer Perls need
 	  to be handled separately.
+	- Work around macOS Monterey build failure during 'perl
+	  Makefile.PL' that causes perl to exit with 'WARNING:
+	  .../perl is loading libcrypto in an unsafe way' or similar
+	  message. This fixes GH-329. Thanks to Daniel J. Luke for the
+	  report and John Napiorkowski for additional help.
 
 1.91_01 2021-10-24
 	- Correct X509_STORE_CTX_init() return value to integer. Previous
