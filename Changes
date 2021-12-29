@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-????
+1.91_02 2021-12-29
 	- On OpenVMS, detect vendor SSL111 product based on OpenSSL 1.1.x.
 	- Cast the return value of OCSP_SINGLERESP_get0_id to fix a
 	  const/non-const mismatch warning that broke the build on OpenVMS.
