@@ -202,7 +202,7 @@ which conflicts with perls
 
 /* Beginning with OpenSSL 3.0.0-alpha17, SSL_CTX_get_options() and
  * related functions return uint64_t instead of long. For this reason
- * constant() in constant.c and Net::SSleay must also be able to
+ * constant() in constant.c and Net::SSLeay must also be able to
  * return 64bit constants. However, this creates a problem with Perls
  * that have only 32 bit integers. The define below helps with
  * handling this API change.
