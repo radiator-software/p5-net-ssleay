@@ -218,9 +218,25 @@ sub ssleay_get_build_opts {
         }
     }
 
-    # Note: the order matters for macOS Monterey.
-    for ("$prefix/lib64", "$prefix/lib", "$prefix/out32dll", $prefix) {
-      push @{$opts->{lib_paths}}, $_ if -d $_;
+    # Directory order matters. With macOS Monterey a poisoned dylib is
+    # returned if the directory exists without the desired
+    # library. See GH-329 for more information. With Strawberry Perl
+    # 5.26 and later the paths must be in different order or the link
+    # phase fails.
+    my @try_lib_paths = (
+	["$prefix/lib64", "$prefix/lib", "$prefix/out32dll", $prefix] => sub {$OSNAME eq 'darwin' },
+	[$prefix, "$prefix/lib64", "$prefix/lib", "$prefix/out32dll"] => sub { 1 },
+    );
+    while (
+           !defined $opts->{lib_paths}
+        && defined( my $dirs = shift @try_lib_paths )
+        && defined( my $cond = shift @try_lib_paths )
+    ) {
+        if ( $cond->() ) {
+	    foreach my $dir (@{$dirs}) {
+		push @{$opts->{lib_paths}}, $dir if -d $dir;
+	    }
+	}
     }
 
     print <<EOM;
