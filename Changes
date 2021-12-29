@@ -42,6 +42,17 @@ Revision history for Perl extension Net::SSLeay.
 	- Clarified Changes entry for release 1.75 to state that
 	  CTX_v2_new is not removed from Net::SSLeay. SSLv2 is
 	  completely removed in OpenSSL 1.1.0.
+	- Beginning with OpenSSL 3.0.0-alpha17, SSL_CTX_get_options()
+	  and related functions return uint64_t instead of long. For
+	  this reason constant() in constant.c and Net::SSLeay must
+	  also be able to return 64bit constants. Add uint64_t
+	  definitions to typemap file and update constant() and
+	  options functions to use uint64_t with OpenSSL 3.0.0 and
+	  later when Perl is compiled with 64bit integers. With 32bit
+	  integers, the functions remain as they are: constant()
+	  functions return double and options functions return
+	  long. This partially fixes GH-315, 32bit integer Perls need
+	  to be handled separately.
 
 1.91_01 2021-10-24
 	- Correct X509_STORE_CTX_init() return value to integer. Previous

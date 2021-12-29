@@ -377,7 +377,16 @@ sub assignment_clause_for_type {
 }
 
 sub C_constant_return_type {
-    return 'static double';
+    my $ret = <<'END';
+#ifdef NET_SSLEAY_32BIT_CONSTANTS
+static double
+#else
+static uint64_t
+#endif
+END
+    # Newline is automatically added, remove ours.
+    chomp($ret);
+    return $ret;
 }
 
 sub return_statement_for_notfound {

@@ -111,6 +111,18 @@ my %eumm_args = (
   ssleay(),
 );
 
+# See if integers are only 32 bits long. If they are, add a flag to
+# CCFLAGS. Since OpenSSL 1.1.0, a growing number of APIs are using 64
+# bit integers. This causes a problem if Perl is compiled without 64
+# bit integers. DEFINE is not used because Makefile.PL command line
+# DEFINE argument is used for enabling compile time PR1
+# etc. debugging.
+#
+# Note: 32bit integers are treated as the non-default case. When you
+# use this define, do it so that 64bit case is the default whenever
+# possible. This is safer for future library and Net::SSLeay releases.
+$eumm_args{CCFLAGS} = "-DNET_SSLEAY_32BIT_INT_PERL $Config{ccflags}" if !defined $Config{use64bitint} || $Config{use64bitint} ne 'define';
+
 # This can go when EU::MM older than 6.58 are gone
 $eumm_args{AUTHOR} = join(', ', @{$eumm_args{AUTHOR}}) unless eval { ExtUtils::MakeMaker->VERSION(6.58); };
 

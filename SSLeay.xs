@@ -200,6 +200,17 @@ which conflicts with perls
 #endif
 #undef BLOCK
 
+/* Beginning with OpenSSL 3.0.0-alpha17, SSL_CTX_get_options() and
+ * related functions return uint64_t instead of long. For this reason
+ * constant() in constant.c and Net::SSLeay must also be able to
+ * return 64bit constants. However, this creates a problem with Perls
+ * that have only 32 bit integers. The define below helps with
+ * handling this API change.
+ */
+#if (OPENSSL_VERSION_NUMBER < 0x30000000L) || defined(NET_SSLEAY_32BIT_INT_PERL)
+#define NET_SSLEAY_32BIT_CONSTANTS
+#endif
+
 /* Debugging output - to enable use:
  *
  * perl Makefile.PL DEFINE=-DSHOW_XS_DEBUG
@@ -1958,6 +1969,7 @@ CODE:
     PR1("CLONE: but USE_ITHREADS not defined\n");
 #endif
 
+#ifdef NET_SSLEAY_32BIT_CONSTANTS
 double
 constant(name)
         char * name
@@ -1966,6 +1978,19 @@ constant(name)
         RETVAL = constant(name, strlen(name));
     OUTPUT:
         RETVAL
+
+#else
+
+uint64_t
+constant(name)
+        char * name
+    CODE:
+        errno = 0;
+        RETVAL = constant(name, strlen(name));
+    OUTPUT:
+        RETVAL
+
+#endif
 
 int
 hello()
@@ -2808,6 +2833,8 @@ SSL_CTX_ctrl(ctx,cmd,larg,parg)
     long larg
     char * parg
 
+#ifdef NET_SSLEAY_32BIT_CONSTANTS
+
 long
 SSL_get_options(ssl)
      SSL *          ssl
@@ -2825,6 +2852,28 @@ long
 SSL_CTX_set_options(ctx,op)
      SSL_CTX *      ctx
      long	    op
+
+#else
+
+uint64_t
+SSL_get_options(ssl)
+     SSL *          ssl
+
+uint64_t
+SSL_set_options(ssl,op)
+     SSL *          ssl
+     uint64_t	    op
+
+uint64_t
+SSL_CTX_get_options(ctx)
+     SSL_CTX *      ctx
+
+uint64_t
+SSL_CTX_set_options(ctx,op)
+     SSL_CTX *      ctx
+     uint64_t	    op
+
+#endif
 
 #if OPENSSL_VERSION_NUMBER >= 0x10000000L
 
