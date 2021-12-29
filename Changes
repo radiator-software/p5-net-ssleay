@@ -32,6 +32,16 @@ Revision history for Perl extension Net::SSLeay.
 	  RAND_file_name differences between OpenSSL versions. Note in
 	  SSLeay.pod that RAND_file_name() can return undef with
 	  LibreSSL and recent OpenSSL versions.
+	- Removed the following exportable symbols from SSLeay.pm:
+	  - SESSION, clear_error and err have never been defined.
+	  - add_session, flush_sessions and remove_session were
+	    removed in Net::SSLeay 1.04
+	  - Undocumented X509_STORE_CTX_set_flags() was removed in
+	    Net::SSLeay 1.37 when X509_VERIFY_PARAM_* functions were
+	    added. These are preferred over directly setting the flags.
+	- Clarified Changes entry for release 1.75 to state that
+	  CTX_v2_new is not removed from Net::SSLeay. SSLv2 is
+	  completely removed in OpenSSL 1.1.0.
 
 1.91_01 2021-10-24
 	- Correct X509_STORE_CTX_init() return value to integer. Previous
@@ -691,7 +701,7 @@ Revision history for Perl extension Net::SSLeay.
      - SSL_set_state removed with 1.1
      - SSL_get_state and SSL_state are now equivalent and available in all
        versions
-     - SSL_CTX_v2_new removed
+     - SSL_CTX_v2_new is not available with 1.1 and later. SSLv2 is removed in 1.1.
      - SESSION_set_master_key removed with 1.1. Code that previously used
        SESSION_set_master_key must now set $secret in the session_secret
        callback set with SSL_set_session_secret_cb

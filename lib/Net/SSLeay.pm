@@ -696,14 +696,12 @@ my @functions = qw(
     PEM_read_bio_X509_CRL
     RSA_free
     RSA_generate_key
-    SESSION
     SESSION_free
     SESSION_get_master_key
     SESSION_new
     SESSION_print
     X509_NAME_get_text_by_NID
     X509_NAME_oneline
-    X509_STORE_CTX_set_flags
     X509_STORE_add_cert
     X509_STORE_add_crl
     X509_check_email
@@ -717,9 +715,7 @@ my @functions = qw(
     X509_load_cert_file
     X509_load_crl_file
     accept
-    add_session
     clear
-    clear_error
     connect
     copy_session_id
     d2i_SSL_SESSION
@@ -727,8 +723,6 @@ my @functions = qw(
     die_now
     do_https
     dump_peer_certificate
-    err
-    flush_sessions
     free
     get_cipher
     get_cipher_list
@@ -766,7 +760,6 @@ my @functions = qw(
     post_httpx4
     print_errs
     read
-    remove_session
     rstate_string
     rstate_string_long
     set_bio
