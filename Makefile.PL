@@ -218,7 +218,8 @@ sub ssleay_get_build_opts {
         }
     }
 
-    for ($prefix, "$prefix/lib64", "$prefix/lib", "$prefix/out32dll") {
+    # Note: the order matters for macOS Monterey.
+    for ("$prefix/lib64", "$prefix/lib", "$prefix/out32dll", $prefix) {
       push @{$opts->{lib_paths}}, $_ if -d $_;
     }
 
