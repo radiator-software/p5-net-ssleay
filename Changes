@@ -1,5 +1,11 @@
 Revision history for Perl extension Net::SSLeay.
 
+????
+	- Avoid misclassifying Clang as GCC in Test::Net::SSLeay's can_thread()
+	  function. This fixes test failures in 61_threads-cb-crash.t and
+	  62_threads-ctx_new-deadlock.t on OpenBSD and FreeBSD (and possibly other OSes
+	  too). Fixes GH-350.
+
 1.91_02 2021-12-29
 	- On OpenVMS, detect vendor SSL111 product based on OpenSSL 1.1.x.
 	- Cast the return value of OCSP_SINGLERESP_get0_id to fix a

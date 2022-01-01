@@ -168,9 +168,13 @@ sub can_thread {
     # (see GH #175)
     if (    $PERL_VERSION == 5.010000
         and $Config{ccname} eq 'gcc'
-        and $Config{gccversion} )
+        and defined $Config{gccversion}
+        # gccversion is sometimes defined for non-GCC compilers (see GH-350);
+        # compilers that are truly GCC are identified with a version number in
+        # gccversion
+        and $Config{gccversion} =~ /^\d+\.\d+/ )
     {
-        my ( $gcc_major, $gcc_minor ) = split /\./, $Config{gccversion};
+        my ( $gcc_major, $gcc_minor ) = split /[.\s]+/, $Config{gccversion};
 
         return 0
             if ( $gcc_major > 4 or ( $gcc_major == 4 and $gcc_minor >= 8 ) );
