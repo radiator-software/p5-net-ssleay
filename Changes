@@ -5,6 +5,15 @@ Revision history for Perl extension Net::SSLeay.
 	  function. This fixes test failures in 61_threads-cb-crash.t and
 	  62_threads-ctx_new-deadlock.t on OpenBSD and FreeBSD (and possibly other OSes
 	  too). Fixes GH-350.
+	- Add the following constants for OpenSSL_version():
+	  - OPENSSL_CPU_INFO
+	  - OPENSSL_FULL_VERSION_STRING
+	  - OPENSSL_MODULES_DIR
+	  - OPENSSL_VERSION_STRING
+	  These constants are new in OpenSSL 3.0.0 release.
+	- Update test 03_use.t to print information returned by the new constants.
+	- Add more information to 03_use.t print output, including printing
+	  OPENSSL_VERSION_NUMBER as a 32bit hex number.
 
 1.91_02 2021-12-29
 	- On OpenVMS, detect vendor SSL111 product based on OpenSSL 1.1.x.
