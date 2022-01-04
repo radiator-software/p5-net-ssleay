@@ -14,6 +14,15 @@ Revision history for Perl extension Net::SSLeay.
 	- Update test 03_use.t to print information returned by the new constants.
 	- Add more information to 03_use.t print output, including printing
 	  OPENSSL_VERSION_NUMBER as a 32bit hex number.
+	- Add the following constants for OPENSSL_info() added in OpenSSL 3.0.0.
+	  - OPENSSL_INFO_CONFIG_DIR
+	  - OPENSSL_INFO_CPU_SETTINGS
+	  - OPENSSL_INFO_DIR_FILENAME_SEPARATOR
+	  - OPENSSL_INFO_DSO_EXTENSION
+	  - OPENSSL_INFO_ENGINES_DIR
+	  - OPENSSL_INFO_LIST_SEPARATOR
+	  - OPENSSL_INFO_MODULES_DIR
+	  - OPENSSL_INFO_SEED_SOURCE
 
 1.91_02 2021-12-29
 	- On OpenVMS, detect vendor SSL111 product based on OpenSSL 1.1.x.
