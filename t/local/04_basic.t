@@ -5,7 +5,7 @@ use lib 'inc';
 use Net::SSLeay;
 use Test::Net::SSLeay qw(lives_ok);
 
-plan tests => 26;
+plan tests => 29;
 
 lives_ok( sub { Net::SSLeay::randomize() }, 'seed pseudorandom number generator' );
 lives_ok( sub { Net::SSLeay::ERR_load_crypto_strings() }, 'load libcrypto error strings' );
@@ -54,6 +54,10 @@ if (defined &Net::SSLeay::OPENSSL_version_major)
     cmp_ok($minor, '>=', 0, 'OPENSSL_version_minor');
     cmp_ok($patch, '>=', 0, 'OPENSSL_version_patch');
 
+    is(Net::SSLeay::OPENSSL_VERSION_MAJOR(), $major, 'OPENSSL_VERSION_MAJOR and OPENSSL_version_major are equal');
+    is(Net::SSLeay::OPENSSL_VERSION_MINOR(), $minor, 'OPENSSL_VERSION_MINOR and OPENSSL_version_minor are equal');
+    is(Net::SSLeay::OPENSSL_VERSION_PATCH(), $patch, 'OPENSSL_VERSION_PATCH and OPENSSL_version_patch are equal');
+
     isnt(defined Net::SSLeay::OPENSSL_version_pre_release(), undef, 'OPENSSL_version_pre_release returns a defined value');
     isnt(defined Net::SSLeay::OPENSSL_version_build_metadata(), undef, 'OPENSSL_version_build_metadata returns a defined value');
 
@@ -63,6 +67,6 @@ if (defined &Net::SSLeay::OPENSSL_version_major)
 else
 {
   SKIP: {
-      skip('Only on OpenSSL 3.0.0 or later', 10);
+      skip('Only on OpenSSL 3.0.0 or later', 13);
     }
 }

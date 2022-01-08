@@ -11,7 +11,7 @@ use Test::Net::SSLeay qw(dies_like);
 # We rely on symbolic references in the dies_like() tests:
 no strict 'refs';
 
-plan tests => 604;
+plan tests => 607;
 
 my @constants = qw(
     ASN1_STRFLGS_ESC_CTRL
@@ -313,7 +313,10 @@ my @constants = qw(
     OPENSSL_MODULES_DIR
     OPENSSL_PLATFORM
     OPENSSL_VERSION
+    OPENSSL_VERSION_MAJOR
+    OPENSSL_VERSION_MINOR
     OPENSSL_VERSION_NUMBER
+    OPENSSL_VERSION_PATCH
     OPENSSL_VERSION_STRING
     OP_ALL
     OP_ALLOW_NO_DHE_KEX

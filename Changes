@@ -34,6 +34,12 @@ Revision history for Perl extension Net::SSLeay.
 	- Add notes to OpenSSL_version_num() and SSLeay() on how to
 	  determine if the library is OpenSSL or LibreSSL and how to
 	  interpret the version number these functions return.
+	- Add constants OPENSSL_VERSION_MAJOR, OPENSSL_VERSION_MINOR
+	  and OPENSSL_VERSION_PATCH. Update
+	  OPENSSL_version_major/minor/patch documentation to describe
+	  how these library functions relate to Net-SSLeay compile
+	  time constants. Add tests to verify the constants and
+	  functions return equal values.
 
 1.91_02 2021-12-29
 	- On OpenVMS, detect vendor SSL111 product based on OpenSSL 1.1.x.

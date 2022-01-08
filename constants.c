@@ -3919,7 +3919,8 @@ constant (const char *name, size_t len) {
     /* ASN1_STRFLGS_ESC_CTRL F_GET_CLIENT_FINISHED F_GET_SERVER_FINISHED
        F_REQUEST_CERTIFICATE F_SSL_GET_NEW_SESSION F_SSL_USE_CERTIFICATE
        NID_SMIMECapabilities NID_basic_constraints NID_netscape_base_url
-       NID_pkcs9_contentType NID_pkcs9_signingTime OP_NETSCAPE_CA_DN_BUG
+       NID_pkcs9_contentType NID_pkcs9_signingTime OPENSSL_VERSION_MAJOR
+       OPENSSL_VERSION_MINOR OPENSSL_VERSION_PATCH OP_NETSCAPE_CA_DN_BUG
        SSL2_MT_SERVER_VERIFY SSL3_MT_HELLO_REQUEST VERIFY_POST_HANDSHAKE
        X509_FILETYPE_DEFAULT X509_PURPOSE_CRL_SIGN X509_TRUST_SSL_CLIENT
        X509_TRUST_SSL_SERVER X509_V_ERR_INVALID_CA X509_V_ERR_OUT_OF_MEM
@@ -3928,6 +3929,16 @@ constant (const char *name, size_t len) {
     /* Offset 19 gives the best switch position.  */
     switch (name[19]) {
     case 'C':
+      if (!memcmp(name, "OPENSSL_VERSION_PATCH", 21)) {
+      /*                                    ^        */
+        
+#ifdef OPENSSL_VERSION_PATCH
+        return OPENSSL_VERSION_PATCH;
+#else
+        goto not_there;
+#endif
+
+      }
       if (!memcmp(name, "X509_V_ERR_INVALID_CA", 21)) {
       /*                                    ^        */
         
@@ -4067,6 +4078,26 @@ constant (const char *name, size_t len) {
         
 #ifdef SSL_F_SSL_GET_NEW_SESSION
         return SSL_F_SSL_GET_NEW_SESSION;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "OPENSSL_VERSION_MAJOR", 21)) {
+      /*                                    ^        */
+        
+#ifdef OPENSSL_VERSION_MAJOR
+        return OPENSSL_VERSION_MAJOR;
+#else
+        goto not_there;
+#endif
+
+      }
+      if (!memcmp(name, "OPENSSL_VERSION_MINOR", 21)) {
+      /*                                    ^        */
+        
+#ifdef OPENSSL_VERSION_MINOR
+        return OPENSSL_VERSION_MINOR;
 #else
         goto not_there;
 #endif
