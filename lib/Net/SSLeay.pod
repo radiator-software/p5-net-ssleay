@@ -995,52 +995,101 @@ The following new functions behave in perlish way:
                                     # Performs SSL_write, but automatically
                                     # figures out the size of $foo
 
-=head3 Low level API: Version related functions
+=head3 Low level API: Version and library information related functions
 
 =over
 
-=item * SSLeay
+=item * OpenSSL_version_num and SSLeay
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
+B<COMPATIBILITY:> SSLeay() is not available in Net-SSLeay-1.42 and
+before. SSLeay() was made an alias of OpenSSL_version_num() in OpenSSL
+1.1.0 and LibreSSL 2.7.0.
 
-Gives version number (numeric) of underlaying openssl library.
+B<COMPATIBILITY:> OpenSSL_version_num() requires at least
+Net-SSLeay-1.82 with OpenSSL 1.1.0, or Net-SSLeay-1.88 with LibreSSL
+2.7.0.
+
+Both functions return OPENSSL_VERSION_NUMBER constant (numeric) as
+defined by the underlaying OpenSSL or LibreSSL library.
 
  my $ver_number = Net::SSLeay::SSLeay();
- # returns: the number identifying the openssl release
- #
+or
+ my $ver_number = Net::SSLeay::OpenSSL_version_num();
+ # returns: OPENSSL_VERSION_NUMBER constant
+
+ OpenSSL version numbering is:
+
  # 0x00903100 => openssl-0.9.3
  # 0x00904100 => openssl-0.9.4
  # 0x00905100 => openssl-0.9.5
  # 0x0090600f => openssl-0.9.6
  # 0x0090601f => openssl-0.9.6a
- # 0x0090602f => openssl-0.9.6b
  # ...
  # 0x009060df => openssl-0.9.6m
  # 0x0090700f => openssl-0.9.7
  # 0x0090701f => openssl-0.9.7a
- # 0x0090702f => openssl-0.9.7b
  # ...
  # 0x009070df => openssl-0.9.7m
  # 0x0090800f => openssl-0.9.8
  # 0x0090801f => openssl-0.9.8a
- # 0x0090802f => openssl-0.9.8b
  # ...
- # 0x0090814f => openssl-0.9.8t
+ # 0x0090821f => openssl-0.9.8zh
  # 0x1000000f => openssl-1.0.0
- # 0x1000004f => openssl-1.0.0d
- # 0x1000007f => openssl-1.0.0g
+ # ...
+ # 0x1000014f => openssl-1.0.0t
+ # 0x1000100f => openssl-1.0.1
+ # ...
+ # 0x1000115f => openssl-1.0.1u
+ # 0x1000200f => openssl-1.0.2
+ # ...
+ # 0x1000215f => openssl-1.0.2u
+ # 0x1010000f => openssl-1.1.0
+ # ...
+ # 0x101000cf => openssl-1.1.0l
+ # 0x1010100f => openssl-1.1.1
+ # ...
+ # 0x101010df => openssl-1.1.1m
+ # 0x30000000 => openssl-3.0.0
+ # 0x30000010 => openssl-3.0.1
 
-You can use it like this:
+ Note that OpenSSL 3.0.0 and later do not set the status nibble in the
+ least significant octet to f.
+
+ LibreSSL returns 0x20000000 always:
+
+ # 0x20000000 => libressl-2.2.1
+ # ...
+ # 0x20000000 => libressl-3.4.2
+
+You can use the version number like this when you know that the
+underlaying library is OpenSSL:
 
   if (Net::SSLeay::SSLeay() < 0x0090800f) {
-    die "you need openssl-0.9.8 or higher";
+    die "You need OpenSSL 0.9.8 or higher";
   }
+
+LibresSSL 2.2.2 and later define constant LIBRESSL_VERSION_NUMBER that
+gives the LibreSSL version number. The format is the same that OpenSSL
+uses with OPENSSL_VERSION_NUMBER. You can do this if you need to
+check that the underlaying library is LibreSSL and it's recent enough:
+
+
+  if (Net::SSLeay::SSLeay() != 0x20000000 ||
+      Net::SSLeay::LIBRESSL_VERSION_NUMBER() < 0x3040200f) {
+    die "You need LibreSSL. Version 3.4.2 or higher";
+  }
+
+Check openssl doc
+L<https://www.openssl.org/docs/manmaster/man3/OpenSSL_version_num.html>
+
+See OpenSSL 1.1.1 and earlier documentation for the details of status
+nibble and the format interpretation.
 
 =item * SSLeay_version
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
 
-Gives version number (string) of underlaying openssl library.
+Returns different strings depending on $type.
 
  my $ver_string = Net::SSLeay::SSLeay_version($type);
  # $type
@@ -1056,22 +1105,22 @@ Gives version number (string) of underlaying openssl library.
  #is equivalent to
  Net::SSLeay::SSLeay_version(SSLEAY_VERSION);
 
-Check openssl doc L<https://www.openssl.org/docs/man1.0.2/crypto/SSLeay_version.html|https://www.openssl.org/docs/man1.0.2/crypto/SSLeay_version.html>
+OpenSSL 1.1.0 changed SSLeay_version() to an alias of
+OpenSSL_version(). To ensure correct functionality with LibreSSL, use
+SSLEAY_* constants with SSLeay_version() and OPENSSL_* constants with
+OpenSSL_version().
 
-=item * OpenSSL_version_num
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OpenSSL_version.html>
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.1.0
-
-Gives version number (numeric) of underlaying openssl library. See L</SSLeay> for interpreting the result.
-
- my $ver_number = Net::SSLeay::OpenSSL_version_num();
- # returns: the number identifying the openssl release
+OpenSSL website no longer has a manual page for SSLeay_version().
 
 =item * OpenSSL_version
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.1.0
+B<COMPATIBILITY:> requires at least Net-SSLeay-1.82 with OpenSSL
+1.1.0, or Net-SSLeay-1.88 with LibreSSL 2.7.0.
 
-Gives version number (string) of underlaying openssl library.
+Returns different strings depending on $t. Available $t constants
+depend on the library version.
 
  my $ver_string = Net::SSLeay::OpenSSL_version($t);
  # $t
@@ -1088,7 +1137,7 @@ Gives version number (string) of underlaying openssl library.
  #is equivalent to
  Net::SSLeay::OpenSSL_version(OPENSSL_VERSION);
 
-Check openssl doc L<https://www.openssl.org/docs/crypto/OpenSSL_version.html|https://www.openssl.org/docs/crypto/OpenSSL_version.html>
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OpenSSL_version.html>
 
 =item * OPENSSL_info
 

@@ -29,6 +29,11 @@ Revision history for Perl extension Net::SSLeay.
 	  OPENSSL_version_build_metadata() added in OpenSSL
 	  3.0.0. Update 03_use.t diagnostics and 04_basic.t tests to
 	  use these functions.
+	- Clarify documentation of OpenSSL_version_num(), SSLeay(),
+	  SSLeay_version() and OpenSSL_version().
+	- Add notes to OpenSSL_version_num() and SSLeay() on how to
+	  determine if the library is OpenSSL or LibreSSL and how to
+	  interpret the version number these functions return.
 
 1.91_02 2021-12-29
 	- On OpenVMS, detect vendor SSL111 product based on OpenSSL 1.1.x.
