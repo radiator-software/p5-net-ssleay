@@ -2020,6 +2020,27 @@ OpenSSL_version(t=OPENSSL_VERSION)
 
 #endif /* OpenSSL 1.1.0 */
 
+#if (OPENSSL_VERSION_MAJOR >= 3)
+
+unsigned int
+OPENSSL_version_major()
+
+unsigned int
+OPENSSL_version_minor()
+
+unsigned int
+OPENSSL_version_patch()
+
+const char *
+OPENSSL_version_pre_release()
+
+const char *
+OPENSSL_version_build_metadata()
+
+const char *
+OPENSSL_info(int t)
+
+#endif
 
 #define REM1 "============= SSL CONTEXT functions =============="
 

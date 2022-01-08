@@ -23,6 +23,12 @@ Revision history for Perl extension Net::SSLeay.
 	  - OPENSSL_INFO_LIST_SEPARATOR
 	  - OPENSSL_INFO_MODULES_DIR
 	  - OPENSSL_INFO_SEED_SOURCE
+	- Expose OPENSSL_info(), OPENSSL_version_major(),
+	  OPENSSL_version_minor(), OPENSSL_version_patch(),
+	  OPENSSL_version_pre_release() and
+	  OPENSSL_version_build_metadata() added in OpenSSL
+	  3.0.0. Update 03_use.t diagnostics and 04_basic.t tests to
+	  use these functions.
 
 1.91_02 2021-12-29
 	- On OpenVMS, detect vendor SSL111 product based on OpenSSL 1.1.x.

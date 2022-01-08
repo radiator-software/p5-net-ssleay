@@ -1090,6 +1090,71 @@ Gives version number (string) of underlaying openssl library.
 
 Check openssl doc L<https://www.openssl.org/docs/crypto/OpenSSL_version.html|https://www.openssl.org/docs/crypto/OpenSSL_version.html>
 
+=item * OPENSSL_info
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.90 and before; requires at least OpenSSL 3.0.0-alpha1
+
+Returns different strings depending on $t. Available $t constants
+depend on the library version.
+
+ my $info_string = Net::SSLeay::OPENSSL_info($t);
+ # $t
+ #   OPENSSL_INFO_CONFIG_DIR - e.g. '/opt/openssl-3.0.1'
+ #   OPENSSL_INFO_...
+ #
+ # returns: string
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OPENSSL_info.html>
+
+=item * OPENSSL_version_major, OPENSSL_version_minor and OPENSSL_version_patch
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.90 and before; requires at least OpenSSL 3.0.0-alpha1, not in LibreSSL
+
+Return constants OPENSSL_VERSION_MAJOR, OPENSSL_VERSION_MINOR and OPENSSL_VERSION_PATCH, respectively.
+
+ my $major = Net::SSLeay::OPENSSL_version_major();
+ my $minor = Net::SSLeay::OPENSSL_version_minor();
+ my $patch = Net::SSLeay::OPENSSL_version_patch();
+ #
+ # return: integer
+
+For example with OpenSSL 3.0.1, $major is 3, $minor is 0 and $patch is 1.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OPENSSL_version_major.html>
+
+=item * OPENSSL_version_pre_release
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.90 and before; requires at least OpenSSL 3.0.0-alpha1, not in LibreSSL
+
+Return constant string defined by C macro OPENSSL_VERSION_PRE_RELEASE.
+
+ my $pre_release = Net::SSLeay::OPENSSL_version_pre_release();
+ #
+ # returns: string
+
+ For example: "-alpha3" or "" for a release version.
+
+When the macro is not defined, an empty string is returned instead.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OPENSSL_version_pre_release.html>
+
+=item * OPENSSL_version_build_metadata()
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.90 and before; requires at least OpenSSL 3.0.0-alpha1, not in LibreSSL
+
+Return constant string defined by C macro OPENSSL_VERSION_BUILD_METADATA.
+
+ my $metadata = Net::SSLeay::OPENSSL_version_build_metadata();
+ #
+ # returns: string
+
+ For example: "+fips" or "".
+
+When the macro is not defined, an empty string is returned instead.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OPENSSL_version_build_metadata.html>
+
+
 =back
 
 =head3 Low level API: Initialization related functions
