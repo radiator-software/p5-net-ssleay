@@ -5,6 +5,41 @@ Revision history for Perl extension Net::SSLeay.
 	  function. This fixes test failures in 61_threads-cb-crash.t and
 	  62_threads-ctx_new-deadlock.t on OpenBSD and FreeBSD (and possibly other OSes
 	  too). Fixes GH-350.
+	- Add the following constants for OpenSSL_version():
+	  - OPENSSL_CPU_INFO
+	  - OPENSSL_FULL_VERSION_STRING
+	  - OPENSSL_MODULES_DIR
+	  - OPENSSL_VERSION_STRING
+	  These constants are new in OpenSSL 3.0.0 release.
+	- Update test 03_use.t to print information returned by the new constants.
+	- Add more information to 03_use.t print output, including printing
+	  OPENSSL_VERSION_NUMBER as a 32bit hex number.
+	- Add the following constants for OPENSSL_info() added in OpenSSL 3.0.0.
+	  - OPENSSL_INFO_CONFIG_DIR
+	  - OPENSSL_INFO_CPU_SETTINGS
+	  - OPENSSL_INFO_DIR_FILENAME_SEPARATOR
+	  - OPENSSL_INFO_DSO_EXTENSION
+	  - OPENSSL_INFO_ENGINES_DIR
+	  - OPENSSL_INFO_LIST_SEPARATOR
+	  - OPENSSL_INFO_MODULES_DIR
+	  - OPENSSL_INFO_SEED_SOURCE
+	- Expose OPENSSL_info(), OPENSSL_version_major(),
+	  OPENSSL_version_minor(), OPENSSL_version_patch(),
+	  OPENSSL_version_pre_release() and
+	  OPENSSL_version_build_metadata() added in OpenSSL
+	  3.0.0. Update 03_use.t diagnostics and 04_basic.t tests to
+	  use these functions.
+	- Clarify documentation of OpenSSL_version_num(), SSLeay(),
+	  SSLeay_version() and OpenSSL_version().
+	- Add notes to OpenSSL_version_num() and SSLeay() on how to
+	  determine if the library is OpenSSL or LibreSSL and how to
+	  interpret the version number these functions return.
+	- Add constants OPENSSL_VERSION_MAJOR, OPENSSL_VERSION_MINOR
+	  and OPENSSL_VERSION_PATCH. Update
+	  OPENSSL_version_major/minor/patch documentation to describe
+	  how these library functions relate to Net-SSLeay compile
+	  time constants. Add tests to verify the constants and
+	  functions return equal values.
 
 1.91_02 2021-12-29
 	- On OpenVMS, detect vendor SSL111 product based on OpenSSL 1.1.x.
