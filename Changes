@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-????
+1.91_03 2022-01-10
 	- Avoid misclassifying Clang as GCC in Test::Net::SSLeay's can_thread()
 	  function. This fixes test failures in 61_threads-cb-crash.t and
 	  62_threads-ctx_new-deadlock.t on OpenBSD and FreeBSD (and possibly other OSes
