@@ -10,7 +10,7 @@ Revision history for Perl extension Net::SSLeay.
 	      insecure algorithms have been moved to the "legacy" provider, which may
 	      need to be loaded explicitly in order to use them with Net::SSLeay. See
 	      "Low level API: OSSL_LIB_CTX and OSSL_PROVIDER related functions" in the
-	      Net::SSLeay documentation for details.
+	      Net::SSLeay module documentation for details.
 	    - Net::SSLeay's built-in PEM_get_string_PrivateKey() function depends on
 	      algorithms that have moved to the legacy provider described above; if
 	      OpenSSL has been compiled without the legacy provider, the tests
@@ -23,11 +23,11 @@ Revision history for Perl extension Net::SSLeay.
 	      is run.
 	  - Net::SSLeay now supports stable releases of LibreSSL from the 3.2 - 3.4
 	    branches (with the exception of 3.2.2 and 3.2.3 - see "COMPATIBILITY" in
-	    the Net::SSLeay documentation for details).
+	    the Net::SSLeay module documentation for details).
 	    - The TLS 1.3 implementation in LibreSSL 3.1 - 3.3, parts of which are
 	      enabled by default, is not fully compatible with the libssl API and may
 	      not function as expected with Net::SSLeay; see "KNOWN BUGS AND CAVEATS"
-	      in the Net::SSLeay documentation for details.
+	      in the Net::SSLeay module documentation for details.
 	  - A number of new libcrypto/libssl constants and functions are now exposed,
 	    including SSL_CTX_set_keylog_callback() and SSL_CTX_set_msg_callback(),
 	    which are helpful when debugging TLS handshakes. See the release notes for
