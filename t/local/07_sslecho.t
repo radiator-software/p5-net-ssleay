@@ -131,6 +131,7 @@ my @results;
 }
 
 {
+    sleep(1);
     my $s = $server->connect();
 
     push @results, [ my $ctx = new_ctx(), 'new CTX' ];
@@ -169,6 +170,7 @@ my @results;
         Net::SSLeay::CTX_set_cert_verify_callback($ctx2, \&verify4, 1);
 
         {
+            sleep(1);
             my $s = $server->connect();
 
             my $ssl = Net::SSLeay::new($ctx);
@@ -188,8 +190,11 @@ my @results;
         }
 
         {
+            sleep(1);
             my $s1 = $server->connect();
+            sleep(1);
             my $s2 = $server->connect();
+            sleep(1);
             my $s3 = $server->connect();
 
             my $ssl1 = Net::SSLeay::new($ctx);
@@ -299,6 +304,7 @@ my @results;
 }
 
 {
+    sleep(1);
     my $s = $server->connect();
 
     my $ctx = new_ctx();
