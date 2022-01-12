@@ -36,7 +36,7 @@ my $tests = prompt(
 
 my %eumm_args = (
   NAME => 'Net::SSLeay',
-  ABSTRACT => 'Perl extension for using OpenSSL',
+  ABSTRACT => 'Perl bindings for OpenSSL and LibreSSL',
   LICENSE => 'artistic_2',
   AUTHOR => [
     'Sampo Kellomäki <sampo@iki.fi>',
