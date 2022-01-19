@@ -7663,7 +7663,7 @@ OCSP_response_results(rsp,...)
 
 	    if (sir)
 	    {
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
 		status = OCSP_single_get0_status(sir, &revocationReason, &revocationTime, &thisupdate, &nextupdate);
 #else
 		status = sir->certStatus->type;
@@ -7690,7 +7690,7 @@ OCSP_response_results(rsp,...)
 		if (!idsv) {
 		    /* getall: create new SV with OCSP_CERTID */
 		    unsigned char *pi,*pc;
-#if OPENSSL_VERSION_NUMBER >= 0x10100003L && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10100003L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
 		    int len = i2d_OCSP_CERTID((OCSP_CERTID *)OCSP_SINGLERESP_get0_id(sir),NULL);
 #else
 		    int len = i2d_OCSP_CERTID(sir->certId,NULL);
@@ -7699,7 +7699,7 @@ OCSP_response_results(rsp,...)
 		    Newx(pc,len,unsigned char);
 		    if (!pc) croak("out of memory");
 		    pi = pc;
-#if OPENSSL_VERSION_NUMBER >= 0x10100003L && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10100003L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
 		    i2d_OCSP_CERTID((OCSP_CERTID *)OCSP_SINGLERESP_get0_id(sir),&pi);
 #else
 		    i2d_OCSP_CERTID(sir->certId,&pi);
