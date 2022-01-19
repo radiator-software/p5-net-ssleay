@@ -1,5 +1,10 @@
 Revision history for Perl extension Net::SSLeay.
 
+????
+	- LibreSSL 3.5.0 has removed access to internal data structures. Use
+	  X509_get0_tbs_sigalg() like in OpenSSL 1.1.  Thanks to Alexander
+	  Bluhm.
+
 1.92 2022-01-12
 	- New stable release incorporating all changes from developer releases 1.91_01
 	  to 1.91_03.
