@@ -1914,7 +1914,7 @@ X509 * find_issuer(X509 *cert,X509_STORE *store, STACK_OF(X509) *chain) {
     return issuer;
 }
 
-SV* bn2sv(BIGNUM* p_bn)
+SV* bn2sv(const BIGNUM* p_bn)
 {
     return p_bn != NULL
         ? sv_2mortal(newSViv((IV) BN_dup(p_bn)))
@@ -6283,8 +6283,28 @@ RSA_generate_key(bits,e,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
 void
 RSA_get_key_parameters(rsa)
 	    RSA * rsa
+PREINIT:
+#if defined(LIBRESSL_VERSION_NUMBER) && (LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
+    const BIGNUM *n, *e, *d;
+    const BIGNUM *p, *q;
+    const BIGNUM *dmp1, *dmq1, *iqmp;
+#endif
 PPCODE:
 {
+#if defined(LIBRESSL_VERSION_NUMBER) && (LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
+    RSA_get0_key(rsa, &n, &e, &d);
+    RSA_get0_factors(rsa, &p, &q);
+    RSA_get0_crt_params(rsa, &dmp1, &dmq1, &iqmp);
+    /* Caution: returned list consists of SV pointers to BIGNUMs, which would need to be blessed as Crypt::OpenSSL::Bignum for further use */
+    XPUSHs(bn2sv(n));
+    XPUSHs(bn2sv(e));
+    XPUSHs(bn2sv(d));
+    XPUSHs(bn2sv(p));
+    XPUSHs(bn2sv(q));
+    XPUSHs(bn2sv(dmp1));
+    XPUSHs(bn2sv(dmq1));
+    XPUSHs(bn2sv(iqmp));
+#else
     /* Caution: returned list consists of SV pointers to BIGNUMs, which would need to be blessed as Crypt::OpenSSL::Bignum for further use */
     XPUSHs(bn2sv(rsa->n));
     XPUSHs(bn2sv(rsa->e));
@@ -6294,9 +6314,10 @@ PPCODE:
     XPUSHs(bn2sv(rsa->dmp1));
     XPUSHs(bn2sv(rsa->dmq1));
     XPUSHs(bn2sv(rsa->iqmp));
+#endif
 }
 
-#endif
+#endif /* OpenSSL < 1.1 or LibreSSL */
 
 void
 RSA_free(r)
