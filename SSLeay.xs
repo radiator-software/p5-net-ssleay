@@ -1771,7 +1771,7 @@ int ossl_provider_do_all_cb_invoke(OSSL_PROVIDER *provider, void *cbdata) {
 void ssl_ctx_keylog_cb_func_invoke(const SSL *ssl, const char *line)
 {
     dSP;
-    SV *cb_func, *cb_data;
+    SV *cb_func;
     SSL_CTX *ctx = SSL_get_SSL_CTX(ssl);
 
     PR1("STARTED: ssl_ctx_keylog_cb_func_invoke\n");
