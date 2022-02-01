@@ -5,6 +5,8 @@ use Test::Net::SSLeay qw(
     can_fork data_file_path initialise_libssl new_ctx tcp_socket
 );
 
+use English qw( $EVAL_ERROR $OSNAME $PERL_VERSION -no_match_vars );
+
 BEGIN {
     if (not can_fork()) {
         plan skip_all => "fork() not supported on this system";
@@ -31,6 +33,13 @@ my $cert_issuer  = '/C=PL/O=Net-SSLeay/OU=Test Suite/CN=Intermediate CA';
 my $cert_sha1_fp = '9C:2E:90:B9:A7:84:7A:3A:2B:BE:FD:A5:D1:46:EA:31:75:E9:03:26';
 
 $ENV{RND_SEED} = '1234567890123456789012345678901234567890';
+
+# For old Perls on Windows. See GH-356 for the details.
+sub maybe_sleep
+{
+    sleep(1) if $OSNAME eq 'MSWin32' && $PERL_VERSION < 5.020000;
+    return;
+}
 
 {
     my ( $ctx, $ctx_protocol ) = new_ctx();
@@ -131,7 +140,7 @@ my @results;
 }
 
 {
-    sleep(1);
+    maybe_sleep();
     my $s = $server->connect();
 
     push @results, [ my $ctx = new_ctx(), 'new CTX' ];
@@ -170,7 +179,7 @@ my @results;
         Net::SSLeay::CTX_set_cert_verify_callback($ctx2, \&verify4, 1);
 
         {
-            sleep(1);
+            maybe_sleep();
             my $s = $server->connect();
 
             my $ssl = Net::SSLeay::new($ctx);
@@ -190,11 +199,11 @@ my @results;
         }
 
         {
-            sleep(1);
+            maybe_sleep();
             my $s1 = $server->connect();
-            sleep(1);
+            maybe_sleep();
             my $s2 = $server->connect();
-            sleep(1);
+            maybe_sleep();
             my $s3 = $server->connect();
 
             my $ssl1 = Net::SSLeay::new($ctx);
@@ -304,7 +313,7 @@ my @results;
 }
 
 {
-    sleep(1);
+    maybe_sleep();
     my $s = $server->connect();
 
     my $ctx = new_ctx();
