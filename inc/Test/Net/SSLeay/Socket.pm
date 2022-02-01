@@ -13,7 +13,7 @@ use Socket qw(
     inet_aton inet_ntoa pack_sockaddr_in unpack_sockaddr_in
 );
 
-our $VERSION = '1.91_03';
+our $VERSION = '1.92';
 
 my %PROTOS = (
     tcp => SOCK_STREAM,
@@ -100,15 +100,15 @@ sub connect {
     my ($self) = @_;
 
     my $addr = eval { inet_aton( $self->{saddr} ) }
-        or croak 'Could not pack IP address'
+        or croak 'Could not pack IP address in connect'
         . ( $EVAL_ERROR ? ": $EVAL_ERROR" : q{} );
 
     my $sockaddr = eval { pack_sockaddr_in( $self->{sport}, $addr ) }
-        or croak 'Could not create sockaddr_in structure'
+        or croak 'Could not create sockaddr_in structure in connect'
         . ( $EVAL_ERROR ? ": $EVAL_ERROR" : q{} );
 
     socket my $sock, AF_INET, $PROTOS{ $self->{proto} }, 0
-        or croak "Could not open server socket: $OS_ERROR";
+        or croak "Could not open server socket in connect: $OS_ERROR";
     connect $sock, $sockaddr
         or croak "Could not connect to server socket: $OS_ERROR";
 
@@ -134,7 +134,7 @@ Test::Net::SSLeay::Socket - Socket class for the Net-SSLeay test suite
 
 =head1 VERSION
 
-This document describes version 1.91_03 of Test::Net::SSLeay::Socket.
+This document describes version 1.92 of Test::Net::SSLeay::Socket.
 
 =head1 SYNOPSIS
 

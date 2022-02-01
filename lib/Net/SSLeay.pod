@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Net::SSLeay - Perl extension for using OpenSSL
+Net::SSLeay - Perl bindings for OpenSSL and LibreSSL
 
 =head1 SYNOPSIS
 

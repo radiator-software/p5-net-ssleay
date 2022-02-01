@@ -70,7 +70,7 @@ $Net::SSLeay::how_random = 512;
 #   inc/Test/Net/SSLeay.pm
 #   inc/Test/Net/SSLeay/Socket.pm
 #   lib/Net/SSLeay/Handle.pm
-$VERSION = '1.91_03';
+$VERSION = '1.92';
 
 @ISA = qw(Exporter);
 

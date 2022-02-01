@@ -1771,7 +1771,7 @@ int ossl_provider_do_all_cb_invoke(OSSL_PROVIDER *provider, void *cbdata) {
 void ssl_ctx_keylog_cb_func_invoke(const SSL *ssl, const char *line)
 {
     dSP;
-    SV *cb_func, *cb_data;
+    SV *cb_func;
     SSL_CTX *ctx = SSL_get_SSL_CTX(ssl);
 
     PR1("STARTED: ssl_ctx_keylog_cb_func_invoke\n");
@@ -1914,7 +1914,7 @@ X509 * find_issuer(X509 *cert,X509_STORE *store, STACK_OF(X509) *chain) {
     return issuer;
 }
 
-SV* bn2sv(BIGNUM* p_bn)
+SV* bn2sv(const BIGNUM* p_bn)
 {
     return p_bn != NULL
         ? sv_2mortal(newSViv((IV) BN_dup(p_bn)))
@@ -5102,7 +5102,7 @@ SSL_set_max_proto_version(ssl, version)
 #endif /* OpenSSL 1.1.0-pre2 or LibreSSL 2.6.0 */
 
 
-#if OPENSSL_VERSION_NUMBER >= 0x1010007fL && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x1010007fL && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3040000fL)
 
 int
 SSL_CTX_get_min_proto_version(ctx)
@@ -5120,7 +5120,7 @@ int
 SSL_get_max_proto_version(ssl)
      SSL *  ssl
 
-#endif /* OpenSSL 1.1.0g */
+#endif /* OpenSSL 1.1.0g or LibreSSL 3.4.0 */
 
 
 #if OPENSSL_VERSION_NUMBER < 0x10000000L
@@ -6283,8 +6283,28 @@ RSA_generate_key(bits,e,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
 void
 RSA_get_key_parameters(rsa)
 	    RSA * rsa
+PREINIT:
+#if defined(LIBRESSL_VERSION_NUMBER) && (LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
+    const BIGNUM *n, *e, *d;
+    const BIGNUM *p, *q;
+    const BIGNUM *dmp1, *dmq1, *iqmp;
+#endif
 PPCODE:
 {
+#if defined(LIBRESSL_VERSION_NUMBER) && (LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
+    RSA_get0_key(rsa, &n, &e, &d);
+    RSA_get0_factors(rsa, &p, &q);
+    RSA_get0_crt_params(rsa, &dmp1, &dmq1, &iqmp);
+    /* Caution: returned list consists of SV pointers to BIGNUMs, which would need to be blessed as Crypt::OpenSSL::Bignum for further use */
+    XPUSHs(bn2sv(n));
+    XPUSHs(bn2sv(e));
+    XPUSHs(bn2sv(d));
+    XPUSHs(bn2sv(p));
+    XPUSHs(bn2sv(q));
+    XPUSHs(bn2sv(dmp1));
+    XPUSHs(bn2sv(dmq1));
+    XPUSHs(bn2sv(iqmp));
+#else
     /* Caution: returned list consists of SV pointers to BIGNUMs, which would need to be blessed as Crypt::OpenSSL::Bignum for further use */
     XPUSHs(bn2sv(rsa->n));
     XPUSHs(bn2sv(rsa->e));
@@ -6294,9 +6314,10 @@ PPCODE:
     XPUSHs(bn2sv(rsa->dmp1));
     XPUSHs(bn2sv(rsa->dmq1));
     XPUSHs(bn2sv(rsa->iqmp));
+#endif
 }
 
-#endif
+#endif /* OpenSSL < 1.1 or LibreSSL */
 
 void
 RSA_free(r)
@@ -7197,7 +7218,7 @@ ASN1_OBJECT *
 P_X509_get_signature_alg(x)
         X509 * x
     CODE:
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
         RETVAL = (X509_get0_tbs_sigalg(x)->algorithm);
 #else
         RETVAL = (x->cert_info->signature->algorithm);
@@ -7690,7 +7711,7 @@ OCSP_response_results(rsp,...)
 		if (!idsv) {
 		    /* getall: create new SV with OCSP_CERTID */
 		    unsigned char *pi,*pc;
-#if OPENSSL_VERSION_NUMBER >= 0x10100003L && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10100003L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
 		    int len = i2d_OCSP_CERTID((OCSP_CERTID *)OCSP_SINGLERESP_get0_id(sir),NULL);
 #else
 		    int len = i2d_OCSP_CERTID(sir->certId,NULL);
@@ -7699,7 +7720,7 @@ OCSP_response_results(rsp,...)
 		    Newx(pc,len,unsigned char);
 		    if (!pc) croak("out of memory");
 		    pi = pc;
-#if OPENSSL_VERSION_NUMBER >= 0x10100003L && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10100003L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
 		    i2d_OCSP_CERTID((OCSP_CERTID *)OCSP_SINGLERESP_get0_id(sir),&pi);
 #else
 		    i2d_OCSP_CERTID(sir->certId,&pi);
