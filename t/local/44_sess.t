@@ -9,6 +9,7 @@ use Test::Net::SSLeay qw(
 );
 
 use Storable;
+use English qw( $EVAL_ERROR $OSNAME $PERL_VERSION -no_match_vars );
 
 if (not can_fork()) {
     plan skip_all => "fork() not supported on this system";
@@ -34,6 +35,13 @@ my %usable =
 my $pid;
 alarm(30);
 END { kill 9,$pid if $pid }
+
+# For old Perls on Windows. See GH-356 for the details.
+sub maybe_sleep
+{
+    sleep(1) if $OSNAME eq 'MSWin32' && $PERL_VERSION < 5.020000;
+    return;
+}
 
 my (%server_stats, %client_stats);
 
@@ -241,6 +249,7 @@ sub client {
 	( my $proto = $round ) =~ s/-.*?$//;
 	next unless $usable{$proto};
 
+	maybe_sleep();
 	$cl = $server->connect();
 
 	$ctx = new_ctx( $proto, $proto );
@@ -277,6 +286,7 @@ sub client {
 	close($cl) || die("client close: $!");
     }
 
+    maybe_sleep();
     $cl = $server->connect();
     chomp( my $server_end = <$cl> );
     is( $server_end, 'end', 'Successful termination' );
