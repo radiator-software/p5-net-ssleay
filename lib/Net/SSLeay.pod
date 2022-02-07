@@ -8677,6 +8677,56 @@ Check openssl doc L<https://www.openssl.org/docs/ssl/SSL_CIPHER_get_version.html
 
 =back
 
+=head3 Low level API: BN_* related functions
+
+=over
+
+=item * BN_dup
+
+Creates and returns a new BIGNUM from an existing BIGNUM.
+
+ my $bn = Net::SSLeay::BN_dup($from)
+ # $from - value corresponding to BIGNUM structure
+ #
+ # returns: a new BIGNUM containing the value $from
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/BN_dup.html>
+
+=item * BN_clear
+
+Clears BIGNUM data when it is no longer needed.
+
+ Net::SSLeay::BN_clear($bn)
+ # $bn - value corresponding to BIGNUM structure
+ #
+ # returns: nothing. $bn is set to 0.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/BN_clear.html>
+
+=item * BN_clear_free
+
+Clears and frees a previously allocated BIGNUM.
+
+ Net::SSLeay::BN_clear_free($bn)
+ # $bn - value corresponding to BIGNUM structure
+ #
+ # returns: nothing. $bn is no longer usable.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/BN_clear_free.html>
+
+=item * BN_free
+
+Frees previously a allocated BIGNUM.
+
+ Net::SSLeay::BN_free($bn)
+ # $bn - value corresponding to BIGNUM structure
+ #
+ # returns: nothing. $bn is no longer usable.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/BN_free.html>
+
+=back
+
 =head3 Low level API: RSA_* related functions
 
 =over
@@ -8709,13 +8759,28 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/RSA_new.html|http://www.o
 
 =item * RSA_get_key_parameters
 
-Returns a list of pointers to BIGNUMs representing the parameters of the key in
-this order:
-(n, e, d, p, q, dmp1, dmq1, iqmp)
+B<COMPATIBILITY>: not available when OpenSSL is 1.1.0 or later and Net-SSLeay is 1.92 or earlier
 
-Caution: returned list consists of SV pointers to BIGNUMs, which would need to be blessed as Crypt::OpenSSL::Bignum for further use
+Returns a list of pointers to BIGNUMs representing the parameters of
+the key in this order: C<(n, e, d, p, q, dmp1, dmq1, iqmp)>
+
+B<Caution>: returned list consists of direct pointers to BIGNUMs. These must
+not be freed by the caller. These pointers can be used to duplicate a
+BIGNUM, which would need to be blessed as Crypt::OpenSSL::Bignum for further
+use. See L<Crypt::OpenSSL::Bignum> and OpenSSL manual for more about
+C<bless_pointer> to why C<BN_dup()> is used.
 
  my (@params) = RSA_get_key_parameters($r);
+
+ my $dup = Net::SSLeay::BN_dup($params[1]);
+ my $e = Crypt::OpenSSL::Bignum->bless_pointer($dup);
+ print "exponent: ", $e->to_decimal(), "\n";
+
+This function has no equivalent in OpenSSL or LibreSSL but combines
+functions C<RSA_get0_key>, C<RSA_get0_factors> and C<RSA_get0_crt_params> for
+an easier interface.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/RSA_get0_key.html>
 
 =back
 

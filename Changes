@@ -1,14 +1,26 @@
 Revision history for Perl extension Net::SSLeay.
 
 ????
-	- LibreSSL 3.5.0 has removed access to internal data structures. Use
-	  X509_get0_tbs_sigalg() like in OpenSSL 1.1.  Thanks to Alexander
-	  Bluhm.
+	- LibreSSL 3.5.0 has removed access to internal data
+	  structures: Use X509_get0_tbs_sigalg() and
+	  OCSP_SINGLERESP_get0_id() like in OpenSSL 1.1. Also use
+	  RSA_get0... with RSA_get_key_parameters(). Thanks to
+	  Alexander Bluhm.
+	- Expose SSL_CTX_get_min_proto_version(),
+	  SSL_CTX_get_max_proto_version(), SSL_get_min_proto_version()
+	  and SSL_get_max_proto_version() with LibresSSL 3.4.0 and
+	  later. Thanks to Alexander Bluhm.
 	- Update tests 07_sslecho.t and 44_sess.t to work around
 	  failures seen on Windows with Perls earlier than 5.20. For
 	  the details, see GH-356 and look for CloseHandle() in Perl
 	  5.20.0 changelog. Thanks to GitHub user twata1 for the
 	  report and additional help.
+	- Alexander's recent work with RSA_get_key_parameters(),
+	  allows to make it available with all OpenSSL versions. It
+	  was already available with versions earlier than 1.1.0.
+	- Expose BN_dup(), BN_clear(), BN_clear_free() and BN_free().
+	- Use PTR2IV instead of direct cast to IV to fix compilation
+	  warning with SSLeay.xs internal function bn2sv().
 
 1.92 2022-01-12
 	- New stable release incorporating all changes from developer releases 1.91_01

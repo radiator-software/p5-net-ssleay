@@ -5,7 +5,7 @@ use Test::Net::SSLeay qw( data_file_path initialise_libssl is_openssl );
 
 use utf8;
 
-plan tests => 139;
+plan tests => 141;
 
 initialise_libssl();
 
@@ -34,12 +34,24 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
   ok(my $rsa = Net::SSLeay::RSA_generate_key(2048, &Net::SSLeay::RSA_F4), "RSA_generate_key");
   ok(Net::SSLeay::EVP_PKEY_assign_RSA($pk,$rsa), "EVP_PKEY_assign_RSA");
 
-  SKIP: 
-  {
-    skip 'openssl<1.1.0 required', 1 unless Net::SSLeay::SSLeay < 0x10100000
-       or Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER");
-    my @params = Net::SSLeay::RSA_get_key_parameters($rsa);
-    ok(@params == 8, "RSA_get_key_parameters");
+  my @params = Net::SSLeay::RSA_get_key_parameters($rsa);
+  ok(@params == 8, "RSA_get_key_parameters");
+
+ SKIP: {
+     skip('No Crypt::OpenSSL::Bignum for additional tests', 2)
+	 unless eval {require Crypt::OpenSSL::Bignum; 1; };
+
+     # Check that the exponent is what we expect and that our calls
+     # don't clear and free the original value. See
+     # RSA_get_key_parameters in the manual for the details.
+     my $bn = Net::SSLeay::BN_dup($params[1]);
+     my $r = Crypt::OpenSSL::Bignum->bless_pointer($bn);
+     is($r->to_decimal(), Net::SSLeay::RSA_F4(), 'Crypt::OpenSSL::Bignum exponent once');
+     undef $r;
+
+     $bn = Net::SSLeay::BN_dup($params[1]);
+     $r = Crypt::OpenSSL::Bignum->bless_pointer($bn);
+     is($r->to_decimal(), Net::SSLeay::RSA_F4(), 'Crypt::OpenSSL::Bignum exponent twice');
   }
  
   ok(my $x509  = Net::SSLeay::X509_new(), "X509_new");
