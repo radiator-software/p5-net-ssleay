@@ -1914,10 +1914,10 @@ X509 * find_issuer(X509 *cert,X509_STORE *store, STACK_OF(X509) *chain) {
     return issuer;
 }
 
-SV* bn2sv(const BIGNUM* p_bn)
+static SV *bn2sv(const BIGNUM* p_bn)
 {
     return p_bn != NULL
-        ? sv_2mortal(newSViv((IV) BN_dup(p_bn)))
+        ? sv_2mortal(newSViv(PTR2IV(BN_dup(p_bn))))
         : &PL_sv_undef;
 }
 
@@ -6199,6 +6199,18 @@ SSL_set_tmp_rsa(ssl,rsa)
 
 #endif
 
+BIGNUM *
+BN_dup(const BIGNUM *from)
+
+void
+BN_clear(BIGNUM *bn)
+
+void
+BN_clear_free(BIGNUM *bn)
+
+void
+BN_free(BIGNUM *bn)
+
 #if OPENSSL_VERSION_NUMBER >= 0x0090800fL
 
 RSA *
@@ -6278,20 +6290,18 @@ RSA_generate_key(bits,e,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
 
 #endif
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
-
 void
 RSA_get_key_parameters(rsa)
 	    RSA * rsa
 PREINIT:
-#if defined(LIBRESSL_VERSION_NUMBER) && (LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
+#if (!defined(LIBRESSL_VERSION_NUMBER) && (OPENSSL_VERSION_NUMBER >= 0x1010000fL)) || (defined(LIBRESSL_VERSION_NUMBER) && (LIBRESSL_VERSION_NUMBER >= 0x3050000fL))
     const BIGNUM *n, *e, *d;
     const BIGNUM *p, *q;
     const BIGNUM *dmp1, *dmq1, *iqmp;
 #endif
 PPCODE:
 {
-#if defined(LIBRESSL_VERSION_NUMBER) && (LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
+#if (!defined(LIBRESSL_VERSION_NUMBER) && (OPENSSL_VERSION_NUMBER >= 0x1010000fL)) || (defined(LIBRESSL_VERSION_NUMBER) && (LIBRESSL_VERSION_NUMBER >= 0x3050000fL))
     RSA_get0_key(rsa, &n, &e, &d);
     RSA_get0_factors(rsa, &p, &q);
     RSA_get0_crt_params(rsa, &dmp1, &dmq1, &iqmp);
@@ -6316,8 +6326,6 @@ PPCODE:
     XPUSHs(bn2sv(rsa->iqmp));
 #endif
 }
-
-#endif /* OpenSSL < 1.1 or LibreSSL */
 
 void
 RSA_free(r)
