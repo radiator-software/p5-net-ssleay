@@ -7131,27 +7131,35 @@ Returns X509_NAME object corresponding to the issuer of X509_CRL $x.
 
 See other C<X509_NAME_*> functions to get more info from X509_NAME structure.
 
-=item * X509_CRL_get_lastUpdate
+=item * X509_CRL_get0_lastUpdate and X509_CRL_get_lastUpdate
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+B<COMPATIBILITY:> X509_CRL_get0_lastUpdate not available in Net-SSLeay-1.92 and before, X509_CRL_get_lastUpdate not available in Net-SSLeay-1.45 and before
 
 Returns 'lastUpdate' date-time value of X509_CRL object $x.
 
- my $rv = Net::SSLeay::X509_CRL_get_lastUpdate($x);
+ my $rv = Net::SSLeay::X509_CRL_get0_lastUpdate($x);
  # $x - value corresponding to openssl's X509_CRL structure
  #
- # returns: value corresponding to openssl's ASN1_TIME structure (0 on failure)
+ # returns: read-only value corresponding to openssl's ASN1_TIME structure
 
-=item * X509_CRL_get_nextUpdate
+B<NOTE:> X509_CRL_get_lastUpdate is an alias and deprecated in OpenSSL 1.1.0 and later
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_CRL_get0_lastUpdate.html>
+
+=item * X509_CRL_get0_nextUpdate and X509_CRL_get_nextUpdate
+
+B<COMPATIBILITY:> X509_CRL_get0_nextUpdate not available in Net-SSLeay-1.92 and before, X509_CRL_get_nextUpdate not available in Net-SSLeay-1.45 and before
 
 Returns 'nextUpdate' date-time value of X509_CRL object $x.
 
- my $rv = Net::SSLeay::X509_CRL_get_nextUpdate($x);
+ my $rv = Net::SSLeay::X509_CRL_get0_nextUpdate($x);
  # $x - value corresponding to openssl's X509_CRL structure
  #
- # returns: value corresponding to openssl's ASN1_TIME structure (0 on failure)
+ # returns: read-only value corresponding to openssl's ASN1_TIME structure or 0 if 'nextUpdate' is not set
+
+B<NOTE:> X509_CRL_get_nextUpdate is an alias and deprecated in OpenSSL 1.1.0 and later
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_CRL_get0_nextUpdate.html>
 
 =item * X509_CRL_get_version
 

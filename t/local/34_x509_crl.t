@@ -3,7 +3,7 @@ use lib 'inc';
 use Net::SSLeay;
 use Test::Net::SSLeay qw( data_file_path initialise_libssl is_openssl );
 
-plan tests => 42;
+plan tests => 44;
 
 initialise_libssl();
 
@@ -30,8 +30,11 @@ ok(my $ca_pk = Net::SSLeay::PEM_read_bio_PrivateKey($bio2), "PEM_read_bio_Privat
 
   is(Net::SSLeay::X509_NAME_print_ex($name1), 'CN=Intermediate CA,OU=Test Suite,O=Net-SSLeay,C=PL', "X509_NAME_print_ex");
   
-  ok(my $time_last = Net::SSLeay::X509_CRL_get_lastUpdate($crl1), "X509_CRL_get_lastUpdate");
-  ok(my $time_next = Net::SSLeay::X509_CRL_get_nextUpdate($crl1), "X509_CRL_get_nextUpdate");
+  ok(my $time_last = Net::SSLeay::X509_CRL_get0_lastUpdate($crl1), "X509_CRL_get0_lastUpdate");
+  ok(my $time_next = Net::SSLeay::X509_CRL_get0_nextUpdate($crl1), "X509_CRL_get0_nextUpdate");
+  is($time_last, Net::SSLeay::X509_CRL_get_lastUpdate($crl1), "X509_CRL_get_lastUpdate alias for X509_CRL_get0_lastUpdate");
+  is($time_next, Net::SSLeay::X509_CRL_get_nextUpdate($crl1), "X509_CRL_get_nextUpdate alias for X509_CRL_get0_nextUpdate");
+
   is(Net::SSLeay::P_ASN1_TIME_get_isotime($time_last), '2020-07-01T00:00:00Z', "P_ASN1_TIME_get_isotime last");
   is(Net::SSLeay::P_ASN1_TIME_get_isotime($time_next), '2020-07-08T00:00:00Z', "P_ASN1_TIME_get_isotime next");
   
@@ -46,8 +49,8 @@ ok(my $ca_pk = Net::SSLeay::PEM_read_bio_PrivateKey($bio2), "PEM_read_bio_Privat
   ok(my $name = Net::SSLeay::X509_get_subject_name($ca_cert), "X509_get_subject_name");
   ok(Net::SSLeay::X509_CRL_set_issuer_name($crl, $name), "X509_CRL_set_issuer_name");
   
-  Net::SSLeay::P_ASN1_TIME_set_isotime(Net::SSLeay::X509_CRL_get_lastUpdate($crl), "2010-02-01T00:00:00Z");
-  Net::SSLeay::P_ASN1_TIME_set_isotime(Net::SSLeay::X509_CRL_get_nextUpdate($crl), "2011-02-01T00:00:00Z");
+  Net::SSLeay::P_ASN1_TIME_set_isotime(Net::SSLeay::X509_CRL_get0_lastUpdate($crl), "2010-02-01T00:00:00Z");
+  Net::SSLeay::P_ASN1_TIME_set_isotime(Net::SSLeay::X509_CRL_get0_nextUpdate($crl), "2011-02-01T00:00:00Z");
   
   ok(Net::SSLeay::X509_CRL_set_version($crl, 1), "X509_CRL_set_version");
   my $ser = Net::SSLeay::ASN1_INTEGER_new();
@@ -91,8 +94,8 @@ ok(my $ca_pk = Net::SSLeay::PEM_read_bio_PrivateKey($bio2), "PEM_read_bio_Privat
   ok(my $crl = Net::SSLeay::d2i_X509_CRL_bio($bio), "d2i_X509_CRL_bio");
   is(Net::SSLeay::X509_CRL_verify($crl, Net::SSLeay::X509_get_pubkey($ca_cert)), 1, "X509_CRL_verify");
 
-  ok(my $time_last = Net::SSLeay::X509_CRL_get_lastUpdate($crl), "X509_CRL_get_lastUpdate");
-  ok(my $time_next = Net::SSLeay::X509_CRL_get_nextUpdate($crl), "X509_CRL_get_nextUpdate");
+  ok(my $time_last = Net::SSLeay::X509_CRL_get0_lastUpdate($crl), "X509_CRL_get0_lastUpdate");
+  ok(my $time_next = Net::SSLeay::X509_CRL_get0_nextUpdate($crl), "X509_CRL_get0_nextUpdate");
   
   ok(my $sn = Net::SSLeay::P_X509_CRL_get_serial($crl), "P_X509_CRL_get_serial");
   is(Net::SSLeay::ASN1_INTEGER_get($sn), 1, "ASN1_INTEGER_get");

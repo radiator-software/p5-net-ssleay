@@ -3648,11 +3648,31 @@ X509_CRL_get_version(X509_CRL *x)
 X509_NAME *
 X509_CRL_get_issuer(X509_CRL *x)
 
+#if (OPENSSL_VERSION_NUMBER >= 0x1010000f && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
+
+const ASN1_TIME *
+X509_CRL_get0_lastUpdate(const X509_CRL *crl)
+	  ALIAS:
+		X509_CRL_get_lastUpdate = 1
+
+const ASN1_TIME *
+X509_CRL_get0_nextUpdate(const X509_CRL *crl)
+	  ALIAS:
+		X509_CRL_get_nextUpdate = 1
+
+#else /* plain get_ is deprecated */
+
 ASN1_TIME *
 X509_CRL_get_lastUpdate(X509_CRL *x)
+	  ALIAS:
+		X509_CRL_get0_lastUpdate = 1
 
 ASN1_TIME *
 X509_CRL_get_nextUpdate(X509_CRL *x)
+	  ALIAS:
+		X509_CRL_get0_nextUpdate = 1
+
+#endif
 
 int
 X509_CRL_verify(X509_CRL *a, EVP_PKEY *r)
@@ -4057,7 +4077,11 @@ X509_get_subjectAltNames(cert)
                          EXTEND(SP, 2);
                          count++;
                          PUSHs(sv_2mortal(newSViv(subjAltNameDN->type)));
+#if (OPENSSL_VERSION_NUMBER >= 0x1010000f && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
+                         PUSHs(sv_2mortal(newSVpv((const char*)ASN1_STRING_get0_data(subjAltNameDN->d.otherName->value->value.utf8string), ASN1_STRING_length(subjAltNameDN->d.otherName->value->value.utf8string))));
+#else
                          PUSHs(sv_2mortal(newSVpv((const char*)ASN1_STRING_data(subjAltNameDN->d.otherName->value->value.utf8string), ASN1_STRING_length(subjAltNameDN->d.otherName->value->value.utf8string))));
+#endif
                          break;
 
                      case GEN_EMAIL:
@@ -4066,7 +4090,11 @@ X509_get_subjectAltNames(cert)
                          EXTEND(SP, 2);
                          count++;
                          PUSHs(sv_2mortal(newSViv(subjAltNameDN->type)));
+#if (OPENSSL_VERSION_NUMBER >= 0x1010000f && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
+                         PUSHs(sv_2mortal(newSVpv((const char*)ASN1_STRING_get0_data(subjAltNameDN->d.ia5), ASN1_STRING_length(subjAltNameDN->d.ia5))));
+#else
                          PUSHs(sv_2mortal(newSVpv((const char*)ASN1_STRING_data(subjAltNameDN->d.ia5), ASN1_STRING_length(subjAltNameDN->d.ia5))));
+#endif
                          break;
 
                      case GEN_DIRNAME:
@@ -4130,7 +4158,11 @@ P_X509_get_crl_distribution_points(cert)
                     gn = sk_GENERAL_NAME_value(gnames, j);
 
                     if (gn->type == GEN_URI) {
+#if (OPENSSL_VERSION_NUMBER >= 0x1010000f && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
+                        XPUSHs(sv_2mortal(newSVpv((char*)ASN1_STRING_get0_data(gn->d.ia5),ASN1_STRING_length(gn->d.ia5))));
+#else
                         XPUSHs(sv_2mortal(newSVpv((char*)ASN1_STRING_data(gn->d.ia5),ASN1_STRING_length(gn->d.ia5))));
+#endif
                     }
                 }
             }
@@ -4172,7 +4204,11 @@ P_X509_get_ocsp_uri(cert)
 	    if (OBJ_obj2nid(ad->method) == NID_ad_OCSP
 		&& ad->location->type == GEN_URI) {
 		XPUSHs(sv_2mortal(newSVpv(
+#if (OPENSSL_VERSION_NUMBER >= 0x1010000f && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
+		    (char*)ASN1_STRING_get0_data(ad->location->d.uniformResourceIdentifier),
+#else
 		    (char*)ASN1_STRING_data(ad->location->d.uniformResourceIdentifier),
+#endif
 		    ASN1_STRING_length(ad->location->d.uniformResourceIdentifier)
 		)));
 		if (GIMME == G_SCALAR) break; /* get only first */
@@ -4521,7 +4557,11 @@ P_ASN1_STRING_get(s,utf8_decode=0)
     PREINIT:
         SV * u8;
     PPCODE:
+#if (OPENSSL_VERSION_NUMBER >= 0x1010000f && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
+        u8 = newSVpv((const char*)ASN1_STRING_get0_data(s), ASN1_STRING_length(s));
+#else
         u8 = newSVpv((const char*)ASN1_STRING_data(s), ASN1_STRING_length(s));
+#endif
         if (utf8_decode) sv_utf8_decode(u8);
         XPUSHs(sv_2mortal(u8));
 
