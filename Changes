@@ -21,6 +21,18 @@ Revision history for Perl extension Net::SSLeay.
 	- Expose BN_dup(), BN_clear(), BN_clear_free() and BN_free().
 	- Use PTR2IV instead of direct cast to IV to fix compilation
 	  warning with SSLeay.xs internal function bn2sv().
+	- Expose X509_CRL_get0_lastUpdate(),
+	  X509_CRL_get0_nextUpdate(), X509_CRL_set1_lastUpdate() and
+	  X509_CRL_set1_nextUpdate() that became available with
+	  OpenSSL 1.1.0 and LibreSSL 2.7.0. These and the respective
+	  deprecated _get/set_ aliases are available with all OpenSSL
+	  and LibreSSL versions. Fixes GH-367 and part of RT#124371
+	- Note in documentation that the X509_CRL_get* functions
+	  return a pointer to time structure that should be considered
+	  read-only.
+	- Use ASN1_STRING_get0_data() instead of ASN1_STRING_data() to
+	  avoid compile time deprecation warnings. Partly fixes
+	  RT#124371.
 
 1.92 2022-01-12
 	- New stable release incorporating all changes from developer releases 1.91_01

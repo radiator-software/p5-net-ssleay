@@ -7184,29 +7184,37 @@ Sets the issuer of X509_CRL object $x to X509_NAME object $name.
  #
  # returns: 1 on success, 0 on failure
 
-=item * X509_CRL_set_lastUpdate
+=item * X509_CRL_set1_lastUpdate and X509_CRL_set_lastUpdate
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+B<COMPATIBILITY:> X509_CRL_set1_lastUpdate not available in Net-SSLeay-1.92 and before, X509_CRL_set_lastUpdate not available in Net-SSLeay-1.45 and before
 
 Sets 'lastUpdate' value of X509_CRL object $x to $tm.
 
- my $rv = Net::SSLeay::X509_CRL_set_lastUpdate($x, $tm);
+ my $rv = Net::SSLeay::X509_CRL_set1_lastUpdate($x, $tm);
  # $x - value corresponding to openssl's X509_CRL structure
  # $tm - value corresponding to openssl's ASN1_TIME structure
  #
  # returns: 1 on success, 0 on failure
 
-=item * X509_CRL_set_nextUpdate
+B<NOTE:> X509_CRL_set_lastUpdate is an alias and deprecated in OpenSSL 1.1.0 and later
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_CRL_set1_lastUpdate.html>
+
+=item * X509_CRL_set1_nextUpdate and X509_CRL_set_nextUpdate
+
+B<COMPATIBILITY:> X509_CRL_set1_nextUpdate not available in Net-SSLeay-1.92 and before, X509_CRL_set_nextUpdate not available in Net-SSLeay-1.45 and before
 
 Sets 'nextUpdate' value of X509_CRL object $x to $tm.
 
- my $rv = Net::SSLeay::X509_CRL_set_nextUpdate($x, $tm);
+ my $rv = Net::SSLeay::X509_CRL_set1_nextUpdate($x, $tm);
  # $x - value corresponding to openssl's X509_CRL structure
  # $tm - value corresponding to openssl's ASN1_TIME structure
  #
  # returns: 1 on success, 0 on failure
+
+B<NOTE:> X509_CRL_set_nextUpdate is an alias and deprecated in OpenSSL 1.1.0 and later
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_CRL_set1_nextUpdate.html>
 
 =item * X509_CRL_set_version
 

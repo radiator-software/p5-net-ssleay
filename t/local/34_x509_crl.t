@@ -3,7 +3,7 @@ use lib 'inc';
 use Net::SSLeay;
 use Test::Net::SSLeay qw( data_file_path initialise_libssl is_openssl );
 
-plan tests => 44;
+plan tests => 53;
 
 initialise_libssl();
 
@@ -48,10 +48,14 @@ ok(my $ca_pk = Net::SSLeay::PEM_read_bio_PrivateKey($bio2), "PEM_read_bio_Privat
   
   ok(my $name = Net::SSLeay::X509_get_subject_name($ca_cert), "X509_get_subject_name");
   ok(Net::SSLeay::X509_CRL_set_issuer_name($crl, $name), "X509_CRL_set_issuer_name");
-  
-  Net::SSLeay::P_ASN1_TIME_set_isotime(Net::SSLeay::X509_CRL_get0_lastUpdate($crl), "2010-02-01T00:00:00Z");
-  Net::SSLeay::P_ASN1_TIME_set_isotime(Net::SSLeay::X509_CRL_get0_nextUpdate($crl), "2011-02-01T00:00:00Z");
-  
+
+  my $time_last = Net::SSLeay::ASN1_TIME_new();
+  my $time_next = Net::SSLeay::ASN1_TIME_new();
+  Net::SSLeay::P_ASN1_TIME_set_isotime($time_last, "2010-02-01T00:00:00Z");
+  Net::SSLeay::P_ASN1_TIME_set_isotime($time_next, "2011-02-01T00:00:00Z");
+  is(Net::SSLeay::X509_CRL_set1_lastUpdate($crl, $time_last), 1, "X509_CRL_set1_lastUpdate in create");
+  is(Net::SSLeay::X509_CRL_set1_nextUpdate($crl, $time_next), 1, "X509_CRL_set1_nextUpdate in create");
+
   ok(Net::SSLeay::X509_CRL_set_version($crl, 1), "X509_CRL_set_version");
   my $ser = Net::SSLeay::ASN1_INTEGER_new();
   Net::SSLeay::P_ASN1_INTEGER_set_hex($ser, "4AFED5654654BCEDED4AFED5654654BCEDED");
@@ -101,7 +105,25 @@ ok(my $ca_pk = Net::SSLeay::PEM_read_bio_PrivateKey($bio2), "PEM_read_bio_Privat
   is(Net::SSLeay::ASN1_INTEGER_get($sn), 1, "ASN1_INTEGER_get");
   
   ok(my $crl2 = Net::SSLeay::X509_CRL_new(), "X509_CRL_new");
-  ok(Net::SSLeay::X509_CRL_set_lastUpdate($crl2, $time_last), "X509_CRL_set_lastUpdate");
-  ok(Net::SSLeay::X509_CRL_set_nextUpdate($crl2, $time_next), "X509_CRL_set_nextUpdate");
+  is(Net::SSLeay::X509_CRL_get0_nextUpdate($crl2), 0, 'nextUpdate is 0 after X509_CRL_new()');
+
+  is(Net::SSLeay::X509_CRL_set1_lastUpdate($crl2, $time_last), 1, "X509_CRL_set1_lastUpdate");
+  is(Net::SSLeay::X509_CRL_set1_nextUpdate($crl2, $time_next), 1, "X509_CRL_set1_nextUpdate");
+
+  is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_CRL_get0_lastUpdate($crl2)), '2020-07-01T00:00:00Z', "lastUpdate after X509_CRL_set1_lastUpdate");
+  is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_CRL_get0_nextUpdate($crl2)), '2020-07-08T00:00:00Z', "nextUpdate after X509_CRL_set1_nextUpdate");
+
+  # Now test that aliases work too. Also use unix timestamp past 32 bits.
+  $time_last =  Net::SSLeay::ASN1_TIME_new();
+  $time_next =  Net::SSLeay::ASN1_TIME_new();
+  Net::SSLeay::P_ASN1_TIME_set_isotime($time_last, '2322-02-08T01:02:03Z');
+  Net::SSLeay::P_ASN1_TIME_set_isotime($time_next, '2322-02-08T02:04:06Z');
+
+  is(Net::SSLeay::X509_CRL_set_lastUpdate($crl2, $time_last), 1, "X509_CRL_set_lastUpdate alias");
+  is(Net::SSLeay::X509_CRL_set_nextUpdate($crl2, $time_next), 1, "X509_CRL_set_nextUpdate alias");
+
+  is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_CRL_get0_lastUpdate($crl2)), '2322-02-08T01:02:03Z', "lastUpdate after X509_CRL_set_lastUpdate alias");
+  is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_CRL_get0_nextUpdate($crl2)), '2322-02-08T02:04:06Z', "nextUpdate after X509_CRL_set_nextUpdate alias");
+
   Net::SSLeay::X509_CRL_free($crl2);
 }

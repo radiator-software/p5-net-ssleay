@@ -3632,12 +3632,6 @@ int
 X509_CRL_set_issuer_name(X509_CRL *x, X509_NAME *name)
 
 int
-X509_CRL_set_lastUpdate(X509_CRL *x, ASN1_TIME *tm)
-
-int
-X509_CRL_set_nextUpdate(X509_CRL *x, ASN1_TIME *tm)
-
-int
 X509_CRL_sort(X509_CRL *x)
 
 #endif
@@ -3660,7 +3654,17 @@ X509_CRL_get0_nextUpdate(const X509_CRL *crl)
 	  ALIAS:
 		X509_CRL_get_nextUpdate = 1
 
-#else /* plain get_ is deprecated */
+int
+X509_CRL_set1_lastUpdate(X509_CRL *x, ASN1_TIME *tm)
+	  ALIAS:
+		X509_CRL_set_lastUpdate = 1
+
+int
+X509_CRL_set1_nextUpdate(X509_CRL *x, ASN1_TIME *tm)
+	  ALIAS:
+		X509_CRL_set_nextUpdate = 1
+
+#else /* plain get/set is deprecated */
 
 ASN1_TIME *
 X509_CRL_get_lastUpdate(X509_CRL *x)
@@ -3671,6 +3675,16 @@ ASN1_TIME *
 X509_CRL_get_nextUpdate(X509_CRL *x)
 	  ALIAS:
 		X509_CRL_get0_nextUpdate = 1
+
+int
+X509_CRL_set_lastUpdate(X509_CRL *x, ASN1_TIME *tm)
+	  ALIAS:
+		X509_CRL_set1_lastUpdate = 1
+
+int
+X509_CRL_set_nextUpdate(X509_CRL *x, ASN1_TIME *tm)
+	  ALIAS:
+		X509_CRL_set1_nextUpdate = 1
 
 #endif
 
