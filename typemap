@@ -39,6 +39,7 @@ LHASH *         T_PTR
 struct lhash_st_SSL_SESSION *	T_PTR
 struct cert_st * T_PTR
 X509_STORE_CTX * T_PTR
+const ASN1_TIME *      T_PTR
 ASN1_TIME *      T_PTR
 ASN1_OCTET_STRING *   T_PTR
 const ASN1_INTEGER *   T_PTR
