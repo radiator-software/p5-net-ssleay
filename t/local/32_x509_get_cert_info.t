@@ -8,8 +8,8 @@ use Test::Net::SSLeay qw(
 use lib '.';
 
 my $tests =   ( is_openssl() && Net::SSLeay::SSLeay < 0x10100003 ) || is_libressl()
-            ? 723
-            : 726;
+            ? 739
+            : 742;
 
 plan tests => $tests;
 
@@ -121,8 +121,12 @@ for my $f (keys (%$dump)) {
   
   SKIP: {
     skip('P_ASN1_TIME_get_isotime requires 0.9.7e+', 2) unless Net::SSLeay::SSLeay >= 0x0090705f;
-    is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get_notBefore($x509)), $dump->{$f}->{not_before}, "X509_get_notBefore\t$f");
-    is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get_notAfter($x509)), $dump->{$f}->{not_after}, "X509_get_notAfter\t$f");
+    is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get0_notBefore($x509)), $dump->{$f}->{not_before}, "X509_get0_notBefore\t$f");
+    is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_getm_notBefore($x509)), $dump->{$f}->{not_before}, "X509_getm_notBefore\t$f");
+    is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get_notBefore($x509)),  $dump->{$f}->{not_before}, "X509_get_notBefore\t$f");
+    is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get0_notAfter($x509)),  $dump->{$f}->{not_after},  "X509_get0_notAfter\t$f");
+    is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_getm_notAfter($x509)),  $dump->{$f}->{not_after},  "X509_getm_notAfter\t$f");
+    is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get_notAfter($x509)),   $dump->{$f}->{not_after},  "X509_get_notAfter\t$f");
   }
   
   ok(my $ai = Net::SSLeay::X509_get_serialNumber($x509), "X509_get_serialNumber\t$f");

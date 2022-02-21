@@ -4579,13 +4579,39 @@ P_ASN1_STRING_get(s,utf8_decode=0)
         if (utf8_decode) sv_utf8_decode(u8);
         XPUSHs(sv_2mortal(u8));
 
-ASN1_TIME *
-X509_get_notBefore(cert)
-     X509 *	cert
+#if (OPENSSL_VERSION_NUMBER >= 0x1010000f && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
+
+const ASN1_TIME *
+X509_get0_notBefore(const X509 *cert)
+
+const ASN1_TIME *
+X509_get0_notAfter(const X509 *cert)
 
 ASN1_TIME *
-X509_get_notAfter(cert)
-     X509 *	cert
+X509_getm_notBefore(const X509 *cert)
+	ALIAS:
+		X509_get_notBefore = 1
+
+ASN1_TIME *
+X509_getm_notAfter(const X509 *cert)
+	ALIAS:
+		X509_get_notAfter = 1
+
+#else /* plain get_ is deprecated */
+
+ASN1_TIME *
+X509_get_notBefore(X509 *cert)
+	ALIAS:
+		X509_get0_notBefore = 1
+		X509_getm_notBefore = 2
+
+ASN1_TIME *
+X509_get_notAfter(X509 *cert)
+	ALIAS:
+		X509_get0_notAfter = 1
+		X509_getm_notAfter = 2
+
+#endif
 
 ASN1_TIME *
 X509_gmtime_adj(s, adj)
