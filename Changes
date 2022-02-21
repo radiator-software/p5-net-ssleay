@@ -24,9 +24,9 @@ Revision history for Perl extension Net::SSLeay.
 	- Expose X509_CRL_get0_lastUpdate(),
 	  X509_CRL_get0_nextUpdate(), X509_CRL_set1_lastUpdate() and
 	  X509_CRL_set1_nextUpdate() that became available with
-	  OpenSSL 1.1.0 and LibreSSL 2.7.0. These and the respective
-	  deprecated _get/set_ aliases are available with all OpenSSL
-	  and LibreSSL versions. Fixes GH-367 and part of RT#124371
+	  OpenSSL 1.1.0 and LibreSSL 2.7.0. These, and the respective
+	  deprecated _get/set_ aliases, are available with all OpenSSL
+	  and LibreSSL versions. Fixes part of RT#124371.
 	- Note in documentation that the X509_CRL_get* functions
 	  return a pointer to time structure that should be considered
 	  read-only.
@@ -71,6 +71,12 @@ Revision history for Perl extension Net::SSLeay.
 	  - X509_V_ERR_SUBJECT_KEY_IDENTIFIER_CRITICAL
 	  - X509_V_ERR_SUBJECT_NAME_EMPTY
 	  - X509_V_ERR_UNSUPPORTED_SIGNATURE_ALGORITHM
+	- Expose X509_get0_notBefore(), X509_getm_notBefore()
+	  X509_get0_nextAfter() and X509_getm_nextAfter() that became
+	  available with OpenSSL 1.1.0 and LibreSSL 2.7.0. These, and
+	  the deprecated _get functions, are available, as aliases
+	  when needed, with all OpenSSL and LibreSSL versions. Fixes
+	  GH-367.
 
 1.92 2022-01-12
 	- New stable release incorporating all changes from developer releases 1.91_01

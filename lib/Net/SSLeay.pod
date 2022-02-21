@@ -6334,33 +6334,49 @@ Return an X509_NAME object representing the issuer of the certificate $cert.
  #
  # returns: value corresponding to openssl's X509_NAME structure (0 on failure)
 
-=item * X509_get_notAfter
+=item * X509_get0_notAfter, X509_getm_notAfter and X509_get_notAfter
+
+B<COMPATIBILITY:> X509_get0_notAfter and X509_getm_notAfter are not available in Net-SSLeay-1.92 and before
 
 Return an object giving the time after which the certificate $cert is not valid.
 
- my $rv = Net::SSLeay::X509_get_notAfter($cert);
+ my $rv  = Net::SSLeay::X509_get0_notAfter($cert);
+ my $rvm = Net::SSLeay::X509_getm_notAfter($cert);
  # $cert - value corresponding to openssl's X509 structure
  #
- # returns: value corresponding to openssl's ASN1_TIME structure (0 on failure)
+ # returns: $rv  read-only value corresponding to openssl's ASN1_TIME structure
+ #          $rvm mutable   value corresponding to openssl's ASN1_TIME structure
 
 To get human readable/printable form the return value you can use:
 
  my $time = Net::SSLeay::X509_get_notAfter($cert);
  print "notAfter=", Net::SSLeay::P_ASN1_TIME_get_isotime($time), "\n";
 
-=item * X509_get_notBefore
+B<NOTE:> X509_get_notAfter is an alias and deprecated in OpenSSL 1.1.0 and later
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_get0_notAfter.html>
+
+=item * X509_get0_notBefore, X509_getm_notBefore and X509_get_notBefore
+
+B<COMPATIBILITY:> X509_get0_notBefore and X509_getm_notBefore are not available in Net-SSLeay-1.92 and before
 
 Return an object giving the time before which the certificate $cert is not valid
 
- my $rv = Net::SSLeay::X509_get_notBefore($cert);
+ my $rv  = Net::SSLeay::X509_get0_notBefore($cert);
+ my $rvm = Net::SSLeay::X509_getm_notBefore($cert);
  # $cert - value corresponding to openssl's X509 structure
  #
- # returns: value corresponding to openssl's ASN1_TIME structure (0 on failure)
+ # returns: $rv  read-only value corresponding to openssl's ASN1_TIME structure
+ #          $rvm mutable   value corresponding to openssl's ASN1_TIME structure
 
 To get human readable/printable form the return value you can use:
 
  my $time = Net::SSLeay::X509_get_notBefore($cert);
  print "notBefore=", Net::SSLeay::P_ASN1_TIME_get_isotime($time), "\n";
+
+B<NOTE:> X509_get_notBefore is an alias and deprecated in OpenSSL 1.1.0 and later
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_get0_notBefore.html>
 
 =item * X509_get_subjectAltNames
 
