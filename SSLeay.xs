@@ -2082,6 +2082,8 @@ SSL_CTX_v23_new()
      OUTPUT:
      RETVAL
 
+#ifndef OPENSSL_NO_TLS1_METHOD
+
 SSL_CTX *
 SSL_CTX_tlsv1_new()
      CODE:
@@ -2089,7 +2091,9 @@ SSL_CTX_tlsv1_new()
      OUTPUT:
      RETVAL
 
-#ifdef SSL_TXT_TLSV1_1
+#endif
+
+#ifndef OPENSSL_NO_TLS1_1_METHOD
 
 SSL_CTX *
 SSL_CTX_tlsv1_1_new()
@@ -2100,7 +2104,7 @@ SSL_CTX_tlsv1_1_new()
 
 #endif
 
-#ifdef SSL_TXT_TLSV1_2
+#ifndef OPENSSL_NO_TLS1_2_METHOD
 
 SSL_CTX *
 SSL_CTX_tlsv1_2_new()
@@ -5107,6 +5111,8 @@ SSLv23_server_method()
 const SSL_METHOD *
 SSLv23_client_method()
 
+#ifndef OPENSSL_NO_TLS1_METHOD
+
 const SSL_METHOD *
 TLSv1_method()
 
@@ -5116,7 +5122,9 @@ TLSv1_server_method()
 const SSL_METHOD *
 TLSv1_client_method()
 
-#ifdef SSL_TXT_TLSV1_1
+#endif
+
+#ifndef OPENSSL_NO_TLS1_1_METHOD
 
 const SSL_METHOD *
 TLSv1_1_method()
@@ -5129,7 +5137,7 @@ TLSv1_1_client_method()
 
 #endif
 
-#ifdef SSL_TXT_TLSV1_2
+#ifndef OPENSSL_NO_TLS1_2_METHOD
 
 const SSL_METHOD *
 TLSv1_2_method()

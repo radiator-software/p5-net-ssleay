@@ -27,8 +27,16 @@ my $ctx = Net::SSLeay::CTX_new();
 ok($ctx, 'CTX_new');
 $ctx =  Net::SSLeay::CTX_v23_new();
 ok($ctx, 'CTX_v23_new');
-$ctx =  Net::SSLeay::CTX_tlsv1_new();
-ok($ctx, 'CTX_tlsv1_new');
+
+if ( defined &Net::SSLeay::CTX_tlsv1_new ) {
+    $ctx = Net::SSLeay::CTX_tlsv1_new();
+    ok( $ctx, 'CTX_tlsv1_new' );
+}
+else {
+    SKIP: {
+        skip( 'Do not have Net::SSLeay::CTX_tlsv1_new', 1 );
+    }
+}
 
 my $ctx_23 = Net::SSLeay::CTX_new_with_method(Net::SSLeay::SSLv23_method());
 ok($ctx_23, 'CTX_new with SSLv23_method');
@@ -39,8 +47,15 @@ ok($ctx_23_client, 'CTX_new with SSLv23_client_method');
 my $ctx_23_server = Net::SSLeay::CTX_new_with_method(Net::SSLeay::SSLv23_server_method());
 ok($ctx_23_server, 'CTX_new with SSLv23_server_method');
 
-my $ctx_tls1 = Net::SSLeay::CTX_new_with_method(Net::SSLeay::TLSv1_method());
-ok($ctx_tls1, 'CTX_new with TLSv1_method');
+if ( defined &Net::SSLeay::TLSv1_method ) {
+    my $ctx_tls1 = Net::SSLeay::CTX_new_with_method( Net::SSLeay::TLSv1_method() );
+    ok( $ctx_tls1, 'CTX_new with TLSv1_method' );
+}
+else {
+    SKIP: {
+        skip( 'Do not have Net::SSLeay::TLSv1_method', 1 );
+    }
+}
 
 # Retrieve information about the handshake state machine
 is(Net::SSLeay::in_connect_init(Net::SSLeay::new($ctx_23_client)), 1, 'in_connect_init() is 1 for client');

@@ -2808,7 +2808,9 @@ Creates a new SSL_CTX object - based on SSLv3_method() - as framework to establi
 
 =item * CTX_tlsv1_new
 
-Creates a new SSL_CTX object - based on TLSv1_method() - as framework to establish TLS/SSL enabled connections.
+B<COMPATIBILITY:> requires a libssl compiled with support for TLSv1
+
+Creates a new SSL_CTX object - based on C<TLSv1_method()> - as a framework for establishing connections using TLSv1.
 
  my $rv = Net::SSLeay::CTX_tlsv1_new();
  #
@@ -2816,8 +2818,9 @@ Creates a new SSL_CTX object - based on TLSv1_method() - as framework to establi
 
 =item * CTX_tlsv1_1_new
 
-Creates a new SSL_CTX object - based on TLSv1_1_method() - as framework to establish TLS/SSL 
-enabled connections. Only available where supported by the underlying openssl.
+B<COMPATIBILITY:> requires a libssl compiled with support for TLSv1.1
+
+Creates a new SSL_CTX object - based on C<TLSv1_1_method()> - as a framework for establishing connections using TLSv1.1.
 
  my $rv = Net::SSLeay::CTX_tlsv1_1_new();
  #
@@ -2825,8 +2828,9 @@ enabled connections. Only available where supported by the underlying openssl.
 
 =item * CTX_tlsv1_2_new
 
-Creates a new SSL_CTX object - based on TLSv1_2_method() - as framework to establish TLS/SSL 
-enabled connections. Only available where supported by the underlying openssl.
+B<COMPATIBILITY:> requires a libssl compiled with support for TLSv1.2
+
+Creates a new SSL_CTX object - based on C<TLSv1_2_method()> - as a framework for establishing connections using TLSv1.2.
 
  my $rv = Net::SSLeay::CTX_tlsv1_2_new();
  #
