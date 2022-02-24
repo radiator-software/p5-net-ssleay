@@ -77,6 +77,10 @@ Revision history for Perl extension Net::SSLeay.
 	  the deprecated _get functions, are available, as aliases
 	  when needed, with all OpenSSL and LibreSSL versions. Fixes
 	  GH-367.
+	- Only export the TLSv1*_method() functions when support for the respective TLS
+	  version is available in the underlying libssl library. This allows
+	  Net::SSLeay to be built against libssl libraries that were compiled without
+	  support for old TLS versions.
 
 1.92 2022-01-12
 	- New stable release incorporating all changes from developer releases 1.91_01

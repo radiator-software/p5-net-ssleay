@@ -1464,7 +1464,7 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_new.html|http://www.
 
 =item * TLSv1_method, TLSv1_server_method and TLSv1_client_method
 
-B<COMPATIBILITY:> Server and client methods not available in Net-SSLeay-1.82 and before.
+B<COMPATIBILITY:> Requires OpenSSL or LibreSSL built with support for TLSv1. Server and client methods not available in Net-SSLeay-1.82 and before.
 
 Returns SSL_METHOD structure corresponding to TLSv1 method, the return value can be later used as a param of L</CTX_new_with_method>.
 
@@ -1476,9 +1476,9 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_new.html|http://www.
 
 =item * TLSv1_1_method, TLSv1_1_server_method and TLSv1_1_client_method
 
-B<COMPATIBILITY:> Server and client methods not available in Net-SSLeay-1.82 and before.
+B<COMPATIBILITY:> Requires OpenSSL >= 1.0.1 or LibreSSL built with support for TLSv1.1. Server and client methods not available in Net-SSLeay-1.82 and before.
 
-Returns SSL_METHOD structure corresponding to TLSv1_1 method, the return value can be later used as a param of L</CTX_new_with_method>. Only available where supported by the underlying openssl.
+Returns SSL_METHOD structure corresponding to TLSv1_1 method, the return value can be later used as a param of L</CTX_new_with_method>.
 
  my $rv = Net::SSLeay::TLSv1_1_method();
  #
@@ -1488,9 +1488,9 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_new.html|http://www.
 
 =item * TLSv1_2_method, TLSv1_2_server_method and TLSv1_2_client_method
 
-B<COMPATIBILITY:> Server and client methods not available in Net-SSLeay-1.82 and before.
+B<COMPATIBILITY:> Requires OpenSSL >= 1.0.1 or LibreSSL built with support for TLSv1.2. Server and client methods not available in Net-SSLeay-1.82 and before.
 
-Returns SSL_METHOD structure corresponding to TLSv1_2 method, the return value can be later used as a param of L</CTX_new_with_method>. Only available where supported by the underlying openssl.
+Returns SSL_METHOD structure corresponding to TLSv1_2 method, the return value can be later used as a param of L</CTX_new_with_method>.
 
  my $rv = Net::SSLeay::TLSv1_2_method();
  #
@@ -2808,7 +2808,9 @@ Creates a new SSL_CTX object - based on SSLv3_method() - as framework to establi
 
 =item * CTX_tlsv1_new
 
-Creates a new SSL_CTX object - based on TLSv1_method() - as framework to establish TLS/SSL enabled connections.
+B<COMPATIBILITY:> Requires OpenSSL or LibreSSL built with support for TLSv1.
+
+Creates a new SSL_CTX object - based on C<TLSv1_method()> - as a framework for establishing connections using TLSv1.
 
  my $rv = Net::SSLeay::CTX_tlsv1_new();
  #
@@ -2816,8 +2818,9 @@ Creates a new SSL_CTX object - based on TLSv1_method() - as framework to establi
 
 =item * CTX_tlsv1_1_new
 
-Creates a new SSL_CTX object - based on TLSv1_1_method() - as framework to establish TLS/SSL 
-enabled connections. Only available where supported by the underlying openssl.
+B<COMPATIBILITY:> Requires OpenSSL >= 1.0.1 or LibreSSL built with support for TLSv1.1.
+
+Creates a new SSL_CTX object - based on C<TLSv1_1_method()> - as a framework for establishing connections using TLSv1.1.
 
  my $rv = Net::SSLeay::CTX_tlsv1_1_new();
  #
@@ -2825,8 +2828,9 @@ enabled connections. Only available where supported by the underlying openssl.
 
 =item * CTX_tlsv1_2_new
 
-Creates a new SSL_CTX object - based on TLSv1_2_method() - as framework to establish TLS/SSL 
-enabled connections. Only available where supported by the underlying openssl.
+B<COMPATIBILITY:> Requires OpenSSL >= 1.0.1 or LibreSSL built with support for TLSv1.2.
+
+Creates a new SSL_CTX object - based on C<TLSv1_2_method()> - as a framework for establishing connections using TLSv1.2.
 
  my $rv = Net::SSLeay::CTX_tlsv1_2_new();
  #
