@@ -5111,7 +5111,7 @@ SSLv23_server_method()
 const SSL_METHOD *
 SSLv23_client_method()
 
-#ifndef OPENSSL_NO_TLS1_METHOD
+#if !defined(OPENSSL_NO_TLS1_METHOD)
 
 const SSL_METHOD *
 TLSv1_method()
@@ -5124,7 +5124,7 @@ TLSv1_client_method()
 
 #endif
 
-#ifndef OPENSSL_NO_TLS1_1_METHOD
+#if (OPENSSL_VERSION_NUMBER >= 0x10001001L && !defined(OPENSSL_NO_TLS1_1_METHOD)) /* OpenSSL 1.0.1-beta1 */
 
 const SSL_METHOD *
 TLSv1_1_method()
@@ -5137,7 +5137,7 @@ TLSv1_1_client_method()
 
 #endif
 
-#ifndef OPENSSL_NO_TLS1_2_METHOD
+#if (OPENSSL_VERSION_NUMBER >= 0x10001001L && !defined(OPENSSL_NO_TLS1_2_METHOD)) /* OpenSSL 1.0.1-beta1 */
 
 const SSL_METHOD *
 TLSv1_2_method()
