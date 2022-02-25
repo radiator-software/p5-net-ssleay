@@ -19,7 +19,8 @@ if (not can_fork()) {
 initialise_libssl();
 
 # TLSv1.3 keylog is different from previous TLS versions. We expect
-# that both types can be tested
+# that both types can be tested. This can be adjusted below if, for
+# example, TLSv1.2 is disabled.
 my @rounds = qw( TLSv1.2 TLSv1.3 );
 my %keylog = (
     'TLSv1.2' => {},
@@ -41,13 +42,19 @@ my %keylog = (
 #                 }
 #         };
 
-# This will trigger diagnostics if the desired TLS versions are not
-# available.
-my %usable =
-    map {
-        $_ => is_protocol_usable($_)
+# Adjust TLS versions based on what's available. This will trigger
+# diagnostics if the desired TLS versions are not available.
+my @usable;
+foreach my $round (@rounds)
+{
+    if (is_protocol_usable($round)) {
+	push (@usable, $round);
+	next;
     }
-    @rounds;
+    diag("$round not available in this libssl - can not test all keylog formats");
+    delete $keylog{$round};
+  SKIP: { skip("$round keylog tests", 3); }
+}
 
 my $pid;
 alarm(30);
@@ -65,10 +72,8 @@ sub server
     if ($pid == 0) {
 	my ($ctx, $ssl, $ret, $cl);
 
-	foreach my $round (@rounds)
+	foreach my $round (@usable)
 	{
-	    next unless $usable{$round};
-
 	    $cl = $server->accept();
 
 	    $ctx = new_ctx( $round, $round );
@@ -104,36 +109,31 @@ sub client {
     # For storing keylog information the server sends
     my %server_keylog;
 
-    for my $round (@rounds) {
-        if ($usable{$round}) {
-            my $cl = $server->connect();
+    foreach my $round (@usable) {
+	my $cl = $server->connect();
 
-            my $ctx = new_ctx( $round, $round );
-	    Net::SSLeay::CTX_set_keylog_callback($ctx, \&keylog_cb);
-            my $ssl = Net::SSLeay::new($ctx);
-            Net::SSLeay::set_fd( $ssl, $cl );
-            my $ret = Net::SSLeay::connect($ssl);
-            if ($ret <= 0) {
-                diag("Protocol $round, connect() returns $ret, Error: " . Net::SSLeay::ERR_error_string(Net::SSLeay::ERR_get_error()));
-            }
+	my $ctx = new_ctx( $round, $round );
+	Net::SSLeay::CTX_set_keylog_callback($ctx, \&keylog_cb);
+	my $ssl = Net::SSLeay::new($ctx);
+	Net::SSLeay::set_fd( $ssl, $cl );
+	my $ret = Net::SSLeay::connect($ssl);
+	if ($ret <= 0) {
+	    diag("Protocol $round, connect() returns $ret, Error: " . Net::SSLeay::ERR_error_string(Net::SSLeay::ERR_get_error()));
+	}
 
-	    # Pull server's keylog for this TLS version.
-            Net::SSLeay::write($ssl, $round);
-            my $ssl_version = Net::SSLeay::read($ssl);
-	    my %keys;
-	    while (my $label = Net::SSLeay::read($ssl))
-	    {
-		$keys{$label} = Net::SSLeay::read($ssl);
-	    }
-	    $server_keylog{$round} = \%keys;
+	# Pull server's keylog for this TLS version.
+	Net::SSLeay::write($ssl, $round);
+	my $ssl_version = Net::SSLeay::read($ssl);
+	my %keys;
+	while (my $label = Net::SSLeay::read($ssl))
+	{
+	    $keys{$label} = Net::SSLeay::read($ssl);
+	}
+	$server_keylog{$round} = \%keys;
 
-            Net::SSLeay::shutdown($ssl);
-            Net::SSLeay::free($ssl);
-            close($cl) || die("client close: $!");
-        }
-        else {
-	    diag("$round not available in this libssl but required by test");
-        }
+	Net::SSLeay::shutdown($ssl);
+	Net::SSLeay::free($ssl);
+	close($cl) || die("client close: $!");
     }
     $server->close() || die("client listen socket close: $!");
 
@@ -158,7 +158,7 @@ sub client {
     # Make it clear we have separate keylog hashes. The also align
     # nicely below.  The compare server and client keylogs.
     my %client_keylog = %keylog;
-    foreach my $round (@rounds)
+    foreach my $round (@usable)
     {
 	ok(exists $server_keylog{$round}, "Server keylog for $round exists");
 	ok(exists $client_keylog{$round}, "Client keylog for $round exists");
