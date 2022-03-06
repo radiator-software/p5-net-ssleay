@@ -39,7 +39,7 @@ my %eumm_args = (
   ABSTRACT => 'Perl bindings for OpenSSL and LibreSSL',
   LICENSE => 'artistic_2',
   AUTHOR => [
-    'Sampo Kellomäki <sampo@iki.fi>',
+    'Sampo Kellomaki <sampo@iki.fi>',
     'Florian Ragwitz <rafl@debian.org>',
     'Mike McCauley <mikem@airspayce.com>',
     'Chris Novakovic <chris@chrisn.me.uk>',
