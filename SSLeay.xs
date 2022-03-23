@@ -134,6 +134,13 @@
 /* Prevent warnings about strncpy from Windows compilers */
 #define _CRT_SECURE_NO_DEPRECATE
 
+/* Silence compound-token-split-by-macro warnings from perl.h when building with
+ * Clang >= 12 - see GH-383
+ */
+#if defined(__clang__) && defined(__clang_major__) && __clang_major__ >= 12
+#pragma clang diagnostic ignored "-Wcompound-token-split-by-macro"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
