@@ -4,6 +4,8 @@ Revision history for Perl extension Net::SSLeay.
 	- Update ppport.h to version 3.68. This eliminates thousands of
 	  compound-token-split-by-macro compiler warnings when building Net-SSLeay with
 	  Clang 12 or greater. Partially fixes GH-383.
+	- Silence compound-token-split-by-macro warnings when building Net-SSLeay with
+	  Clang 12 or greater. Fixes the remainder of GH-383.
 
 1.93_01 2022-03-20
 	- LibreSSL 3.5.0 has removed access to internal data
