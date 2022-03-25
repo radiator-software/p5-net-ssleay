@@ -1020,7 +1020,7 @@ unsigned int ssleay_set_psk_client_callback_invoke(SSL *ssl, const char *hint,
 
     PUTBACK;
 
-    count = call_sv( cb_func, G_ARRAY );
+    count = call_sv( cb_func, G_LIST );
 
     SPAGAIN;
 
@@ -1080,7 +1080,7 @@ unsigned int ssleay_ctx_set_psk_client_callback_invoke(SSL *ssl, const char *hin
 
     PUTBACK;
 
-    count = call_sv( cb_func, G_ARRAY );
+    count = call_sv( cb_func, G_LIST );
 
     SPAGAIN;
 
@@ -1180,7 +1180,7 @@ int next_proto_select_cb_invoke(SSL *ssl, unsigned char **out, unsigned char *ou
         XPUSHs(sv_2mortal(newRV_inc((SV*)list)));
         XPUSHs(sv_2mortal(newSVsv(cb_data)));
         PUTBACK;
-        count = call_sv( cb_func, G_ARRAY );
+        count = call_sv( cb_func, G_LIST );
         SPAGAIN;
         if (count != 2)
             croak ("Net::SSLeay: next_proto_select_cb_invoke perl function did not return 2 values.\n");
@@ -1310,7 +1310,7 @@ int alpn_select_cb_invoke(SSL *ssl, const unsigned char **out, unsigned char *ou
         XPUSHs(sv_2mortal(newRV_inc((SV*)list)));
         XPUSHs(sv_2mortal(newSVsv(cb_data)));
         PUTBACK;
-        count = call_sv( cb_func, G_ARRAY );
+        count = call_sv( cb_func, G_LIST );
         SPAGAIN;
         if (count != 1)
             croak ("Net::SSLeay: alpn_select_cb perl function did not return exactly 1 value.\n");
@@ -1607,7 +1607,7 @@ int tlsext_ticket_key_cb_invoke(
 
     PUTBACK;
 
-    count = call_sv( cb_func, G_ARRAY );
+    count = call_sv( cb_func, G_LIST );
 
     SPAGAIN;
 
@@ -2362,7 +2362,7 @@ SSL_read(s,max=32768)
 	 *   first return value:  data gotten, or undef on error (got<0)
 	 *   second return value: result from SSL_read()
 	 */
-	if (GIMME_V==G_ARRAY) {
+	if (GIMME_V==G_LIST) {
 	    EXTEND(SP, 2);
 	    PUSHs(sv_2mortal(succeeded ? newSVpvn(buf, got) : newSV(0)));
 	    PUSHs(sv_2mortal(newSViv(got)));
@@ -2394,7 +2394,7 @@ SSL_peek(s,max=32768)
 	 *   first return value:  data gotten, or undef on error (got<0)
 	 *   second return value: result from SSL_peek()
 	 */
-	if (GIMME_V==G_ARRAY) {
+	if (GIMME_V==G_LIST) {
 	    EXTEND(SP, 2);
 	    PUSHs(sv_2mortal(succeeded ? newSVpvn(buf, got) : newSV(0)));
 	    PUSHs(sv_2mortal(newSViv(got)));
@@ -7755,7 +7755,7 @@ OCSP_response_results(rsp,...)
 	bsr = OCSP_response_get1_basic(rsp);
 	if (!bsr) croak("invalid OCSP response");
 
-	want_array = (GIMME == G_ARRAY);
+	want_array = (GIMME == G_LIST);
 	getall = (items <= 1);
 	sksn = OCSP_resp_count(bsr);
 
