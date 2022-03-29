@@ -148,8 +148,6 @@ extern "C" {
 #include "perl.h"
 #include "XSUB.h"
 #include <stdarg.h>
-#define NEED_newRV_noinc
-#define NEED_sv_2pv_flags
 #define NEED_my_snprintf
 #include "ppport.h"
 #ifdef __cplusplus
