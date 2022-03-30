@@ -6,6 +6,9 @@ Revision history for Perl extension Net::SSLeay.
 	  Clang 12 or greater. Partially fixes GH-383.
 	- Silence compound-token-split-by-macro warnings when building Net-SSLeay with
 	  Clang 12 or greater. Fixes the remainder of GH-383.
+	- When building Net-SSLeay, search for the openssl binary in the same directory
+	  in which Perl is installed (i.e. $Config{prefix}/bin/). Thanks to Henrik
+	  Grimler for the patch.
 
 1.93_01 2022-03-20
 	- LibreSSL 3.5.0 has removed access to internal data

@@ -357,6 +357,7 @@ sub find_openssl_prefix {
 	'/ssl111$exe/openssl.exe'        => '/ssl111$root',# VMS, VSI install
 	'/ssl1$exe/openssl.exe'          => '/ssl1$root',# VMS, VSI or HPE install
 	'/ssl$exe/openssl.exe'           => '/ssl$root', # VMS, HP install
+	$Config{prefix} . '/bin/openssl' => $Config{prefix}, # Custom prefix, e.g. Termux
     );
 
     while (my $k = shift @guesses
