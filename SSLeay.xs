@@ -138,7 +138,9 @@
  * Perl < 5.35.2 with Clang >= 12 - see GH-383
  */
 #if NET_SSLEAY_PERL_VERSION < 5035002 && defined(__clang__) && defined(__clang_major__) && __clang_major__ >= 12
+#pragma clang diagnostic ignored "-Wunknown-warning-option"
 #pragma clang diagnostic ignored "-Wcompound-token-split-by-macro"
+#pragma clang diagnostic warning "-Wunknown-warning-option"
 #endif
 
 #ifdef __cplusplus
