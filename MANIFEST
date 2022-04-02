@@ -186,8 +186,6 @@ t/external/ocsp.t
 t/handle/external/10_destroy.t
 t/handle/external/50_external.t
 t/handle/local/05_use.t
-t/local/01_pod.t
-t/local/02_pod_coverage.t
 t/local/03_use.t
 t/local/04_basic.t
 t/local/05_passwd_cb.t
@@ -229,5 +227,7 @@ t/local/64_ticket_sharing.t
 t/local/65_security_level.t
 t/local/65_ticket_sharing_2.t
 t/local/66_curves.t
-t/local/kwalitee.t
 typemap
+xt/01_kwalitee.t
+xt/02_pod.t
+xt/02_pod_coverage.t

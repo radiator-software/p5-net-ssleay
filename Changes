@@ -9,6 +9,10 @@ Revision history for Perl extension Net::SSLeay.
 	- When building Net-SSLeay, search for the openssl binary in the same directory
 	  in which Perl is installed (i.e. $Config{prefix}/bin/). Thanks to Henrik
 	  Grimler for the patch.
+	- Move author-only Kwalitee and Pod tests out of the main test suite and into
+	  the xt/ directory; these tests can now be run with "make xtest". This
+	  eliminates the main test suite's soft dependency on the non-core Test::Pod,
+	  Test::Pod::Coverage and Test::Kwalitee modules.
 
 1.93_01 2022-03-20
 	- LibreSSL 3.5.0 has removed access to internal data
