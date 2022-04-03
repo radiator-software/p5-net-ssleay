@@ -102,6 +102,7 @@ my %eumm_args = (
     prereqs => {
       develop => {
         requires => {
+          'Test::Pod' => '1.41',
           'Test::Pod::Coverage' => '1.00',
           'Test::Kwalitee' => '1.00',
         },
@@ -143,6 +144,9 @@ WriteMakefile(%eumm_args);
 sub MY::postamble {
 <<"MAKE";
 SSLeay$Config{'obj_ext'} : constants.c
+
+xtest :
+	\$(MAKE) test TEST_FILES=xt/*.t
 
 MAKE
 }
