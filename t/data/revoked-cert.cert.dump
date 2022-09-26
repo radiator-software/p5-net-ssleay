@@ -102,6 +102,7 @@
   ns_cert_type     => [],
   pubkey_alg       => "rsaEncryption",
   pubkey_bits      => 2048,
+  pubkey_security_bits => 112,
   pubkey_id        => 6,
   pubkey_size      => 256,
   serial           => { dec => 5, hex => "05", long => 5 },
