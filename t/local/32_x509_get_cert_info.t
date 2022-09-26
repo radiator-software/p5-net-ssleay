@@ -8,8 +8,8 @@ use Test::Net::SSLeay qw(
 use lib '.';
 
 my $tests =   ( is_openssl() && Net::SSLeay::SSLeay < 0x10100003 ) || is_libressl()
-            ? 739
-            : 742;
+            ? 743
+            : 746;
 
 plan tests => $tests;
 
@@ -360,6 +360,12 @@ for my $f (keys (%$dump)) {
   is(Net::SSLeay::OBJ_obj2txt(Net::SSLeay::P_X509_get_pubkey_alg($x509)), $dump->{$f}->{pubkey_alg}, "P_X509_get_pubkey_alg");  
   is(Net::SSLeay::EVP_PKEY_size($pubkey), $dump->{$f}->{pubkey_size}, "EVP_PKEY_size");
   is(Net::SSLeay::EVP_PKEY_bits($pubkey), $dump->{$f}->{pubkey_bits}, "EVP_PKEY_bits");
+
+  SKIP: {
+    skip('EVP_PKEY_security_bits requires OpenSSL 1.1.0+', 1) if !Net::SSLeay->can('EVP_PKEY_security_bits');
+    is(Net::SSLeay::EVP_PKEY_security_bits($pubkey), $dump->{$f}->{pubkey_security_bits}, "$f: EVP_PKEY_security_bits");
+  }
+
   SKIP: {
     skip('EVP_PKEY_id requires OpenSSL 1.0.0+', 1) unless Net::SSLeay::SSLeay >= 0x1000000f;
     is(Net::SSLeay::EVP_PKEY_id($pubkey), $dump->{$f}->{pubkey_id}, "EVP_PKEY_id");

@@ -1670,6 +1670,17 @@ Returns the size of the key $pkey in bits.
  #
  # returns: size in bits
 
+=item * EVP_PKEY_security_bits
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before
+
+Returns the size of the key $pkey in bits.
+
+ my $rv = Net::SSLeay::EVP_PKEY_security_bits($pkey);
+ # $pkey - value corresponding to openssl's EVP_PKEY structure
+ #
+ # returns: number of bits
+
 =item * EVP_PKEY_size
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before

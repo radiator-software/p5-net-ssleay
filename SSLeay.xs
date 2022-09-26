@@ -4769,6 +4769,13 @@ EVP_PKEY_assign_RSA(EVP_PKEY *pkey, RSA *key)
 int
 EVP_PKEY_bits(EVP_PKEY *pkey)
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+
+int
+EVP_PKEY_security_bits(EVP_PKEY *pkey)
+
+#endif
+
 int
 EVP_PKEY_size(EVP_PKEY *pkey)
 
