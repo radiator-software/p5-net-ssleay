@@ -11,10 +11,12 @@
 name: CI
 
 on:
-  pull_request:
   push:
     branches:
-      - master
+      - '*'
+    tags-ignore:
+      - '*'
+  pull_request:
 
 env:
   PERL_MM_USE_DEFAULT: 1
@@ -156,3 +158,134 @@ jobs:
         run: |
           LD_LIBRARY_PATH="$HOME/libssl/lib" \
             make test
+
+  non_x86_alpine:
+    name: "${{ matrix.platform }}/Alpine (${{ matrix.package }})"
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        package:
+          - openssl
+          - libressl
+        platform:
+          - i386
+          - s390x
+          - arm32v6
+          - arm32v7
+          - arm64v8
+
+    steps:
+      - uses: actions/checkout@main
+        with:
+            submodules: recursive
+      - name: Get the qemu container
+        run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
+      # NB: “openssl” is correct, even for LibreSSL:
+      - name: Run tests on ${{ matrix.platform }}
+        run: docker run --rm --interactive --mount type=bind,source=$(pwd),target=/host ${{ matrix.platform }}/alpine sh -c "apk add perl-dev perl-app-cpanminus make gcc musl-dev zlib-dev ${{ matrix.package }}-dev openssl && perl -V && cd /host && cpanm --verbose --notest --installdeps . && perl Makefile.PL && make test"
+
+  non_x86_ubuntu:
+    name: "${{ matrix.platform }}/Ubuntu"
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        platform:
+          - i386
+          - s390x
+          - arm32v7
+          - arm64v8
+
+    steps:
+      - uses: actions/checkout@main
+        with:
+            submodules: recursive
+      - name: Get the qemu container
+        run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+      - name: Run tests on ${{ matrix.platform }}
+        run: docker run --rm --interactive --mount type=bind,source=$(pwd),target=/host ${{ matrix.platform }}/ubuntu bash -c "apt update && apt install -y cpanminus make gcc openssl libssl-dev zlib1g-dev && perl -V && cd /host && cpanm --notest --verbose --installdeps . || find /root/.cpanm/work/ -type f | xargs cat; perl Makefile.PL && make test"
+
+  BSDs:
+    runs-on: macos-10.15
+
+    name: ${{ matrix.os.pretty_name }} ${{ matrix.os.version }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - name: freebsd
+            pretty_name: FreeBSD (OpenSSL)
+            version: '13.0'
+            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus openssl openssl-devel
+          - name: freebsd
+            pretty_name: FreeBSD (LibreSSL)
+            version: '13.0'
+            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus libressl libressl-devel
+          - name: openbsd
+            pretty_name: OpenBSD
+            version: '6.9'
+            pkginstall: pkg_add curl
+          - name: openbsd
+            pretty_name: OpenBSD
+            version: '7.1'
+            pkginstall: pkg_add curl
+
+    steps:
+      - uses: actions/checkout@main
+        with:
+          submodules: recursive
+
+      - name: Test on ${{ matrix.os.name }}
+        uses: cross-platform-actions/action@master
+        env:
+          AUTOMATED_TESTING: 1
+        with:
+          operating_system: ${{ matrix.os.name }}
+          version: ${{ matrix.os.version }}
+          shell: bash
+
+          # Makefile.PL interacts with the TTY, which tricks up the runner.
+          # Thus the piped “echo n”.
+          #
+          run: |
+            sudo ${{ matrix.os.pkginstall }};
+            which cpanm || curl https://cpanmin.us | perl - --sudo App::cpanminus
+            cpanm --verbose --notest --installdeps --with-configure .;
+            echo n | perl Makefile.PL;
+            make test;
+
+  cygwin:
+    runs-on: windows-latest
+
+    steps:
+      - name: Set up Cygwin
+        uses: egor-tensin/setup-cygwin@master
+        with:
+            platform: x64
+            packages: perl_base perl-ExtUtils-MakeMaker make gcc-g++ libcrypt-devel libssl-devel curl bash
+      - uses: actions/checkout@main
+        with:
+            submodules: recursive
+      - run: perl -V
+        shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+      - name: Install cpanm
+        run: curl https://cpanmin.us | perl - App::cpanminus
+        shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+      - name: Install Dependencies
+        run: cd $GITHUB_WORKSPACE; cpanm --verbose --notest --installdeps --with-configure .
+        shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+      - name: perl Makefile.PL
+        run: cd $GITHUB_WORKSPACE; perl Makefile.PL
+        shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+      - name: make
+        run: cd $GITHUB_WORKSPACE; make -j3 -j3
+        shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+      - name: make test
+        run: cd $GITHUB_WORKSPACE; make test
+        shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+
