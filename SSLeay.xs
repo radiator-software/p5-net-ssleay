@@ -4899,16 +4899,17 @@ CTX_use_PKCS12_file(ctx, file, password=NULL)
         PKCS12 *p12;
         EVP_PKEY *private_key;
         X509 *certificate;
-        FILE *fp;
+        BIO *bio;
     CODE:
         RETVAL = 0;
-        if ((fp = fopen (file, "rb"))) {
+        bio = BIO_new_file(file, "rb");
+        if (bio) {
 #if OPENSSL_VERSION_NUMBER >= 0x0090700fL
             OPENSSL_add_all_algorithms_noconf();
 #else
             OpenSSL_add_all_algorithms();
 #endif
-            if ((p12 = d2i_PKCS12_fp(fp, NULL))) {
+            if ((p12 = d2i_PKCS12_bio(bio, NULL))) {
                 if (PKCS12_parse(p12, password, &private_key, &certificate, NULL)) {
                     if (private_key) {
                         if (SSL_CTX_use_PrivateKey(ctx, private_key)) RETVAL = 1;
@@ -4922,7 +4923,7 @@ CTX_use_PKCS12_file(ctx, file, password=NULL)
                 PKCS12_free(p12);
             }
             if (!RETVAL) ERR_print_errors_fp(stderr);
-            fclose(fp);
+            BIO_free(bio);
         }
     OUTPUT:
         RETVAL
@@ -4938,16 +4939,17 @@ P_PKCS12_load_file(file, load_chain=0, password=NULL)
         X509 *certificate = NULL;
         STACK_OF(X509) *cachain = NULL;
         X509 *x;
-        FILE *fp;
+        BIO *bio;
         int i, result;
     PPCODE:
-        if ((fp = fopen (file, "rb"))) {
+        bio = BIO_new_file(file, "rb");
+        if (bio) {
 #if OPENSSL_VERSION_NUMBER >= 0x0090700fL
             OPENSSL_add_all_algorithms_noconf();
 #else
             OpenSSL_add_all_algorithms();
 #endif
-            if ((p12 = d2i_PKCS12_fp(fp, NULL))) {
+            if ((p12 = d2i_PKCS12_bio(bio, NULL))) {
                 if(load_chain)
                     result= PKCS12_parse(p12, password, &private_key, &certificate, &cachain);
                 else
@@ -4971,7 +4973,7 @@ P_PKCS12_load_file(file, load_chain=0, password=NULL)
                 }
                 PKCS12_free(p12);
             }
-            fclose(fp);
+            BIO_free(bio);
         }
 
 #ifndef OPENSSL_NO_MD2
