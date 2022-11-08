@@ -4214,6 +4214,7 @@ P_X509_get_crl_distribution_points(cert)
                 */
             }
         }
+        sk_DIST_POINT_pop_free(points, DIST_POINT_free);
 
 void
 P_X509_get_ocsp_uri(cert)
@@ -4239,6 +4240,7 @@ P_X509_get_ocsp_uri(cert)
 		if (GIMME == G_SCALAR) break; /* get only first */
 	    }
 	}
+	AUTHORITY_INFO_ACCESS_free(info);
 
 
 void
@@ -4265,6 +4267,7 @@ P_X509_get_ext_key_usage(cert,format=0)
            else if(format==3 && nid>0)
                XPUSHs(sv_2mortal(newSVpv(OBJ_nid2ln(nid),0))); /* format 3: longname */
         }
+        EXTENDED_KEY_USAGE_free(extusage);
 
 #endif
 
@@ -4285,6 +4288,7 @@ P_X509_get_key_usage(cert)
             if (ASN1_BIT_STRING_get_bit(u,6)) XPUSHs(sv_2mortal(newSVpv("cRLSign",0)));
             if (ASN1_BIT_STRING_get_bit(u,7)) XPUSHs(sv_2mortal(newSVpv("encipherOnly",0)));
             if (ASN1_BIT_STRING_get_bit(u,8)) XPUSHs(sv_2mortal(newSVpv("decipherOnly",0)));
+            ASN1_BIT_STRING_free(u);
         }
 
 void
@@ -4303,6 +4307,7 @@ P_X509_get_netscape_cert_type(cert)
             if (ASN1_BIT_STRING_get_bit(u,5)) XPUSHs(sv_2mortal(newSVpv("sslCA",0)));
             if (ASN1_BIT_STRING_get_bit(u,6)) XPUSHs(sv_2mortal(newSVpv("emailCA",0)));
             if (ASN1_BIT_STRING_get_bit(u,7)) XPUSHs(sv_2mortal(newSVpv("objCA",0)));
+            ASN1_BIT_STRING_free(u);
         }
 
 int
