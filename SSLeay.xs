@@ -4171,7 +4171,6 @@ P_X509_get_crl_distribution_points(cert)
         int i, j;
     PPCODE:
         points = X509_get_ext_d2i(cert, NID_crl_distribution_points, NULL, NULL);
-        if (points)
         for (i = 0; i < sk_DIST_POINT_num(points); i++) {
             p = sk_DIST_POINT_value(points, i);
             if (!p->distpoint)
