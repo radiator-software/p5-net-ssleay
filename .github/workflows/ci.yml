@@ -264,28 +264,28 @@ jobs:
 
     steps:
       - name: Set up Cygwin
-        uses: egor-tensin/setup-cygwin@master
+        uses: cygwin/cygwin-install-action@master
         with:
-            platform: x64
+            platform: x86_64
             packages: perl_base perl-ExtUtils-MakeMaker make gcc-g++ libcrypt-devel libssl-devel curl bash
       - uses: actions/checkout@main
         with:
             submodules: recursive
       - run: perl -V
-        shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
       - name: Install cpanm
         run: curl https://cpanmin.us | perl - App::cpanminus
-        shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
       - name: Install Dependencies
         run: cd $GITHUB_WORKSPACE; cpanm --verbose --notest --installdeps --with-configure .
-        shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
       - name: perl Makefile.PL
         run: cd $GITHUB_WORKSPACE; perl Makefile.PL
-        shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
       - name: make
         run: cd $GITHUB_WORKSPACE; make -j3 -j3
-        shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
       - name: make test
         run: cd $GITHUB_WORKSPACE; make test
-        shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
 
