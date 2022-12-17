@@ -10,6 +10,17 @@ Revision history for Perl extension Net::SSLeay.
 	  in which Perl is installed (i.e. $Config{prefix}/bin/). Thanks to Henrik
 	  Grimler for the patch.
 	- Expose EVP_PKEY_security_bits. Thanks to Felipe Gasper.
+	- Major update to Gihub Actions configuration. Thanks to Felipe Gasper.
+	  New testing targets are:
+	    - OpenSSL and LibreSSL on Alpine Linux on i386, x390x, arm32v6,
+	      ar32v7 and arm64v8 architectures.
+	    - OpenSSL and LibreSSL on Ubuntu on i386, x390x, ar32v7 and arm64v8
+	      architectures.
+	    - OpenSSL on FreeBSD 13.0, not enabled yet because of GH #272 and #394
+	    - LibreSSL on FreeBSD 13.0
+	    - LibreSSL on OpenBSD 6.9
+	    - LibreSSL on OpenBSD 7.1
+	    - Cygwin on x86_64
 
 1.93_01 2022-03-20
 	- LibreSSL 3.5.0 has removed access to internal data
