@@ -4228,14 +4228,17 @@ P_X509_get_ocsp_uri(cert)
 	    ACCESS_DESCRIPTION *ad = sk_ACCESS_DESCRIPTION_value(info, i);
 	    if (OBJ_obj2nid(ad->method) == NID_ad_OCSP
 		&& ad->location->type == GEN_URI) {
-		XPUSHs(sv_2mortal(newSVpv(
 #if (OPENSSL_VERSION_NUMBER >= 0x1010000f && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
+		XPUSHs(sv_2mortal(newSVpv(
 		    (char*)ASN1_STRING_get0_data(ad->location->d.uniformResourceIdentifier),
-#else
-		    (char*)ASN1_STRING_data(ad->location->d.uniformResourceIdentifier),
-#endif
 		    ASN1_STRING_length(ad->location->d.uniformResourceIdentifier)
 		)));
+#else
+		XPUSHs(sv_2mortal(newSVpv(
+		    (char*)ASN1_STRING_data(ad->location->d.uniformResourceIdentifier),
+		    ASN1_STRING_length(ad->location->d.uniformResourceIdentifier)
+		)));
+#endif
 		if (GIMME == G_SCALAR) break; /* get only first */
 	    }
 	}
