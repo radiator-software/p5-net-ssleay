@@ -21,6 +21,9 @@ Revision history for Perl extension Net::SSLeay.
 	    - LibreSSL on OpenBSD 6.9
 	    - LibreSSL on OpenBSD 7.1
 	    - Cygwin on x86_64
+	- Refactor variable declarations in RSA_generate_key to allow SSLeay.xs to
+	  compile under -Werror=declaration-after-statement. Fixes GH-407. Thanks to
+	  dharanlinux for the report.
 
 1.93_01 2022-03-20
 	- LibreSSL 3.5.0 has removed access to internal data
