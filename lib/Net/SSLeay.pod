@@ -1972,8 +1972,9 @@ Examples:
  #BEWARE: THIS IS WRONG - MEMORY LEAKS! (you cannot free @cachain items)
  my ($privkey, $cert) = Net::SSLeay::P_PKCS12_load_file($filename, 1, $password);
 
-B<NOTE> With some combinations of Windows, perl, compiler and compiler options, you
-may see a runtime error "no OPENSSL_Applink", when calling
+B<NOTE> Net::SSLeay 1.92_01 and earlier: With some combinations of
+Windows, perl, compiler and compiler options, you may see a runtime
+error "no OPENSSL_Applink", when calling
 Net::SSLeay::P_PKCS12_load_file. See README.Win32 for more details.
 
 =back
@@ -2226,6 +2227,11 @@ You have to use necessary BIO functions like this:
 
 Prints session details (e.g. protocol version, cipher, session-id ...) to file handle.
 
+B<NOTE> With some combinations of Windows, perl, compiler and compiler
+options, you may see a runtime error "no OPENSSL_Applink", when
+calling Net::SSLeay::SESSION_print_fp. See README.Win32 for more
+details.
+
  my $rv = Net::SSLeay::SESSION_print_fp($fp, $ses);
  # $fp - perl file handle
  # $ses - value corresponding to openssl's SSL_SESSION structure
@@ -2238,6 +2244,12 @@ Example:
  my $ses = Net::SSLeay::get_session($ssl);
  open my $fh, ">", "output.txt";
  Net::SSLeay::SESSION_print_fp($fh,$ses);
+
+Similar functionality without Net::SSLeay::SESSION_print_fp
+
+ my $ses = Net::SSLeay::get_session($ssl);
+ my $bio = Net::SSLeay::BIO_new_file('output.txt', 'w');
+ Net::SSLeay::SESSION_print($bio, $ses);
 
 =item * SESSION_set_time
 
@@ -3390,6 +3402,11 @@ Adds the certificate and private key from PKCS12 file $p12filename to $ctx.
  # $password - (string) password to decrypt private key
  #
  # returns: 1 on success, 0 on failure
+
+B<NOTE> Net::SSLeay 1.92_01 and earlier: With some combinations of
+Windows, perl, compiler and compiler options, you may see a runtime
+error "no OPENSSL_Applink", when calling
+Net::SSLeay::CTX_use_PKCS12_file. See README.Win32 for more details.
 
 =item * CTX_use_PrivateKey
 

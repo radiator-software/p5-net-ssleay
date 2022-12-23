@@ -21,6 +21,18 @@ Revision history for Perl extension Net::SSLeay.
 	    - LibreSSL on OpenBSD 6.9
 	    - LibreSSL on OpenBSD 7.1
 	    - Cygwin on x86_64
+	- Fix compilation failure using cl. Microsoft cl compiler do
+	  not like when preprocessor directives are inside a
+	  macro. Fixes GH-403. Thanks to Jean-Damien Durand.
+	- Update CTX_use_PKCS12_file() and CTX_use_PKCS12_file() to
+	  use BIO functions for avoiding "no OPENSSL_Applink" runtime
+	  errors. Fixes GH-281 and RT#101638. Thanks to Jean-Damien
+	  Durand.
+	- Add to README.Win32 more information about OPENSSL_Applink
+	  and how it may be needed with FILE pointers and POSIX/Unix
+	  fds. Recommended method is to avoid them and use OpenSSL BIO
+	  functions instead. Update SSLeay.pod with alternatives to
+	  Net::SSLeay::SESSION_print_fp(). Closes GH-411.
 	- Refactor variable declarations in RSA_generate_key to allow SSLeay.xs to
 	  compile under -Werror=declaration-after-statement. Fixes GH-407. Thanks to
 	  dharanlinux for the report.

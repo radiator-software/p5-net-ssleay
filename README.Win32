@@ -6,10 +6,22 @@ Building on Win 32 platforms
 10.7.2007. Complete rewrite to agree with latest version 1.31. References to
 ancient versions and untested procedures removed --mikem
 22.4.2010 Updated info for 64 bit versions --mikem
+23.12.2022 Update OPENSSL_Applink for 1.93_02 and later --hvn
 
 Notes: 
 
-1. With some combinations of Windows, perl, compiler and compiler options, you
+1. "no OPENSSL_Applink" runtime error
+Changes in Net::SSLeay 1.93_02 fix this error with
+Net::SSLeay::P_PKCS12_load_file and Net::SSLeay::CTX_use_PKCS12_file
+functions. The error is caused when a file pointer or descriptor (FILE
+*, POSIX/unix fd) is passed between boundaries, as described
+below. Recommended fix is to use OpenSSL BIO API. Net::SSLeay still
+exposes SSL_SESSION_print_fp() which expects a FILE * as its first
+argument. See Net::SSLeay manual for more information about
+Net::SSLeay::SESSION_print_fp() and a possible workaround.
+
+Information for Net::SSLeay 1.93_01 and earlier follows:
+With some combinations of Windows, perl, compiler and compiler options, you
 may see a runtime error "no OPENSSL_Applink", when calling
 Net::SSLeay::P_PKCS12_load_file. This appears to be due to incompatible
 compile options between the openssl libraries and Net::SSLeay. In particular
