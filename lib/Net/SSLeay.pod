@@ -7337,7 +7337,10 @@ Adds given serial number $serial_hex to X509_CRL object $crl.
  4 - superseded
  5 - cessationOfOperation
  6 - certificateHold
- 7 - removeFromCRL
+ 7 - (value 7 is not used)
+ 8 - removeFromCRL
+ 9 - privilegeWithdrawn
+ 10 - aACompromise
 
 =item * P_X509_CRL_get_serial
 
