@@ -36,6 +36,7 @@ Revision history for Perl extension Net::SSLeay.
 	- Refactor variable declarations in RSA_generate_key to allow SSLeay.xs to
 	  compile under -Werror=declaration-after-statement. Fixes GH-407. Thanks to
 	  dharanlinux for the report.
+	- Fix memory leaks after calls to X509_get_ext_d2. Thanks to Anton Borowka.
 
 1.93_01 2022-03-20
 	- LibreSSL 3.5.0 has removed access to internal data
