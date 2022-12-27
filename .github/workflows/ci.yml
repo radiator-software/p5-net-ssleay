@@ -54,7 +54,7 @@ jobs:
           - '0.9.8zh'
     steps:
       - name: Check out
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install Perl ${{ matrix.perl }}
         uses: shogo82148/actions-setup-perl@v1
@@ -125,7 +125,7 @@ jobs:
           - '2.2.9'
     steps:
       - name: Check out
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install Perl ${{ matrix.perl }}
         uses: shogo82148/actions-setup-perl@v1
