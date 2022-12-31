@@ -54,7 +54,7 @@ branches, except for OpenSSL 0.9.8 - 0.9.8b.
 
 =item *
 
-Any stable release of L<LibreSSL|https://www.libressl.org> in the 2.0 - 3.4
+Any stable release of L<LibreSSL|https://www.libressl.org> in the 2.0 - 3.6
 series, except for LibreSSL 3.2.2 and 3.2.3.
 
 =back

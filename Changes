@@ -40,6 +40,7 @@ Revision history for Perl extension Net::SSLeay.
 	- Documentation fix: Correct CRL revocation reasons in
 	  P_X509_CRL_add_revoked_serial_hex(). Closes GH-397. Reported
 	  by Marc Reisner.
+	- Support stable releases of LibreSSL 3.5 and 3.6.
 
 1.93_01 2022-03-20
 	- LibreSSL 3.5.0 has removed access to internal data
