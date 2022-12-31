@@ -6,7 +6,7 @@
 #
 # - libssl: the latest patch release of every minor release between:
 #   - OpenSSL: 0.9.8 and 3.0
-#   - LibreSSL: 2.2 and 3.4
+#   - LibreSSL: 2.2 and 3.6
 
 name: CI
 
@@ -112,6 +112,8 @@ jobs:
           - '5.10'
           - '5.8'
         libressl:
+          - '3.6.1'
+          - '3.5.3'
           - '3.4.3'
           - '3.3.6'
           - '3.2.7'
