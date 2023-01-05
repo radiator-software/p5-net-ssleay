@@ -49,6 +49,10 @@ Revision history for Perl extension Net::SSLeay.
 	  originally added to OpenSSL and Net::SSLeay for
 	  EAP-FAST. These changes allow EAP-FAST to work with AEAD
 	  ciphers and with OpenSSL versions 1.1.1 and later.
+	- Remove code guraded by obsolete
+	  SSL_F_SSL_SET_HELLO_EXTENSION #ifdef. This was used by the
+	  initial EAP-FAST related OpenSSL patch which was never part
+	  of the OpenSSL distribution.
 
 1.93_01 2022-03-20
 	- LibreSSL 3.5.0 has removed access to internal data
