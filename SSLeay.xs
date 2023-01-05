@@ -972,7 +972,10 @@ int ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
 	    /* Use any new master secret set by the callback function in secret */
 	    STRLEN newsecretlen;
 	    char* newsecretdata = SvPV(secretsv, newsecretlen);
+	    if (*secret_len < 0 || newsecretlen > (STRLEN)*secret_len)
+		croak("Net::SSLeay: ssleay_session_secret_cb_invoke perl function returned too long secret: %ld > %ld.\n", (long)newsecretlen, (long)*secret_len);
 	    memcpy(secret, newsecretdata, newsecretlen);
+	    *secret_len = newsecretlen;
 	}
 #endif
     }
