@@ -4003,9 +4003,11 @@ peer. Parameters and return value are similar to get_finished().
 
 =item * get_keyblock_size
 
-Gets the length of the TLS keyblock.
+Gets the length of the TLS keyblock. Look for 'key_block' in TLS 1.2
+and earlier TLS RFCs. Consider using TLS exporter interface defined by
+RFC 5705 instead of creating your own keying material exporter.
 
-B<NOTE:> Does not exactly correspond to any low level API function.
+B<NOTE:> Does not exactly correspond to any low level API function. Intended for EAP-FAST.
 
  my $rv = Net::SSLeay::get_keyblock_size($ssl);
  # $ssl - value corresponding to openssl's SSL structure

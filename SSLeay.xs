@@ -6689,6 +6689,13 @@ SSL_get_server_random(s)
 
 #endif
 
+ # AEAD ciphers require an Initialization Vector that has nonce
+ # qualities. A part of the IV comes from PRF. This part is called
+ # 'implicit'. See RFC 5246 section 6.2.3.3. Length of the 'implicit'
+ # part of nonce for GCM and CCM mode ciphers is defined to be 4 by RFCs
+ # 5288 and 6655, respectively, and the total length of nonce is 12
+ # octets.  Because of the above, SSL_get_keyblock_size adjusts
+ # iv_length and does not fetch full nonce length from the PRF.
 int
 SSL_get_keyblock_size(s)
      SSL *   s
@@ -6713,9 +6720,14 @@ SSL_get_keyblock_size(s)
 	    mac_secret_size = EVP_MD_size(h);
 
 	RETVAL = -1;
-	if (c)
+	if (c) {
+	    int iv_length = EVP_CIPHER_iv_length(c);
+	    if (EVP_CIPHER_mode(c) == EVP_CIPH_GCM_MODE ||
+		EVP_CIPHER_mode(c) == EVP_CIPH_CCM_MODE)
+		    iv_length = 4;
 	    RETVAL = 2 * (EVP_CIPHER_key_length(c) + mac_secret_size +
-		          EVP_CIPHER_iv_length(c));
+			  iv_length);
+	}
 #else
      if (s == NULL ||
 	 s->enc_read_ctx == NULL ||
@@ -6728,9 +6740,14 @@ SSL_get_keyblock_size(s)
      {
 	const EVP_CIPHER *c;
 	const EVP_MD *h;
+	int iv_length = -1;
 	int md_size = -1;
 	c = s->enc_read_ctx->cipher;
+	iv_length = EVP_CIPHER_iv_length(c);
 #if OPENSSL_VERSION_NUMBER >= 0x10001000L
+	if (EVP_CIPHER_mode(c) == EVP_CIPH_GCM_MODE ||
+	    EVP_CIPHER_mode(c) == EVP_CIPH_CCM_MODE)
+		iv_length = 4;
 	h = NULL;
 	if (s->s3)
 	    md_size = s->s3->tmp.new_mac_secret_size;
@@ -6744,7 +6761,7 @@ SSL_get_keyblock_size(s)
 	/* No digest if e.g., AEAD cipher */
 	RETVAL = (md_size >= 0) ? (2 * (EVP_CIPHER_key_length(c) +
 				       md_size +
-				       EVP_CIPHER_iv_length(c)))
+				       iv_length))
 			       : -1;
      }
 #endif
