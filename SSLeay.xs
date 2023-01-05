@@ -918,7 +918,7 @@ int session_ticket_ext_cb_invoke(SSL *ssl, const unsigned char *data, int len, v
 
 #endif
 
-#if defined(SSL_F_SSL_SET_HELLO_EXTENSION) || defined(SSL_F_SSL_SET_SESSION_TICKET_EXT)
+#ifdef SSL_F_SSL_SET_SESSION_TICKET_EXT
 
 int ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
                                     STACK_OF(SSL_CIPHER) *peer_ciphers,
@@ -6771,23 +6771,7 @@ SSL_get_keyblock_size(s)
 
 
 
-#if defined(SSL_F_SSL_SET_HELLO_EXTENSION)
-int
-SSL_set_hello_extension(s, type, data)
-     SSL *   s
-     int     type
-     PREINIT:
-     STRLEN len;
-     INPUT:
-     char *  data = SvPV( ST(2), len);
-     CODE:
-     RETVAL = SSL_set_hello_extension(s, type, data, len);
-     OUTPUT:
-     RETVAL
-
-#endif
-
-#if defined(SSL_F_SSL_SET_HELLO_EXTENSION) || defined(SSL_F_SSL_SET_SESSION_TICKET_EXT)
+#ifdef SSL_F_SSL_SET_SESSION_TICKET_EXT
 
 void 
 SSL_set_session_secret_cb(s,callback=&PL_sv_undef,data=&PL_sv_undef)
