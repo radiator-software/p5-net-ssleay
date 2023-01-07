@@ -222,10 +222,10 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          #- name: freebsd
-          #  pretty_name: FreeBSD (OpenSSL)
-          #  version: '13.0'
-          #  pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus openssl openssl-devel
+          - name: freebsd
+            pretty_name: FreeBSD (OpenSSL)
+            version: '13.0'
+            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus openssl openssl-devel
           - name: freebsd
             pretty_name: FreeBSD (LibreSSL)
             version: '13.0'

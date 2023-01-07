@@ -49,10 +49,18 @@ Revision history for Perl extension Net::SSLeay.
 	  originally added to OpenSSL and Net::SSLeay for
 	  EAP-FAST. These changes allow EAP-FAST to work with AEAD
 	  ciphers and with OpenSSL versions 1.1.1 and later.
-	- Remove code guraded by obsolete
+	- Remove code guarded by obsolete
 	  SSL_F_SSL_SET_HELLO_EXTENSION #ifdef. This was used by the
 	  initial EAP-FAST related OpenSSL patch which was never part
 	  of the OpenSSL distribution.
+	- PEM_get_string_PrivateKey() currently uses DES-CBC as its
+	  default encryption algorithm. Test 33_x509_create_cert.t now
+	  skips testing the default algorithm on systems that support
+	  providers but don't have the legacy provider available. One
+	  such system is FreeBSD 13.0 with OpenSSL which was added as
+	  disabled in GitHub actions by PR GH-402 but can now be
+	  enabled. Long term fix is to replace DES-CBC with a modern
+	  cipher. Allows closing GH-394.
 
 1.93_01 2022-03-20
 	- LibreSSL 3.5.0 has removed access to internal data

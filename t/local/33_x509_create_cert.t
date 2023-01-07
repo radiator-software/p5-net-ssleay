@@ -9,13 +9,6 @@ plan tests => 141;
 
 initialise_libssl();
 
-if (defined &Net::SSLeay::OSSL_PROVIDER_load)
-{
-    my $provider = Net::SSLeay::OSSL_PROVIDER_load(undef, 'legacy');
-    diag('Failed to load legacy provider: PEM_get_string_PrivateKey may fail')
-	unless $provider;
-}
-
 my $ca_crt_pem = data_file_path('root-ca.cert.pem');
 my $ca_key_pem = data_file_path('root-ca.key.pem');
 
@@ -114,7 +107,22 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
   like(my $crt_pem = Net::SSLeay::PEM_get_string_X509($x509), qr/-----BEGIN CERTIFICATE-----/, "PEM_get_string_X509");
   
   like(my $key_pem1 = Net::SSLeay::PEM_get_string_PrivateKey($pk), qr/-----BEGIN (RSA )?PRIVATE KEY-----/, "PEM_get_string_PrivateKey+nopasswd");        
-  like(my $key_pem2 = Net::SSLeay::PEM_get_string_PrivateKey($pk,"password"), qr/-----BEGIN (ENCRYPTED|RSA) PRIVATE KEY-----/, "PEM_get_string_PrivateKey+passwd");
+  SKIP: {
+      # Upcoming Net::SSLeay version 2.00 is likely to remove obsolete
+      # functionality. This includes updating PEM_get_stringPrivateKey
+      # default algorithm from EVP_des_cbc() to, for example,
+      # EVP_aes_128_cbc(). When this is done, this SKIP block and
+      # everything in it, besides the test itself, can be removed.
+      fail("Legacy provider still used with Net::SSLeay version $Net::SSLeay::VERSION") if $Net::SSLeay::VERSION =~ m/^2/s;
+      if (defined &Net::SSLeay::OSSL_PROVIDER_load &&
+	  !Net::SSLeay::OSSL_PROVIDER_load(undef, 'legacy'))
+      {
+	  my $des_warning = 'Warning: No legacy provider. DES in CBC mode used by PEM_get_string_PrivateKey by default is not available';
+	  diag($des_warning);
+	  skip($des_warning, 1);
+      }
+      like(my $key_pem2 = Net::SSLeay::PEM_get_string_PrivateKey($pk,"password"), qr/-----BEGIN (ENCRYPTED|RSA) PRIVATE KEY-----/, "PEM_get_string_PrivateKey+passwd");
+  }
   
   ok(my $alg1 = Net::SSLeay::EVP_get_cipherbyname("DES-EDE3-CBC"), "EVP_get_cipherbyname");
   like(my $key_pem3 = Net::SSLeay::PEM_get_string_PrivateKey($pk,"password",$alg1), qr/-----BEGIN (ENCRYPTED|RSA) PRIVATE KEY-----/, "PEM_get_string_PrivateKey+passwd+enc_alg");
