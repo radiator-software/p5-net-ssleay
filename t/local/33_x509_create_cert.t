@@ -108,16 +108,18 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
   
   like(my $key_pem1 = Net::SSLeay::PEM_get_string_PrivateKey($pk), qr/-----BEGIN (RSA )?PRIVATE KEY-----/, "PEM_get_string_PrivateKey+nopasswd");        
   SKIP: {
-      # Upcoming Net::SSLeay version 2.00 is likely to remove obsolete
-      # functionality. This includes updating PEM_get_stringPrivateKey
-      # default algorithm from EVP_des_cbc() to, for example,
-      # EVP_aes_128_cbc(). When this is done, this SKIP block and
-      # everything in it, besides the test itself, can be removed.
+      # PEM_get_string_PrivateKey uses DES in CBC mode as the default
+      # key encryption algorithm. Upcoming Net::SSLeay version 2.00 is
+      # likely to remove obsolete functionality. This includes
+      # updating PEM_get_stringPrivateKey default algorithm from
+      # EVP_des_cbc() to, for example, EVP_aes_128_cbc(). When this is
+      # done, this SKIP block and everything in it, besides the test
+      # itself, can be removed.
       fail("Legacy provider still used with Net::SSLeay version $Net::SSLeay::VERSION") if $Net::SSLeay::VERSION =~ m/^2/s;
       if (defined &Net::SSLeay::OSSL_PROVIDER_load &&
 	  !Net::SSLeay::OSSL_PROVIDER_load(undef, 'legacy'))
       {
-	  my $des_warning = 'Warning: No legacy provider. DES in CBC mode used by PEM_get_string_PrivateKey by default is not available';
+	  my $des_warning = 'No legacy provider for PEM_get_string_PrivateKey';
 	  diag($des_warning);
 	  skip($des_warning, 1);
       }
