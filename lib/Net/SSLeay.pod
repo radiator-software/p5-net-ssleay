@@ -1836,7 +1836,7 @@ Converts/exports X509 certificate to string (PEM format).
 
 =item * PEM_get_string_PrivateKey
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before. Requires legacy provider with OpenSSL 3.0 and later if the default value of C<$enc_alg> (C<DES_CBC>) is used.
 
 Converts public key $pk into PEM formatted string (optionally protected with password).
 
