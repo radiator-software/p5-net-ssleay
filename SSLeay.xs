@@ -227,7 +227,7 @@ which conflicts with perls
 #define PR4(s,t,u,v)
 #endif
 
-static void TRACE(int level,char *msg,...) {
+static void TRACE(int level,const char *msg,...) {
     va_list args;
     SV *trace = get_sv("Net::SSLeay::trace",0);
     if (trace && SvIOK(trace) && SvIV(trace)>=level) {
