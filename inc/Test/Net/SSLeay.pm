@@ -14,7 +14,7 @@ use File::Spec::Functions qw( abs2rel catfile );
 use Test::Builder;
 use Test::Net::SSLeay::Socket;
 
-our $VERSION = '1.93_01';
+our $VERSION = '1.93_02';
 
 our @EXPORT_OK = qw(
     can_fork can_really_fork can_thread
@@ -542,7 +542,7 @@ Test::Net::SSLeay - Helper module for the Net-SSLeay test suite
 
 =head1 VERSION
 
-This document describes version 1.93_01 of Test::Net::SSLeay.
+This document describes version 1.93_02 of Test::Net::SSLeay.
 
 =head1 SYNOPSIS
 
