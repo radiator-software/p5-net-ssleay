@@ -3357,7 +3357,7 @@ RAND_seed(buf)
      PREINIT:
      STRLEN len;
      INPUT:
-     char *  buf = SvPV( ST(1), len);
+     char *buf = SvPV(ST(0), len);
      CODE:
      RAND_seed (buf, (int)len);
 

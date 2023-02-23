@@ -1,5 +1,10 @@
 Revision history for Perl extension Net::SSLeay.
 
+????
+	- Pass RAND_seed()'s sole argument to the underlying RAND_seed() function in
+	  libcrypto, rather than passing the value of a non-existent second argument.
+	  Fixes GH-427. Thanks to cgf1 for the report.
+
 1.93_02 2023-02-22
 	- Update ppport.h to version 3.68. This eliminates thousands of
 	  compound-token-split-by-macro compiler warnings when building Net-SSLeay with
