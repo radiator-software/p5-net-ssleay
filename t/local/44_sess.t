@@ -2,7 +2,7 @@
 
 use lib 'inc';
 
-use Net::SSLeay;
+use Net::SSLeay qw( ERROR_SSL );
 use Test::Net::SSLeay qw(
     can_fork data_file_path initialise_libssl is_protocol_usable new_ctx
     tcp_socket
@@ -14,7 +14,7 @@ use English qw( $EVAL_ERROR $OSNAME $PERL_VERSION -no_match_vars );
 if (not can_fork()) {
     plan skip_all => "fork() not supported on this system";
 } else {
-    plan tests => 58;
+    plan tests => 59;
 }
 
 initialise_libssl();
@@ -150,6 +150,7 @@ sub server_remove_cb
 my ($server_ctx, $client_ctx, $server_ssl, $client_ssl);
 
 my $server = tcp_socket();
+my $proto_count = 0;
 
 sub server
 {
@@ -265,6 +266,14 @@ sub client {
 	Net::SSLeay::set_fd($ssl, $cl);
 	my $ret = Net::SSLeay::connect($ssl);
 	if ($ret <= 0) {
+	    # Connection might fail due to attempted use of algorithm in key
+	    # exchange that is forbidden by security policy, resulting in ERROR_SSL
+	    my $ssl_err = Net::SSLeay::get_error($ssl, $ret);
+	    if ($ssl_err == ERROR_SSL) {
+	        diag("Protocol $proto, connect() failed, maybe due to security policy");
+	        $usable{$round} = 0;
+	        next;
+	    }
 	    diag("Protocol $proto, connect() returns $ret, Error: ".Net::SSLeay::ERR_error_string(Net::SSLeay::ERR_get_error()));
 	}
 	my $msg = Net::SSLeay::read($ssl);
@@ -284,6 +293,7 @@ sub client {
 	Net::SSLeay::shutdown($ssl);
 	Net::SSLeay::free($ssl);
 	close($cl) || die("client close: $!");
+	$proto_count += 1;
     }
 
     maybe_sleep();
@@ -368,6 +378,8 @@ sub test_stats {
             skip( 'TLSv1.3 not available in this libssl', 9 );
         }
     }
+
+    cmp_ok($proto_count, '>=', 1, "At least one protocol fully testable");
 
     #  use Data::Dumper; print "Server:\n" . Dumper(\%srv_stats);
     #  use Data::Dumper; print "Client:\n" . Dumper(\%clt_stats);
