@@ -39,8 +39,8 @@ ok(my $ca_pk = Net::SSLeay::PEM_read_bio_PrivateKey($bio2), "PEM_read_bio_Privat
   is(Net::SSLeay::P_ASN1_TIME_get_isotime($time_next), '2020-07-08T00:00:00Z', "P_ASN1_TIME_get_isotime next");
   
   is(Net::SSLeay::X509_CRL_get_version($crl1), 1, "X509_CRL_get_version");
-  ok(my $sha1_digest = Net::SSLeay::EVP_get_digestbyname("sha1"), "EVP_get_digestbyname");
-  is(unpack("H*",Net::SSLeay::X509_CRL_digest($crl1, $sha1_digest)), 'f0e5c853477a206c03f7347aee09a01d91df0ac5', "X509_CRL_digest");
+  ok(my $sha256_digest = Net::SSLeay::EVP_get_digestbyname("sha256"), "EVP_get_digestbyname");
+  is(unpack("H*",Net::SSLeay::X509_CRL_digest($crl1, $sha256_digest)), '4edc18ec956e722cbcf96589a43535c2d1d557e3cec55b1e421897827c3bb8be', "X509_CRL_digest");
 }
 
 { ### X509_CRL create
@@ -81,9 +81,9 @@ ok(my $ca_pk = Net::SSLeay::PEM_read_bio_PrivateKey($bio2), "PEM_read_bio_Privat
         &Net::SSLeay::NID_authority_key_identifier => 'keyid:always,issuer:always',
     ), "P_X509_CRL_add_extensions");
 
-  ok(my $sha1_digest = Net::SSLeay::EVP_get_digestbyname("sha1"), "EVP_get_digestbyname");
+  ok(my $sha256_digest = Net::SSLeay::EVP_get_digestbyname("sha256"), "EVP_get_digestbyname");
   ok(Net::SSLeay::X509_CRL_sort($crl), "X509_CRL_sort");
-  ok(Net::SSLeay::X509_CRL_sign($crl, $ca_pk, $sha1_digest), "X509_CRL_sign");
+  ok(Net::SSLeay::X509_CRL_sign($crl, $ca_pk, $sha256_digest), "X509_CRL_sign");
   
   like(my $crl_pem = Net::SSLeay::PEM_get_string_X509_CRL($crl), qr/-----BEGIN X509 CRL-----/, "PEM_get_string_X509_CRL");
     
