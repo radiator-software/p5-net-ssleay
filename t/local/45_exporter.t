@@ -2,7 +2,7 @@
 
 use lib 'inc';
 
-use Net::SSLeay;
+use Net::SSLeay qw( ERROR_SSL );
 use Test::Net::SSLeay qw(
     can_fork data_file_path initialise_libssl is_protocol_usable new_ctx
     tcp_socket
@@ -15,7 +15,7 @@ if (not can_fork()) {
 } elsif (!defined &Net::SSLeay::export_keying_material) {
     plan skip_all => "No export_keying_material()";
 } else {
-    plan tests => 36;
+    plan tests => 37;
 }
 
 initialise_libssl();
@@ -37,6 +37,7 @@ my (%server_stats, %client_stats);
 my ($server_ctx, $client_ctx, $server_ssl, $client_ssl);
 
 my $server = tcp_socket();
+my $proto_count = 0;
 
 sub server
 {
@@ -88,6 +89,16 @@ sub client {
             Net::SSLeay::set_fd( $ssl, $cl );
             my $ret = Net::SSLeay::connect($ssl);
             if ($ret <= 0) {
+                # Connection might fail due to attempted use of algorithm in key
+                # exchange that is forbidden by security policy, resulting in ERROR_SSL
+                my $ssl_err = Net::SSLeay::get_error($ssl, $ret);
+                if ($ssl_err == ERROR_SSL) {
+                    diag("Protocol $round, connect() failed, maybe due to security policy");
+                    SKIP: {
+                        skip( "$round not available in this enviornment", 9 );
+                    }
+                    next;
+                }
                 diag("Protocol $round, connect() returns $ret, Error: ".Net::SSLeay::ERR_error_string(Net::SSLeay::ERR_get_error()));
             }
 
@@ -100,6 +111,7 @@ sub client {
             Net::SSLeay::shutdown($ssl);
             Net::SSLeay::free($ssl);
             close($cl) || die("client close: $!");
+            $proto_count += 1;
         }
         else {
             SKIP: {
@@ -168,4 +180,7 @@ sub test_export_early
 server();
 client();
 waitpid $pid, 0;
+
+cmp_ok($proto_count, '>=', 1, "At least one protocol fully testable");
+
 exit(0);

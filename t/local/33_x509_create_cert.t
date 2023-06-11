@@ -98,8 +98,8 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
         &Net::SSLeay::NID_crl_distribution_points => 'URI:http://pki.dom.com/crl1.pem,URI:http://pki.dom.com/crl2.pem',
     ), "P_X509_add_extensions");
 
-  ok(my $sha1_digest = Net::SSLeay::EVP_get_digestbyname("sha1"), "EVP_get_digestbyname");
-  ok(Net::SSLeay::X509_sign($x509, $ca_pk, $sha1_digest), "X509_sign");
+  ok(my $sha256_digest = Net::SSLeay::EVP_get_digestbyname("sha256"), "EVP_get_digestbyname");
+  ok(Net::SSLeay::X509_sign($x509, $ca_pk, $sha256_digest), "X509_sign");
   
   is(Net::SSLeay::X509_get_version($x509), 3, "X509_get_version");  
   is(Net::SSLeay::X509_verify($x509, Net::SSLeay::X509_get_pubkey($ca_cert)), 1, "X509_verify");
@@ -208,8 +208,8 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
    
   ok(Net::SSLeay::X509_REQ_set_version($req, 2), "X509_REQ_set_version");
 
-  ok(my $sha1_digest = Net::SSLeay::EVP_get_digestbyname("sha1"), "EVP_get_digestbyname");
-  ok(Net::SSLeay::X509_REQ_sign($req, $pk, $sha1_digest), "X509_REQ_sign");
+  ok(my $sha256_digest = Net::SSLeay::EVP_get_digestbyname("sha256"), "EVP_get_digestbyname");
+  ok(Net::SSLeay::X509_REQ_sign($req, $pk, $sha256_digest), "X509_REQ_sign");
   
   ok(my $req_pubkey = Net::SSLeay::X509_REQ_get_pubkey($req), "X509_REQ_get_pubkey");
   is(Net::SSLeay::X509_REQ_verify($req, $req_pubkey), 1, "X509_REQ_verify");
@@ -250,7 +250,7 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
   ok(Net::SSLeay::X509_set_pubkey($x509ss,$tmppkey), "X509_set_pubkey");
   Net::SSLeay::EVP_PKEY_free($tmppkey);
   
-  ok(Net::SSLeay::X509_sign($x509ss, $ca_pk, $sha1_digest), "X509_sign");
+  ok(Net::SSLeay::X509_sign($x509ss, $ca_pk, $sha256_digest), "X509_sign");
   like(my $crt_pem = Net::SSLeay::PEM_get_string_X509($x509ss), qr/-----BEGIN CERTIFICATE-----/, "PEM_get_string_X509");
 
   #write_file("tmp_cert2.crt.pem", $crt_pem);
@@ -318,8 +318,8 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
     ok(Net::SSLeay::P_ASN1_TIME_set_isotime(Net::SSLeay::X509_get_notAfter($x509), "2038-01-01T00:00:00Z"), "P_ASN1_TIME_set_isotime+X509_get_notAfter");
   }
   
-  ok(my $sha1_digest = Net::SSLeay::EVP_get_digestbyname("sha1"), "EVP_get_digestbyname");
-  ok(Net::SSLeay::X509_sign($x509, $ca_pk, $sha1_digest), "X509_sign");
+  ok(my $sha256_digest = Net::SSLeay::EVP_get_digestbyname("sha256"), "EVP_get_digestbyname");
+  ok(Net::SSLeay::X509_sign($x509, $ca_pk, $sha256_digest), "X509_sign");
   
   like(my $crt_pem = Net::SSLeay::PEM_get_string_X509($x509), qr/-----BEGIN CERTIFICATE-----/, "PEM_get_string_X509");
   like(my $key_pem = Net::SSLeay::PEM_get_string_PrivateKey($pk), qr/-----BEGIN (RSA )?PRIVATE KEY-----/, "PEM_get_string_PrivateKey");  
@@ -333,8 +333,8 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
   ok(my $bio = Net::SSLeay::BIO_new_file($req_pem, 'r'), "BIO_new_file");
   ok(my $req = Net::SSLeay::PEM_read_bio_X509_REQ($bio), "PEM_read_bio_X509");
   
-  ok(my $sha1_digest = Net::SSLeay::EVP_get_digestbyname("sha1"), "EVP_get_digestbyname");
-  is(unpack("H*", Net::SSLeay::X509_REQ_digest($req, $sha1_digest)), "372c21a20a6d4e15bf8ecefb487cc604d9a10960", "X509_REQ_digest");
+  ok(my $sha256_digest = Net::SSLeay::EVP_get_digestbyname("sha256"), "EVP_get_digestbyname");
+  is(unpack("H*", Net::SSLeay::X509_REQ_digest($req, $sha256_digest)), "420e99da1e23e192409ab2a5f1a9b09ac03c52fa4b8bd0d19e561358f9880e88", "X509_REQ_digest");
   
   ok(my $req2  = Net::SSLeay::X509_REQ_new(), "X509_REQ_new");  
   ok(my $name = Net::SSLeay::X509_REQ_get_subject_name($req), "X509_REQ_get_subject_name");
