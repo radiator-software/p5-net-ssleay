@@ -4,6 +4,14 @@ Revision history for Perl extension Net::SSLeay.
 	- Pass RAND_seed()'s sole argument to the underlying RAND_seed() function in
 	  libcrypto, rather than passing the value of a non-existent second argument.
 	  Fixes GH-427. Thanks to cgf1 for the report.
+	- Avoid explicit and implicit use of weak hash algorithms,
+	  such as MD5 and SHA-1, in test suite. This allows tests
+	  44_sess.t and 45_exporter.t to correctly work on systems
+	  where crypto policies prohibit their direct use and TLS
+	  versions that require them. An example of such a system is
+	  Rocky Linux 9.2. Any Red Hat Enterprise Linux 9 and derived
+	  system is likely to have similar behaviour.  Thanks to Paul
+	  Howarth for the investigation and patches.
 
 1.93_02 2023-02-22
 	- Update ppport.h to version 3.68. This eliminates thousands of
