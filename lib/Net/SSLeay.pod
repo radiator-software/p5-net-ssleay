@@ -6498,6 +6498,8 @@ Loads/adds X509 CRL from $file to X509_LOOKUP structure
 
 =item * X509_policy_level_get0_node
 
+B<COMPATIBILITY:> no longer available in LibreSSL 3.8.0 and later
+
 ??? (more info needed)
 
  my $rv = Net::SSLeay::X509_policy_level_get0_node($level, $i);
@@ -6508,6 +6510,8 @@ Loads/adds X509 CRL from $file to X509_LOOKUP structure
 
 =item * X509_policy_level_node_count
 
+B<COMPATIBILITY:> no longer available in LibreSSL 3.8.0 and later
+
 ??? (more info needed)
 
  my $rv = Net::SSLeay::X509_policy_level_node_count($level);
@@ -6516,6 +6520,8 @@ Loads/adds X509 CRL from $file to X509_LOOKUP structure
  # returns: (integer) node count
 
 =item * X509_policy_node_get0_parent
+
+B<COMPATIBILITY:> no longer available in LibreSSL 3.8.0 and later
 
 ??? (more info needed)
 
@@ -6526,6 +6532,8 @@ Loads/adds X509 CRL from $file to X509_LOOKUP structure
 
 =item * X509_policy_node_get0_policy
 
+B<COMPATIBILITY:> no longer available in LibreSSL 3.8.0 and later
+
 ??? (more info needed)
 
  my $rv = Net::SSLeay::X509_policy_node_get0_policy($node);
@@ -6534,6 +6542,8 @@ Loads/adds X509 CRL from $file to X509_LOOKUP structure
  # returns: value corresponding to openssl's ASN1_OBJECT structure (0 on failure)
 
 =item * X509_policy_node_get0_qualifiers
+
+B<COMPATIBILITY:> no longer available in LibreSSL 3.8.0 and later
 
 ??? (more info needed)
 
@@ -6544,6 +6554,8 @@ Loads/adds X509 CRL from $file to X509_LOOKUP structure
 
 =item * X509_policy_tree_free
 
+B<COMPATIBILITY:> no longer available in LibreSSL 3.8.0 and later
+
 ??? (more info needed)
 
  Net::SSLeay::X509_policy_tree_free($tree);
@@ -6552,6 +6564,8 @@ Loads/adds X509 CRL from $file to X509_LOOKUP structure
  # returns: no return value
 
 =item * X509_policy_tree_get0_level
+
+B<COMPATIBILITY:> no longer available in LibreSSL 3.8.0 and later
 
 ??? (more info needed)
 
@@ -6563,23 +6577,29 @@ Loads/adds X509 CRL from $file to X509_LOOKUP structure
 
 =item * X509_policy_tree_get0_policies
 
+B<COMPATIBILITY:> no longer available in LibreSSL 3.8.0 and later
+
 ??? (more info needed)
 
  my $rv = Net::SSLeay::X509_policy_tree_get0_policies($tree);
  # $tree - value corresponding to openssl's X509_POLICY_TREE structure
  #
- # returns: value corresponding to openssl's X509_POLICY_NODE structure (0 on failure)
+ # returns: value corresponding to openssl's STACK_OF(X509_POLICY_NODE) structure (0 on failure)
 
 =item * X509_policy_tree_get0_user_policies
+
+B<COMPATIBILITY:> no longer available in LibreSSL 3.8.0 and later
 
 ??? (more info needed)
 
  my $rv = Net::SSLeay::X509_policy_tree_get0_user_policies($tree);
  # $tree - value corresponding to openssl's X509_POLICY_TREE structure
  #
- # returns: value corresponding to openssl's X509_POLICY_NODE structure (0 on failure)
+ # returns: value corresponding to openssl's STACK_OF(X509_POLICY_NODE) structure (0 on failure)
 
 =item * X509_policy_tree_level_count
+
+B<COMPATIBILITY:> no longer available in LibreSSL 3.8.0 and later
 
 ??? (more info needed)
 

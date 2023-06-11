@@ -7157,6 +7157,7 @@ X509_VERIFY_PARAM_get0_peername(param)
 
 #endif /* OpenSSL 1.0.2-beta2, LibreSSL 2.7.0 */
 
+#if !defined(LIBRESSL_VERSION_NUMBER) || (LIBRESSL_VERSION_NUMBER < 0x3080000fL) /* LibreSSL < 3.8.0 */
 void
 X509_policy_tree_free(tree)
     X509_POLICY_TREE *tree
@@ -7199,6 +7200,7 @@ const X509_POLICY_NODE *
 X509_policy_node_get0_parent(node)
     const X509_POLICY_NODE *node
 
+#endif /* LibreSSL < 3.8.0 */
 #endif
 
 ASN1_OBJECT *

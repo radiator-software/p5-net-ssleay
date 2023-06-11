@@ -12,6 +12,20 @@ Revision history for Perl extension Net::SSLeay.
 	  Rocky Linux 9.2. Any Red Hat Enterprise Linux 9 and derived
 	  system is likely to have similar behaviour.  Thanks to Paul
 	  Howarth for the investigation and patches.
+	- LibreSSL 3.8.0 release notes state: The POLICY_TREE and its
+	  related structures and API were removed. The affected
+	  Net::SSLeay functions are:
+	  - X509_policy_level_get0_node
+	  - X509_policy_level_node_count
+	  - X509_policy_node_get0_parent
+	  - X509_policy_node_get0_policy
+	  - X509_policy_node_get0_qualifiers
+	  - X509_policy_tree_free
+	  - X509_policy_tree_get0_level
+	  - X509_policy_tree_get0_policies
+	  - X509_policy_tree_get0_user_policies
+	  - X509_policy_tree_level_count
+	  Patch by GitHub user orbea.
 
 1.93_02 2023-02-22
 	- Update ppport.h to version 3.68. This eliminates thousands of
