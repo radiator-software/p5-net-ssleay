@@ -7200,7 +7200,7 @@ const X509_POLICY_NODE *
 X509_policy_node_get0_parent(node)
     const X509_POLICY_NODE *node
 
-#endif /* !(LibreSSL >= 3.7.0) */
+#endif /* LibreSSL < 3.8.0 */
 #endif
 
 ASN1_OBJECT *
