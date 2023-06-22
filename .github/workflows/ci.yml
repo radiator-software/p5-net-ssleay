@@ -164,7 +164,7 @@ jobs:
             make test
 
   non_x86_alpine:
-    name: "${{ matrix.platform }}/Alpine (${{ matrix.package }})"
+    name: "${{ matrix.platform }}/Alpine/${{ matrix.alpine_version }} (${{ matrix.package }})"
 
     runs-on: ubuntu-latest
 
@@ -179,6 +179,15 @@ jobs:
           - arm32v6
           - arm32v7
           - arm64v8
+        alpine_version:
+          - '3.18'
+          - '3.17'
+          - '3.16'
+          - '3.15'
+        exclude:
+          - package: libressl
+            platform: s390x
+            alpine_version: '3.18'
 
     steps:
       - uses: actions/checkout@main
@@ -189,7 +198,7 @@ jobs:
 
       # NB: “openssl” is correct, even for LibreSSL:
       - name: Run tests on ${{ matrix.platform }}
-        run: docker run --rm --interactive --mount type=bind,source=$(pwd),target=/host ${{ matrix.platform }}/alpine sh -c "apk add perl-dev perl-app-cpanminus make gcc musl-dev zlib-dev ${{ matrix.package }}-dev openssl && perl -V && cd /host && cpanm --verbose --notest --installdeps . && perl Makefile.PL && make test"
+        run: docker run --rm --interactive --mount type=bind,source=$(pwd),target=/host ${{ matrix.platform }}/alpine:${{ matrix.alpine_version}} sh -c "apk add perl-dev perl-app-cpanminus make gcc musl-dev zlib-dev ${{ matrix.package }}-dev openssl && perl -V && cd /host && cpanm --verbose --notest --installdeps . && perl Makefile.PL && make test"
 
   non_x86_ubuntu:
     name: "${{ matrix.platform }}/Ubuntu"
