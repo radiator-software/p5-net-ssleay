@@ -249,11 +249,11 @@ jobs:
             pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus libressl libressl-devel
           - name: openbsd
             pretty_name: OpenBSD
-            version: '6.9'
+            version: '7.3'
             pkginstall: pkg_add curl
           - name: openbsd
             pretty_name: OpenBSD
-            version: '7.1'
+            version: '7.2'
             pkginstall: pkg_add curl
 
     steps:
