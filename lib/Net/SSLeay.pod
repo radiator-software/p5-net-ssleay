@@ -49,12 +49,12 @@ Net::SSLeay supports the following libssl implementations:
 
 =item *
 
-Any stable release of L<OpenSSL|https://www.openssl.org> in the 0.9.8 - 3.0
+Any stable release of L<OpenSSL|https://www.openssl.org> in the 0.9.8 - 3.1
 branches, except for OpenSSL 0.9.8 - 0.9.8b.
 
 =item *
 
-Any stable release of L<LibreSSL|https://www.libressl.org> in the 2.0 - 3.6
+Any stable release of L<LibreSSL|https://www.libressl.org> in the 2.0 - 3.7
 series, except for LibreSSL 3.2.2 and 3.2.3.
 
 =back

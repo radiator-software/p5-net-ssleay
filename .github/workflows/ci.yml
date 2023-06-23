@@ -1,12 +1,16 @@
 # The CI workflow tests Net-SSLeay against the following setups:
 #
 # - OS: Ubuntu 20.04
-#
 # - Perl: the latest patch release of every minor release since 5.8
-#
 # - libssl: the latest patch release of every minor release between:
-#   - OpenSSL: 0.9.8 and 3.0
-#   - LibreSSL: 2.2 and 3.6
+#   - OpenSSL: 0.9.8 and 3.1
+#   - LibreSSL: 2.2 and 3.7
+#
+# - Non-x86 architectures on Alpine Linux and Ubuntu
+#
+# - Various BSDs with different LibreSSL and OpenSSL versions
+#
+# - Windows with Cygwin
 
 name: CI
 
@@ -46,8 +50,9 @@ jobs:
           - '5.10'
           - '5.8'
         openssl:
-          - '3.0.8'
-          - '1.1.1t'
+          - '3.1.1'
+          - '3.0.9'
+          - '1.1.1u'
           - '1.1.0l'
           - '1.0.2u'
           - '1.0.1u'
@@ -112,7 +117,8 @@ jobs:
           - '5.10'
           - '5.8'
         libressl:
-          - '3.6.2'
+          - '3.7.3'
+          - '3.6.3'
           - '3.5.4'
           - '3.4.3'
           - '3.3.6'
@@ -164,7 +170,7 @@ jobs:
             make test
 
   non_x86_alpine:
-    name: "${{ matrix.platform }}/Alpine (${{ matrix.package }})"
+    name: "${{ matrix.platform }}/Alpine/${{ matrix.alpine_version }} (${{ matrix.package }})"
 
     runs-on: ubuntu-latest
 
@@ -179,6 +185,15 @@ jobs:
           - arm32v6
           - arm32v7
           - arm64v8
+        alpine_version:
+          - '3.18'
+          - '3.17'
+          - '3.16'
+          - '3.15'
+        exclude:
+          - package: libressl
+            platform: s390x
+            alpine_version: '3.18'
 
     steps:
       - uses: actions/checkout@main
@@ -189,7 +204,7 @@ jobs:
 
       # NB: “openssl” is correct, even for LibreSSL:
       - name: Run tests on ${{ matrix.platform }}
-        run: docker run --rm --interactive --mount type=bind,source=$(pwd),target=/host ${{ matrix.platform }}/alpine sh -c "apk add perl-dev perl-app-cpanminus make gcc musl-dev zlib-dev ${{ matrix.package }}-dev openssl && perl -V && cd /host && cpanm --verbose --notest --installdeps . && perl Makefile.PL && make test"
+        run: docker run --rm --interactive --mount type=bind,source=$(pwd),target=/host ${{ matrix.platform }}/alpine:${{ matrix.alpine_version}} sh -c "apk add perl-dev perl-app-cpanminus make gcc musl-dev zlib-dev ${{ matrix.package }}-dev openssl && perl -V && cd /host && cpanm --verbose --notest --installdeps . && perl Makefile.PL && make test"
 
   non_x86_ubuntu:
     name: "${{ matrix.platform }}/Ubuntu"
@@ -214,7 +229,7 @@ jobs:
         run: docker run --rm --interactive --mount type=bind,source=$(pwd),target=/host ${{ matrix.platform }}/ubuntu bash -c "apt update && apt install -y cpanminus make gcc openssl libssl-dev zlib1g-dev && perl -V && cd /host && cpanm --notest --verbose --installdeps . || find /root/.cpanm/work/ -type f | xargs cat; perl Makefile.PL && make test"
 
   BSDs:
-    runs-on: macos-10.15
+    runs-on: macos-12
 
     name: ${{ matrix.os.pretty_name }} ${{ matrix.os.version }}
 
@@ -223,21 +238,33 @@ jobs:
       matrix:
         os:
           - name: freebsd
-            pretty_name: FreeBSD (OpenSSL)
-            version: '13.0'
-            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus openssl openssl-devel
+            pretty_name: FreeBSD (OpenSSL default)
+            version: '13.2'
+            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus
+          - name: freebsd
+            pretty_name: FreeBSD (OpenSSL 3.0)
+            version: '13.2'
+            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus openssl30
+          - name: freebsd
+            pretty_name: FreeBSD (OpenSSL 3.1)
+            version: '13.2'
+            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus openssl31
           - name: freebsd
             pretty_name: FreeBSD (LibreSSL)
-            version: '13.0'
+            version: '13.2'
             pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus libressl libressl-devel
           - name: openbsd
             pretty_name: OpenBSD
-            version: '6.9'
+            version: '7.3'
             pkginstall: pkg_add curl
           - name: openbsd
             pretty_name: OpenBSD
-            version: '7.1'
+            version: '7.2'
             pkginstall: pkg_add curl
+          - name: netbsd
+            pretty_name: NetBSD
+            version: '9.3'
+            pkginstall: /usr/sbin/pkg_add http://cdn.netbsd.org/pub/pkgsrc/packages/NetBSD/amd64/9.3/All/p5-App-cpanminus
 
     steps:
       - uses: actions/checkout@main
