@@ -26,6 +26,10 @@ Revision history for Perl extension Net::SSLeay.
 	  - X509_policy_tree_get0_user_policies
 	  - X509_policy_tree_level_count
 	  Patch by GitHub user orbea.
+	- Add OpenSSL 3.1 and LibreSSL 3.7 minor releases to GitHub CI testing.
+	  Update the previous minor releases to their latest versions. Add
+	  NetBSD to BSDs job and update the other BSDs and Alpine Linux jobs to
+	  cover additional and latest releases. Use the latest MacOS runners.
 
 1.93_02 2023-02-22
 	- Update ppport.h to version 3.68. This eliminates thousands of
