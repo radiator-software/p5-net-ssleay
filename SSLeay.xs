@@ -1837,8 +1837,8 @@ int ssl_client_hello_cb_fn_invoke(SSL *ssl, int *al, void *arg)
 
     SPAGAIN;
 
-    if (count > 2)
-      croak ("Net::SSLeay: ssl_client_hello_cb_fn perl function returned %d values, only 2 expected\n", count);
+    if (count < 1 || count > 2)
+      croak ("Net::SSLeay: ssl_client_hello_cb_fn perl function returned %d values, 1 or 2 expected\n", count);
     if (count == 2)
       *al = POPi;
     res = POPi;
