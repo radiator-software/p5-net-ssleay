@@ -11,7 +11,7 @@ BEGIN {
     } elsif (not can_fork()) {
         plan skip_all => "fork() not supported on this system";
     } else {
-        plan tests => 16;
+        plan tests => 19;
     }
 }
 
@@ -24,6 +24,19 @@ my $cert_pem = data_file_path('simple-cert.cert.pem');
 my $key_pem  = data_file_path('simple-cert.key.pem');
 
 my $cb_test_arg = [1, 'string for hello cb test arg'];
+
+# As of 2023-08, even the latest in-development OpenSSL allows
+# connections with SSLv2 ClientHello. Tested with OpenSSL 0.9.8f as
+# client and OpenSSL 3.2.0-dev from git master branch as
+# server. Trigger alert 42 as a marker.
+sub client_hello_cb_v2hello_detection
+{
+    my ($ssl, $arg) = @_;
+
+    is(Net::SSLeay::client_hello_isv2($ssl), 1, 'SSLv2 ClientHello');
+    my $al = Net::SSLeay::AD_BAD_CERTIFICATE();
+    return (Net::SSLeay::CLIENT_HELLO_ERROR(), $al);
+}
 
 # See that the exact same reference with unchanged contents are made
 # available for the callback. Allow handshake to proceed.
@@ -86,6 +99,7 @@ my @cb_tests = (
     # argument passed to the callback
     # true if the callback function triggers croak()
     # true if the client needs to test that ALPN alert (120) is received
+    [ \&client_hello_cb_v2hello_detection, undef, 0 ],
     [ \&client_hello_cb_value_passing, \$cb_test_arg, 0 ],
     [ \&client_hello_cb_alert_alpn, undef, 0, 'alerts'],
     [ \&client_hello_cb_alert_alpn, undef, 0, 'alerts'], # Call again to increase alert counter
@@ -147,6 +161,7 @@ my @results;
 }
 
 {
+    # SSL client
     my $alpn_alert_count = 0;
 
     # Use info callback to count TLS alert 120 occurences (ALPN alert).
@@ -158,7 +173,21 @@ my @results;
 	}
     };
 
-    # SSL client
+    # Start with SSLv2 ClientHello detection test. Send a canned SSLv2
+    # ClientHello.
+    {
+	my $s_clientv2 = $server->connect();
+	my $clientv2_hello = get_sslv2_hello();
+	syswrite($s_clientv2, $clientv2_hello, length $clientv2_hello);
+	sysread($s_clientv2, my $buf, 16384);
+
+	# Alert (15), version (0303|4), length (0002), level fatal (02), bad cert(2a)
+	push @results, [unpack('H*', $buf) =~ m/^15030.0002022a\z/, 'Alert from SSLv2 ClientHello'];
+	close($s_clientv2) || die("s_clientv2 close");
+	shift @cb_tests;
+    }
+
+    # The rest of tests use client's TLS stack
     foreach my $cb_test (@cb_tests) {
 	my $s_c = $server->connect();
 
@@ -187,6 +216,30 @@ my @results;
 waitpid $pid, 0;
 push @results, [$? == 0, 'server exited with 0'];
 END {
-  Test::More->builder->current_test(14);
+  Test::More->builder->current_test(16);
   ok( $_->[0], $_->[1] ) for (@results);
+}
+
+# Use a canned SSLv2 ClientHello for testing OpenSSL's
+# SSL_client_hello_isv2()
+sub get_sslv2_hello
+{
+    # Captures with OpenSSL 0.9.8f. The second capture uses TLSv1.0 as
+    # Version but still includes a number of SSLv2 ciphersuites.
+    #
+    # openssl s_client -connect 127.0.0.1:443 -ssl2
+    # openssl s_client -connect 127.0.0.1:443
+    my $sslv2_sslv2_hex_f = '802e0100020015000000100700c00500800300800100800600400400800200808f11701ccdc4eab421b6d03e4942ea98';
+    my $sslv2_tlsv1_hex_f = '807a01030100510000002000003900003800003500001600001300000a0700c000003300003200002f0000070500800300800000050000040100800000150000120000090600400000140000110000080000060400800000030200807f0913623fe5e84de01bc7733ae8fcdcefda1ef60a4c960ac7251f6560841566';
+
+    # Captures with OpenSSL 0.9.8zh.
+    #
+    # The first capture is similar to 0.9.8f but the ciphersuites are
+    # now ordered with the strongest first.The second capture uses
+    # TLSv1.0 as Version but compared to 0.9.8f has a more modern set
+    # of ciphers and includes TLS_EMPTY_RENEGOTIATION_INFO_SCSV.
+    my $sslv2_sslv2_hex_zh = '802e0100020015000000100700c006004005008004008003008002008001008015c9eb78cbf9702542ac2d4c46b6101a';
+    my $sslv2_tlsv1_hex_zh = '805901030100300000002000003900003800003500001600001300000a00003300003200002f0000070000050000040000150000120000090000ff1f90dda05ec4a857523dcc0ae06c461a99c36ce647a84aa64061c054333376b9';
+
+    return pack('H*', $sslv2_tlsv1_hex_zh);
 }

@@ -5893,6 +5893,9 @@ SSL_CTX_set_client_hello_cb(SSL_CTX *ctx, SV *callback, SV *arg=&PL_sv_undef)
 	    SSL_CTX_set_client_hello_cb(ctx, ssl_client_hello_cb_fn_invoke, NULL);
 	}
 
+int
+SSL_client_hello_isv2(SSL *s)
+
 #endif
 
 int

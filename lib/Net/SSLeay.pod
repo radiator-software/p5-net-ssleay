@@ -3584,6 +3584,34 @@ Retrieve the previously set TLS key logging callback.
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_get_keylog_callback.html>
 
+=item * CTX_set_client_hello_cb
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before; requires at least OpenSSL 1.1.1pre1, not in LibreSSL
+
+Set a callback function called during the early stages of ClientHello processing on the server.
+When callback is undef, the existing callback is disabled.
+
+ Net::SSLeay::CTX_set_client_hello_cb($ctx, $f, [$arg]);
+ # $ctx  - value corresponding to openssl's SSL_CTX structure
+ # $f - sub { my ($ssl, $arg) = @_; ...; return ($ret, $al); }
+ # $arg - optional data passed to the callback function when invoked
+ #
+ # returns: no return value
+
+The callback function will be called like this:
+
+ client_hello_cb_func($ssl, $arg);
+ # $ssl - value corresponding to OpenSSL's SSL object associated with the connection
+ # $arg - data to callback
+ #
+ # An alert code must be returned with SSL_CLIENT_HELLO_FAILURE.
+ # Return value examples:
+ # ok: return Net::SSLeay::CLIENT_HELLO_SUCCESS();
+ # suspend: return Net::SSLeay::CLIENT_HELLO_RETRY();
+ # error: return (Net::SSLeay::CLIENT_HELLO_FAILURE(), Net::SSLeay::AD_NO_APPLICATION_PROTOCOL());
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_client_hello_cb.html>
+
 =back
 
 =head3 Low level API: SSL_* related functions
@@ -5466,6 +5494,21 @@ Sets TLS servername extension on SLL object $ssl to value $name.
  # $name - (string) name to be set
  #
  # returns: 1 on success, 0 on failure
+
+=item * client_hello_isv2
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before; requires at least OpenSSL 1.1.1pre1, not in LibreSSL
+
+B<NOTE:> to be used only from a callback set with L<CTX_set_client_hello_cb>.
+
+Indicate if the ClientHello was carried in a SSLv2 record and is in the SSLv2 format.
+
+ my $rv = client_hello_isv2($s);
+ # $s - value corresponding to openssl's SSL structure
+ #
+ # returns: 1 for SSLv2-format ClientHellos and 0 otherwise
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_client_hello_isv2.html>
 
 =back
 
