@@ -583,6 +583,43 @@ my @constants = qw(
     TLS1_3_VERSION
     TLS1_VERSION
     TLSEXT_STATUSTYPE_ocsp
+    TLSEXT_TYPE_application_layer_protocol_negotiation
+    TLSEXT_TYPE_cert_type
+    TLSEXT_TYPE_certificate_authorities
+    TLSEXT_TYPE_client_authz
+    TLSEXT_TYPE_client_cert_type
+    TLSEXT_TYPE_client_certificate_url
+    TLSEXT_TYPE_compress_certificate
+    TLSEXT_TYPE_cookie
+    TLSEXT_TYPE_early_data
+    TLSEXT_TYPE_ec_point_formats
+    TLSEXT_TYPE_elliptic_curves
+    TLSEXT_TYPE_encrypt_then_mac
+    TLSEXT_TYPE_extended_master_secret
+    TLSEXT_TYPE_key_share
+    TLSEXT_TYPE_max_fragment_length
+    TLSEXT_TYPE_next_proto_neg
+    TLSEXT_TYPE_padding
+    TLSEXT_TYPE_post_handshake_auth
+    TLSEXT_TYPE_psk
+    TLSEXT_TYPE_psk_kex_modes
+    TLSEXT_TYPE_quic_transport_parameters
+    TLSEXT_TYPE_renegotiate
+    TLSEXT_TYPE_server_authz
+    TLSEXT_TYPE_server_cert_type
+    TLSEXT_TYPE_server_name
+    TLSEXT_TYPE_session_ticket
+    TLSEXT_TYPE_signature_algorithms
+    TLSEXT_TYPE_signature_algorithms_cert
+    TLSEXT_TYPE_signed_certificate_timestamp
+    TLSEXT_TYPE_srp
+    TLSEXT_TYPE_status_request
+    TLSEXT_TYPE_supported_groups
+    TLSEXT_TYPE_supported_versions
+    TLSEXT_TYPE_truncated_hmac
+    TLSEXT_TYPE_trusted_ca_keys
+    TLSEXT_TYPE_use_srtp
+    TLSEXT_TYPE_user_mapping
     VERIFY_CLIENT_ONCE
     VERIFY_FAIL_IF_NO_PEER_CERT
     VERIFY_NONE
