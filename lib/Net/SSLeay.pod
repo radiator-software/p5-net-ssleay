@@ -3584,6 +3584,34 @@ Retrieve the previously set TLS key logging callback.
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_get_keylog_callback.html>
 
+=item * CTX_set_client_hello_cb
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before; requires at least OpenSSL 1.1.1pre1, not in LibreSSL
+
+Set a callback function called during the early stages of ClientHello processing on the server.
+When callback is undef, the existing callback is disabled.
+
+ Net::SSLeay::CTX_set_client_hello_cb($ctx, $f, [$arg]);
+ # $ctx  - value corresponding to openssl's SSL_CTX structure
+ # $f - sub { my ($ssl, $arg) = @_; ...; return ($ret, $al); }
+ # $arg - optional data passed to the callback function when invoked
+ #
+ # returns: no return value
+
+The callback function will be called like this:
+
+ client_hello_cb_func($ssl, $arg);
+ # $ssl - value corresponding to OpenSSL's SSL object associated with the connection
+ # $arg - data to callback
+ #
+ # An alert code must be returned with SSL_CLIENT_HELLO_FAILURE.
+ # Return value examples:
+ # ok: return Net::SSLeay::CLIENT_HELLO_SUCCESS();
+ # suspend: return Net::SSLeay::CLIENT_HELLO_RETRY();
+ # error: return (Net::SSLeay::CLIENT_HELLO_FAILURE(), Net::SSLeay::AD_NO_APPLICATION_PROTOCOL());
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_client_hello_cb.html>
+
 =back
 
 =head3 Low level API: SSL_* related functions
@@ -5466,6 +5494,106 @@ Sets TLS servername extension on SLL object $ssl to value $name.
  # $name - (string) name to be set
  #
  # returns: 1 on success, 0 on failure
+
+=item * client_hello_isv2
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before; requires at least OpenSSL 1.1.1pre1, not in LibreSSL
+
+B<NOTE:> to be used only from a callback set with L<CTX_set_client_hello_cb>.
+
+Indicate if the ClientHello was carried in a SSLv2 record and is in the SSLv2 format.
+
+ my $rv = client_hello_isv2($s);
+ # $s - value corresponding to openssl's SSL structure
+ #
+ # returns: 1 for SSLv2-format ClientHellos and 0 otherwise
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_client_hello_isv2.html>
+
+=item * client_hello_get0_legacy_version
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before; requires at least OpenSSL 1.1.1pre1, not in LibreSSL
+
+B<NOTE:> to be used only from a callback set with L<CTX_set_client_hello_cb>.
+
+Returns legacy_version, also known as client_version, field from the ClientHello.
+
+ my $rv = client_hello_get0_legacy_version($s);
+ # $s - value corresponding to openssl's SSL structure
+ #
+ # returns: unsigned integer, for example 0x0303 (TLS v1.2) with TLS 1.3
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_client_hello_get0_legacy_version.html>
+
+=item * client_hello_get0_random, client_hello_get0_session_id, client_hello_get0_ciphers and client_hello_get0_compression_methods
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before; requires at least OpenSSL 1.1.1pre1, not in LibreSSL
+
+B<NOTE:> to be used only from a callback set with L<CTX_set_client_hello_cb>.
+
+These functions return random, session_id, cipher_suites and compression_methods fields from the ClientHello, respectively.
+
+ my $random = client_hello_get0_random($s);
+ my $session_id = client_hello_get0_session_id($s);
+ my $ciphers = client_hello_get0_ciphers($s);
+ my $compression_methods = client_hello_get0_compression_methods($s);
+ # $s - value corresponding to openssl's SSL structure
+ #
+ # returns: raw octet data where data length, zero or more, depends on the field definition
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_client_hello_get0_random.html>
+
+=item * client_hello_get1_extensions_present and client_hello_get_extension_order
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before; requires at least OpenSSL 1.1.1pre1, not in LibreSSL
+
+B<NOTE:> to be used only from a callback set with L<CTX_set_client_hello_cb>.
+
+Returns a reference to an array holding the numerical value of the TLS extension types in the order they appear in the ClientHello. client_hello_get_extension_order is similar and requires at least OpenSSL 3.2.0, not in LibreSSL.
+
+ my $ref = client_hello_get1_extensions_present($s);
+ # $s - value corresponding to openssl's SSL structure
+ #
+ # returns: an array reference of zero or more extension types or undef on failure
+
+Example from a TLS 1.3 ClientHello:
+
+ sub client_hello_cb {
+    my ($ssl, $arg) = @_;
+    my $ref = client_hello_get1_extensions_present($ssl);
+    print join(' ', @$ref), "\n" if $ref;
+  }
+
+Prints: C<11 10 35 22 23 13 43 45 51>
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_client_hello_get1_extensions_present.html>
+
+
+=item * client_hello_get0_ext
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before; requires at least OpenSSL 1.1.1pre1, not in LibreSSL
+
+B<NOTE:> to be used only from a callback set with L<CTX_set_client_hello_cb>.
+
+Returns an extension by type number from the ClientHello.
+
+ my $ref = client_hello_get1_extensions_present($s, $type);
+ # $s - value corresponding to openssl's SSL structure
+ # $type - (integer) extension type number
+ #
+ # returns: zero or more octets of extension contents including extension length, undef if the extension is not present
+
+Example: Get the value of TLS extension C<supported_versions>. You can use constant C<TLSEXT_TYPE_supported_versions> or 43 directly.
+
+ sub client_hello_cb {
+    my ($ssl, $arg) = @_;
+    my $ext_ver = Net::SSLeay::client_hello_get0_ext($ssl, Net::SSLeay::TLSEXT_TYPE_supported_versions());
+    print unpack('H*', $ext_ver), "\n" if defined $ext_ver;
+  }
+
+Prints: C<080304030303020301> where the first octet 0x08 is the extension length and the following four 16bit values correspond to TLS versions 1.3, 1.2, 1.1 and 1.0.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_client_hello_get0_ext.html>
 
 =back
 
@@ -9739,153 +9867,190 @@ helper_script/update-exported-constants.
 
 =for start_constants
 
-    ASN1_STRFLGS_ESC_CTRL                   OP_CRYPTOPRO_TLSEXT_BUG
-    ASN1_STRFLGS_ESC_MSB                    OP_DISABLE_TLSEXT_CA_NAMES
-    ASN1_STRFLGS_ESC_QUOTE                  OP_DONT_INSERT_EMPTY_FRAGMENTS
-    ASN1_STRFLGS_RFC2253                    OP_ENABLE_KTLS
-    ASYNC_NO_JOBS                           OP_ENABLE_MIDDLEBOX_COMPAT
-    ASYNC_PAUSED                            OP_EPHEMERAL_RSA
-    CB_ACCEPT_EXIT                          OP_IGNORE_UNEXPECTED_EOF
-    CB_ACCEPT_LOOP                          OP_LEGACY_SERVER_CONNECT
-    CB_ALERT                                OP_MICROSOFT_BIG_SSLV3_BUFFER
-    CB_CONNECT_EXIT                         OP_MICROSOFT_SESS_ID_BUG
-    CB_CONNECT_LOOP                         OP_MSIE_SSLV2_RSA_PADDING
-    CB_EXIT                                 OP_NETSCAPE_CA_DN_BUG
-    CB_HANDSHAKE_DONE                       OP_NETSCAPE_CHALLENGE_BUG
-    CB_HANDSHAKE_START                      OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG
-    CB_LOOP                                 OP_NETSCAPE_REUSE_CIPHER_CHANGE_BUG
-    CB_READ                                 OP_NON_EXPORT_FIRST
-    CB_READ_ALERT                           OP_NO_ANTI_REPLAY
-    CB_WRITE                                OP_NO_CLIENT_RENEGOTIATION
-    CB_WRITE_ALERT                          OP_NO_COMPRESSION
-    CLIENT_HELLO_CB                         OP_NO_ENCRYPT_THEN_MAC
-    ERROR_NONE                              OP_NO_EXTENDED_MASTER_SECRET
-    ERROR_SSL                               OP_NO_QUERY_MTU
-    ERROR_SYSCALL                           OP_NO_RENEGOTIATION
-    ERROR_WANT_ACCEPT                       OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION
-    ERROR_WANT_ASYNC                        OP_NO_SSL_MASK
-    ERROR_WANT_ASYNC_JOB                    OP_NO_SSLv2
-    ERROR_WANT_CLIENT_HELLO_CB              OP_NO_SSLv3
-    ERROR_WANT_CONNECT                      OP_NO_TICKET
-    ERROR_WANT_READ                         OP_NO_TLSv1
-    ERROR_WANT_RETRY_VERIFY                 OP_NO_TLSv1_1
-    ERROR_WANT_WRITE                        OP_NO_TLSv1_2
-    ERROR_WANT_X509_LOOKUP                  OP_NO_TLSv1_3
-    ERROR_ZERO_RETURN                       OP_PKCS1_CHECK_1
-    EVP_PKS_DSA                             OP_PKCS1_CHECK_2
-    EVP_PKS_EC                              OP_PRIORITIZE_CHACHA
-    EVP_PKS_RSA                             OP_SAFARI_ECDHE_ECDSA_BUG
-    EVP_PKT_ENC                             OP_SINGLE_DH_USE
-    EVP_PKT_EXCH                            OP_SINGLE_ECDH_USE
-    EVP_PKT_EXP                             OP_SSLEAY_080_CLIENT_DH_BUG
-    EVP_PKT_SIGN                            OP_SSLREF2_REUSE_CERT_TYPE_BUG
-    EVP_PK_DH                               OP_TLSEXT_PADDING
-    EVP_PK_DSA                              OP_TLS_BLOCK_PADDING_BUG
-    EVP_PK_EC                               OP_TLS_D5_BUG
-    EVP_PK_RSA                              OP_TLS_ROLLBACK_BUG
-    FILETYPE_ASN1                           READING
-    FILETYPE_PEM                            RECEIVED_SHUTDOWN
-    F_CLIENT_CERTIFICATE                    RETRY_VERIFY
-    F_CLIENT_HELLO                          RSA_3
-    F_CLIENT_MASTER_KEY                     RSA_F4
-    F_D2I_SSL_SESSION                       R_BAD_AUTHENTICATION_TYPE
-    F_GET_CLIENT_FINISHED                   R_BAD_CHECKSUM
-    F_GET_CLIENT_HELLO                      R_BAD_MAC_DECODE
-    F_GET_CLIENT_MASTER_KEY                 R_BAD_RESPONSE_ARGUMENT
-    F_GET_SERVER_FINISHED                   R_BAD_SSL_FILETYPE
-    F_GET_SERVER_HELLO                      R_BAD_SSL_SESSION_ID_LENGTH
-    F_GET_SERVER_VERIFY                     R_BAD_STATE
-    F_I2D_SSL_SESSION                       R_BAD_WRITE_RETRY
-    F_READ_N                                R_CHALLENGE_IS_DIFFERENT
-    F_REQUEST_CERTIFICATE                   R_CIPHER_TABLE_SRC_ERROR
-    F_SERVER_HELLO                          R_INVALID_CHALLENGE_LENGTH
-    F_SSL_CERT_NEW                          R_NO_CERTIFICATE_SET
-    F_SSL_GET_NEW_SESSION                   R_NO_CERTIFICATE_SPECIFIED
-    F_SSL_NEW                               R_NO_CIPHER_LIST
-    F_SSL_READ                              R_NO_CIPHER_MATCH
-    F_SSL_RSA_PRIVATE_DECRYPT               R_NO_PRIVATEKEY
-    F_SSL_RSA_PUBLIC_ENCRYPT                R_NO_PUBLICKEY
-    F_SSL_SESSION_NEW                       R_NULL_SSL_CTX
-    F_SSL_SESSION_PRINT_FP                  R_PEER_DID_NOT_RETURN_A_CERTIFICATE
-    F_SSL_SET_FD                            R_PEER_ERROR
-    F_SSL_SET_RFD                           R_PEER_ERROR_CERTIFICATE
-    F_SSL_SET_WFD                           R_PEER_ERROR_NO_CIPHER
-    F_SSL_USE_CERTIFICATE                   R_PEER_ERROR_UNSUPPORTED_CERTIFICATE_TYPE
-    F_SSL_USE_CERTIFICATE_ASN1              R_PUBLIC_KEY_ENCRYPT_ERROR
-    F_SSL_USE_CERTIFICATE_FILE              R_PUBLIC_KEY_IS_NOT_RSA
-    F_SSL_USE_PRIVATEKEY                    R_READ_WRONG_PACKET_TYPE
-    F_SSL_USE_PRIVATEKEY_ASN1               R_SHORT_READ
-    F_SSL_USE_PRIVATEKEY_FILE               R_SSL_SESSION_ID_IS_DIFFERENT
-    F_SSL_USE_RSAPRIVATEKEY                 R_UNABLE_TO_EXTRACT_PUBLIC_KEY
-    F_SSL_USE_RSAPRIVATEKEY_ASN1            R_UNKNOWN_REMOTE_ERROR_TYPE
-    F_SSL_USE_RSAPRIVATEKEY_FILE            R_UNKNOWN_STATE
-    F_WRITE_PENDING                         R_X509_LIB
-    GEN_DIRNAME                             SENT_SHUTDOWN
-    GEN_DNS                                 SESSION_ASN1_VERSION
-    GEN_EDIPARTY                            SESS_CACHE_BOTH
-    GEN_EMAIL                               SESS_CACHE_CLIENT
-    GEN_IPADD                               SESS_CACHE_NO_AUTO_CLEAR
-    GEN_OTHERNAME                           SESS_CACHE_NO_INTERNAL
-    GEN_RID                                 SESS_CACHE_NO_INTERNAL_LOOKUP
-    GEN_URI                                 SESS_CACHE_NO_INTERNAL_STORE
-    GEN_X400                                SESS_CACHE_OFF
-    LIBRESSL_VERSION_NUMBER                 SESS_CACHE_SERVER
-    MBSTRING_ASC                            SESS_CACHE_UPDATE_TIME
-    MBSTRING_BMP                            SSL2_MT_CLIENT_CERTIFICATE
-    MBSTRING_FLAG                           SSL2_MT_CLIENT_FINISHED
-    MBSTRING_UNIV                           SSL2_MT_CLIENT_HELLO
-    MBSTRING_UTF8                           SSL2_MT_CLIENT_MASTER_KEY
-    MIN_RSA_MODULUS_LENGTH_IN_BYTES         SSL2_MT_ERROR
-    MODE_ACCEPT_MOVING_WRITE_BUFFER         SSL2_MT_REQUEST_CERTIFICATE
-    MODE_ASYNC                              SSL2_MT_SERVER_FINISHED
-    MODE_AUTO_RETRY                         SSL2_MT_SERVER_HELLO
-    MODE_ENABLE_PARTIAL_WRITE               SSL2_MT_SERVER_VERIFY
-    MODE_NO_AUTO_CHAIN                      SSL2_VERSION
-    MODE_RELEASE_BUFFERS                    SSL3_MT_CCS
-    NID_OCSP_sign                           SSL3_MT_CERTIFICATE
-    NID_SMIMECapabilities                   SSL3_MT_CERTIFICATE_REQUEST
-    NID_X500                                SSL3_MT_CERTIFICATE_STATUS
-    NID_X509                                SSL3_MT_CERTIFICATE_URL
-    NID_ad_OCSP                             SSL3_MT_CERTIFICATE_VERIFY
-    NID_ad_ca_issuers                       SSL3_MT_CHANGE_CIPHER_SPEC
-    NID_algorithm                           SSL3_MT_CLIENT_HELLO
-    NID_authority_key_identifier            SSL3_MT_CLIENT_KEY_EXCHANGE
-    NID_basic_constraints                   SSL3_MT_ENCRYPTED_EXTENSIONS
-    NID_bf_cbc                              SSL3_MT_END_OF_EARLY_DATA
-    NID_bf_cfb64                            SSL3_MT_FINISHED
-    NID_bf_ecb                              SSL3_MT_HELLO_REQUEST
-    NID_bf_ofb64                            SSL3_MT_KEY_UPDATE
-    NID_cast5_cbc                           SSL3_MT_MESSAGE_HASH
-    NID_cast5_cfb64                         SSL3_MT_NEWSESSION_TICKET
-    NID_cast5_ecb                           SSL3_MT_NEXT_PROTO
-    NID_cast5_ofb64                         SSL3_MT_SERVER_DONE
-    NID_certBag                             SSL3_MT_SERVER_HELLO
-    NID_certificate_policies                SSL3_MT_SERVER_KEY_EXCHANGE
-    NID_client_auth                         SSL3_MT_SUPPLEMENTAL_DATA
-    NID_code_sign                           SSL3_RT_ALERT
-    NID_commonName                          SSL3_RT_APPLICATION_DATA
-    NID_countryName                         SSL3_RT_CHANGE_CIPHER_SPEC
-    NID_crlBag                              SSL3_RT_HANDSHAKE
-    NID_crl_distribution_points             SSL3_RT_HEADER
-    NID_crl_number                          SSL3_RT_INNER_CONTENT_TYPE
-    NID_crl_reason                          SSL3_VERSION
-    NID_delta_crl                           SSLEAY_BUILT_ON
-    NID_des_cbc                             SSLEAY_CFLAGS
-    NID_des_cfb64                           SSLEAY_DIR
-    NID_des_ecb                             SSLEAY_PLATFORM
-    NID_des_ede                             SSLEAY_VERSION
-    NID_des_ede3                            ST_ACCEPT
-    NID_des_ede3_cbc                        ST_BEFORE
-    NID_des_ede3_cfb64                      ST_CONNECT
-    NID_des_ede3_ofb64                      ST_INIT
-    NID_des_ede_cbc                         ST_OK
-    NID_des_ede_cfb64                       ST_READ_BODY
-    NID_des_ede_ofb64                       ST_READ_HEADER
-    NID_des_ofb64                           TLS1_1_VERSION
-    NID_description                         TLS1_2_VERSION
-    NID_desx_cbc                            TLS1_3_VERSION
-    NID_dhKeyAgreement                      TLS1_VERSION
-    NID_dnQualifier                         TLSEXT_STATUSTYPE_ocsp
+    AD_ACCESS_DENIED                        OP_CRYPTOPRO_TLSEXT_BUG
+    AD_BAD_CERTIFICATE                      OP_DISABLE_TLSEXT_CA_NAMES
+    AD_BAD_CERTIFICATE_HASH_VALUE           OP_DONT_INSERT_EMPTY_FRAGMENTS
+    AD_BAD_CERTIFICATE_STATUS_RESPONSE      OP_ENABLE_KTLS
+    AD_BAD_RECORD_MAC                       OP_ENABLE_MIDDLEBOX_COMPAT
+    AD_CERTIFICATE_EXPIRED                  OP_EPHEMERAL_RSA
+    AD_CERTIFICATE_REQUIRED                 OP_IGNORE_UNEXPECTED_EOF
+    AD_CERTIFICATE_REVOKED                  OP_LEGACY_SERVER_CONNECT
+    AD_CERTIFICATE_UNKNOWN                  OP_MICROSOFT_BIG_SSLV3_BUFFER
+    AD_CERTIFICATE_UNOBTAINABLE             OP_MICROSOFT_SESS_ID_BUG
+    AD_CLOSE_NOTIFY                         OP_MSIE_SSLV2_RSA_PADDING
+    AD_DECODE_ERROR                         OP_NETSCAPE_CA_DN_BUG
+    AD_DECOMPRESSION_FAILURE                OP_NETSCAPE_CHALLENGE_BUG
+    AD_DECRYPTION_FAILED                    OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG
+    AD_DECRYPT_ERROR                        OP_NETSCAPE_REUSE_CIPHER_CHANGE_BUG
+    AD_EXPORT_RESTRICTION                   OP_NON_EXPORT_FIRST
+    AD_HANDSHAKE_FAILURE                    OP_NO_ANTI_REPLAY
+    AD_ILLEGAL_PARAMETER                    OP_NO_CLIENT_RENEGOTIATION
+    AD_INAPPROPRIATE_FALLBACK               OP_NO_COMPRESSION
+    AD_INSUFFICIENT_SECURITY                OP_NO_ENCRYPT_THEN_MAC
+    AD_INTERNAL_ERROR                       OP_NO_EXTENDED_MASTER_SECRET
+    AD_MISSING_EXTENSION                    OP_NO_QUERY_MTU
+    AD_NO_APPLICATION_PROTOCOL              OP_NO_RENEGOTIATION
+    AD_NO_CERTIFICATE                       OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION
+    AD_NO_RENEGOTIATION                     OP_NO_SSL_MASK
+    AD_PROTOCOL_VERSION                     OP_NO_SSLv2
+    AD_RECORD_OVERFLOW                      OP_NO_SSLv3
+    AD_UNEXPECTED_MESSAGE                   OP_NO_TICKET
+    AD_UNKNOWN_CA                           OP_NO_TLSv1
+    AD_UNKNOWN_PSK_IDENTITY                 OP_NO_TLSv1_1
+    AD_UNRECOGNIZED_NAME                    OP_NO_TLSv1_2
+    AD_UNSUPPORTED_CERTIFICATE              OP_NO_TLSv1_3
+    AD_UNSUPPORTED_EXTENSION                OP_PKCS1_CHECK_1
+    AD_USER_CANCELLED                       OP_PKCS1_CHECK_2
+    ASN1_STRFLGS_ESC_CTRL                   OP_PRIORITIZE_CHACHA
+    ASN1_STRFLGS_ESC_MSB                    OP_SAFARI_ECDHE_ECDSA_BUG
+    ASN1_STRFLGS_ESC_QUOTE                  OP_SINGLE_DH_USE
+    ASN1_STRFLGS_RFC2253                    OP_SINGLE_ECDH_USE
+    ASYNC_NO_JOBS                           OP_SSLEAY_080_CLIENT_DH_BUG
+    ASYNC_PAUSED                            OP_SSLREF2_REUSE_CERT_TYPE_BUG
+    CB_ACCEPT_EXIT                          OP_TLSEXT_PADDING
+    CB_ACCEPT_LOOP                          OP_TLS_BLOCK_PADDING_BUG
+    CB_ALERT                                OP_TLS_D5_BUG
+    CB_CONNECT_EXIT                         OP_TLS_ROLLBACK_BUG
+    CB_CONNECT_LOOP                         READING
+    CB_EXIT                                 RECEIVED_SHUTDOWN
+    CB_HANDSHAKE_DONE                       RETRY_VERIFY
+    CB_HANDSHAKE_START                      RSA_3
+    CB_LOOP                                 RSA_F4
+    CB_READ                                 R_BAD_AUTHENTICATION_TYPE
+    CB_READ_ALERT                           R_BAD_CHECKSUM
+    CB_WRITE                                R_BAD_MAC_DECODE
+    CB_WRITE_ALERT                          R_BAD_RESPONSE_ARGUMENT
+    CLIENT_HELLO_CB                         R_BAD_SSL_FILETYPE
+    CLIENT_HELLO_ERROR                      R_BAD_SSL_SESSION_ID_LENGTH
+    CLIENT_HELLO_RETRY                      R_BAD_STATE
+    CLIENT_HELLO_SUCCESS                    R_BAD_WRITE_RETRY
+    ERROR_NONE                              R_CHALLENGE_IS_DIFFERENT
+    ERROR_SSL                               R_CIPHER_TABLE_SRC_ERROR
+    ERROR_SYSCALL                           R_INVALID_CHALLENGE_LENGTH
+    ERROR_WANT_ACCEPT                       R_NO_CERTIFICATE_SET
+    ERROR_WANT_ASYNC                        R_NO_CERTIFICATE_SPECIFIED
+    ERROR_WANT_ASYNC_JOB                    R_NO_CIPHER_LIST
+    ERROR_WANT_CLIENT_HELLO_CB              R_NO_CIPHER_MATCH
+    ERROR_WANT_CONNECT                      R_NO_PRIVATEKEY
+    ERROR_WANT_READ                         R_NO_PUBLICKEY
+    ERROR_WANT_RETRY_VERIFY                 R_NULL_SSL_CTX
+    ERROR_WANT_WRITE                        R_PEER_DID_NOT_RETURN_A_CERTIFICATE
+    ERROR_WANT_X509_LOOKUP                  R_PEER_ERROR
+    ERROR_ZERO_RETURN                       R_PEER_ERROR_CERTIFICATE
+    EVP_PKS_DSA                             R_PEER_ERROR_NO_CIPHER
+    EVP_PKS_EC                              R_PEER_ERROR_UNSUPPORTED_CERTIFICATE_TYPE
+    EVP_PKS_RSA                             R_PUBLIC_KEY_ENCRYPT_ERROR
+    EVP_PKT_ENC                             R_PUBLIC_KEY_IS_NOT_RSA
+    EVP_PKT_EXCH                            R_READ_WRONG_PACKET_TYPE
+    EVP_PKT_EXP                             R_SHORT_READ
+    EVP_PKT_SIGN                            R_SSL_SESSION_ID_IS_DIFFERENT
+    EVP_PK_DH                               R_UNABLE_TO_EXTRACT_PUBLIC_KEY
+    EVP_PK_DSA                              R_UNKNOWN_REMOTE_ERROR_TYPE
+    EVP_PK_EC                               R_UNKNOWN_STATE
+    EVP_PK_RSA                              R_X509_LIB
+    FILETYPE_ASN1                           SENT_SHUTDOWN
+    FILETYPE_PEM                            SESSION_ASN1_VERSION
+    F_CLIENT_CERTIFICATE                    SESS_CACHE_BOTH
+    F_CLIENT_HELLO                          SESS_CACHE_CLIENT
+    F_CLIENT_MASTER_KEY                     SESS_CACHE_NO_AUTO_CLEAR
+    F_D2I_SSL_SESSION                       SESS_CACHE_NO_INTERNAL
+    F_GET_CLIENT_FINISHED                   SESS_CACHE_NO_INTERNAL_LOOKUP
+    F_GET_CLIENT_HELLO                      SESS_CACHE_NO_INTERNAL_STORE
+    F_GET_CLIENT_MASTER_KEY                 SESS_CACHE_OFF
+    F_GET_SERVER_FINISHED                   SESS_CACHE_SERVER
+    F_GET_SERVER_HELLO                      SESS_CACHE_UPDATE_TIME
+    F_GET_SERVER_VERIFY                     SSL2_MT_CLIENT_CERTIFICATE
+    F_I2D_SSL_SESSION                       SSL2_MT_CLIENT_FINISHED
+    F_READ_N                                SSL2_MT_CLIENT_HELLO
+    F_REQUEST_CERTIFICATE                   SSL2_MT_CLIENT_MASTER_KEY
+    F_SERVER_HELLO                          SSL2_MT_ERROR
+    F_SSL_CERT_NEW                          SSL2_MT_REQUEST_CERTIFICATE
+    F_SSL_GET_NEW_SESSION                   SSL2_MT_SERVER_FINISHED
+    F_SSL_NEW                               SSL2_MT_SERVER_HELLO
+    F_SSL_READ                              SSL2_MT_SERVER_VERIFY
+    F_SSL_RSA_PRIVATE_DECRYPT               SSL2_VERSION
+    F_SSL_RSA_PUBLIC_ENCRYPT                SSL3_MT_CCS
+    F_SSL_SESSION_NEW                       SSL3_MT_CERTIFICATE
+    F_SSL_SESSION_PRINT_FP                  SSL3_MT_CERTIFICATE_REQUEST
+    F_SSL_SET_FD                            SSL3_MT_CERTIFICATE_STATUS
+    F_SSL_SET_RFD                           SSL3_MT_CERTIFICATE_URL
+    F_SSL_SET_WFD                           SSL3_MT_CERTIFICATE_VERIFY
+    F_SSL_USE_CERTIFICATE                   SSL3_MT_CHANGE_CIPHER_SPEC
+    F_SSL_USE_CERTIFICATE_ASN1              SSL3_MT_CLIENT_HELLO
+    F_SSL_USE_CERTIFICATE_FILE              SSL3_MT_CLIENT_KEY_EXCHANGE
+    F_SSL_USE_PRIVATEKEY                    SSL3_MT_ENCRYPTED_EXTENSIONS
+    F_SSL_USE_PRIVATEKEY_ASN1               SSL3_MT_END_OF_EARLY_DATA
+    F_SSL_USE_PRIVATEKEY_FILE               SSL3_MT_FINISHED
+    F_SSL_USE_RSAPRIVATEKEY                 SSL3_MT_HELLO_REQUEST
+    F_SSL_USE_RSAPRIVATEKEY_ASN1            SSL3_MT_KEY_UPDATE
+    F_SSL_USE_RSAPRIVATEKEY_FILE            SSL3_MT_MESSAGE_HASH
+    F_WRITE_PENDING                         SSL3_MT_NEWSESSION_TICKET
+    GEN_DIRNAME                             SSL3_MT_NEXT_PROTO
+    GEN_DNS                                 SSL3_MT_SERVER_DONE
+    GEN_EDIPARTY                            SSL3_MT_SERVER_HELLO
+    GEN_EMAIL                               SSL3_MT_SERVER_KEY_EXCHANGE
+    GEN_IPADD                               SSL3_MT_SUPPLEMENTAL_DATA
+    GEN_OTHERNAME                           SSL3_RT_ALERT
+    GEN_RID                                 SSL3_RT_APPLICATION_DATA
+    GEN_URI                                 SSL3_RT_CHANGE_CIPHER_SPEC
+    GEN_X400                                SSL3_RT_HANDSHAKE
+    LIBRESSL_VERSION_NUMBER                 SSL3_RT_HEADER
+    MBSTRING_ASC                            SSL3_RT_INNER_CONTENT_TYPE
+    MBSTRING_BMP                            SSL3_VERSION
+    MBSTRING_FLAG                           SSLEAY_BUILT_ON
+    MBSTRING_UNIV                           SSLEAY_CFLAGS
+    MBSTRING_UTF8                           SSLEAY_DIR
+    MIN_RSA_MODULUS_LENGTH_IN_BYTES         SSLEAY_PLATFORM
+    MODE_ACCEPT_MOVING_WRITE_BUFFER         SSLEAY_VERSION
+    MODE_ASYNC                              ST_ACCEPT
+    MODE_AUTO_RETRY                         ST_BEFORE
+    MODE_ENABLE_PARTIAL_WRITE               ST_CONNECT
+    MODE_NO_AUTO_CHAIN                      ST_INIT
+    MODE_RELEASE_BUFFERS                    ST_OK
+    NID_OCSP_sign                           ST_READ_BODY
+    NID_SMIMECapabilities                   ST_READ_HEADER
+    NID_X500                                TLS1_1_VERSION
+    NID_X509                                TLS1_2_VERSION
+    NID_ad_OCSP                             TLS1_3_VERSION
+    NID_ad_ca_issuers                       TLS1_VERSION
+    NID_algorithm                           TLSEXT_STATUSTYPE_ocsp
+    NID_authority_key_identifier            TLSEXT_TYPE_application_layer_protocol_negotiation
+    NID_basic_constraints                   TLSEXT_TYPE_cert_type
+    NID_bf_cbc                              TLSEXT_TYPE_certificate_authorities
+    NID_bf_cfb64                            TLSEXT_TYPE_client_authz
+    NID_bf_ecb                              TLSEXT_TYPE_client_cert_type
+    NID_bf_ofb64                            TLSEXT_TYPE_client_certificate_url
+    NID_cast5_cbc                           TLSEXT_TYPE_compress_certificate
+    NID_cast5_cfb64                         TLSEXT_TYPE_cookie
+    NID_cast5_ecb                           TLSEXT_TYPE_early_data
+    NID_cast5_ofb64                         TLSEXT_TYPE_ec_point_formats
+    NID_certBag                             TLSEXT_TYPE_elliptic_curves
+    NID_certificate_policies                TLSEXT_TYPE_encrypt_then_mac
+    NID_client_auth                         TLSEXT_TYPE_extended_master_secret
+    NID_code_sign                           TLSEXT_TYPE_key_share
+    NID_commonName                          TLSEXT_TYPE_max_fragment_length
+    NID_countryName                         TLSEXT_TYPE_next_proto_neg
+    NID_crlBag                              TLSEXT_TYPE_padding
+    NID_crl_distribution_points             TLSEXT_TYPE_post_handshake_auth
+    NID_crl_number                          TLSEXT_TYPE_psk
+    NID_crl_reason                          TLSEXT_TYPE_psk_kex_modes
+    NID_delta_crl                           TLSEXT_TYPE_quic_transport_parameters
+    NID_des_cbc                             TLSEXT_TYPE_renegotiate
+    NID_des_cfb64                           TLSEXT_TYPE_server_authz
+    NID_des_ecb                             TLSEXT_TYPE_server_cert_type
+    NID_des_ede                             TLSEXT_TYPE_server_name
+    NID_des_ede3                            TLSEXT_TYPE_session_ticket
+    NID_des_ede3_cbc                        TLSEXT_TYPE_signature_algorithms
+    NID_des_ede3_cfb64                      TLSEXT_TYPE_signature_algorithms_cert
+    NID_des_ede3_ofb64                      TLSEXT_TYPE_signed_certificate_timestamp
+    NID_des_ede_cbc                         TLSEXT_TYPE_srp
+    NID_des_ede_cfb64                       TLSEXT_TYPE_status_request
+    NID_des_ede_ofb64                       TLSEXT_TYPE_supported_groups
+    NID_des_ofb64                           TLSEXT_TYPE_supported_versions
+    NID_description                         TLSEXT_TYPE_truncated_hmac
+    NID_desx_cbc                            TLSEXT_TYPE_trusted_ca_keys
+    NID_dhKeyAgreement                      TLSEXT_TYPE_use_srtp
+    NID_dnQualifier                         TLSEXT_TYPE_user_mapping
     NID_dsa                                 VERIFY_CLIENT_ONCE
     NID_dsaWithSHA                          VERIFY_FAIL_IF_NO_PEER_CERT
     NID_dsaWithSHA1                         VERIFY_NONE

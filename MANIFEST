@@ -221,6 +221,7 @@ t/local/44_sess.t
 t/local/45_exporter.t
 t/local/46_msg_callback.t
 t/local/47_keylog.t
+t/local/48_client_hello_callback.t
 t/local/50_digest.t
 t/local/61_threads-cb-crash.t
 t/local/62_threads-ctx_new-deadlock.t

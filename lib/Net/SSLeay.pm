@@ -78,6 +78,40 @@ $VERSION = '1.93_02';
 # To add or remove a constant, edit helper_script/constants.txt, then run
 # helper_script/update-exported-constants.
 my @constants = qw(
+    AD_ACCESS_DENIED
+    AD_BAD_CERTIFICATE
+    AD_BAD_CERTIFICATE_HASH_VALUE
+    AD_BAD_CERTIFICATE_STATUS_RESPONSE
+    AD_BAD_RECORD_MAC
+    AD_CERTIFICATE_EXPIRED
+    AD_CERTIFICATE_REQUIRED
+    AD_CERTIFICATE_REVOKED
+    AD_CERTIFICATE_UNKNOWN
+    AD_CERTIFICATE_UNOBTAINABLE
+    AD_CLOSE_NOTIFY
+    AD_DECODE_ERROR
+    AD_DECOMPRESSION_FAILURE
+    AD_DECRYPTION_FAILED
+    AD_DECRYPT_ERROR
+    AD_EXPORT_RESTRICTION
+    AD_HANDSHAKE_FAILURE
+    AD_ILLEGAL_PARAMETER
+    AD_INAPPROPRIATE_FALLBACK
+    AD_INSUFFICIENT_SECURITY
+    AD_INTERNAL_ERROR
+    AD_MISSING_EXTENSION
+    AD_NO_APPLICATION_PROTOCOL
+    AD_NO_CERTIFICATE
+    AD_NO_RENEGOTIATION
+    AD_PROTOCOL_VERSION
+    AD_RECORD_OVERFLOW
+    AD_UNEXPECTED_MESSAGE
+    AD_UNKNOWN_CA
+    AD_UNKNOWN_PSK_IDENTITY
+    AD_UNRECOGNIZED_NAME
+    AD_UNSUPPORTED_CERTIFICATE
+    AD_UNSUPPORTED_EXTENSION
+    AD_USER_CANCELLED
     ASN1_STRFLGS_ESC_CTRL
     ASN1_STRFLGS_ESC_MSB
     ASN1_STRFLGS_ESC_QUOTE
@@ -98,6 +132,9 @@ my @constants = qw(
     CB_WRITE
     CB_WRITE_ALERT
     CLIENT_HELLO_CB
+    CLIENT_HELLO_ERROR
+    CLIENT_HELLO_RETRY
+    CLIENT_HELLO_SUCCESS
     ERROR_NONE
     ERROR_SSL
     ERROR_SYSCALL
@@ -546,6 +583,43 @@ my @constants = qw(
     TLS1_3_VERSION
     TLS1_VERSION
     TLSEXT_STATUSTYPE_ocsp
+    TLSEXT_TYPE_application_layer_protocol_negotiation
+    TLSEXT_TYPE_cert_type
+    TLSEXT_TYPE_certificate_authorities
+    TLSEXT_TYPE_client_authz
+    TLSEXT_TYPE_client_cert_type
+    TLSEXT_TYPE_client_certificate_url
+    TLSEXT_TYPE_compress_certificate
+    TLSEXT_TYPE_cookie
+    TLSEXT_TYPE_early_data
+    TLSEXT_TYPE_ec_point_formats
+    TLSEXT_TYPE_elliptic_curves
+    TLSEXT_TYPE_encrypt_then_mac
+    TLSEXT_TYPE_extended_master_secret
+    TLSEXT_TYPE_key_share
+    TLSEXT_TYPE_max_fragment_length
+    TLSEXT_TYPE_next_proto_neg
+    TLSEXT_TYPE_padding
+    TLSEXT_TYPE_post_handshake_auth
+    TLSEXT_TYPE_psk
+    TLSEXT_TYPE_psk_kex_modes
+    TLSEXT_TYPE_quic_transport_parameters
+    TLSEXT_TYPE_renegotiate
+    TLSEXT_TYPE_server_authz
+    TLSEXT_TYPE_server_cert_type
+    TLSEXT_TYPE_server_name
+    TLSEXT_TYPE_session_ticket
+    TLSEXT_TYPE_signature_algorithms
+    TLSEXT_TYPE_signature_algorithms_cert
+    TLSEXT_TYPE_signed_certificate_timestamp
+    TLSEXT_TYPE_srp
+    TLSEXT_TYPE_status_request
+    TLSEXT_TYPE_supported_groups
+    TLSEXT_TYPE_supported_versions
+    TLSEXT_TYPE_truncated_hmac
+    TLSEXT_TYPE_trusted_ca_keys
+    TLSEXT_TYPE_use_srtp
+    TLSEXT_TYPE_user_mapping
     VERIFY_CLIENT_ONCE
     VERIFY_FAIL_IF_NO_PEER_CERT
     VERIFY_NONE

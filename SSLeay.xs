@@ -1810,6 +1810,47 @@ void ssl_ctx_keylog_cb_func_invoke(const SSL *ssl, const char *line)
 }
 #endif
 
+#if OPENSSL_VERSION_NUMBER >= 0x10101001L && !defined(LIBRESSL_VERSION_NUMBER)
+int ssl_client_hello_cb_fn_invoke(SSL *ssl, int *al, void *arg)
+{
+    dSP;
+    int count, res;
+    SV *cb_func, *cb_arg;
+    SSL_CTX *ctx = SSL_get_SSL_CTX(ssl);
+
+    PR1("STARTED: ssl_client_hello_cb_fn_invoke\n");
+    cb_func = cb_data_advanced_get(ctx, "ssleay_ssl_ctx_client_hello_cb!!func");
+    cb_arg  = cb_data_advanced_get(ctx, "ssleay_ssl_ctx_client_hello_cb!!arg");
+    if(!SvOK(cb_func))
+	croak ("Net::SSLeay: ssl_client_hello_cb_fn_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    XPUSHs(sv_2mortal(newSViv(PTR2IV(ssl))));
+    XPUSHs(sv_2mortal(newSVsv(cb_arg)));
+
+    PUTBACK;
+
+    count = call_sv(cb_func, G_LIST);
+
+    SPAGAIN;
+
+    if (count < 1 || count > 2)
+      croak ("Net::SSLeay: ssl_client_hello_cb_fn perl function returned %d values, 1 or 2 expected\n", count);
+    if (count == 2)
+      *al = POPi;
+    res = POPi;
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return res;
+}
+#endif
+
 /* ============= end of callback stuff, begin helper functions ============== */
 
 time_t ASN1_TIME_timet(ASN1_TIME *asn1t, time_t *gmtoff) {
@@ -5837,6 +5878,131 @@ SSL_CTX_get_keylog_callback(const SSL_CTX *ctx)
 
 #endif
 
+#if OPENSSL_VERSION_NUMBER >= 0x10101001L && !defined(LIBRESSL_VERSION_NUMBER)
+
+void
+SSL_CTX_set_client_hello_cb(SSL_CTX *ctx, SV *callback, SV *arg=&PL_sv_undef)
+    CODE:
+	if (callback==NULL || !SvOK(callback)) {
+	    SSL_CTX_set_client_hello_cb(ctx, NULL, NULL);
+	    cb_data_advanced_put(ctx, "ssleay_ssl_ctx_client_hello_cb!!func", NULL);
+            cb_data_advanced_put(ctx, "ssleay_ssl_ctx_client_hello_cb!!arg", NULL);
+	} else {
+	    cb_data_advanced_put(ctx, "ssleay_ssl_ctx_client_hello_cb!!func", newSVsv(callback));
+	    cb_data_advanced_put(ctx, "ssleay_ssl_ctx_client_hello_cb!!arg", newSVsv(arg));
+	    SSL_CTX_set_client_hello_cb(ctx, ssl_client_hello_cb_fn_invoke, NULL);
+	}
+
+int
+SSL_client_hello_isv2(SSL *s)
+
+unsigned int
+SSL_client_hello_get0_legacy_version(SSL *s)
+
+void
+SSL_client_hello_get0_random(SSL *s)
+    PREINIT:
+	const unsigned char *out = NULL;
+	size_t outlen;
+    CODE:
+	outlen = SSL_client_hello_get0_random(s, &out);
+	if (outlen == 0) XSRETURN_PV("");
+	ST(0) = sv_newmortal();
+	sv_setpvn(ST(0), (const char *)out, (STRLEN)outlen);
+
+void
+SSL_client_hello_get0_session_id(SSL *s)
+    PREINIT:
+	const unsigned char *out = NULL;
+	size_t outlen;
+    CODE:
+	outlen = SSL_client_hello_get0_session_id(s, &out);
+	if (outlen == 0) XSRETURN_PV("");
+	ST(0) = sv_newmortal();
+	sv_setpvn(ST(0), (const char *)out, (STRLEN)outlen);
+
+void
+SSL_client_hello_get0_ciphers(SSL *s)
+    PREINIT:
+	const unsigned char *out = NULL;
+	size_t outlen;
+    CODE:
+	outlen = SSL_client_hello_get0_ciphers(s, &out);
+	if (outlen == 0) XSRETURN_PV("");
+	ST(0) = sv_newmortal();
+	sv_setpvn(ST(0), (const char *)out, (STRLEN)outlen);
+
+void
+SSL_client_hello_get0_compression_methods(SSL *s)
+    PREINIT:
+	const unsigned char *out = NULL;
+	size_t outlen;
+    CODE:
+	outlen = SSL_client_hello_get0_compression_methods(s, &out);
+	if (outlen == 0) XSRETURN_PV("");
+	ST(0) = sv_newmortal();
+	sv_setpvn(ST(0), (const char *)out, (STRLEN)outlen);
+
+void
+SSL_client_hello_get1_extensions_present(SSL *s)
+    PREINIT:
+	int ret, *out = NULL, i;
+	size_t outlen;
+	AV *av;
+    PPCODE:
+	ret = SSL_client_hello_get1_extensions_present(s, &out, &outlen);
+	if (ret != 1) XSRETURN_UNDEF;
+
+	av = newAV();
+	mXPUSHs(newRV_noinc((SV*)av));
+	for (i=0; i < outlen; i++) {
+	    av_push(av, newSViv(*(out + i)));
+	}
+	OPENSSL_free(out);
+
+#if OPENSSL_VERSION_NUMBER >= 0x30200000L && !defined(LIBRESSL_VERSION_NUMBER)
+
+void
+SSL_client_hello_get_extension_order(SSL *s)
+    PREINIT:
+	int ret, i;
+	uint16_t *exts;
+	size_t num_exts;
+	AV *av;
+    PPCODE:
+	ret = SSL_client_hello_get_extension_order(s, NULL, &num_exts);
+	if (ret != 1) XSRETURN_UNDEF;
+
+	Newx(exts, num_exts, uint16_t);
+	ret = SSL_client_hello_get_extension_order(s, exts, &num_exts);
+	if (ret != 1) {
+	    Safefree(exts);
+	    XSRETURN_UNDEF;
+	}
+
+	av = newAV();
+	mXPUSHs(newRV_noinc((SV*)av));
+	for (i=0; i < num_exts; i++) {
+	    av_push(av, newSViv(*(exts + i)));
+	}
+	Safefree(exts);
+
+#endif
+
+void
+SSL_client_hello_get0_ext(SSL *s, unsigned int type)
+    PREINIT:
+	int ret;
+	const unsigned char *out = NULL;
+	size_t outlen;
+    CODE:
+	ret = SSL_client_hello_get0_ext(s, type, &out, &outlen);
+	if (ret != 1) XSRETURN_UNDEF;
+
+	ST(0) = sv_newmortal();
+	sv_setpvn(ST(0), (const char *)out, (STRLEN)outlen);
+
+#endif
 
 int
 SSL_set_purpose(s,purpose)
