@@ -1109,6 +1109,211 @@ unsigned int ssleay_ctx_set_psk_client_callback_invoke(SSL *ssl, const char *hin
     return psk_len;
 }
 
+unsigned int ssleay_set_psk_server_callback_invoke(SSL *ssl, const char *identity,
+                                                   unsigned char *psk, unsigned int max_psk_len)
+{
+    dSP;
+    int count = -1;
+    unsigned int psk_len = 0;
+    SV * cb_func, *psk_sv;
+
+    PR1("STARTED: ssleay_set_psk_server_callback_invoke\n");
+
+    cb_func = cb_data_advanced_get(ssl, "ssleay_set_psk_server_callback!!func");
+    if(!SvOK(cb_func))
+        croak ("Net::SSLeay: ssleay_set_psk_server_callback_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    EXTEND(SP, 3);
+    PUSHs(sv_2mortal(newSViv(PTR2IV(ssl))));
+    PUSHs(sv_2mortal(newSVpv(identity, 0)));
+    PUSHs(sv_2mortal(newSViv(max_psk_len)));
+
+    PUTBACK;
+
+    count = call_sv( cb_func, G_SCALAR );
+
+    SPAGAIN;
+
+    if (count != 1)
+        croak ("Net::SSLeay: ssleay_set_psk_server_callback_invoke perl function did not return 1 value.\n");
+
+    psk_sv = POPs;
+    if (SvOK(psk_sv)) {
+      STRLEN new_psk_len;
+      char *new_psk = SvPV(psk_sv, new_psk_len);
+
+      if (!SvPOK(psk_sv))
+        croak ("Net::SSLeay: ssleay_set_psk_server_callback_invoke PSK is not a string.\n");
+
+      if (new_psk_len > max_psk_len)
+        croak ("Net::SSLeay: ssleay_set_psk_server_callback_invoke PSK is longer than allowed (%lu > %u).\n", new_psk_len, max_psk_len);
+      memcpy(psk, new_psk, new_psk_len);
+      psk_len = new_psk_len;
+    }
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return psk_len;
+}
+
+unsigned int ssleay_ctx_set_psk_server_callback_invoke(SSL *ssl, const char *identity,
+                                                       unsigned char *psk, unsigned int max_psk_len)
+{
+    dSP;
+    SSL_CTX *ctx;
+    int count = -1;
+    unsigned int psk_len = 0;
+    SV * cb_func, *psk_sv;
+
+    PR1("STARTED: ssleay_ctx_set_psk_server_callback_invoke\n");
+
+    ctx = SSL_get_SSL_CTX(ssl);
+    cb_func = cb_data_advanced_get(ctx, "ssleay_ctx_set_psk_server_callback!!func");
+    if(!SvOK(cb_func))
+        croak ("Net::SSLeay: ssleay_ctx_set_psk_server_callback_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    EXTEND(SP, 3);
+    PUSHs(sv_2mortal(newSViv(PTR2IV(ssl))));
+    PUSHs(sv_2mortal(newSVpv(identity, 0)));
+    PUSHs(sv_2mortal(newSViv(max_psk_len)));
+
+    PUTBACK;
+
+    count = call_sv( cb_func, G_SCALAR );
+
+    SPAGAIN;
+
+    if (count != 1)
+        croak ("Net::SSLeay: ssleay_ctx_set_psk_server_callback_invoke perl function did not return 1 value.\n");
+
+    psk_sv = POPs;
+    if (SvOK(psk_sv)) {
+      STRLEN new_psk_len;
+      char *new_psk = SvPV(psk_sv, new_psk_len);
+
+      if (!SvPOK(psk_sv))
+        croak ("Net::SSLeay: ssleay_ctx_set_psk_server_callback_invoke PSK is not a string.\n");
+
+      if (new_psk_len > max_psk_len)
+        croak ("Net::SSLeay: ssleay_ctx_set_psk_server_callback_invoke PSK is longer than allowed (%lu > %u).\n", new_psk_len, max_psk_len);
+      memcpy(psk, new_psk, new_psk_len);
+      psk_len = new_psk_len;
+    }
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return psk_len;
+}
+
+#if OPENSSL_VERSION_NUMBER >= 0x10101001L
+
+/* TLS 1.3 has its own callbacks */
+int ssleay_set_psk_find_session_callback_invoke(SSL *ssl, const unsigned char *identity,
+                                                size_t identity_len,
+                                                SSL_SESSION **sess)
+{
+    dSP;
+    int count = -1, ret;
+    SV * cb_func, *sess_sv;
+
+    PR1("STARTED: ssleay_psk_find_session_callback_callback_invoke\n");
+
+    cb_func = cb_data_advanced_get(ssl, "ssleay_set_psk_find_session_callback!!func");
+    if(!SvOK(cb_func))
+        croak ("Net::SSLeay: ssleay_psk_find_session_callback_callback_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    EXTEND(SP, 2);
+    PUSHs(sv_2mortal(newSViv(PTR2IV(ssl))));
+    PUSHs(sv_2mortal(newSVpvn((const char *)identity, identity_len)));
+
+    PUTBACK;
+
+    count = call_sv( cb_func, G_LIST );
+
+    SPAGAIN;
+
+    if (count != 2)
+        croak ("Net::SSLeay: ssleay_psk_find_session_callback_callback_invoke perl function did not return 2 values.\n");
+
+    *sess = NULL;
+    sess_sv = POPs;
+    if (SvOK(sess_sv))
+      *sess = INT2PTR(SSL_SESSION *, SvIV(sess_sv));
+
+    ret = POPi;
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return ret;
+}
+
+int ssleay_ctx_set_psk_find_session_callback_invoke(SSL *ssl, const unsigned char *identity,
+                                                    size_t identity_len,
+                                                    SSL_SESSION **sess)
+{
+    dSP;
+    SSL_CTX *ctx;
+    int count = -1, ret;
+    SV * cb_func, *sess_sv;
+
+    ctx = SSL_get_SSL_CTX(ssl);
+
+    PR1("STARTED: ssleay_ctx_psk_find_session_callback_callback_invoke\n");
+
+    cb_func = cb_data_advanced_get(ctx, "ssleay_ctx_set_psk_find_session_callback!!func");
+    if(!SvOK(cb_func))
+        croak ("Net::SSLeay: ssleay_ctx_psk_find_session_callback_callback_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    EXTEND(SP, 2);
+    PUSHs(sv_2mortal(newSViv(PTR2IV(ssl))));
+    PUSHs(sv_2mortal(newSVpvn((const char *)identity, identity_len)));
+
+    PUTBACK;
+
+    count = call_sv( cb_func, G_LIST );
+
+    SPAGAIN;
+
+    if (count != 2)
+        croak ("Net::SSLeay: ssleay_ctx_psk_find_session_callback_callback_invoke perl function did not return 2 values.\n");
+
+    *sess = NULL;
+    sess_sv = POPs;
+    if (SvOK(sess_sv))
+      *sess = INT2PTR(SSL_SESSION *, SvIV(sess_sv));
+
+    ret = POPi;
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return ret;
+}
+
+#endif
 #endif
 
 #if (OPENSSL_VERSION_NUMBER >= 0x10001000L && !defined(OPENSSL_NO_NEXTPROTONEG)) || (OPENSSL_VERSION_NUMBER >= 0x10002000L && !defined(OPENSSL_NO_TLSEXT))
@@ -5435,6 +5640,13 @@ SSL_CIPHER_get_bits(c, ...)
 const char *
 SSL_CIPHER_get_version(const SSL_CIPHER *cipher)
 
+#if (OPENSSL_VERSION >= 0x1000200fL && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3040000fL) /* LibreSSL >= 3.4.0 */
+
+const SSL_CIPHER *
+SSL_CIPHER_find(SSL *ssl, const unsigned char *ptr)
+
+#endif
+
 #ifndef OPENSSL_NO_COMP
 
 int
@@ -6801,6 +7013,27 @@ SSL_SESSION_set_master_key(s,key)
 
 #endif
 
+#if (OPENSSL_VERSION_NUMBER >= 0x10101001L && !defined(LIBRESSL_VERSION_NUMBER))
+
+int
+SSL_SESSION_set1_master_key(SSL_SESSION *sess, in)
+   PREINIT:
+	STRLEN len;
+   INPUT:
+	const unsigned char *in = (unsigned char*)SvPV(ST(1), len);
+   CODE:
+	RETVAL = SSL_SESSION_set1_master_key(sess, in, len);
+   OUTPUT:
+	RETVAL
+
+int
+SSL_SESSION_set_cipher(SSL_SESSION *s, const SSL_CIPHER *cipher)
+
+int
+SSL_SESSION_set_protocol_version(SSL_SESSION *s, int version)
+
+#endif
+
 #if (OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
 
 void
@@ -6988,6 +7221,71 @@ SSL_CTX_set_psk_client_callback(ctx,callback=&PL_sv_undef)
             SSL_CTX_set_psk_client_callback(ctx, ssleay_ctx_set_psk_client_callback_invoke);
         }
 
+int
+SSL_use_psk_identity_hint(SSL *ssl, const char *hint)
+
+int
+SSL_CTX_use_psk_identity_hint(SSL_CTX *ctx, const char *hint)
+
+void
+SSL_set_psk_server_callback(ssl,cb=&PL_sv_undef)
+        SSL * ssl
+        SV * cb
+    CODE:
+        if (cb==NULL || !SvOK(cb)) {
+            SSL_set_psk_server_callback(ssl, NULL);
+            cb_data_advanced_put(ssl, "ssleay_set_psk_server_callback!!func", NULL);
+        }
+        else {
+            cb_data_advanced_put(ssl, "ssleay_set_psk_server_callback!!func", newSVsv(cb));
+            SSL_set_psk_server_callback(ssl, ssleay_set_psk_server_callback_invoke);
+        }
+
+void
+SSL_CTX_set_psk_server_callback(ctx,cb=&PL_sv_undef)
+        SSL_CTX * ctx
+        SV * cb
+    CODE:
+        if (cb==NULL || !SvOK(cb)) {
+            SSL_CTX_set_psk_server_callback(ctx, NULL);
+            cb_data_advanced_put(ctx, "ssleay_ctx_set_psk_server_callback!!func", NULL);
+        }
+        else {
+            cb_data_advanced_put(ctx, "ssleay_ctx_set_psk_server_callback!!func", newSVsv(cb));
+            SSL_CTX_set_psk_server_callback(ctx, ssleay_ctx_set_psk_server_callback_invoke);
+        }
+
+#if OPENSSL_VERSION_NUMBER >= 0x10101001L
+
+void
+SSL_set_psk_find_session_callback(s,cb=&PL_sv_undef)
+        SSL * s
+        SV * cb
+    CODE:
+        if (cb==NULL || !SvOK(cb)) {
+            SSL_set_psk_find_session_callback(s, NULL);
+            cb_data_advanced_put(s, "ssleay_set_psk_find_session_callback!!func", NULL);
+        }
+        else {
+            cb_data_advanced_put(s, "ssleay_set_psk_find_session_callback!!func", newSVsv(cb));
+            SSL_set_psk_find_session_callback(s, ssleay_set_psk_find_session_callback_invoke);
+        }
+
+void
+SSL_CTX_set_psk_find_session_callback(ctx,cb=&PL_sv_undef)
+        SSL_CTX * ctx
+        SV * cb
+    CODE:
+        if (cb==NULL || !SvOK(cb)) {
+            SSL_CTX_set_psk_find_session_callback(ctx, NULL);
+            cb_data_advanced_put(ctx, "ssleay_ctx_set_psk_find_session_callback!!func", NULL);
+        }
+        else {
+            cb_data_advanced_put(ctx, "ssleay_ctx_set_psk_find_session_callback!!func", newSVsv(cb));
+            SSL_CTX_set_psk_find_session_callback(ctx, ssleay_ctx_set_psk_find_session_callback_invoke);
+        }
+
+#endif
 #endif
 
 #ifdef NET_SSLEAY_CAN_TICKET_KEY_CB
