@@ -2153,6 +2153,25 @@ Returns 'master_key' value from SSL_SESSION structure $s
  #
  # returns: master key (binary data)
 
+=item * SESSION_set1_master_key
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before; requires at least OpenSSL 1.1.1pre1, not in LibreSSL
+
+Sets the master key value associated with a SSL_SESSION.
+
+ my $ret = Net::SSLeay::SESSION_set1_master_key($sess, $key);
+ # $sess - value corresponding to OpenSSL SSL_SESSION structure
+ # $key - PSK key in packed binary format
+ #
+ # returns: 1 on success, 0 on failure
+
+Example:
+
+ my $key = pack('H*', 'deadbeef');
+ my $ret = Net::SSLeay::SESSION_set1_master_key($sess, $key);
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_SESSION_set1_master_key.html>
+
 =item * SESSION_set_master_key
 
 Sets 'master_key' value for SSL_SESSION structure $s
@@ -2167,6 +2186,34 @@ Not available with OpenSSL 1.1 and later.
 Code that previously used
        SESSION_set_master_key must now set $secret in the session_secret
        callback set with SSL_set_session_secret_cb.
+
+=item * SESSION_set_cipher
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before; requires at least OpenSSL 1.1.1pre1, not in LibreSSL
+
+Set the ciphersuite associated with an SSL_SESSION.
+
+ my $ret = Net::SSLeay::SESSION_set_cipher($s, $cipher);
+ # $s - value corresponding to OpenSSL SSL_SESSION structure
+ # $cipher - value corresponding to OpenSSL SSL_CIPHER structure
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_SESSION_set_cipher.html>
+
+=item * SESSION_set_protocol_version
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before; requires at least OpenSSL 1.1.1pre1, not in LibreSSL
+
+Sets the protocol version associated with an SSL_SESSION.
+
+ my $ret = Net::SSLeay::SESSION_set_protocol_version($s, $version);
+ # $s - value corresponding to OpenSSL SSL_SESSION structure
+ # $version - integer version constant. For example Net::SSLeay::TLS1_3_VERSION()
+ #
+ # returns: 1 on success, 0 on failure
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_SESSION_set_protocol_version.html>
 
 =item * SESSION_get_time
 
@@ -8892,6 +8939,28 @@ Returns version of SSL/TLS protocol that first defined the cipher
 
 Check openssl doc L<https://www.openssl.org/docs/ssl/SSL_CIPHER_get_version.html|https://www.openssl.org/docs/ssl/SSL_CIPHER_get_version.html>
 
+=item * CIPHER_find
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before; requires at least OpenSSL 1.0.2 or LibreSSL 3.4.0
+
+Returns a SSL_CIPHER structure from the current SSL using a two octet cipher ID.
+
+ my $cipher = Net::SSLeay::CIPHER_find($ssl, $id);
+ # $ssl - value corresponding to OpenSSL SSL structure
+ # $id - two octet cipher ID.
+ #
+ # returns: A value corresponding to OpenSSL SSL_CIPHER structure or undef if cipher is not found or an error occurs.
+
+Example that prints 'OpenSSL name is: TLS_AES_128_GCM_SHA256' with
+TLSv1.3 when the ciphersuite is enabled:
+
+ # TLS Cipher Suite 0x13, 0x01 is TLS_AES_128_GCM_SHA256
+ my $id = pack('n', 0x1301);
+ my $cipher =  Net::SSLeay::CIPHER_find($ssl, $id);
+ printf("OpenSSL name is: " . Net::SSLeay::CIPHER_get_name($cipher));
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CIPHER_find.html>
+
 =back
 
 =head3 Low level API: BN_* related functions
@@ -9836,6 +9905,153 @@ Runs the provider's self tests.
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OSSL_PROVIDER_self_test.html|https://www.openssl.org/docs/manmaster/man3/OSSL_PROVIDER_self_test.html>
 
 =back
+
+
+=head3 Low level API: TLS PSK related functions
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before.  The
+TLSv1.3 specific functions require at least OpenSSL 1.1.1; the others
+OpenSSL 1.0.0. Not available in LibreSSL.
+
+=over
+
+=item * CTX_use_psk_identity_hint
+
+Set PSK identity hint for SSL_CTX on TLS server for TLSv1.2 and earlier versions.
+
+ my $ret = Net::SSLeay::CTX_use_psk_identity_hint($ctx, $hint);
+ # $ctx - value corresponding to OpenSSL SSL_CTX structure
+ # $hint - string, a hint sent to the TLS clients
+ #
+ # returns: 1 on success, 0 on failure
+
+Example:
+
+ my $ret = Net::SSLeay::CTX_use_psk_identity_hint($ctx, 'ctx server identity_hint');
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_use_psk_identity_hint.html>
+
+=item * use_psk_identity_hint
+
+Set PSK identity hint for SSL on TLS server for TLSv1.2 and earlier versions.
+
+ my $ret = Net::SSLeay::use_psk_identity_hint($ssl, $hint);
+ # $ssl - value corresponding to OpenSSL SSL structure
+ # $hint - string, a hint sent to the TLS clients
+ #
+ # returns: 1 on success, 0 on failure
+
+Example:
+
+ my $ret = Net::SSLeay::use_psk_identity_hint($ssl, 'ssl server identity_hint');
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_use_psk_identity_hint.html>
+
+=item * CTX_set_psk_server_callback
+
+Set a callback for an SSL_CTX on TLS server for using PSKs with all TLS versions.
+
+B<NOTE:> With TLSv1.3 Net::SSLeay::CTX_set_psk_find_session_callback
+or Net::SSLeay::set_psk_find_session_callback is recommended.
+
+ # First set up a callback function.
+ sub tls12_psk_cb
+ {
+     my ($ssl, $identity, $max_psk_len) = @_;
+
+     # Note: $identity is potentially hostile user supplied data
+
+     my $psk = pack('H*', 'deadbeef');
+     return $psk if length $psk <= $max_psk_len;
+
+     return undef;
+ }
+
+ my $cb = \&tls12_psk_cb;
+ Net::SSLeay::CTX_set_psk_server_callback($ctx, $cb);
+ # $ctx - value corresponding to OpenSSL SSL_CTX structure
+ # $cb - reference to callback function
+ #
+ # returns: no return value
+
+The callback function must return a PSK in packed binary format, or
+C<undef> to trigger C<unknown_psk_identity> alert and TLS handshake
+failure. If TLS handshake failure without PSK specific alert is
+required, return packed random data.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_psk_server_callback.html>
+
+=item * set_psk_server_callback
+
+Set a callback for an SSL on TLS server for using PSKs with all TLS versions.
+
+B<NOTE:> With TLSv1.3 Net::SSLeay::CTX_set_psk_find_session_callback
+or Net::SSLeay::set_psk_find_session_callback is recommended.
+
+ Net::SSLeay::set_psk_server_callback($ssl, $cb);
+ # $ssl - value corresponding to OpenSSL SSL structure
+ # $cb - reference to callback function
+ #
+ # returns: no return value
+
+See Net::SSLeay::CTX_set_psk_server_callback() documentation for
+a full example with a callback.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_set_psk_server_callback.html>
+
+=item * CTX_set_psk_find_session_callback
+
+Set a callback for an SSL_CTX on TLS server for using TLSv1.3 PSKs.
+
+ # First set up a callback function.
+ sub tls13_psk_cb
+ {
+     my ($ssl, $identity) = @_;
+
+     # Note: $identity is potentially hostile user supplied data
+
+     my $sess = Net::SSLeay::SESSION_new();
+     my $cipher = Net::SSLeay::CIPHER_find($ssl, pack('n', 0x1301));
+     Net::SSLeay::SESSION_set1_master_key($sess, pack('H*', 'deadbeef'));
+     Net::SSLeay::SESSION_set_cipher($sess, $cipher);
+     Net::SSLeay::SESSION_set_protocol_version($sess, Net::SSLeay::version($ssl));
+
+     return (1, $sess);
+ }
+
+ my $cb = \&tls13_psk_cb;
+ Net::SSLeay::CTX_set_psk_find_session_callback($ctx, $cb);
+ # $ctx - value corresponding to OpenSSL SSL_CTX structure
+ # $cb - reference to callback function
+ #
+ # returns: no return value
+
+The callback function must return a two value list. When the first
+value is 0, the connection setup fails. When the first value is 1, the
+second value must be a valid C<SSL_SESSION> or C<undef>. When the
+second value is a valid C<SSL_SESSION>, the TLS handshake proceeds
+with PSK authentication. When the the second value is C<undef>, PSK is
+not used the TLS handshake proceeds with certificate authentication.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_psk_find_session_callback.html>
+
+=item * set_psk_find_session_callback
+
+Set a callback for an SSL on TLS server for using TLSv1.3 PSKs.
+
+ Net::SSLeay::set_psk_find_session_callback($ssl, $cb);
+ # $ssl - value corresponding to OpenSSL SSL structure
+ # $cb - reference to callback function
+ #
+ # returns: no return value
+
+See Net::SSLeay::CTX_set_psk_find_session_callback() documentation for
+a full example with a callback.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_set_psk_find_session_callback.html>
+
+=back
+
 
 =head2 Constants
 
