@@ -57,6 +57,16 @@ debug.
 Installing
 ----------
 
+General:
+If your OpenSSL is installed in an unusual place, you can tell
+	Net-SSLeay where to find it with by setting the OPENSSL_PREFIX environment
+	variable. Example:
+
+  export OPENSSL_PREFIX=/my/non-standard/path/usr
+
+The logic in Makefile.PL appends include/openssl to the environment 
+variable OPENSSL_PREFIX.
+
 Unix:
 	# build or install OpenSSL as per instructions in that package
 
