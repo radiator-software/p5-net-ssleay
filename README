@@ -58,14 +58,17 @@ Installing
 ----------
 
 General:
-If your OpenSSL is installed in an unusual place, you can tell
-	Net-SSLeay where to find it with by setting the OPENSSL_PREFIX environment
-	variable. Example:
+  If your OpenSSL is installed in an unusual place, you can tell
+	Net-SSLeay where to find required files by setting the OPENSSL_PREFIX 
+  environment variable. 
+  
+  The logic in Makefile.PL appends include/openssl to the environment 
+  variable OPENSSL_PREFIX.
+  
+  Example:
 
-  export OPENSSL_PREFIX=/my/non-standard/path/usr
+	OPENSSL_PREFIX=/home/mikem/playpen/openssl-1.0.2c perl Makefile.PL
 
-The logic in Makefile.PL appends include/openssl to the environment 
-variable OPENSSL_PREFIX.
 
 Unix:
 	# build or install OpenSSL as per instructions in that package
@@ -76,10 +79,8 @@ Unix:
 	make test            # Run the test suite
 	make install         # You probably have to su to root to do this
 
-	If your OpenSSL is installed in an unusual place, you can tell
-	Net-SSLeay where to find it with the OPENSSL_PREFIX environment
-	variable:
-	OPENSSL_PREFIX=/home/mikem/playpen/openssl-1.0.2c perl Makefile.PL
+	If your OpenSSL is installed in an unusual place, you can set
+  the OPENSSL_PREFIX environment variable.
 	....
 
 HPUX:
