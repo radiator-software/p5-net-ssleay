@@ -4158,12 +4158,19 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_peer_certificate.htm
 
 Get the certificate chain of the peer as an array of X509 structures.
 
- my @rv = Net::SSLeay::get_peer_cert_chain($ssl);
+ my @chain = Net::SSLeay::get_peer_cert_chain($ssl);
  # $ssl - value corresponding to openssl's SSL structure
  #
  # returns: list of X509 structures
 
-Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_peer_certificate.html|http://www.openssl.org/docs/ssl/SSL_get_peer_certificate.html>
+Example:
+
+ my @chain = Net::SSLeay::get_peer_cert_chain($ssl);
+ foreach my $x509 (@chain) {
+   print Net::SSLeay::X509_NAME_oneline(Net::SSLeay::X509_get_subject_name($cert)) . "\n";
+ }
+
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_peer_cert_chain.html|http://www.openssl.org/docs/ssl/SSL_get_peer_cert_chain.html>
 
 =item * get_quiet_shutdown
 
