@@ -6969,7 +6969,7 @@ Pushes an X509 structure onto a STACK_OF(X509) structure.
 
 Pops an single X509 structure from a STACK_OF(X509) structure.
 
-    my $x509 = NetSSLeay::sk_X509_pop($sk_x509)
+    my $x509 = Net::SSLeay::sk_X509_pop($sk_x509)
     # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
     #
     # returns: a pointer to an X509 structure, undef on failure
@@ -6980,7 +6980,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/sk_TYPE_pop.html
 
 Shifts an single X509 structure onto a STACK_OF(X509) structure.
 
-    my $x509 = NetSSLeay::sk_X509_shift($sk_x509, $x509)
+    my $x509 = Net::SSLeay::sk_X509_shift($sk_x509, $x509)
     # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
     # $x509 - value corresponding to openssl's X509 structure
     #
@@ -6992,7 +6992,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/sk_TYPE_shift.ht
 
 Unshifts an single X509 structure from a STACK_OF(X509) structure.
 
-    my $rv = NetSSLeay::sk_X509_unshift($sk_x509)
+    my $rv = Net::SSLeay::sk_X509_unshift($sk_x509)
     # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
     #
     # returns: total number of elements after the operation, 0 on failure
