@@ -11,22 +11,22 @@ Net::SSLeay - Perl bindings for OpenSSL and LibreSSL
   ($page) = get_https('www.bacus.pt', 443, '/');                 # Case 1
 
   ($page, $response, %reply_headers)
-	 = get_https('www.bacus.pt', 443, '/',                   # Case 2
-	 	make_headers(User-Agent => 'Cryptozilla/5.0b1',
-			     Referer    => 'https://www.bacus.pt'
-		));
+         = get_https('www.bacus.pt', 443, '/',                   # Case 2
+                make_headers(User-Agent => 'Cryptozilla/5.0b1',
+                          Referer    => 'https://www.bacus.pt'
+                ));
 
   ($page, $result, %headers) =                                   # Case 2b
          = get_https('www.bacus.pt', 443, '/protected.html',
-	      make_headers(Authorization =>
-			   'Basic ' . MIME::Base64::encode("$user:$pass",''))
-	      );
+              make_headers(Authorization =>
+                  'Basic ' . MIME::Base64::encode("$user:$pass",''))
+              );
 
   ($page, $response, %reply_headers)
-	 = post_https('www.bacus.pt', 443, '/foo.cgi', '',       # Case 3
-		make_form(OK   => '1',
-			  name => 'Sampo'
-		));
+         = post_https('www.bacus.pt', 443, '/foo.cgi', '',       # Case 3
+                make_form(OK   => '1',
+                          name => 'Sampo'
+                ));
 
   $reply = sslcat($host, $port, $request);                       # Case 4
 
@@ -221,7 +221,7 @@ to a hash.
     = get_https4('www.bacus.pt', 443, '/');
   for $k (sort keys %{$headers_ref}) {
       for $v (@{$$headers_ref{$k}}) {
-	  print "$k = $v\n";
+          print "$k = $v\n";
       }
   }
 
@@ -243,10 +243,10 @@ in case you would like to store or display it, e.g.
       warn "Subject Name: undefined, Issuer  Name: undefined";
   } else {
       warn 'Subject Name: '
-	  . Net::SSLeay::X509_NAME_oneline(
-		 Net::SSLeay::X509_get_subject_name($server_cert))
-	      . 'Issuer  Name: '
-		  . Net::SSLeay::X509_NAME_oneline(
+          . Net::SSLeay::X509_NAME_oneline(
+                 Net::SSLeay::X509_get_subject_name($server_cert))
+              . 'Issuer  Name: '
+                  . Net::SSLeay::X509_NAME_oneline(
                          Net::SSLeay::X509_get_issuer_name($server_cert));
   }
 
@@ -284,16 +284,16 @@ the caveat about encrypting private keys applies.
 
   ($page, $result, %headers) =                                   # 2c
          = get_https('www.bacus.pt', 443, '/protected.html',
-	      make_headers(Authorization =>
-			   'Basic ' . MIME::Base64::encode("$user:$pass",'')),
-	      '', $mime_type6, $path_to_crt7, $path_to_key8);
+              make_headers(Authorization =>
+                           'Basic ' . MIME::Base64::encode("$user:$pass",'')),
+              '', $mime_type6, $path_to_crt7, $path_to_key8);
 
   ($page, $response, %reply_headers)
-	 = post_https('www.bacus.pt', 443, '/foo.cgi',           # 3b
-	      make_headers('Authorization' =>
-			   'Basic ' . MIME::Base64::encode("$user:$pass",'')),
-	      make_form(OK   => '1', name => 'Sampo'),
-	      $mime_type6, $path_to_crt7, $path_to_key8);
+         = post_https('www.bacus.pt', 443, '/foo.cgi',           # 3b
+              make_headers('Authorization' =>
+                           'Basic ' . MIME::Base64::encode("$user:$pass",'')),
+              make_form(OK   => '1', name => 'Sampo'),
+              $mime_type6, $path_to_crt7, $path_to_key8);
 
 B<Case 2c (in SYNOPSIS)> demonstrates getting a password protected page that also requires
 a client certificate, i.e. it is possible to use both authentication
@@ -331,9 +331,9 @@ password as well
   Net::SSLeay::set_proxy('gateway.myorg.com', 8080, 'joe', 'salainen');
   ($page, $result, %headers) =
          = get_https('www.bacus.pt', 443, '/protected.html',
-	      make_headers(Authorization =>
-			   'Basic ' . MIME::Base64::encode("susie:pass",''))
-	      );
+              make_headers(Authorization =>
+                           'Basic ' . MIME::Base64::encode("susie:pass",''))
+              );
 
 This example demonstrates the case where we authenticate to the proxy as
 C<"joe"> and to the final web server as C<"susie">. Proxy authentication
@@ -369,27 +369,27 @@ support was evolved.
 
   ($page, $result, %headers)
          = get_http('www.bacus.pt', 443, '/protected.html',
-	      make_headers(Authorization =>
-			   'Basic ' . MIME::Base64::encode("$user:$pass",''))
-	      );
+              make_headers(Authorization =>
+                           'Basic ' . MIME::Base64::encode("$user:$pass",''))
+              );
 
   ($page, $response, %reply_headers)
-	 = post_http('www.bacus.pt', 443, '/foo.cgi', '',
-		make_form(OK   => '1',
-			  name => 'Sampo'
-		));
+         = post_http('www.bacus.pt', 443, '/foo.cgi', '',
+                make_form(OK   => '1',
+                          name => 'Sampo'
+                ));
 
   ($reply, $err) = tcpcat($host, $port, $request);
 
   ($page, $result, %headers)
          = get_httpx($usessl, 'www.bacus.pt', 443, '/protected.html',
-	      make_headers(Authorization =>
-			   'Basic ' . MIME::Base64::encode("$user:$pass",''))
-	      );
+              make_headers(Authorization =>
+                           'Basic ' . MIME::Base64::encode("$user:$pass",''))
+              );
 
   ($page, $response, %reply_headers)
-	 = post_httpx($usessl, 'www.bacus.pt', 443, '/foo.cgi', '',
-		make_form(OK   => '1',  name => 'Sampo'	));
+         = post_httpx($usessl, 'www.bacus.pt', 443, '/foo.cgi', '',
+                make_form(OK   => '1',  name => 'Sampo' ));
 
   ($reply, $err, $server_cert) = tcpxcat($usessl, $host, $port, $request);
 
@@ -406,9 +406,9 @@ previously signed, but which it now revokes. CRLs are in PEM format.
 
 You can enable C<Net::SSLeay CRL> checking like this:
 
-	    &Net::SSLeay::X509_STORE_set_flags
-		(&Net::SSLeay::CTX_get_cert_store($ssl),
-		 &Net::SSLeay::X509_V_FLAG_CRL_CHECK);
+            &Net::SSLeay::X509_STORE_set_flags
+                (&Net::SSLeay::CTX_get_cert_store($ssl),
+                 &Net::SSLeay::X509_V_FLAG_CRL_CHECK);
 
 After setting this flag, if OpenSSL checks a peer's certificate, then
 it will attempt to find a CRL for the issuer. It does this by looking
@@ -421,7 +421,7 @@ of them.  (You can also force it to look in a specific named CRL
 file., see below).  You can find out the hash of the issuer subject
 name in a CRL with
 
-	openssl crl -in crl.pem -hash -noout
+        openssl crl -in crl.pem -hash -noout
 
 If the peer certificate does not pass the revocation list, or if no
 CRL is found, then the handshaking fails with an error.
@@ -433,8 +433,8 @@ named files.
     my $crl = Net::SSLeay::PEM_read_bio_X509_CRL($bio);
     if ($crl) {
         Net::SSLeay::X509_STORE_add_crl(
-	     Net::SSLeay::CTX_get_cert_store($ssl, $crl)
-	);
+             Net::SSLeay::CTX_get_cert_store($ssl, $crl)
+        );
     } else {
         error reading CRL....
     }
@@ -495,11 +495,11 @@ With Net::SSLeay this can be done like this:
     # response itself is signed.
     my $ua = HTTP::Tiny->new(verify_SSL => 0);
     my $res = $ua->request( 'POST',$uri, {
-	headers => { 'Content-type' => 'application/ocsp-request' },
-	content => Net::SSLeay::i2d_OCSP_REQUEST($req)
+        headers => { 'Content-type' => 'application/ocsp-request' },
+        content => Net::SSLeay::i2d_OCSP_REQUEST($req)
     });
     my $content = $res && $res->{success} && $res->{content}
-	or die "query failed";
+        or die "query failed";
 
     # Extract OCSP_RESPONSE.
     # this will croak if the string is not an OCSP_RESPONSE
@@ -508,8 +508,8 @@ With Net::SSLeay this can be done like this:
     # Check status of response.
     my $status = Net::SSLeay::OCSP_response_status($resp);
     if ($status != Net::SSLeay::OCSP_RESPONSE_STATUS_SUCCESSFUL())
-	die "OCSP response failed: ".
-	    Net::SSLeay::OCSP_response_status_str($status);
+        die "OCSP response failed: ".
+            Net::SSLeay::OCSP_response_status_str($status);
     }
 
     # Verify signature of response and if nonce matches request.
@@ -519,7 +519,7 @@ With Net::SSLeay this can be done like this:
     # It will not complain if the response does not contain a nonce, which is
     # usually the case with pre-signed responses.
     if ( ! eval { Net::SSLeay::OCSP_response_verify($ssl,$resp,$req) }) {
-	die "OCSP response verification failed";
+        die "OCSP response verification failed";
     }
 
     # Extract information from OCSP_RESPONSE for each of the ids.
@@ -531,10 +531,10 @@ With Net::SSLeay this can be done like this:
     # - no response for given OCSP_CERTID
     # - certificate status is not good (e.g. revoked or unknown)
     if ( my $nextupd = eval { Net::SSLeay::OCSP_response_results($resp,$id) }) {
-	warn "certificate is valid, next update in ".
-	    ($nextupd-time())." seconds\n";
+        warn "certificate is valid, next update in ".
+            ($nextupd-time())." seconds\n";
     } else {
-	die "certificate is not valid: $@";
+        die "certificate is not valid: $@";
     }
 
     # But in array context it will return detailed information about each given
@@ -543,20 +543,20 @@ With Net::SSLeay this can be done like this:
     # in the OCSP_RESPONSE
     my @results = Net::SSLeay::OCSP_response_results($resp,@ids);
     for my $r (@results) {
-	print Dumper($r);
-	# @results are in the same order as the @ids and contain:
-	# $r->[0] - OCSP_CERTID
-	# $r->[1] - undef if no error (certificate good) OR error message as string
-	# $r->[2] - hash with details:
-	#   thisUpdate - time_t of this single response
-	#   nextUpdate - time_t when update is expected
-	#   statusType - integer:
-	#      V_OCSP_CERTSTATUS_GOOD(0)
-	#      V_OCSP_CERTSTATUS_REVOKED(1)
-	#      V_OCSP_CERTSTATUS_UNKNOWN(2)
-	#   revocationTime - time_t (only if revoked)
-	#   revocationReason - integer (only if revoked)
-	#   revocationReason_str - reason as string (only if revoked)
+        print Dumper($r);
+        # @results are in the same order as the @ids and contain:
+        # $r->[0] - OCSP_CERTID
+        # $r->[1] - undef if no error (certificate good) OR error message as string
+        # $r->[2] - hash with details:
+        #   thisUpdate - time_t of this single response
+        #   nextUpdate - time_t when update is expected
+        #   statusType - integer:
+        #      V_OCSP_CERTSTATUS_GOOD(0)
+        #      V_OCSP_CERTSTATUS_REVOKED(1)
+        #      V_OCSP_CERTSTATUS_UNKNOWN(2)
+        #   revocationTime - time_t (only if revoked)
+        #   revocationReason - integer (only if revoked)
+        #   revocationReason_str - reason as string (only if revoked)
     }
 
 To further speed up certificate revocation checking one can use a TLS extension
@@ -564,62 +564,62 @@ to instruct the server to staple the OCSP response:
 
     # set TLS extension before doing SSL_connect
     Net::SSLeay::set_tlsext_status_type($ssl,
-	Net::SSLeay::TLSEXT_STATUSTYPE_ocsp());
+        Net::SSLeay::TLSEXT_STATUSTYPE_ocsp());
 
     # setup callback to verify OCSP response
     my $cert_valid = undef;
     Net::SSLeay::CTX_set_tlsext_status_cb($context,sub {
-	my ($ssl,$resp) = @_;
-	if (!$resp) {
-	    # Lots of servers don't return an OCSP response.
-	    # In this case we must check the OCSP status outside the SSL
-	    # handshake.
-	    warn "server did not return stapled OCSP response\n";
-	    return 1;
-	}
-	# verify status
-	my $status = Net::SSLeay::OCSP_response_status($resp);
-	if ($status != Net::SSLeay::OCSP_RESPONSE_STATUS_SUCCESSFUL()) {
-	    warn "OCSP response failure: $status\n";
-	    return 1;
-	}
-	# verify signature - we have no OCSP_REQUEST here to check nonce
-	if (!eval { Net::SSLeay::OCSP_response_verify($ssl,$resp) }) {
-	    warn "OCSP response verify failed\n";
-	    return 1;
-	}
-	# check if the certificate is valid
-	# we should check here against the peer_certificate
-	my $cert = Net::SSLeay::get_peer_certificate();
-	my $certid = eval { Net::SSLeay::OCSP_cert2ids($ssl,$cert) } or do {
-	    warn "cannot get certid from cert: $@";
-	    $cert_valid = -1;
-	    return 1;
-	};
+        my ($ssl,$resp) = @_;
+        if (!$resp) {
+            # Lots of servers don't return an OCSP response.
+            # In this case we must check the OCSP status outside the SSL
+            # handshake.
+            warn "server did not return stapled OCSP response\n";
+            return 1;
+        }
+        # verify status
+        my $status = Net::SSLeay::OCSP_response_status($resp);
+        if ($status != Net::SSLeay::OCSP_RESPONSE_STATUS_SUCCESSFUL()) {
+            warn "OCSP response failure: $status\n";
+            return 1;
+        }
+        # verify signature - we have no OCSP_REQUEST here to check nonce
+        if (!eval { Net::SSLeay::OCSP_response_verify($ssl,$resp) }) {
+            warn "OCSP response verify failed\n";
+            return 1;
+        }
+        # check if the certificate is valid
+        # we should check here against the peer_certificate
+        my $cert = Net::SSLeay::get_peer_certificate();
+        my $certid = eval { Net::SSLeay::OCSP_cert2ids($ssl,$cert) } or do {
+            warn "cannot get certid from cert: $@";
+            $cert_valid = -1;
+            return 1;
+        };
 
-	if ( $nextupd = eval {
-	    Net::SSLeay::OCSP_response_results($resp,$certid) }) {
-	    warn "certificate not revoked\n";
-	    $cert_valid = 1;
-	} else {
-	    warn "certificate not valid: $@";
-	    $cert_valid = 0;
-	}
+        if ( $nextupd = eval {
+            Net::SSLeay::OCSP_response_results($resp,$certid) }) {
+            warn "certificate not revoked\n";
+            $cert_valid = 1;
+        } else {
+            warn "certificate not valid: $@";
+            $cert_valid = 0;
+        }
     });
 
     # do SSL handshake here
     ....
     # check if certificate revocation was checked already
     if ( ! defined $cert_valid) {
-	# check revocation outside of SSL handshake by asking OCSP responder
-	...
+        # check revocation outside of SSL handshake by asking OCSP responder
+        ...
     } elsif ( ! $cert_valid ) {
-	die "certificate not valid - closing SSL connection";
+        die "certificate not valid - closing SSL connection";
     } elsif ( $cert_valid<0 ) {
-	die "cannot verify certificate revocation - self-signed ?";
+        die "cannot verify certificate revocation - self-signed ?";
     } else {
-	# everything fine
-	...
+        # everything fine
+        ...
     }
 
 
@@ -843,9 +843,9 @@ writes C<$message> and appends CRLF to the SSL output stream.
 In order to use the low level API you should start your programs with
 the following incantation:
 
-	use Net::SSLeay qw(die_now die_if_ssl_error);
-	Net::SSLeay::load_error_strings();
-	Net::SSLeay::SSLeay_add_ssl_algorithms();    # Important!
+        use Net::SSLeay qw(die_now die_if_ssl_error);
+        Net::SSLeay::load_error_strings();
+        Net::SSLeay::SSLeay_add_ssl_algorithms();    # Important!
         Net::SSLeay::ENGINE_load_builtin_engines();  # If you want built-in engines
         Net::SSLeay::ENGINE_register_all_complete(); # If you want built-in engines
         Net::SSLeay::randomize();
@@ -866,10 +866,10 @@ first sprinkled these in your code.
 C<die_now()> and C<die_if_ssl_error()> are used to conveniently print the SSLeay error
 stack when something goes wrong:
 
-	Net::SSLeay::connect($ssl) or die_now("Failed SSL connect ($!)");
+        Net::SSLeay::connect($ssl) or die_now("Failed SSL connect ($!)");
 
 
-	Net::SSLeay::write($ssl, "foo") or die_if_ssl_error("SSL write ($!)");
+        Net::SSLeay::write($ssl, "foo") or die_if_ssl_error("SSL write ($!)");
 
 =item * print_errs
 
@@ -902,22 +902,22 @@ C language OpenSSL in this respect.
 
 You can establish a per-context verify callback function something like this:
 
-	sub verify {
-	    my ($ok, $x509_store_ctx) = @_;
-	    print "Verifying certificate...\n";
-		...
-	    return $ok;
-	}
+        sub verify {
+            my ($ok, $x509_store_ctx) = @_;
+            print "Verifying certificate...\n";
+                ...
+            return $ok;
+        }
 
 It is used like this:
 
-	Net::SSLeay::set_verify ($ssl, Net::SSLeay::VERIFY_PEER, \&verify);
+        Net::SSLeay::set_verify ($ssl, Net::SSLeay::VERIFY_PEER, \&verify);
 
 Per-context callbacks for decrypting private keys are implemented.
 
         Net::SSLeay::CTX_set_default_passwd_cb($ctx, sub { "top-secret" });
         Net::SSLeay::CTX_use_PrivateKey_file($ctx, "key.pem",
-					     Net::SSLeay::FILETYPE_PEM)
+                                             Net::SSLeay::FILETYPE_PEM)
             or die "Error reading private key";
         Net::SSLeay::CTX_set_default_passwd_cb($ctx, undef);
 
@@ -966,32 +966,32 @@ For example:
 
 In C:
 
-	#include <ssl.h>
+        #include <ssl.h>
 
-	err = SSL_set_verify (ssl, SSL_VERIFY_CLIENT_ONCE,
-				   &your_call_back_here);
+        err = SSL_set_verify (ssl, SSL_VERIFY_CLIENT_ONCE,
+                                   &your_call_back_here);
 
 In Perl:
 
-	use Net::SSLeay;
+        use Net::SSLeay;
 
-	$err = Net::SSLeay::set_verify ($ssl,
-					Net::SSLeay::VERIFY_CLIENT_ONCE,
-					\&your_call_back_here);
+        $err = Net::SSLeay::set_verify ($ssl,
+                                        Net::SSLeay::VERIFY_CLIENT_ONCE,
+                                        \&your_call_back_here);
 
 If the function does not start with C<SSL_> you should use the full
 function name, e.g.:
 
-	$err = Net::SSLeay::ERR_get_error;
+        $err = Net::SSLeay::ERR_get_error;
 
 The following new functions behave in perlish way:
 
-	$got = Net::SSLeay::read($ssl);
+        $got = Net::SSLeay::read($ssl);
                                     # Performs SSL_read, but returns $got
                                     # resized according to data received.
                                     # Returns undef on failure.
 
-	Net::SSLeay::write($ssl, $foo) || die;
+        Net::SSLeay::write($ssl, $foo) || die;
                                     # Performs SSL_write, but automatically
                                     # figures out the size of $foo
 
@@ -5065,25 +5065,25 @@ Example:
     my $newkey_name = pack("a16",'newsecret');
 
     my @keys = (
-	[ $newkey_name, $newkey ], # current active key
-	[ $oldkey_name, $oldkey ], # already expired
+        [ $newkey_name, $newkey ], # current active key
+        [ $oldkey_name, $oldkey ], # already expired
     );
 
     Net::SSLeay::CTX_set_tlsext_ticket_getkey_cb($server2->_ctx, sub {
-	my ($mykeys,$name) = @_;
+        my ($mykeys,$name) = @_;
 
-	# return (current_key, current_key_name) if no name given
-	return ($mykeys->[0][1],$mykeys->[0][0]) if ! $name;
+        # return (current_key, current_key_name) if no name given
+        return ($mykeys->[0][1],$mykeys->[0][0]) if ! $name;
 
-	# return (matching_key, current_key_name) if we find a key matching
-	# the given name
-	for(my $i = 0; $i<@$mykeys; $i++) {
-	    next if $name ne $mykeys->[$i][0];
-	    return ($mykeys->[$i][1],$mykeys->[0][0]);
-	}
+        # return (matching_key, current_key_name) if we find a key matching
+        # the given name
+        for(my $i = 0; $i<@$mykeys; $i++) {
+            next if $name ne $mykeys->[$i][0];
+            return ($mykeys->[$i][1],$mykeys->[0][0]);
+        }
 
-	# no matching key found
-	return;
+        # no matching key found
+        return;
     },\@keys);
 
 
@@ -10540,7 +10540,7 @@ The following is a simple SSLeay echo server (non forking):
                                              &Net::SSLeay::FILETYPE_PEM);
     die_if_ssl_error("private key");
     Net::SSLeay::CTX_use_certificate_file ($ctx, 'plain-cert.pem',
- 				           &Net::SSLeay::FILETYPE_PEM);
+                                            &Net::SSLeay::FILETYPE_PEM);
     die_if_ssl_error("certificate");
 
     while (1) {
@@ -10583,7 +10583,7 @@ to ask for the password. Note how C<STDIN> and C<STDOUT> are wired to SSL.
     # /etc/inetd.conf
     #    ssltst stream tcp nowait root /path/to/server.pl server.pl
     # /etc/services
-    #    ssltst		1234/tcp
+    #    ssltst        1234/tcp
 
     use Net::SSLeay qw(die_now die_if_ssl_error);
     Net::SSLeay::load_error_strings();
