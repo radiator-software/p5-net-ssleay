@@ -509,7 +509,7 @@ With Net::SSLeay this can be done like this:
 
     # Check status of response.
     my $status = Net::SSLeay::OCSP_response_status($resp);
-    if ($status != Net::SSLeay::OCSP_RESPONSE_STATUS_SUCCESSFUL())
+    if ($status != Net::SSLeay::OCSP_RESPONSE_STATUS_SUCCESSFUL()) {
         die "OCSP response failed: " .
             Net::SSLeay::OCSP_response_status_str($status);
     }
@@ -2918,7 +2918,7 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least
 
 Set the minimum and maximum supported protocol for $ctx or $ssl.
 
-    my $rv = Net::SSLeay::CTX_set_min_proto_version($ctx, $version)
+    my $rv = Net::SSLeay::CTX_set_min_proto_version($ctx, $version);
     # $ctx - value corresponding to openssl's SSL_CTX structure
     # $version - (integer) constant version value or 0 for automatic lowest or highest value
     #
@@ -2940,7 +2940,7 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.82 and before; requires at least
 
 Get the minimum and maximum supported protocol for $ctx or $ssl.
 
-    my $version = Net::SSLeay::CTX_get_min_proto_version($ctx)
+    my $version = Net::SSLeay::CTX_get_min_proto_version($ctx);
     # $ctx - value corresponding to openssl's SSL_CTX structure
     #
     # returns: 0 automatic lowest or highest value, configured value otherwise
@@ -4327,7 +4327,7 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_get_session.html|http://
 Returns string with a list (colon ':' separated) of ciphers shared between client and server
 within SSL session $ssl.
 
-    my $rv = Net::SSLeay::get_shared_ciphers()
+    my $rv = Net::SSLeay::get_shared_ciphers();
     #
     # returns: string like 'ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES256-SHA:DHE-DSS-AES256-SHA:...'
 
@@ -6936,7 +6936,7 @@ Returns ASN1_OBJECT corresponding to X509 signature key algorithm.
 
 To get textual representation use:
 
-    my $alg = Net::SSLeay::OBJ_obj2txt(Net::SSLeay::P_X509_get_signature_alg($x509))
+    my $alg = Net::SSLeay::OBJ_obj2txt(Net::SSLeay::P_X509_get_signature_alg($x509));
     # returns for example: "sha1WithRSAEncryption"
 
 =item * sk_X509_new_null
@@ -6961,7 +6961,7 @@ Pushes an X509 structure onto a STACK_OF(X509) structure.
 
 Pops an single X509 structure from a STACK_OF(X509) structure.
 
-    my $x509 = Net::SSLeay::sk_X509_pop($sk_x509)
+    my $x509 = Net::SSLeay::sk_X509_pop($sk_x509);
     # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
     #
     # returns: a pointer to an X509 structure, undef on failure
@@ -6972,7 +6972,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/sk_TYPE_pop.html
 
 Shifts an single X509 structure onto a STACK_OF(X509) structure.
 
-    my $x509 = Net::SSLeay::sk_X509_shift($sk_x509, $x509)
+    my $x509 = Net::SSLeay::sk_X509_shift($sk_x509, $x509);
     # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
     # $x509 - value corresponding to openssl's X509 structure
     #
@@ -6984,7 +6984,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/sk_TYPE_shift.ht
 
 Unshifts an single X509 structure from a STACK_OF(X509) structure.
 
-    my $rv = Net::SSLeay::sk_X509_unshift($sk_x509)
+    my $rv = Net::SSLeay::sk_X509_unshift($sk_x509);
     # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
     #
     # returns: total number of elements after the operation, 0 on failure
@@ -6995,10 +6995,10 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/sk_TYPE_unshift.
 
 Inserts a single X509 structure into a STACK_OF(X509) at the specified index.
 
-    my $rv = Net::SSLeay::sk_X509_insert($sk_x509, $x509, index);
+    my $rv = Net::SSLeay::sk_X509_insert($sk_x509, $x509, $index);
     # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
     # $x509 - value corresponding to openssl's X509 structure
-    # index - integer - 0 based index
+    # $index - integer - 0 based index
     #
     # returns: total number of elements after the operation, 0 on failure
 
@@ -7008,9 +7008,9 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/sk_TYPE_insert.h
 
 Delete a single X509 structure from a STACK_OF(X509) at the specified index.
 
-    my $x509 = Net::SSLeay::sk_X509_delete($sk_x509, index);
+    my $x509 = Net::SSLeay::sk_X509_delete($sk_x509, $index);
     # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
-    # index - integer - 0 based index
+    # $index - integer - 0 based index
     #
     # returns: a pointer to an X509 structure, undef on failure
 
@@ -7020,9 +7020,9 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/sk_TYPE_delete.h
 
 Return a single X509 structure from a STACK_OF(X509) at the specified index.
 
-    my $x509 = Net::SSLeay::sk_X509_value($sk_x509, index)
+    my $x509 = Net::SSLeay::sk_X509_value($sk_x509, $index);
     # $sk_x509 - value corresponding to openssl's STACK_OF(X509) structure
-    # index - integer - 0 based index
+    # $index - integer - 0 based index
     #
     # returns: a pointer to an X509 structure, undef on failure
 
@@ -7317,7 +7317,7 @@ Computes digest/fingerprint of X509_CRL $data using $type hash function.
 
 Example:
 
-    my $x509_crl
+    my $x509_crl;
     my $md = Net::SSLeay::EVP_get_digestbyname("sha1");
     my $digest_value = Net::SSLeay::X509_CRL_digest($x509_crl, $md);
     # to get printable (hex) value of digest use:
@@ -8966,7 +8966,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CIPHER_find.
 
 Creates and returns a new BIGNUM from an existing BIGNUM.
 
-    my $bn = Net::SSLeay::BN_dup($from)
+    my $bn = Net::SSLeay::BN_dup($from);
     # $from - value corresponding to BIGNUM structure
     #
     # returns: a new BIGNUM containing the value $from
@@ -8977,7 +8977,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/BN_dup.html>
 
 Clears BIGNUM data when it is no longer needed.
 
-    Net::SSLeay::BN_clear($bn)
+    Net::SSLeay::BN_clear($bn);
     # $bn - value corresponding to BIGNUM structure
     #
     # returns: nothing. $bn is set to 0.
@@ -8988,7 +8988,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/BN_clear.html>
 
 Clears and frees a previously allocated BIGNUM.
 
-    Net::SSLeay::BN_clear_free($bn)
+    Net::SSLeay::BN_clear_free($bn);
     # $bn - value corresponding to BIGNUM structure
     #
     # returns: nothing. $bn is no longer usable.
@@ -8999,7 +8999,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/BN_clear_free.ht
 
 Frees previously a allocated BIGNUM.
 
-    Net::SSLeay::BN_free($bn)
+    Net::SSLeay::BN_free($bn);
     # $bn - value corresponding to BIGNUM structure
     #
     # returns: nothing. $bn is no longer usable.
@@ -9095,7 +9095,7 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/BIO_f_ssl.html|http://www
 
 Frees up a single BIO.
 
-    my $rv = Net::SSLeay::BIO_free($bio;);
+    my $rv = Net::SSLeay::BIO_free($bio);
     # $bio; - value corresponding to openssl's BIO structure
     #
     # returns: 1 on success, 0 on failure
@@ -9267,7 +9267,7 @@ B<COMPATIBILITY:> requires at least OpenSSL 0.9.8f
 
 This function is used in a server to support Server side Server Name Indication (SNI).
 
-    Net::SSLeay::CTX_set_tlsext_servername_callback($ctx, $code)
+    Net::SSLeay::CTX_set_tlsext_servername_callback($ctx, $code);
     # $ctx - SSL context
     # $code - reference to a subroutine that will be called when a new connection is being initiated
     #
@@ -9479,7 +9479,7 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least
 
 Returns the name of negotiated protocol for given SSL connection $ssl.
 
-    $rv = Net::SSLeay::P_next_proto_negotiated($ssl)
+    $rv = Net::SSLeay::P_next_proto_negotiated($ssl);
     # $ssl - value corresponding to openssl's SSL structure
     #
     # returns: (string) negotiated protocol name (or undef if no negotiation was done or failed with fatal error)
@@ -9490,7 +9490,7 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least
 
 Returns the result of the last negotiation for given SSL connection $ssl.
 
-    $rv = Net::SSLeay::P_next_proto_last_status($ssl)
+    $rv = Net::SSLeay::P_next_proto_last_status($ssl);
     # $ssl - value corresponding to openssl's SSL structure
     #
     # returns: (integer) negotiation status
@@ -9519,7 +9519,7 @@ With ALPN, the most basic implementation looks like this:
     my $sock = IO::Socket::INET->new(PeerAddr=>'encrypted.google.com:443') or die;
     my $ctx = Net::SSLeay::CTX_tlsv1_new() or die;
     Net::SSLeay::CTX_set_options($ctx, &Net::SSLeay::OP_ALL);
-    Net::SSLeay::CTX_set_alpn_protos($ctx, ['http/1.1', 'http/2.0', 'spdy/3]);
+    Net::SSLeay::CTX_set_alpn_protos($ctx, ['http/1.1', 'http/2.0', 'spdy/3']);
     my $ssl = Net::SSLeay::new($ctx) or die;
     Net::SSLeay::set_fd($ssl, fileno($sock)) or die;
     Net::SSLeay::connect($ssl);
@@ -9534,7 +9534,7 @@ With ALPN, the most basic implementation looks like this:
     my $ctx = Net::SSLeay::CTX_tlsv1_new() or die;
     Net::SSLeay::CTX_set_options($ctx, &Net::SSLeay::OP_ALL);
     Net::SSLeay::set_cert_and_key($ctx, "cert.pem", "key.pem");
-    Net::SSLeay::CTX_set_alpn_select_cb($ctx, ['http/1.1', 'http/2.0', 'spdy/3]);
+    Net::SSLeay::CTX_set_alpn_select_cb($ctx, ['http/1.1', 'http/2.0', 'spdy/3']);
     my $sock = IO::Socket::INET->new(LocalAddr=>'localhost', LocalPort=>5443, Proto=>'tcp', Listen=>20) or die;
 
     while (1) {
@@ -9613,7 +9613,7 @@ B<NOTE:> You need set_alpn_protos on B<client side> of TLS connection.
 This adds list of supported application layer protocols to ClientHello message sent by a client.
 It advertises the enumeration of supported protocols:
 
-    Net::SSLeay::set_alpn_protos($ssl, ['http/1.1', 'http/2.0', 'spdy/3]);
+    Net::SSLeay::set_alpn_protos($ssl, ['http/1.1', 'http/2.0', 'spdy/3']);
     # returns 0 on success
 
 =item * CTX_set_alpn_protos
@@ -9625,7 +9625,7 @@ B<NOTE:> You need CTX_set_alpn_protos on B<client side> of TLS connection.
 This adds list of supported application layer protocols to ClientHello message sent by a client.
 It advertises the enumeration of supported protocols:
 
-    Net::SSLeay::CTX_set_alpn_protos($ctx, ['http/1.1', 'http/2.0', 'spdy/3]);
+    Net::SSLeay::CTX_set_alpn_protos($ctx, ['http/1.1', 'http/2.0', 'spdy/3']);
     # returns 0 on success
 
 =item * P_alpn_selected
@@ -9634,7 +9634,7 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least
 
 Returns the name of negotiated protocol for given TLS connection $ssl.
 
-    $rv = Net::SSLeay::P_alpn_selected($ssl)
+    $rv = Net::SSLeay::P_alpn_selected($ssl);
     # $ssl - value corresponding to openssl's SSL structure
     #
     # returns: (string) negotiated protocol name (or undef if no negotiation was done or failed with fatal error)
@@ -9702,7 +9702,7 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/DH_new.html|http://www.op
 
 Enable or disable FIPS mode in a FIPS capable OpenSSL.
 
-    Net::SSLeay:: FIPS_mode_set($enable);
+    Net::SSLeay::FIPS_mode_set($enable);
     # $enable - (integer) 1 to enable, 0 to disable
 
 =back
@@ -9851,7 +9851,7 @@ Iterates over all loaded providers. A callback is called for each provider.
     my $rv = Net::SSLeay::OSSL_PROVIDER_do_all($libctx, $cb, $cbdata);
     # $libctx - value corresponding to OSSL_LIB_CTX structure or undef
     # $cb - reference to a perl callback function
-    $ $cbdata - data that will be passed to callback function
+    # $cbdata - data that will be passed to callback function
     #
     # returns: (integer) 1 if all callbacks returned 1, 0 the first time a callback returns 0.
 
