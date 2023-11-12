@@ -1184,7 +1184,7 @@ When the macro is not defined, an empty string is returned instead.
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OPENSSL_version_pre_release.html>
 
-=item * OPENSSL_version_build_metadata()
+=item * OPENSSL_version_build_metadata
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.90 and before; requires at least OpenSSL 3.0.0-alpha1, not in LibreSSL
 
