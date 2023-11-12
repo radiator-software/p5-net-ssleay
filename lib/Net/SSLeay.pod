@@ -146,7 +146,7 @@ in dotted decimal notation of the remote server to contact. The second
 argument is the TCP port at the remote end (your own port is picked
 arbitrarily from high numbered ports as usual for TCP). The third
 argument is the URL of the page without the host name part. If in
-doubt consult the HTTP specifications at L<http://www.w3c.org>.
+doubt consult the HTTP specifications at L<https://www.w3c.org>.
 
 B<Case 2 (in SYNOPSIS)> demonstrates full fledged use of C<get_https()>. As can be seen,
 C<get_https()> parses the response and response headers and returns them as
@@ -10707,7 +10707,7 @@ who has used them on Solaris 8:
 
 =item 1
 
-Entropy Gathering Daemon (EGD) at L<http://www.lothar.com/tech/crypto/>
+Entropy Gathering Daemon (EGD) at L<https://www.lothar.com/tech/crypto/>
 
 =item 2
 
@@ -10845,7 +10845,7 @@ You can mitigate some of the security vulnerabilities that might be present in y
 
 http://blogs.cisco.com/security/beat-the-beast-with-tls/
 https://community.qualys.com/blogs/securitylabs/2011/10/17/mitigating-the-beast-attack-on-tls
-http://blog.zoller.lu/2011/09/beast-summary-tls-cbc-countermeasures.html
+https://blog.zoller.lu/2011/09/beast-summary-tls-cbc-countermeasures.html
 
 The BEAST attack relies on a weakness in the way CBC mode is used in SSL/TLS.
 In OpenSSL versions 0.9.6d and later, the protocol-level mitigation is enabled by default,
@@ -10953,12 +10953,12 @@ details, see the C<LICENSE> file distributed with Net-SSLeay's source code.
 
     Net::SSLeay::Handle                      - File handle interface
     ./examples                               - Example servers and a clients
-    <https://www.openssl.org/>                - OpenSSL source, documentation, etc
+    <https://www.openssl.org/>               - OpenSSL source, documentation, etc
     openssl-users-request@openssl.org        - General OpenSSL mailing list
-    <http://www.ietf.org/rfc/rfc2246.txt>    - TLS 1.0 specification
-    <http://www.w3c.org>                     - HTTP specifications
-    <http://www.ietf.org/rfc/rfc2617.txt>    - How to send password
-    <http://www.lothar.com/tech/crypto/>     - Entropy Gathering Daemon (EGD)
+    <https://www.ietf.org/rfc/rfc2246.txt>   - TLS 1.0 specification
+    <https://www.w3c.org>                    - HTTP specifications
+    <https://www.ietf.org/rfc/rfc2617.txt>   - How to send password
+    <https://www.lothar.com/tech/crypto/>    - Entropy Gathering Daemon (EGD)
     <http://www.aet.tu-cottbus.de/personen/jaenicke/postfix_tls/prngd.html>
                            - pseudo-random number generating daemon (PRNGD)
     perl(1)
