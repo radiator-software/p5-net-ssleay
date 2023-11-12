@@ -438,7 +438,7 @@ named files.
                Net::SSLeay::CTX_get_cert_store($ssl, $crl)
         );
     } else {
-        error reading CRL....
+        # error reading CRL....
     }
 
 Usually the URLs where you can download the CRLs is contained in the certificate
@@ -610,7 +610,7 @@ to instruct the server to staple the OCSP response:
     });
 
     # do SSL handshake here
-    ....
+    # ....
     # check if certificate revocation was checked already
     if ( ! defined $cert_valid) {
         # check revocation outside of SSL handshake by asking OCSP responder
@@ -1009,12 +1009,11 @@ Both functions return OPENSSL_VERSION_NUMBER constant (numeric) as
 defined by the underlying OpenSSL or LibreSSL library.
 
     my $ver_number = Net::SSLeay::SSLeay();
-    or
+    # or
     my $ver_number = Net::SSLeay::OpenSSL_version_num();
     # returns: OPENSSL_VERSION_NUMBER constant
 
-    OpenSSL version numbering is:
-
+    # OpenSSL version numbering is:
     # 0x00903100 => openssl-0.9.3
     # 0x00904100 => openssl-0.9.4
     # 0x00905100 => openssl-0.9.5
@@ -1048,11 +1047,10 @@ defined by the underlying OpenSSL or LibreSSL library.
     # 0x30000000 => openssl-3.0.0
     # 0x30000010 => openssl-3.0.1
 
-    Note that OpenSSL 3.0.0 and later do not set the status nibble in the
-    least significant octet to f.
+    # Note that OpenSSL 3.0.0 and later do not set the status nibble in the
+    # least significant octet to f.
 
-    LibreSSL returns 0x20000000 always:
-
+    # LibreSSL returns 0x20000000 always:
     # 0x20000000 => libressl-2.2.1
     # ...
     # 0x20000000 => libressl-3.4.2
@@ -1180,9 +1178,7 @@ Return constant string defined by C macro OPENSSL_VERSION_PRE_RELEASE.
 
     my $pre_release = Net::SSLeay::OPENSSL_version_pre_release();
     #
-    # returns: string
-
-    For example: "-alpha3" or "" for a release version.
+    # returns: string (For example: "-alpha3" or "" for a release version)
 
 When the macro is not defined, an empty string is returned instead.
 
@@ -1196,9 +1192,7 @@ Return constant string defined by C macro OPENSSL_VERSION_BUILD_METADATA.
 
     my $metadata = Net::SSLeay::OPENSSL_version_build_metadata();
     #
-    # returns: string
-
-    For example: "+fips" or "".
+    # returns: string (For example: "+fips" or "")
 
 When the macro is not defined, an empty string is returned instead.
 
@@ -2409,102 +2403,102 @@ B<BEWARE:> openssl doc says: This function should never be called directly!
     # returns: (long) result of given command ???
 
     # valid $cmd values
-    1 - SSL_CTRL_NEED_TMP_RSA
-    2 - SSL_CTRL_SET_TMP_RSA
-    3 - SSL_CTRL_SET_TMP_DH
-    4 - SSL_CTRL_SET_TMP_ECDH
-    5 - SSL_CTRL_SET_TMP_RSA_CB
-    6 - SSL_CTRL_SET_TMP_DH_CB
-    7 - SSL_CTRL_SET_TMP_ECDH_CB
-    8 - SSL_CTRL_GET_SESSION_REUSED
-    9 - SSL_CTRL_GET_CLIENT_CERT_REQUEST
-    10 - SSL_CTRL_GET_NUM_RENEGOTIATIONS
-    11 - SSL_CTRL_CLEAR_NUM_RENEGOTIATIONS
-    12 - SSL_CTRL_GET_TOTAL_RENEGOTIATIONS
-    13 - SSL_CTRL_GET_FLAGS
-    14 - SSL_CTRL_EXTRA_CHAIN_CERT
-    15 - SSL_CTRL_SET_MSG_CALLBACK
-    16 - SSL_CTRL_SET_MSG_CALLBACK_ARG
-    17 - SSL_CTRL_SET_MTU
-    20 - SSL_CTRL_SESS_NUMBER
-    21 - SSL_CTRL_SESS_CONNECT
-    22 - SSL_CTRL_SESS_CONNECT_GOOD
-    23 - SSL_CTRL_SESS_CONNECT_RENEGOTIATE
-    24 - SSL_CTRL_SESS_ACCEPT
-    25 - SSL_CTRL_SESS_ACCEPT_GOOD
-    26 - SSL_CTRL_SESS_ACCEPT_RENEGOTIATE
-    27 - SSL_CTRL_SESS_HIT
-    28 - SSL_CTRL_SESS_CB_HIT
-    29 - SSL_CTRL_SESS_MISSES
-    30 - SSL_CTRL_SESS_TIMEOUTS
-    31 - SSL_CTRL_SESS_CACHE_FULL
-    32 - SSL_CTRL_OPTIONS
-    33 - SSL_CTRL_MODE
-    40 - SSL_CTRL_GET_READ_AHEAD
-    41 - SSL_CTRL_SET_READ_AHEAD
-    42 - SSL_CTRL_SET_SESS_CACHE_SIZE
-    43 - SSL_CTRL_GET_SESS_CACHE_SIZE
-    44 - SSL_CTRL_SET_SESS_CACHE_MODE
-    45 - SSL_CTRL_GET_SESS_CACHE_MODE
-    50 - SSL_CTRL_GET_MAX_CERT_LIST
-    51 - SSL_CTRL_SET_MAX_CERT_LIST
-    52 - SSL_CTRL_SET_MAX_SEND_FRAGMENT
-    53 - SSL_CTRL_SET_TLSEXT_SERVERNAME_CB
-    54 - SSL_CTRL_SET_TLSEXT_SERVERNAME_ARG
-    55 - SSL_CTRL_SET_TLSEXT_HOSTNAME
-    56 - SSL_CTRL_SET_TLSEXT_DEBUG_CB
-    57 - SSL_CTRL_SET_TLSEXT_DEBUG_ARG
-    58 - SSL_CTRL_GET_TLSEXT_TICKET_KEYS
-    59 - SSL_CTRL_SET_TLSEXT_TICKET_KEYS
-    60 - SSL_CTRL_SET_TLSEXT_OPAQUE_PRF_INPUT
-    61 - SSL_CTRL_SET_TLSEXT_OPAQUE_PRF_INPUT_CB
-    62 - SSL_CTRL_SET_TLSEXT_OPAQUE_PRF_INPUT_CB_ARG
-    63 - SSL_CTRL_SET_TLSEXT_STATUS_REQ_CB
-    64 - SSL_CTRL_SET_TLSEXT_STATUS_REQ_CB_ARG
-    65 - SSL_CTRL_SET_TLSEXT_STATUS_REQ_TYPE
-    66 - SSL_CTRL_GET_TLSEXT_STATUS_REQ_EXTS
-    67 - SSL_CTRL_SET_TLSEXT_STATUS_REQ_EXTS
-    68 - SSL_CTRL_GET_TLSEXT_STATUS_REQ_IDS
-    69 - SSL_CTRL_SET_TLSEXT_STATUS_REQ_IDS
-    70 - SSL_CTRL_GET_TLSEXT_STATUS_REQ_OCSP_RESP
-    71 - SSL_CTRL_SET_TLSEXT_STATUS_REQ_OCSP_RESP
-    72 - SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB
-    73 - DTLS_CTRL_GET_TIMEOUT
-    74 - DTLS_CTRL_HANDLE_TIMEOUT
-    75 - DTLS_CTRL_LISTEN
-    76 - SSL_CTRL_GET_RI_SUPPORT
-    77 - SSL_CTRL_CLEAR_OPTIONS
-    78 - SSL_CTRL_CLEAR_MODE
+    # 1 - SSL_CTRL_NEED_TMP_RSA
+    # 2 - SSL_CTRL_SET_TMP_RSA
+    # 3 - SSL_CTRL_SET_TMP_DH
+    # 4 - SSL_CTRL_SET_TMP_ECDH
+    # 5 - SSL_CTRL_SET_TMP_RSA_CB
+    # 6 - SSL_CTRL_SET_TMP_DH_CB
+    # 7 - SSL_CTRL_SET_TMP_ECDH_CB
+    # 8 - SSL_CTRL_GET_SESSION_REUSED
+    # 9 - SSL_CTRL_GET_CLIENT_CERT_REQUEST
+    # 10 - SSL_CTRL_GET_NUM_RENEGOTIATIONS
+    # 11 - SSL_CTRL_CLEAR_NUM_RENEGOTIATIONS
+    # 12 - SSL_CTRL_GET_TOTAL_RENEGOTIATIONS
+    # 13 - SSL_CTRL_GET_FLAGS
+    # 14 - SSL_CTRL_EXTRA_CHAIN_CERT
+    # 15 - SSL_CTRL_SET_MSG_CALLBACK
+    # 16 - SSL_CTRL_SET_MSG_CALLBACK_ARG
+    # 17 - SSL_CTRL_SET_MTU
+    # 20 - SSL_CTRL_SESS_NUMBER
+    # 21 - SSL_CTRL_SESS_CONNECT
+    # 22 - SSL_CTRL_SESS_CONNECT_GOOD
+    # 23 - SSL_CTRL_SESS_CONNECT_RENEGOTIATE
+    # 24 - SSL_CTRL_SESS_ACCEPT
+    # 25 - SSL_CTRL_SESS_ACCEPT_GOOD
+    # 26 - SSL_CTRL_SESS_ACCEPT_RENEGOTIATE
+    # 27 - SSL_CTRL_SESS_HIT
+    # 28 - SSL_CTRL_SESS_CB_HIT
+    # 29 - SSL_CTRL_SESS_MISSES
+    # 30 - SSL_CTRL_SESS_TIMEOUTS
+    # 31 - SSL_CTRL_SESS_CACHE_FULL
+    # 32 - SSL_CTRL_OPTIONS
+    # 33 - SSL_CTRL_MODE
+    # 40 - SSL_CTRL_GET_READ_AHEAD
+    # 41 - SSL_CTRL_SET_READ_AHEAD
+    # 42 - SSL_CTRL_SET_SESS_CACHE_SIZE
+    # 43 - SSL_CTRL_GET_SESS_CACHE_SIZE
+    # 44 - SSL_CTRL_SET_SESS_CACHE_MODE
+    # 45 - SSL_CTRL_GET_SESS_CACHE_MODE
+    # 50 - SSL_CTRL_GET_MAX_CERT_LIST
+    # 51 - SSL_CTRL_SET_MAX_CERT_LIST
+    # 52 - SSL_CTRL_SET_MAX_SEND_FRAGMENT
+    # 53 - SSL_CTRL_SET_TLSEXT_SERVERNAME_CB
+    # 54 - SSL_CTRL_SET_TLSEXT_SERVERNAME_ARG
+    # 55 - SSL_CTRL_SET_TLSEXT_HOSTNAME
+    # 56 - SSL_CTRL_SET_TLSEXT_DEBUG_CB
+    # 57 - SSL_CTRL_SET_TLSEXT_DEBUG_ARG
+    # 58 - SSL_CTRL_GET_TLSEXT_TICKET_KEYS
+    # 59 - SSL_CTRL_SET_TLSEXT_TICKET_KEYS
+    # 60 - SSL_CTRL_SET_TLSEXT_OPAQUE_PRF_INPUT
+    # 61 - SSL_CTRL_SET_TLSEXT_OPAQUE_PRF_INPUT_CB
+    # 62 - SSL_CTRL_SET_TLSEXT_OPAQUE_PRF_INPUT_CB_ARG
+    # 63 - SSL_CTRL_SET_TLSEXT_STATUS_REQ_CB
+    # 64 - SSL_CTRL_SET_TLSEXT_STATUS_REQ_CB_ARG
+    # 65 - SSL_CTRL_SET_TLSEXT_STATUS_REQ_TYPE
+    # 66 - SSL_CTRL_GET_TLSEXT_STATUS_REQ_EXTS
+    # 67 - SSL_CTRL_SET_TLSEXT_STATUS_REQ_EXTS
+    # 68 - SSL_CTRL_GET_TLSEXT_STATUS_REQ_IDS
+    # 69 - SSL_CTRL_SET_TLSEXT_STATUS_REQ_IDS
+    # 70 - SSL_CTRL_GET_TLSEXT_STATUS_REQ_OCSP_RESP
+    # 71 - SSL_CTRL_SET_TLSEXT_STATUS_REQ_OCSP_RESP
+    # 72 - SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB
+    # 73 - DTLS_CTRL_GET_TIMEOUT
+    # 74 - DTLS_CTRL_HANDLE_TIMEOUT
+    # 75 - DTLS_CTRL_LISTEN
+    # 76 - SSL_CTRL_GET_RI_SUPPORT
+    # 77 - SSL_CTRL_CLEAR_OPTIONS
+    # 78 - SSL_CTRL_CLEAR_MODE
 
-    82 - SSL_CTRL_GET_EXTRA_CHAIN_CERTS
-    83 - SSL_CTRL_CLEAR_EXTRA_CHAIN_CERTS
+    # 82 - SSL_CTRL_GET_EXTRA_CHAIN_CERTS
+    # 83 - SSL_CTRL_CLEAR_EXTRA_CHAIN_CERTS
 
-    88 - SSL_CTRL_CHAIN
-    89 - SSL_CTRL_CHAIN_CERT
+    # 88 - SSL_CTRL_CHAIN
+    # 89 - SSL_CTRL_CHAIN_CERT
 
-    90 - SSL_CTRL_GET_CURVES
-    91 - SSL_CTRL_SET_CURVES
-    92 - SSL_CTRL_SET_CURVES_LIST
-    93 - SSL_CTRL_GET_SHARED_CURVE
-    94 - SSL_CTRL_SET_ECDH_AUTO
-    97 - SSL_CTRL_SET_SIGALGS
-    98 - SSL_CTRL_SET_SIGALGS_LIST
-    99 - SSL_CTRL_CERT_FLAGS
-    100 - SSL_CTRL_CLEAR_CERT_FLAGS
-    101 - SSL_CTRL_SET_CLIENT_SIGALGS
-    102 - SSL_CTRL_SET_CLIENT_SIGALGS_LIST
-    103 - SSL_CTRL_GET_CLIENT_CERT_TYPES
-    104 - SSL_CTRL_SET_CLIENT_CERT_TYPES
-    105 - SSL_CTRL_BUILD_CERT_CHAIN
-    106 - SSL_CTRL_SET_VERIFY_CERT_STORE
-    107 - SSL_CTRL_SET_CHAIN_CERT_STORE
-    108 - SSL_CTRL_GET_PEER_SIGNATURE_NID
-    109 - SSL_CTRL_GET_SERVER_TMP_KEY
-    110 - SSL_CTRL_GET_RAW_CIPHERLIST
-    111 - SSL_CTRL_GET_EC_POINT_FORMATS
-    112 - SSL_CTRL_GET_TLSA_RECORD
-    113 - SSL_CTRL_SET_TLSA_RECORD
-    114 - SSL_CTRL_PULL_TLSA_RECORD
+    # 90 - SSL_CTRL_GET_CURVES
+    # 91 - SSL_CTRL_SET_CURVES
+    # 92 - SSL_CTRL_SET_CURVES_LIST
+    # 93 - SSL_CTRL_GET_SHARED_CURVE
+    # 94 - SSL_CTRL_SET_ECDH_AUTO
+    # 97 - SSL_CTRL_SET_SIGALGS
+    # 98 - SSL_CTRL_SET_SIGALGS_LIST
+    # 99 - SSL_CTRL_CERT_FLAGS
+    # 100 - SSL_CTRL_CLEAR_CERT_FLAGS
+    # 101 - SSL_CTRL_SET_CLIENT_SIGALGS
+    # 102 - SSL_CTRL_SET_CLIENT_SIGALGS_LIST
+    # 103 - SSL_CTRL_GET_CLIENT_CERT_TYPES
+    # 104 - SSL_CTRL_SET_CLIENT_CERT_TYPES
+    # 105 - SSL_CTRL_BUILD_CERT_CHAIN
+    # 106 - SSL_CTRL_SET_VERIFY_CERT_STORE
+    # 107 - SSL_CTRL_SET_CHAIN_CERT_STORE
+    # 108 - SSL_CTRL_GET_PEER_SIGNATURE_NID
+    # 109 - SSL_CTRL_GET_SERVER_TMP_KEY
+    # 110 - SSL_CTRL_GET_RAW_CIPHERLIST
+    # 111 - SSL_CTRL_GET_EC_POINT_FORMATS
+    # 112 - SSL_CTRL_GET_TLSA_RECORD
+    # 113 - SSL_CTRL_SET_TLSA_RECORD
+    # 114 - SSL_CTRL_PULL_TLSA_RECORD
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_ctrl.html|http://www.openssl.org/docs/ssl/SSL_CTX_ctrl.html>
 
@@ -2622,12 +2616,12 @@ Returns the mode set for ctx.
     # returns: mode (bitmask)
 
     # to decode the return value (bitmask) use:
-    0x00000001 corresponds to SSL_MODE_ENABLE_PARTIAL_WRITE
-    0x00000002 corresponds to SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER
-    0x00000004 corresponds to SSL_MODE_AUTO_RETRY
-    0x00000008 corresponds to SSL_MODE_NO_AUTO_CHAIN
-    0x00000010 corresponds to SSL_MODE_RELEASE_BUFFERS
-    (note: some of the bits might not be supported by older openssl versions)
+    # 0x00000001 corresponds to SSL_MODE_ENABLE_PARTIAL_WRITE
+    # 0x00000002 corresponds to SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER
+    # 0x00000004 corresponds to SSL_MODE_AUTO_RETRY
+    # 0x00000008 corresponds to SSL_MODE_NO_AUTO_CHAIN
+    # 0x00000010 corresponds to SSL_MODE_RELEASE_BUFFERS
+    # (note: some of the bits might not be supported by older openssl versions)
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_mode.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_mode.html>
 
@@ -2666,12 +2660,12 @@ to use numeric values directly. The following is a sample of historic
 values. It may not be correct anymore.
 
     # to decode the return value (bitmask) use:
-    0x00000004 corresponds to SSL_OP_LEGACY_SERVER_CONNECT
-    0x00000800 corresponds to SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS
-    0x00004000 corresponds to SSL_OP_NO_TICKET
-    0x00010000 corresponds to SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION
-    0x00400000 corresponds to SSL_OP_CIPHER_SERVER_PREFERENCE
-    0x04000000 corresponds to SSL_OP_NO_TLSv1
+    # 0x00000004 corresponds to SSL_OP_LEGACY_SERVER_CONNECT
+    # 0x00000800 corresponds to SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS
+    # 0x00004000 corresponds to SSL_OP_NO_TICKET
+    # 0x00010000 corresponds to SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION
+    # 0x00400000 corresponds to SSL_OP_CIPHER_SERVER_PREFERENCE
+    # 0x04000000 corresponds to SSL_OP_NO_TLSv1
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_get_options.html>
 
@@ -2722,13 +2716,13 @@ following values have historically been correct. You are strongly
 encouraged to B<check your TLS library> for the current values.
 
     # to decode the return value (bitmask) use:
-    0x0000 corresponds to SSL_SESS_CACHE_OFF
-    0x0001 corresponds to SSL_SESS_CACHE_CLIENT
-    0x0002 corresponds to SSL_SESS_CACHE_SERVER
-    0x0080 corresponds to SSL_SESS_CACHE_NO_AUTO_CLEAR
-    0x0100 corresponds to SSL_SESS_CACHE_NO_INTERNAL_LOOKUP
-    0x0200 corresponds to SSL_SESS_CACHE_NO_INTERNAL_STORE
-    (note: some of the bits might not be supported by older openssl versions)
+    # 0x0000 corresponds to SSL_SESS_CACHE_OFF
+    # 0x0001 corresponds to SSL_SESS_CACHE_CLIENT
+    # 0x0002 corresponds to SSL_SESS_CACHE_SERVER
+    # 0x0080 corresponds to SSL_SESS_CACHE_NO_AUTO_CLEAR
+    # 0x0100 corresponds to SSL_SESS_CACHE_NO_INTERNAL_LOOKUP
+    # 0x0200 corresponds to SSL_SESS_CACHE_NO_INTERNAL_STORE
+    # (note: some of the bits might not be supported by older openssl versions)
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_set_session_cache_mode.html|http://www.openssl.org/docs/ssl/SSL_CTX_set_session_cache_mode.html>
 
@@ -3268,15 +3262,15 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_get_ex_new_index.htm
     # returns: 1 on success, 0 on failure
 
     # available purpose identifier
-    1 - X509_PURPOSE_SSL_CLIENT
-    2 - X509_PURPOSE_SSL_SERVER
-    3 - X509_PURPOSE_NS_SSL_SERVER
-    4 - X509_PURPOSE_SMIME_SIGN
-    5 - X509_PURPOSE_SMIME_ENCRYPT
-    6 - X509_PURPOSE_CRL_SIGN
-    7 - X509_PURPOSE_ANY
-    8 - X509_PURPOSE_OCSP_HELPER
-    9 - X509_PURPOSE_TIMESTAMP_SIGN
+    # 1 - X509_PURPOSE_SSL_CLIENT
+    # 2 - X509_PURPOSE_SSL_SERVER
+    # 3 - X509_PURPOSE_NS_SSL_SERVER
+    # 4 - X509_PURPOSE_SMIME_SIGN
+    # 5 - X509_PURPOSE_SMIME_ENCRYPT
+    # 6 - X509_PURPOSE_CRL_SIGN
+    # 7 - X509_PURPOSE_ANY
+    # 8 - X509_PURPOSE_OCSP_HELPER
+    # 9 - X509_PURPOSE_TIMESTAMP_SIGN
 
     # or use corresponding constants
     $purpose = &Net::SSLeay::X509_PURPOSE_SSL_CLIENT;
@@ -3405,14 +3399,14 @@ Not available with OpenSSL 1.1 and later.
     # returns: the original value
 
     # available trust identifiers
-    1 - X509_TRUST_COMPAT
-    2 - X509_TRUST_SSL_CLIENT
-    3 - X509_TRUST_SSL_SERVER
-    4 - X509_TRUST_EMAIL
-    5 - X509_TRUST_OBJECT_SIGN
-    6 - X509_TRUST_OCSP_SIGN
-    7 - X509_TRUST_OCSP_REQUEST
-    8 - X509_TRUST_TSA
+    # 1 - X509_TRUST_COMPAT
+    # 2 - X509_TRUST_SSL_CLIENT
+    # 3 - X509_TRUST_SSL_SERVER
+    # 4 - X509_TRUST_EMAIL
+    # 5 - X509_TRUST_OBJECT_SIGN
+    # 6 - X509_TRUST_OCSP_SIGN
+    # 7 - X509_TRUST_OCSP_REQUEST
+    # 8 - X509_TRUST_TSA
 
     # or use corresponding constants
     $trust = &Net::SSLeay::X509_TRUST_COMPAT;
@@ -4341,9 +4335,9 @@ Returns the shutdown mode of $ssl.
     # returns: shutdown mode (bitmask) of ssl
 
     # to decode the return value (bitmask) use:
-    0 - No shutdown setting, yet
-    1 - SSL_SENT_SHUTDOWN
-    2 - SSL_RECEIVED_SHUTDOWN
+    # 0 - No shutdown setting, yet
+    # 1 - SSL_SENT_SHUTDOWN
+    # 2 - SSL_RECEIVED_SHUTDOWN
 
 Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_set_shutdown.html|http://www.openssl.org/docs/ssl/SSL_set_shutdown.html>
 
@@ -6254,17 +6248,17 @@ Returns bitmask with type of certificate $x.
     # returns: (integer) bitmask with certificate type
 
     # to decode bitmask returned by this function use these constants:
-    &Net::SSLeay::EVP_PKS_DSA
-    &Net::SSLeay::EVP_PKS_EC
-    &Net::SSLeay::EVP_PKS_RSA
-    &Net::SSLeay::EVP_PKT_ENC
-    &Net::SSLeay::EVP_PKT_EXCH
-    &Net::SSLeay::EVP_PKT_EXP
-    &Net::SSLeay::EVP_PKT_SIGN
-    &Net::SSLeay::EVP_PK_DH
-    &Net::SSLeay::EVP_PK_DSA
-    &Net::SSLeay::EVP_PK_EC
-    &Net::SSLeay::EVP_PK_RSA
+    # &Net::SSLeay::EVP_PKS_DSA
+    # &Net::SSLeay::EVP_PKS_EC
+    # &Net::SSLeay::EVP_PKS_RSA
+    # &Net::SSLeay::EVP_PKT_ENC
+    # &Net::SSLeay::EVP_PKT_EXCH
+    # &Net::SSLeay::EVP_PKT_EXP
+    # &Net::SSLeay::EVP_PKT_SIGN
+    # &Net::SSLeay::EVP_PK_DH
+    # &Net::SSLeay::EVP_PK_DSA
+    # &Net::SSLeay::EVP_PK_EC
+    # &Net::SSLeay::EVP_PK_RSA
 
 =item * X509_digest
 
@@ -7081,8 +7075,8 @@ Adds an attribute whose name is defined by a NID $nid. The field value to be add
     # returns: 1 on success, 0 on failure
 
     # values for $type - use constants:
-    &Net::SSLeay::MBSTRING_UTF8     - $bytes contains utf8 encoded data
-    &Net::SSLeay::MBSTRING_ASC      - $bytes contains ASCII data
+    # &Net::SSLeay::MBSTRING_UTF8     - $bytes contains utf8 encoded data
+    # &Net::SSLeay::MBSTRING_ASC      - $bytes contains ASCII data
 
 =item * X509_REQ_digest
 
@@ -7523,18 +7517,18 @@ Adds given serial number $serial_hex to X509_CRL object $crl.
     #
     # returns: no return value
 
-    reason codes:
-    0 - unspecified
-    1 - keyCompromise
-    2 - CACompromise
-    3 - affiliationChanged
-    4 - superseded
-    5 - cessationOfOperation
-    6 - certificateHold
-    7 - (value 7 is not used)
-    8 - removeFromCRL
-    9 - privilegeWithdrawn
-    10 - aACompromise
+    # reason codes:
+    # 0 - unspecified
+    # 1 - keyCompromise
+    # 2 - CACompromise
+    # 3 - affiliationChanged
+    # 4 - superseded
+    # 5 - cessationOfOperation
+    # 6 - certificateHold
+    # 7 - (value 7 is not used)
+    # 8 - removeFromCRL
+    # 9 - privilegeWithdrawn
+    # 10 - aACompromise
 
 =item * P_X509_CRL_get_serial
 
@@ -7711,8 +7705,8 @@ Adds a field whose name is defined by a string $field. The field value to be add
     # returns: 1 on success, 0 on failure
 
     # values for $type - use constants:
-    &Net::SSLeay::MBSTRING_UTF8     - $bytes contains utf8 encoded data
-    &Net::SSLeay::MBSTRING_ASC      - $bytes contains ASCII data
+    # &Net::SSLeay::MBSTRING_UTF8     - $bytes contains utf8 encoded data
+    # &Net::SSLeay::MBSTRING_ASC      - $bytes contains ASCII data
 
 Unicode note: when passing non-ascii (unicode) string in $bytes do not forget to set C<$flags = &Net::SSLeay::MBSTRING_UTF8> and encode the perl $string via C<$bytes = encode('utf-8', $string)>.
 
@@ -7823,24 +7817,24 @@ Returns a string with human readable version of $name.
     # returns: string representation of $name
 
     # available conversion flags - use constants:
-    &Net::SSLeay::XN_FLAG_COMPAT
-    &Net::SSLeay::XN_FLAG_DN_REV
-    &Net::SSLeay::XN_FLAG_DUMP_UNKNOWN_FIELDS
-    &Net::SSLeay::XN_FLAG_FN_ALIGN
-    &Net::SSLeay::XN_FLAG_FN_LN
-    &Net::SSLeay::XN_FLAG_FN_MASK
-    &Net::SSLeay::XN_FLAG_FN_NONE
-    &Net::SSLeay::XN_FLAG_FN_OID
-    &Net::SSLeay::XN_FLAG_FN_SN
-    &Net::SSLeay::XN_FLAG_MULTILINE
-    &Net::SSLeay::XN_FLAG_ONELINE
-    &Net::SSLeay::XN_FLAG_RFC2253
-    &Net::SSLeay::XN_FLAG_SEP_COMMA_PLUS
-    &Net::SSLeay::XN_FLAG_SEP_CPLUS_SPC
-    &Net::SSLeay::XN_FLAG_SEP_MASK
-    &Net::SSLeay::XN_FLAG_SEP_MULTILINE
-    &Net::SSLeay::XN_FLAG_SEP_SPLUS_SPC
-    &Net::SSLeay::XN_FLAG_SPC_EQ
+    # &Net::SSLeay::XN_FLAG_COMPAT
+    # &Net::SSLeay::XN_FLAG_DN_REV
+    # &Net::SSLeay::XN_FLAG_DUMP_UNKNOWN_FIELDS
+    # &Net::SSLeay::XN_FLAG_FN_ALIGN
+    # &Net::SSLeay::XN_FLAG_FN_LN
+    # &Net::SSLeay::XN_FLAG_FN_MASK
+    # &Net::SSLeay::XN_FLAG_FN_NONE
+    # &Net::SSLeay::XN_FLAG_FN_OID
+    # &Net::SSLeay::XN_FLAG_FN_SN
+    # &Net::SSLeay::XN_FLAG_MULTILINE
+    # &Net::SSLeay::XN_FLAG_ONELINE
+    # &Net::SSLeay::XN_FLAG_RFC2253
+    # &Net::SSLeay::XN_FLAG_SEP_COMMA_PLUS
+    # &Net::SSLeay::XN_FLAG_SEP_CPLUS_SPC
+    # &Net::SSLeay::XN_FLAG_SEP_MASK
+    # &Net::SSLeay::XN_FLAG_SEP_MULTILINE
+    # &Net::SSLeay::XN_FLAG_SEP_SPLUS_SPC
+    # &Net::SSLeay::XN_FLAG_SPC_EQ
 
 Most likely you will be fine with default:
 
@@ -8612,19 +8606,18 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
     #
     # returns: value corresponding to openssl's EVP_MD structure
 
-The $name param can be:
-
-    md2
-    md4
-    md5
-    mdc2
-    ripemd160
-    sha
-    sha1
-    sha224
-    sha256
-    sha512
-    whirlpool
+    # The $name param can be:
+    # md2
+    # md4
+    # md5
+    # mdc2
+    # ripemd160
+    # sha
+    # sha1
+    # sha224
+    # sha256
+    # sha512
+    # whirlpool
 
 Or better check the supported digests by calling L</P_EVP_MD_list_all>.
 
