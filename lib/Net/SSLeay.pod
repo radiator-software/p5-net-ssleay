@@ -1072,8 +1072,7 @@ check that the underlying library is LibreSSL and it's recent enough:
         die "You need LibreSSL. Version 3.4.2 or higher";
     }
 
-Check openssl doc
-L<https://www.openssl.org/docs/manmaster/man3/OpenSSL_version_num.html>
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OpenSSL_version_num.html>
 
 See OpenSSL 1.1.1 and earlier documentation for the details of status
 nibble and the format interpretation.
@@ -2029,8 +2028,7 @@ Increases the reference counter on a SSL_SESSION structure.
     #
     # returns: 1 on success else 0
 
-Check openssl doc
-L<https://www.openssl.org/docs/manmaster/man3/SSL_SESSION_up_ref.html>
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_SESSION_up_ref.html>
 
 =item * SESSION_dup
 
@@ -2043,8 +2041,7 @@ Duplicates a SSL_SESSION structure.
     #
     # returns: the duplicated session
 
-Check openssl doc
-L<https://www.openssl.org/docs/manmaster/man3/SSL_SESSION_dup.html>
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_SESSION_dup.html>
 
 =item * SESSION_is_resumable
 
