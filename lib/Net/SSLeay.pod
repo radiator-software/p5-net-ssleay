@@ -2800,7 +2800,7 @@ Enable the Post-Handshake Authentication extension to be added to the ClientHell
     #
     # returns: no return value
 
-Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_post_handshake_auth|https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_post_handshake_auth.html>
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_post_handshake_auth.html>
 
 =item * CTX_load_verify_locations
 
@@ -4363,7 +4363,7 @@ Retrieve information about the handshake state machine. All functions take $ssl 
     #
     # returns: All functions return 1 or 0
 
-Check openssl doc L<https://www.openssl.org/docs/ssl/SSL_in_init.html|http://www.openssl.org/docs/ssl/SSL_in_init.html>
+Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_in_init.html>
 
 =item * get_state
 
@@ -4458,7 +4458,7 @@ Enable the Post-Handshake Authentication extension to be added to the ClientHell
     #
     # returns: no return value
 
-Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_set_post_handshake_auth|https://www.openssl.org/docs/manmaster/man3/SSL_set_post_handshake_auth.html>
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_set_post_handshake_auth.html>
 
 =item * verify_client_post_handshake
 
