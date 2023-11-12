@@ -8581,7 +8581,7 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
     Net::SSLeay::OpenSSL_add_all_digests();
     # no args, no return value
 
-https://www.openssl.org/docs/crypto/OpenSSL_add_all_algorithms.html
+Check openssl doc L<https://www.openssl.org/docs/crypto/OpenSSL_add_all_algorithms.html>
 
 =item * P_EVP_MD_list_all
 
@@ -10843,9 +10843,9 @@ You can mitigate some of the security vulnerabilities that might be present in y
 
 =head2 BEAST Attack
 
-https://web.archive.org/web/20140424022931/https://blogs.cisco.com/security/beat-the-beast-with-tls
-https://community.qualys.com/blogs/securitylabs/2011/10/17/mitigating-the-beast-attack-on-tls
-https://blog.zoller.lu/2011/09/beast-summary-tls-cbc-countermeasures.html
+L<https://web.archive.org/web/20140424022931/https://blogs.cisco.com/security/beat-the-beast-with-tls>
+L<https://community.qualys.com/blogs/securitylabs/2011/10/17/mitigating-the-beast-attack-on-tls>
+L<https://blog.zoller.lu/2011/09/beast-summary-tls-cbc-countermeasures.html>
 
 The BEAST attack relies on a weakness in the way CBC mode is used in SSL/TLS.
 In OpenSSL versions 0.9.6d and later, the protocol-level mitigation is enabled by default,
@@ -10869,7 +10869,7 @@ Net::SSLeay::set_cipher_list($ssl, 'RC4-SHA:HIGH:!ADH');
 
 =head2 Session Resumption
 
-https://www.openssl.org/docs/ssl/SSL_CTX_set_options.html
+L<https://www.openssl.org/docs/ssl/SSL_CTX_set_options.html>
 
 The SSL Labs vulnerability test on your SSL server might report in red:
 
@@ -10883,7 +10883,7 @@ Use 0 if you don't have SESS_CACHE_OFF constant.
 
 =head2 Secure Renegotiation and DoS Attack
 
-https://community.qualys.com/blogs/securitylabs/2011/10/31/tls-renegotiation-and-denial-of-service-attacks
+L<https://community.qualys.com/blogs/securitylabs/2011/10/31/tls-renegotiation-and-denial-of-service-attacks>
 
 This is not a "security flaw," it is more of a DoS vulnerability.
 
