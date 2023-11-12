@@ -465,7 +465,7 @@ you can verify a single certificate.
 A faster way is to ask the CA to check the revocation of just a single or a few
 certificates using OCSP. Basically you generate for each certificate an
 OCSP_CERTID based on the certificate itself and its issuer, put the ids
-togetether into an OCSP_REQUEST and send the request to the URL given in the
+together into an OCSP_REQUEST and send the request to the URL given in the
 certificate.
 
 As a result you get back an OCSP_RESPONSE and need to check the status of the
@@ -1387,7 +1387,7 @@ and L<http://www.openssl.org/docs/crypto/err.html|http://www.openssl.org/docs/cr
 Returns a two letter string as a short form describing the reason of the alert specified by value.
 
     my $rv = Net::SSLeay::alert_desc_string($value);
-    # $value - (integer) allert id (check openssl/ssl.h for SSL3_AD_* and TLS1_AD_* constants)
+    # $value - (integer) alert id (check openssl/ssl.h for SSL3_AD_* and TLS1_AD_* constants)
     #
     # returns: description string (2 letters)
 
@@ -1398,7 +1398,7 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_alert_type_string.html|h
 Returns a string describing the reason of the alert specified by value.
 
     my $rv = Net::SSLeay::alert_desc_string_long($value);
-    # $value - (integer) allert id (check openssl/ssl.h for SSL3_AD_* and TLS1_AD_* constants)
+    # $value - (integer) alert id (check openssl/ssl.h for SSL3_AD_* and TLS1_AD_* constants)
     #
     # returns: description string
 
@@ -1409,7 +1409,7 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_alert_type_string.html|h
 Returns a one letter string indicating the type of the alert specified by value.
 
     my $rv = Net::SSLeay::alert_type_string($value);
-    # $value - (integer) allert id (check openssl/ssl.h for SSL3_AD_* and TLS1_AD_* constants)
+    # $value - (integer) alert id (check openssl/ssl.h for SSL3_AD_* and TLS1_AD_* constants)
     #
     # returns: string (1 letter)
 
@@ -1420,7 +1420,7 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_alert_type_string.html|h
 Returns a string indicating the type of the alert specified by value.
 
     my $rv = Net::SSLeay::alert_type_string_long($value);
-    # $value - (integer) allert id (check openssl/ssl.h for SSL3_AD_* and TLS1_AD_* constants)
+    # $value - (integer) alert id (check openssl/ssl.h for SSL3_AD_* and TLS1_AD_* constants)
     #
     # returns: string
 
@@ -2926,7 +2926,7 @@ Set the minimum and maximum supported protocol for $ctx or $ssl.
 
     my $rv = Net::SSLeay::CTX_set_min_proto_version($ctx, $version)
     # $ctx - value corresponding to openssl's SSL_CTX structure
-    # $version - (integer) constat version value or 0 for automatic lowest or highest value
+    # $version - (integer) constant version value or 0 for automatic lowest or highest value
     #
     # returns: 1 on success, 0 on failure
 
@@ -3273,7 +3273,7 @@ Check openssl doc L<http://www.openssl.org/docs/ssl/SSL_CTX_get_ex_new_index.htm
     #
     # returns: 1 on success, 0 on failure
 
-    # avainable purpose identifier
+    # available purpose identifier
     1 - X509_PURPOSE_SSL_CLIENT
     2 - X509_PURPOSE_SSL_SERVER
     3 - X509_PURPOSE_NS_SSL_SERVER
@@ -3941,7 +3941,7 @@ Check openssl doc L<https://www.openssl.org/docs/ssl/SSL_get_cipher_list.html|ht
 
 =item * get_client_CA_list
 
-Returns the list of client CAs explicitly set for $ssl using C<Net::SSleay::set_client_CA_list>
+Returns the list of client CAs explicitly set for $ssl using C<Net::SSLeay::set_client_CA_list>
 or $ssl's SSL_CTX object with C<Net::SSLeay::CTX_set_client_CA_list>, when in server mode.
 
 In client mode, returns the list of client CAs sent from the server, if any.
@@ -5539,7 +5539,7 @@ $ssl connection. This is a non-blocking function like L<Net::SSLeay::write()>.
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.8f
 
-Sets TLS servername extension on SLL object $ssl to value $name.
+Sets TLS servername extension on SSL object $ssl to value $name.
 
     my $rv = set_tlsext_host_name($ssl, $name);
     # $ssl - value corresponding to openssl's SSL structure
@@ -6631,7 +6631,7 @@ Returns the subject of the certificate $cert.
 
 =item * X509_gmtime_adj
 
-Adjust th ASN1_TIME object to the timestamp (in GMT).
+Adjust the ASN1_TIME object to the timestamp (in GMT).
 
     my $rv = Net::SSLeay::X509_gmtime_adj($s, $adj);
     # $s - value corresponding to openssl's ASN1_TIME structure
@@ -6807,7 +6807,7 @@ Adds one or more X509 extensions to X509 object $x.
 
     my $rv = Net::SSLeay::P_X509_add_extensions($x, $ca_cert, $nid, $value);
     # $x - value corresponding to openssl's X509 structure
-    # $ca_cert - value corresponding to openssl's X509 structure (issuer's cert - necessary for sertting NID_authority_key_identifier)
+    # $ca_cert - value corresponding to openssl's X509 structure (issuer's cert - necessary for setting NID_authority_key_identifier)
     # $nid - NID identifying extension to be set
     # $value - extension value
     #
@@ -6935,7 +6935,7 @@ To get textual representation use:
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
-Returns ASN1_OBJECT corresponding to X509 signarite key algorithm.
+Returns ASN1_OBJECT corresponding to X509 signature key algorithm.
 
     my $rv = Net::SSLeay::P_X509_get_signature_alg($x);
     # $x - value corresponding to openssl's X509 structure
@@ -7575,7 +7575,7 @@ Adds one or more X509 extensions to X509 CRL object $x.
 
     my $rv = Net::SSLeay::P_X509_CRL_add_extensions($x, $ca_cert, $nid, $value);
     # $x - value corresponding to openssl's X509 CRL structure
-    # $ca_cert - value corresponding to openssl's X509 structure (issuer's cert - necessary for sertting NID_authority_key_identifier)
+    # $ca_cert - value corresponding to openssl's X509 structure (issuer's cert - necessary for setting NID_authority_key_identifier)
     # $nid - NID identifying extension to be set
     # $value - extension value
     #
@@ -7766,7 +7766,7 @@ Check openssl doc L<http://www.openssl.org/docs/crypto/X509_NAME_add_entry_by_tx
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
-Compares two X509_NAME obejcts.
+Compares two X509_NAME objects.
 
     my $rv = Net::SSLeay::X509_NAME_cmp($a, $b);
     # $a - value corresponding to openssl's X509_NAME structure
@@ -8033,7 +8033,7 @@ Returns the error code of $ctx.
     #
     # returns: (integer) error code
 
-For more info about erro code values check function L</get_verify_result>.
+For more info about error code values check function L</get_verify_result>.
 
 Check openssl doc L<http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html|http://www.openssl.org/docs/crypto/X509_STORE_CTX_get_error.html>
 
@@ -8334,7 +8334,7 @@ Returns the current verification depth.
     my $rv = Net::SSLeay::X509_VERIFY_PARAM_get_depth($param);
     # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
     #
-    # returns: (ineger) depth
+    # returns: (integer) depth
 
 Check openssl doc L<http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html|http://www.openssl.org/docs/crypto/X509_VERIFY_PARAM_set_flags.html>
 
@@ -9397,8 +9397,8 @@ Please note that the selection (negotiation) is performed by client side, the se
 Advanced approach allows you to implement your own negotiation algorithm.
 
     # see below documentation for:
-    Net::SSleay::CTX_set_next_proto_select_cb($ctx, $perl_callback_function, $callback_data);
-    Net::SSleay::CTX_set_next_protos_advertised_cb($ctx, $perl_callback_function, $callback_data);
+    Net::SSLeay::CTX_set_next_proto_select_cb($ctx, $perl_callback_function, $callback_data);
+    Net::SSLeay::CTX_set_next_protos_advertised_cb($ctx, $perl_callback_function, $callback_data);
 
 Detection of NPN support (works even in older Net::SSLeay versions):
 
@@ -9418,7 +9418,7 @@ B<NOTE:> You need CTX_set_next_proto_select_cb on B<client side> of SSL connecti
 
 Simple usage - in this case a "common" negotiation algorithm (as implemented by openssl's function SSL_select_next_proto) is used.
 
-    $rv = Net::SSleay::CTX_set_next_proto_select_cb($ctx, $arrayref);
+    $rv = Net::SSLeay::CTX_set_next_proto_select_cb($ctx, $arrayref);
     # $ctx - value corresponding to openssl's SSL_CTX structure
     # $arrayref - list of accepted protocols - e.g. ['http1.0', 'http1.1']
     #
@@ -9426,7 +9426,7 @@ Simple usage - in this case a "common" negotiation algorithm (as implemented by 
 
 Advanced usage (you probably do not need this):
 
-    $rv = Net::SSleay::CTX_set_next_proto_select_cb($ctx, $perl_callback_function, $callback_data);
+    $rv = Net::SSLeay::CTX_set_next_proto_select_cb($ctx, $perl_callback_function, $callback_data);
     # $ctx - value corresponding to openssl's SSL_CTX structure
     # $perl_callback_function - reference to perl function
     # $callback_data - [optional] data to passed to callback function when invoked
@@ -9447,7 +9447,7 @@ Advanced usage (you probably do not need this):
 
 To undefine/clear this callback use:
 
-    Net::SSleay::CTX_set_next_proto_select_cb($ctx, undef);
+    Net::SSLeay::CTX_set_next_proto_select_cb($ctx, undef);
 
 =item * CTX_set_next_protos_advertised_cb
 
@@ -9457,7 +9457,7 @@ B<NOTE:> You need CTX_set_next_proto_select_cb on B<server side> of SSL connecti
 
 Simple usage:
 
-    $rv = Net::SSleay::CTX_set_next_protos_advertised_cb($ctx, $arrayref);
+    $rv = Net::SSLeay::CTX_set_next_protos_advertised_cb($ctx, $arrayref);
     # $ctx - value corresponding to openssl's SSL_CTX structure
     # $arrayref - list of advertised protocols - e.g. ['http1.0', 'http1.1']
     #
@@ -9465,7 +9465,7 @@ Simple usage:
 
 Advanced usage (you probably do not need this):
 
-    $rv = Net::SSleay::CTX_set_next_protos_advertised_cb($ctx, $perl_callback_function, $callback_data);
+    $rv = Net::SSLeay::CTX_set_next_protos_advertised_cb($ctx, $perl_callback_function, $callback_data);
     # $ctx - value corresponding to openssl's SSL_CTX structure
     # $perl_callback_function - reference to perl function
     # $callback_data - [optional] data to passed to callback function when invoked
@@ -9481,7 +9481,7 @@ Advanced usage (you probably do not need this):
 
 To undefine/clear this callback use:
 
-    Net::SSleay::CTX_set_next_protos_advertised_cb($ctx, undef);
+    Net::SSLeay::CTX_set_next_protos_advertised_cb($ctx, undef);
 
 =item * P_next_proto_negotiated
 
@@ -9564,7 +9564,7 @@ With ALPN, the most basic implementation looks like this:
 Advanced approach allows you to implement your own negotiation algorithm.
 
     # see below documentation for:
-    Net::SSleay::CTX_set_alpn_select_cb($ctx, $perl_callback_function, $callback_data);
+    Net::SSLeay::CTX_set_alpn_select_cb($ctx, $perl_callback_function, $callback_data);
 
 Detection of ALPN support (works even in older Net::SSLeay versions):
 
@@ -9584,7 +9584,7 @@ B<NOTE:> You need CTX_set_alpn_select_cb on B<server side> of TLS connection.
 
 Simple usage - in this case a "common" negotiation algorithm (as implemented by openssl's function SSL_select_next_proto) is used.
 
-    $rv = Net::SSleay::CTX_set_alpn_select_cb($ctx, $arrayref);
+    $rv = Net::SSLeay::CTX_set_alpn_select_cb($ctx, $arrayref);
     # $ctx - value corresponding to openssl's SSL_CTX structure
     # $arrayref - list of accepted protocols - e.g. ['http/2.0', 'http/1.1', 'spdy/3']
     #
@@ -9592,7 +9592,7 @@ Simple usage - in this case a "common" negotiation algorithm (as implemented by 
 
 Advanced usage (you probably do not need this):
 
-    $rv = Net::SSleay::CTX_set_alpn_select_cb($ctx, $perl_callback_function, $callback_data);
+    $rv = Net::SSLeay::CTX_set_alpn_select_cb($ctx, $perl_callback_function, $callback_data);
     # $ctx - value corresponding to openssl's SSL_CTX structure
     # $perl_callback_function - reference to perl function
     # $callback_data - [optional] data to passed to callback function when invoked
@@ -9612,7 +9612,7 @@ Advanced usage (you probably do not need this):
 
 To undefine/clear this callback use:
 
-    Net::SSleay::CTX_set_alpn_select_cb($ctx, undef);
+    Net::SSLeay::CTX_set_alpn_select_cb($ctx, undef);
 
 =item * set_alpn_protos
 
@@ -10074,7 +10074,7 @@ Or you can import them and use:
     print NID_commonName;
 
 The constants names are derived from openssl constants, however constants starting with C<SSL_> prefix
-have name with C<SSL_> part stripped - e.g. openssl's constant C<SSL_OP_ALL> is available as C<Net::SSleay::OP_ALL>
+have name with C<SSL_> part stripped - e.g. openssl's constant C<SSL_OP_ALL> is available as C<Net::SSLeay::OP_ALL>
 
 The list of all available constant names:
 
@@ -10716,7 +10716,7 @@ this problem by waiting until enough randomness can be gathered - and
 this can take a long time since blocking reduces activity in the
 machine and less activity provides less random events: a vicious circle.
 C</dev/urandom> solves this dilemma more pragmatically by simply returning
-predictable "random" numbers. SomeC< /dev/urandom> emulation software
+predictable "random" numbers. Some C</dev/urandom> emulation software
 however actually seems to implement C</dev/random> semantics. Caveat emptor.
 
 I've been pointed to two such daemons by Mik Firestone <mik@@speed.stdio._com>
