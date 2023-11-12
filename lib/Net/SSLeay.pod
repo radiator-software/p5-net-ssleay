@@ -10707,12 +10707,12 @@ who has used them on Solaris 8:
 
 =item 1
 
-Entropy Gathering Daemon (EGD) at L<https://www.lothar.com/tech/crypto/>
+Entropy Gathering Daemon (EGD) at L<https://egd.sourceforge.net/>
 
 =item 2
 
 Pseudo-random number generating daemon (PRNGD) at
-L<http://www.aet.tu-cottbus.de/personen/jaenicke/postfix_tls/prngd.html>
+L<https://prngd.sourceforge.net/>
 
 =back
 
@@ -10843,7 +10843,7 @@ You can mitigate some of the security vulnerabilities that might be present in y
 
 =head2 BEAST Attack
 
-http://blogs.cisco.com/security/beat-the-beast-with-tls/
+https://web.archive.org/web/20140424022931/https://blogs.cisco.com/security/beat-the-beast-with-tls
 https://community.qualys.com/blogs/securitylabs/2011/10/17/mitigating-the-beast-attack-on-tls
 https://blog.zoller.lu/2011/09/beast-summary-tls-cbc-countermeasures.html
 
@@ -10958,9 +10958,8 @@ details, see the C<LICENSE> file distributed with Net-SSLeay's source code.
     <https://www.ietf.org/rfc/rfc2246.txt>   - TLS 1.0 specification
     <https://www.w3c.org>                    - HTTP specifications
     <https://www.ietf.org/rfc/rfc2617.txt>   - How to send password
-    <https://www.lothar.com/tech/crypto/>    - Entropy Gathering Daemon (EGD)
-    <http://www.aet.tu-cottbus.de/personen/jaenicke/postfix_tls/prngd.html>
-                           - pseudo-random number generating daemon (PRNGD)
+    <https://egd.sourceforge.net/>           - Entropy Gathering Daemon (EGD)
+    <https://prngd.sourceforge.net/>         - pseudo-random number generating daemon (PRNGD)
     perl(1)
     perlref(1)
     perllol(1)
