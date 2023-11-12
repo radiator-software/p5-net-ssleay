@@ -1684,7 +1684,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/EVP_SignInit.htm
 
 =item * EVP_PKEY_id
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-1.0.0
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 1.0.0
 
 Returns $pkey type (integer value of corresponding NID).
 
@@ -5524,7 +5524,7 @@ $ssl connection. This is a non-blocking function like L<Net::SSLeay::write()>.
 
 =item * set_tlsext_host_name
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.8f
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.8f
 
 Sets TLS servername extension on SSL object $ssl to value $name.
 
@@ -6083,7 +6083,7 @@ If you want to safely set date and time after 2038 use function L</P_ASN1_TIME_s
 
 =item * P_ASN1_TIME_get_isotime
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7e
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7e
 
 B<NOTE:> Does not exactly correspond to any low level API function
 
@@ -6098,7 +6098,7 @@ The output format is compatible with module L<DateTime::Format::RFC3339>
 
 =item * P_ASN1_TIME_set_isotime
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7e
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7e
 
 B<NOTE:> Does not exactly correspond to any low level API function
 
@@ -6116,7 +6116,7 @@ C<"2012-03-22T23:55"> or C<"2012-03-22"> are not supported.
 
 =item * P_ASN1_TIME_put2string
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before, has bugs with openssl-0.9.8i
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before, has bugs with OpenSSL 0.9.8i
 
 B<NOTE:> Does not exactly correspond to any low level API function
 
@@ -6163,8 +6163,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_new.html>
 
 =item * X509_check_host
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.68 and before; requires at
-least OpenSSL 1.0.2. X509_CHECK_FLAG_NEVER_CHECK_SUBJECT requires OpenSSL 1.1.0.
+B<COMPATIBILITY:> not available in Net-SSLeay-1.68 and before; requires at least OpenSSL 1.0.2. X509_CHECK_FLAG_NEVER_CHECK_SUBJECT requires OpenSSL 1.1.0.
 
 Checks if the certificate Subject Alternative Name (SAN) or Subject CommonName
 (CN) matches the specified host name.
@@ -6316,7 +6315,7 @@ The resulting value might differ across different openssl versions for the same 
 
 =item * X509_pubkey_digest
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.7
 
 Computes digest/fingerprint of public key from X509 certificate $data using $type hash function.
 
@@ -6827,7 +6826,7 @@ Copies X509 extensions from X509_REQ object to X509 object - handy when you need
 
 =item * P_X509_get_crl_distribution_points
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.7
 
 Get the list of CRL distribution points from X509 certificate.
 
@@ -6838,7 +6837,7 @@ Get the list of CRL distribution points from X509 certificate.
 
 =item * P_X509_get_ext_key_usage
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.7
 
 Gets the list of extended key usage of given X509 certificate $cert.
 
@@ -7260,7 +7259,7 @@ You can set more extensions at once:
 
 =item * P_X509_REQ_get_attr
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.7
 
 Returns attribute value for X509_REQ's attribute at index $n.
 
@@ -7410,7 +7409,7 @@ Returns 'version' value of given X509_CRL structure $x.
 
 =item * X509_CRL_set_issuer_name
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.7
 
 Sets the issuer of X509_CRL object $x to X509_NAME object $name.
 
@@ -7454,7 +7453,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_CRL_set1_ne
 
 =item * X509_CRL_set_version
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.7
 
 Sets 'version' value of given X509_CRL structure $x to $version.
 
@@ -7481,7 +7480,7 @@ Sign X509_CRL object $x with private key $pkey (using digest algorithm $md).
 
 =item * X509_CRL_sort
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.7
 
 Sorts the data of X509_CRL object so it will be written in serial number order.
 
@@ -7504,7 +7503,7 @@ Verifies X509_CRL object $a using public key $r (pubkey of issuing CA).
 
 =item * P_X509_CRL_add_revoked_serial_hex
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.7
 
 Adds given serial number $serial_hex to X509_CRL object $crl.
 
@@ -7532,7 +7531,7 @@ Adds given serial number $serial_hex to X509_CRL object $crl.
 
 =item * P_X509_CRL_get_serial
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.7
 
 Returns serial number of X509_CRL object.
 
@@ -7543,7 +7542,7 @@ Returns serial number of X509_CRL object.
 
 =item * P_X509_CRL_set_serial
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.7
 
 Sets serial number of X509_CRL object to $crl_number.
 
@@ -7666,7 +7665,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_NAME_ENTRY_
 
 =item * X509_NAME_new
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least openssl-0.9.5
+B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least OpenSSL 0.9.5
 
 Creates a new X509_NAME structure.
 Adds a field whose name is defined by a string $field. The field value to be added is in $bytes.
@@ -7677,7 +7676,7 @@ Adds a field whose name is defined by a string $field. The field value to be add
 
 =item * X509_NAME_hash
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least openssl-0.9.5
+B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least OpenSSL 0.9.5
 
 Sort of a checksum of issuer name $name.
 The result is not a full hash (e.g. sha-1), it is kind-of-a-hash truncated to the size of 'unsigned long' (32 bits).
@@ -7690,7 +7689,7 @@ The resulting value might differ across different openssl versions for the same 
 
 =item * X509_NAME_add_entry_by_txt
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.5
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.5
 
 Adds a field whose name is defined by a string $field. The field value to be added is in $bytes.
 
@@ -7714,7 +7713,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_NAME_add_en
 
 =item * X509_NAME_add_entry_by_NID
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.5
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.5
 
 Adds a field whose name is defined by a NID $nid. The field value to be added is in $bytes.
 
@@ -7732,7 +7731,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_NAME_add_en
 
 =item * X509_NAME_add_entry_by_OBJ
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-0.9.5
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.5
 
 Adds a field whose name is defined by a object (OID) $obj . The field value to be added is in $bytes.
 
@@ -7793,7 +7792,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_NAME_get_in
 B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
 Retrieves the X509_NAME_ENTRY from $name corresponding to index $loc. Acceptable values for $loc run
-from 0 to C<Net::SSLeay::X509_NAME_entry_count($name)- 1>. The value returned is an internal pointer which must not be freed.
+from 0 to C<Net::SSLeay::X509_NAME_entry_count($name) - 1>. The value returned is an internal pointer which must not be freed.
 
     my $rv = Net::SSLeay::X509_NAME_get_entry($name, $loc);
     # $name - value corresponding to openssl's X509_NAME structure
@@ -8585,7 +8584,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OpenSSL_add_all_
 
 =item * P_EVP_MD_list_all
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-1.0.0
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 1.0.0
 
 B<NOTE:> Does not exactly correspond to any low level API function
 
@@ -8641,7 +8640,7 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
 
 =item * EVP_MD_CTX_md
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7
 
     Net::SSLeay::EVP_MD_CTX_md($ctx);
     # $ctx - value corresponding to openssl's EVP_MD_CTX structure
@@ -8650,7 +8649,7 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least
 
 =item * EVP_MD_CTX_create
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7
 
 Allocates, initializes and returns a digest context.
 
@@ -8677,7 +8676,7 @@ The complete idea behind EVP_MD_CTX looks like this example:
 
 =item * EVP_DigestInit_ex
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7
 
 Sets up digest context $ctx to use a digest $type from ENGINE $impl, $ctx must be
 initialized before calling this function, type will typically be supplied by a function
@@ -8692,7 +8691,7 @@ such as L</EVP_get_digestbyname>. If $impl is 0 then the default implementation 
 
 =item * EVP_DigestInit
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7
 
 Behaves in the same way as L</EVP_DigestInit_ex> except the passed context $ctx does not have
 to be initialized, and it always uses the default digest implementation.
@@ -8705,7 +8704,7 @@ to be initialized, and it always uses the default digest implementation.
 
 =item * EVP_MD_CTX_destroy
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7
 
 Cleans up digest context $ctx and frees up the space allocated to it, it should be
 called only on a context created using L</EVP_MD_CTX_create>.
@@ -8717,7 +8716,7 @@ called only on a context created using L</EVP_MD_CTX_create>.
 
 =item * EVP_DigestUpdate
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7
 
     my $rv = Net::SSLeay::EVP_DigestUpdate($ctx, $data);
     # $ctx  - value corresponding to openssl's EVP_MD_CTX structure
@@ -8727,7 +8726,7 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least
 
 =item * EVP_DigestFinal_ex
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7
 
 Retrieves the digest value from $ctx. After calling L</EVP_DigestFinal_ex> no
 additional calls to L</EVP_DigestUpdate> can be made, but
@@ -8743,7 +8742,7 @@ L</EVP_DigestInit_ex> can be called to initialize a new digest operation.
 
 =item * EVP_DigestFinal
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7
 
 Similar to L</EVP_DigestFinal_ex> except the digest context ctx is automatically cleaned up.
 
@@ -8757,7 +8756,7 @@ Similar to L</EVP_DigestFinal_ex> except the digest context ctx is automatically
 
 =item * MD2
 
-B<COMPATIBILITY:> no supported by default in openssl-1.0.0
+B<COMPATIBILITY:> not supported by default in OpenSSL 1.0.0
 
 Computes MD2 from given $data (all data needs to be loaded into memory)
 
@@ -8796,7 +8795,7 @@ Computes SHA1 from given $data (all data needs to be loaded into memory)
 
 =item * SHA256
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.8
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.8
 
 Computes SHA256 from given $data (all data needs to be loaded into memory)
 
@@ -8805,7 +8804,7 @@ Computes SHA256 from given $data (all data needs to be loaded into memory)
 
 =item * SHA512
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.8
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.8
 
 Computes SHA512 from given $data (all data needs to be loaded into memory)
 
@@ -8814,7 +8813,7 @@ Computes SHA512 from given $data (all data needs to be loaded into memory)
 
 =item * EVP_Digest
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7
 
 Computes "any" digest from given $data (all data needs to be loaded into memory)
 
@@ -8832,7 +8831,7 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
 
 =item * EVP_sha256
 
-B<COMPATIBILITY:> requires at least openssl-0.9.8
+B<COMPATIBILITY:> requires at least OpenSSL 0.9.8
 
     my $md = Net::SSLeay::EVP_sha256();
     #
@@ -8840,7 +8839,7 @@ B<COMPATIBILITY:> requires at least openssl-0.9.8
 
 =item * EVP_sha512
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least openssl-0.9.8
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.8
 
     my $md = Net::SSLeay::EVP_sha512();
     #
@@ -9270,9 +9269,9 @@ On the client side:
 use set_tlsext_host_name($ssl, $servername) before initiating the SSL connection.
 
 On the server side:
-Set up an additional SSL_CTX() for each different certificate;
+Set up an additional SSL_CTX() for each different certificate.
 
-Add a servername callback to each SSL_CTX() using CTX_set_tlsext_servername_callback();
+Add a servername callback to each SSL_CTX() using CTX_set_tlsext_servername_callback().
 
 The callback function is required to retrieve the client-supplied servername
 with get_servername(ssl). Figure out the right
@@ -9395,7 +9394,7 @@ Detection of NPN support (works even in older Net::SSLeay versions):
 
 =item * CTX_set_next_proto_select_cb
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-1.0.1
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 1.0.1
 
 B<NOTE:> You need CTX_set_next_proto_select_cb on B<client side> of SSL connection.
 
@@ -9434,7 +9433,7 @@ To undefine/clear this callback use:
 
 =item * CTX_set_next_protos_advertised_cb
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-1.0.1
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 1.0.1
 
 B<NOTE:> You need CTX_set_next_proto_select_cb on B<server side> of SSL connection.
 
@@ -9468,7 +9467,7 @@ To undefine/clear this callback use:
 
 =item * P_next_proto_negotiated
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-1.0.1
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 1.0.1
 
 Returns the name of negotiated protocol for given SSL connection $ssl.
 
@@ -9479,7 +9478,7 @@ Returns the name of negotiated protocol for given SSL connection $ssl.
 
 =item * P_next_proto_last_status
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least openssl-1.0.1
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 1.0.1
 
 Returns the result of the last negotiation for given SSL connection $ssl.
 
@@ -9561,7 +9560,7 @@ Detection of ALPN support (works even in older Net::SSLeay versions):
 
 =item * CTX_set_alpn_select_cb
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least openssl-1.0.2
+B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least OpenSSL 1.0.2
 
 B<NOTE:> You need CTX_set_alpn_select_cb on B<server side> of TLS connection.
 
@@ -9599,7 +9598,7 @@ To undefine/clear this callback use:
 
 =item * set_alpn_protos
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least openssl-1.0.2
+B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least OpenSSL 1.0.2
 
 B<NOTE:> You need set_alpn_protos on B<client side> of TLS connection.
 
@@ -9611,7 +9610,7 @@ It advertises the enumeration of supported protocols:
 
 =item * CTX_set_alpn_protos
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least openssl-1.0.2
+B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least OpenSSL 1.0.2
 
 B<NOTE:> You need CTX_set_alpn_protos on B<client side> of TLS connection.
 
@@ -9623,7 +9622,7 @@ It advertises the enumeration of supported protocols:
 
 =item * P_alpn_selected
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least openssl-1.0.2
+B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least OpenSSL 1.0.2
 
 Returns the name of negotiated protocol for given TLS connection $ssl.
 
@@ -9894,9 +9893,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OSSL_PROVIDER_se
 
 =head3 Low level API: TLS PSK related functions
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before.  The
-TLSv1.3 specific functions require at least OpenSSL 1.1.1; the others
-OpenSSL 1.0.0. Not available in LibreSSL.
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before.  The TLSv1.3 specific functions require at least OpenSSL 1.1.1 and the others require at least OpenSSL 1.0.0. Not available in LibreSSL.
 
 =over
 
@@ -10843,9 +10840,15 @@ You can mitigate some of the security vulnerabilities that might be present in y
 
 =head2 BEAST Attack
 
-L<https://web.archive.org/web/20140424022931/https://blogs.cisco.com/security/beat-the-beast-with-tls>
-L<https://community.qualys.com/blogs/securitylabs/2011/10/17/mitigating-the-beast-attack-on-tls>
-L<https://blog.zoller.lu/2011/09/beast-summary-tls-cbc-countermeasures.html>
+=over
+
+=item * L<https://web.archive.org/web/20140424022931/https://blogs.cisco.com/security/beat-the-beast-with-tls>
+
+=item * L<https://community.qualys.com/blogs/securitylabs/2011/10/17/mitigating-the-beast-attack-on-tls>
+
+=item * L<https://blog.zoller.lu/2011/09/beast-summary-tls-cbc-countermeasures.html>
+
+=back
 
 The BEAST attack relies on a weakness in the way CBC mode is used in SSL/TLS.
 In OpenSSL versions 0.9.6d and later, the protocol-level mitigation is enabled by default,
@@ -10865,11 +10868,15 @@ Solutions:
 
 =back
 
-Net::SSLeay::set_cipher_list($ssl, 'RC4-SHA:HIGH:!ADH');
+    Net::SSLeay::set_cipher_list($ssl, 'RC4-SHA:HIGH:!ADH');
 
 =head2 Session Resumption
 
-L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_options.html>
+=over
+
+=item * L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_options.html>
+
+=back
 
 The SSL Labs vulnerability test on your SSL server might report in red:
 
@@ -10878,12 +10885,17 @@ Session resumption      No (IDs assigned but not accepted)
 This report is not really bug or a vulnerability, since the server will not
 accept session resumption requests.
 However, you can prevent this noise in the report by disabling the session cache altogether:
-Net::SSLeay::CTX_set_session_cache_mode($ssl_ctx, Net::SSLeay::SESS_CACHE_OFF());
-Use 0 if you don't have SESS_CACHE_OFF constant.
+
+    Net::SSLeay::CTX_set_session_cache_mode($ssl_ctx, Net::SSLeay::SESS_CACHE_OFF());
+    # Use 0 if you don't have SESS_CACHE_OFF constant.
 
 =head2 Secure Renegotiation and DoS Attack
 
-L<https://community.qualys.com/blogs/securitylabs/2011/10/31/tls-renegotiation-and-denial-of-service-attacks>
+=over
+
+=item * L<https://community.qualys.com/blogs/securitylabs/2011/10/31/tls-renegotiation-and-denial-of-service-attacks>
+
+=back
 
 This is not a "security flaw," it is more of a DoS vulnerability.
 
