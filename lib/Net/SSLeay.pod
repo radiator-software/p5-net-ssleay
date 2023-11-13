@@ -1513,7 +1513,7 @@ Load all bundled ENGINEs into memory and make them visible.
     #
     # returns: no return value
 
-Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/engine.html>
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/ENGINE_by_id.html>
 
 =item * ENGINE_register_all_complete
 
@@ -1525,7 +1525,7 @@ Register all loaded ENGINEs for every algorithm they collectively implement.
     #
     # returns: no return value
 
-Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/engine.html>
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/ENGINE_by_id.html>
 
 =item * ENGINE_set_default
 
@@ -1554,7 +1554,7 @@ Set default engine to $e + set its flags to $flags.
     #
     # returns: 1 on success, 0 on failure
 
-Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/engine.html>
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/ENGINE_by_id.html>
 
 =item * ENGINE_by_id
 
@@ -1567,7 +1567,7 @@ B<COMPATIBILITY:> Requires an OpenSSL build with dynamic engine loading support.
     #
     # returns: value corresponding to openssl's ENGINE structure (0 on failure)
 
-Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/engine.html>
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/ENGINE_by_id.html>
 
 =back
 
@@ -1679,7 +1679,7 @@ Returns the maximum size of a signature in bytes. The actual signature may be sm
     #
     # returns: the maximum size in bytes
 
-Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/EVP_SignInit.html>
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/EVP_PKEY_size.html>
 
 =item * EVP_PKEY_id
 
@@ -3367,7 +3367,7 @@ Sets the temporary/ephemeral RSA key to be used to be $rsa.
     #
     # returns: 1 on success, 0 on failure
 
-Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_tmp_rsa_callback.html>
+Check openssl doc L<https://www.openssl.org/docs/man1.0.2/man3/SSL_CTX_set_tmp_rsa_callback.html>
 
 Not available with OpenSSL 1.1 and later.
 
@@ -3383,7 +3383,7 @@ Sets the callback function for ctx to be used when a temporary/ephemeral RSA key
     #
     # returns: no return value
 
-Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_tmp_rsa_callback.html>
+Check openssl doc L<https://www.openssl.org/docs/man1.0.2/man3/SSL_CTX_set_tmp_rsa_callback.html>
 
 Not available with OpenSSL 1.1 and later.
 
@@ -5184,7 +5184,7 @@ Example:
     Net::SSLeay::set_tmp_rsa($ssl, $rsakey);
     Net::SSLeay::RSA_free($rsakey);
 
-Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_tmp_rsa_callback.html>
+Check openssl doc L<https://www.openssl.org/docs/man1.0.2/man3/SSL_CTX_set_tmp_rsa_callback.html>
 
 =item * set_tmp_rsa_callback
 
@@ -5198,7 +5198,7 @@ Sets the callback function for $ssl to be used when a temporary/ephemeral RSA ke
     #
     # returns: no return value
 
-Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_tmp_rsa_callback.html>
+Check openssl doc L<https://www.openssl.org/docs/man1.0.2/man3/SSL_CTX_set_tmp_rsa_callback.html>
 
 =item * set_trust
 
