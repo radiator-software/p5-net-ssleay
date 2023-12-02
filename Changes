@@ -76,6 +76,7 @@ Revision history for Perl extension Net::SSLeay.
 	  - EVP_MD_get0_description
 	  - EVP_MD_get0_name
 	  - EVP_MD_get_type
+	- Major documentation cleanup. Thanks to John Jetmore.
 
 1.93_02 2023-02-22
 	- Update ppport.h to version 3.68. This eliminates thousands of
