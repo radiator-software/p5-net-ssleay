@@ -2215,6 +2215,19 @@ Sets the protocol version associated with an SSL_SESSION.
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_SESSION_set_protocol_version.html>
 
+=item * SESSION_get0_cipher
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before; requires at least OpenSSL 1.1.0 or LibreSSL 3.4.0
+
+Returns the value corresponding to OpenSSL's SSL_CIPHER associated with an SSL_SESSION.
+
+ my $ret = Net::SSLeay::SESSION_get0_cipher($s);
+ # $s - value corresponding to OpenSSL SSL_SESSION structure
+ #
+ # returns: A value corresponding to OpenSSL's SSL_CIPHER structure or undef if SSL_CIPHER can't be determined.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_SESSION_get0_cipher.html>
+
 =item * SESSION_get_time
 
 Returns the time at which the session s was established.
@@ -8641,6 +8654,8 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
  #
  # returns: the NID (integer) of the OBJECT IDENTIFIER representing the given message digest
 
+C<EVP_MD_type> is a non-deprecated alias macro of C<EVP_MD_get_type> since OpenSSL 3.0.0.
+
 =item * EVP_MD_size
 
 B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
@@ -8649,6 +8664,45 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
  # $md - value corresponding to openssl's EVP_MD structure
  #
  # returns: the size of the message digest in bytes (e.g. 20 for SHA1)
+
+=item * EVP_MD_get0_description
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before; requires at least OpenSSL 3.0.0-beta1, not in LibreSSL
+
+Return description of a message digest.
+
+ my $rv = Net::SSLeay::EVP_MD_get0_description($md);
+ # $md - value corresponding to openssl's EVP_MD structure
+ #
+ # returns: String, a freeform and digest implementation dependent description of the digest for display and human consumption. (e.g. sha256)
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/EVP_MD_get0_description.html>
+
+=item * EVP_MD_get0_name
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before; requires at least OpenSSL 3.0.0-beta1, not in LibreSSL
+
+Return one name of a message digest.
+
+ my $rv = Net::SSLeay::EVP_MD_get0_description($md);
+ # $md - value corresponding to openssl's EVP_MD structure
+ #
+ # returns: String, the name of the given message digest. For fetched message digests with multiple names, only one of them is returned; it's recommended to use EVP_MD_names_do_all() instead. (e.g. SHA2-256 or SHA256 for the same digest)
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/EVP_MD_get0_name.html>
+
+=item * EVP_MD_get_type
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before; requires at least OpenSSL 3.0.0-beta1, not in LibreSSL
+
+Return NID value of a message digest.
+
+ my $rv = Net::SSLeay::EVP_MD_get_type($md);
+ # $md - value corresponding to openssl's EVP_MD structure
+ #
+ # returns: Integer, the NID of the OBJECT IDENTIFIER representing the given message digest when passed an EVP_MD structure.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/EVP_MD_get_type.html>
 
 =item * EVP_MD_CTX_md
 
@@ -8938,6 +8992,19 @@ Returns version of SSL/TLS protocol that first defined the cipher
  # returns: (string) cipher name e.g. 'TLSv1/SSLv3' with some libraries, 'TLSv1.0' or 'TLSv1.3', '(NONE)' if $cipher is undefined.
 
 Check openssl doc L<https://www.openssl.org/docs/ssl/SSL_CIPHER_get_version.html|https://www.openssl.org/docs/ssl/SSL_CIPHER_get_version.html>
+
+=item * CIPHER_get_handshake_digest
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before; requires at least OpenSSL 1.1.1-pre1, not in LibreSSL
+
+Returns version of SSL/TLS protocol that first defined the cipher
+
+ my $rv = Net::SSLeay::CIPHER_get_handshake_digest($cipher);
+ # $cipher - value corresponding to openssl's SSL_CIPHER structure
+ #
+ # returns: A value corresponding to OpenSSL's EVP_MD structure for the digest used during the SSL/TLS handshake when using $cipher.
+
+Check openssl doc L<https://www.openssl.org/docs/ssl/SSL_CIPHER_get_handshake_digest.html>
 
 =item * CIPHER_find
 
@@ -10049,6 +10116,101 @@ See Net::SSLeay::CTX_set_psk_find_session_callback() documentation for
 a full example with a callback.
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_set_psk_find_session_callback.html>
+
+=item * CTX_set_psk_use_session_callback
+
+Set a callback for an SSL_CTX on TLS client for using TLSv1.3 PSKs.
+
+ # First set up a callback function.
+ sub tls13_use_psk_cb
+ {
+     my ($ssl, $md) = @_;
+
+     my $psk_identity = "test-tls-psk";
+     my $sess = Net::SSLeay::SESSION_new();
+     my $cipher = Net::SSLeay::CIPHER_find($ssl, pack('n', 0x1301));
+     Net::SSLeay::SESSION_set1_master_key($sess, pack('H*', 'deadbeef'));
+     Net::SSLeay::SESSION_set_cipher($sess, $cipher);
+     Net::SSLeay::SESSION_set_protocol_version($sess, Net::SSLeay::TLS1_3_VERSION());
+
+     # Typically not defined, see OpenSSL manual
+     if ($md)
+     {
+       my $sess_md = Net::SSLeay::CIPHER_get_handshake_digest($cipher);
+       my $md_type; $md_type = Net::SSLeay::EVP_MD_type($md) if $md;
+       my $sess_md_type = Net::SSLeay::EVP_MD_type($sess_md);
+
+       if ($md_type != $sess_md_type)
+       {
+	 # Example only: guess and try SHA384
+	 my $switched_cipher = Net::SSLeay::CIPHER_find($ssl, pack('n', 0x1302));
+	 my $switched_md = Net::SSLeay::CIPHER_get_handshake_digest($switched_cipher);
+	 my $switched_md_type = Net::SSLeay::EVP_MD_type($switched_md);
+	 if ($md_type != $switched_md_type)
+	 {
+	   # Guessed wrong, can't proceed with mismatched digest function
+	   Net::SSLeay::SESSION_free($sess);
+	   return (0, undef, undef);
+	 }
+	 Net::SSLeay::SESSION_set_cipher($sess, $switched_cipher);
+       }
+     }
+
+     return (1, $psk_identity, $sess);
+ }
+
+ my $cb = \&tls13_use_psk_cb;
+ Net::SSLeay::CTX_set_psk_use_session_callback($ctx, $cb);
+ # $ctx - value corresponding to OpenSSL SSL_CTX structure
+ # $cb - reference to callback function
+ #
+ # returns: no return value
+
+The callback function must return a two value list. When the first
+value is 0, the connection setup fails. When the first value is 1, the
+second value must be a valid C<SSL_SESSION> or C<undef>. When the
+second value is a valid C<SSL_SESSION>, the TLS handshake proceeds
+with PSK authentication. When the the second value is C<undef>, PSK is
+not used the TLS handshake proceeds with certificate authentication.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_psk_find_session_callback.html>
+
+=item * set_psk_use_session_callback
+
+Set a callback for an SSL on TLS client for using TLSv1.3 PSKs.
+
+ # First set up a callback function.
+ sub tls13_psk_cb
+ {
+     my ($ssl, $identity) = @_;
+
+     # Note: $identity is potentially hostile user supplied data
+
+     my $sess = Net::SSLeay::SESSION_new();
+     my $cipher = Net::SSLeay::CIPHER_find($ssl, pack('n', 0x1301));
+     Net::SSLeay::SESSION_set1_master_key($sess, pack('H*', 'deadbeef'));
+     Net::SSLeay::SESSION_set_cipher($sess, $cipher);
+     Net::SSLeay::SESSION_set_protocol_version($sess, Net::SSLeay::version($ssl));
+
+     return (1, $sess);
+ }
+
+ my $cb = \&tls13_psk_cb;
+ Net::SSLeay::CTX_set_psk_find_session_callback($ctx, $cb);
+ # $ctx - value corresponding to OpenSSL SSL_CTX structure
+ # $cb - reference to callback function
+ #
+ # returns: no return value
+
+The callback function must return a two value list. When the first
+value is 0, the connection setup fails. When the first value is 1, the
+second value must be a valid C<SSL_SESSION> or C<undef>. When the
+second value is a valid C<SSL_SESSION>, the TLS handshake proceeds
+with PSK authentication. When the the second value is C<undef>, PSK is
+not used the TLS handshake proceeds with certificate authentication.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_psk_find_session_callback.html>
+
 
 =back
 
