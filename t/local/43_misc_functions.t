@@ -8,7 +8,7 @@ use Test::Net::SSLeay qw(
 if (not can_fork()) {
     plan skip_all => "fork() not supported on this system";
 } else {
-    plan tests => 46;
+    plan tests => 47;
 }
 
 initialise_libssl();
@@ -134,6 +134,7 @@ sub client {
     client_test_finished($ssl);
     client_test_keyblock_size($ssl);
     client_test_version_funcs($ssl);
+    client_test_post_handshake_funcs($ssl);
 
     # Tell the server to quit and see that our connection is still up
     my $end = "end";
@@ -251,6 +252,28 @@ sub client_test_version_funcs
 	  skip('Do not have Net::SSLeay::client_version nor Net::SSLeay::is_dtls', 2);
 	};
     }
+
+    return;
+}
+
+# Test a variety of functions that are valid after a handshake
+sub client_test_post_handshake_funcs
+{
+    my ($ssl) = @_;
+
+    unless (defined &Net::SSLeay::CIPHER_get_handshake_digest) {
+      SKIP: {
+	  skip('Do not have Net::SSLeay::CIPHER_get_handshake_digest', 1);
+	};
+	return;
+    }
+
+    # We could test this without an SSL, but now we don't need to
+    # worry about knowing which CIPHERs are available.
+    my $cipher = Net::SSLeay::get_current_cipher($ssl);
+    my $md = Net::SSLeay::CIPHER_get_handshake_digest($cipher);
+    my $nid = Net::SSLeay::EVP_MD_type($md);
+    isnt($nid, Net::SSLeay::NID_undef(), "Net::SSLeay::CIPHER_get_handshake_digest returns MD with a NID: $nid, " . Net::SSLeay::OBJ_nid2sn($nid));
 
     return;
 }

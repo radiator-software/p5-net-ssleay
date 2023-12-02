@@ -14,7 +14,7 @@ use English qw( $EVAL_ERROR $OSNAME $PERL_VERSION -no_match_vars );
 if (not can_fork()) {
     plan skip_all => "fork() not supported on this system";
 } else {
-    plan tests => 59;
+    plan tests => 67;
 }
 
 initialise_libssl();
@@ -221,6 +221,14 @@ sub server
 		set_server_stat($round, 'old_session_is_resumable', $is_resumable);
 	    }
 
+	    if (defined &Net::SSLeay::SESSION_get0_cipher) {
+		my $cipher = Net::SSLeay::SESSION_get0_cipher($sess);
+		my $name = Net::SSLeay::CIPHER_get_name($cipher);
+		my $get0_cipher_ok = (length $name && $name ne '(NONE)') ? 1 : 0;
+		diag("SESSION_get0_cipher not ok: round $round, name: '$name'") unless $get0_cipher_ok;
+		set_server_stat($round, 'get0_cipher', $get0_cipher_ok);
+	    }
+
 	    Net::SSLeay::SESSION_free($sess) unless $ret; # Not cached, undo get1
 	    Net::SSLeay::free($ssl);
 	    close($cl) || die("server close: $!");
@@ -290,6 +298,14 @@ sub client {
 	    set_client_stat($round, 'old_session_is_resumable', $is_resumable);
 	}
 
+	if (defined &Net::SSLeay::SESSION_get0_cipher) {
+	    my $cipher = Net::SSLeay::SESSION_get0_cipher($sess);
+	    my $name = Net::SSLeay::CIPHER_get_name($cipher);
+	    my $get0_cipher_ok = (length $name && $name ne '(NONE)') ? 1 : 0;
+	    diag("SESSION_get0_cipher not ok: round $round, name: '$name'") unless $get0_cipher_ok;
+	    set_client_stat($round, 'get0_cipher', $get0_cipher_ok);
+	}
+
 	Net::SSLeay::shutdown($ssl);
 	Net::SSLeay::free($ssl);
 	close($cl) || die("client close: $!");
@@ -322,7 +338,7 @@ sub test_stats {
 
         if (!$usable{$round}) {
             SKIP: {
-                skip( "$round not available in this libssl", 12 );
+                skip( "$round not available in this libssl", 14 );
             }
             next;
         }
@@ -358,6 +374,15 @@ sub test_stats {
                 skip( 'Do not have Net::SSLeay::SESSION_is_resumable', 4 );
             }
         }
+
+	if (defined &Net::SSLeay::SESSION_get0_cipher) {
+	    is( $s->{get0_cipher}, 1, "Server $round SESSION_get0_cipher appears correct" );
+	    is( $c->{get0_cipher}, 1, "Client $round SESSION_get0_cipher appears correct" );
+	} else {
+	  SKIP: {
+	      skip( 'Do not have &Net::SSLeay::SESSION_get0_cipher', 2 );
+	    }
+	}
     }
 
     if ($usable{'TLSv1.3'}) {
