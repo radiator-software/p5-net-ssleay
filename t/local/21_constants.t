@@ -11,7 +11,7 @@ use Test::Net::SSLeay qw(dies_like);
 # We rely on symbolic references in the dies_like() tests:
 no strict 'refs';
 
-plan tests => 718;
+plan tests => 736;
 
 my @constants = qw(
     AD_ACCESS_DENIED
@@ -322,7 +322,25 @@ my @constants = qw(
     NID_sha1
     NID_sha1WithRSA
     NID_sha1WithRSAEncryption
+    NID_sha224
+    NID_sha224WithRSAEncryption
+    NID_sha256
+    NID_sha256WithRSAEncryption
+    NID_sha384
+    NID_sha384WithRSAEncryption
+    NID_sha3_224
+    NID_sha3_256
+    NID_sha3_384
+    NID_sha3_512
+    NID_sha512
+    NID_sha512WithRSAEncryption
+    NID_sha512_224
+    NID_sha512_224WithRSAEncryption
+    NID_sha512_256
+    NID_sha512_256WithRSAEncryption
     NID_shaWithRSAEncryption
+    NID_shake128
+    NID_shake256
     NID_stateOrProvinceName
     NID_subject_alt_name
     NID_subject_key_identifier

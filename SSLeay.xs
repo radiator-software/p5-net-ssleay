@@ -1313,6 +1313,127 @@ int ssleay_ctx_set_psk_find_session_callback_invoke(SSL *ssl, const unsigned cha
     return ret;
 }
 
+int ssleay_set_psk_use_session_callback_invoke(SSL *ssl, const EVP_MD *md,
+                                               const unsigned char **id,
+                                               size_t *idlen,
+                                               SSL_SESSION **sess)
+{
+    dSP;
+    int count = -1, ret;
+    SV * cb_func, *sess_sv, *id_sv;
+
+    PR1("STARTED: ssleay_psk_use_session_callback_invoke\n");
+
+    cb_func = cb_data_advanced_get(ssl, "ssleay_set_psk_use_session_callback!!func");
+    if(!SvOK(cb_func))
+        croak ("Net::SSLeay: ssleay_psk_use_session_callback_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    EXTEND(SP, 2);
+    PUSHs(sv_2mortal(newSViv(PTR2IV(ssl))));
+    PUSHs(sv_2mortal(newSViv(PTR2IV(md))));
+
+    PUTBACK;
+
+    count = call_sv( cb_func, G_LIST );
+
+    SPAGAIN;
+
+    if (count != 3)
+        croak ("Net::SSLeay: ssleay_psk_use_session_callback_invoke perl function did not return 3 values.\n");
+
+    *sess = NULL;
+    *id = NULL;
+    *idlen = 0;
+    sess_sv = POPs;
+    id_sv = POPs;
+    ret = POPi;
+    if (ret && SvOK(sess_sv)) {
+        /* Returning with success but without NULL SSL_SESSION is
+         * permissible. In this case the handshake continues with
+         * certificate authentication */
+        char *id_sv_ptr;
+        STRLEN id_sv_len;
+        *sess = INT2PTR(SSL_SESSION *, SvIV(sess_sv));
+        id_sv_ptr = SvPVbyte(id_sv, id_sv_len);
+        *id = (const unsigned char *)id_sv_ptr;
+        *idlen = id_sv_len;
+        sv_dump(id_sv);
+        SSL_SESSION_print_fp(stdout, *sess);
+    }
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return ret;
+}
+
+int ssleay_ctx_set_psk_use_session_callback_invoke(SSL *ssl, const EVP_MD *md,
+                                                   const unsigned char **id,
+                                                   size_t *idlen,
+                                                   SSL_SESSION **sess)
+{
+    dSP;
+    SSL_CTX *ctx;
+    int count = -1, ret;
+    SV * cb_func, *sess_sv, *id_sv;
+
+    ctx = SSL_get_SSL_CTX(ssl);
+
+    PR1("STARTED: ssleay_ctx_psk_use_session_callback_invoke\n");
+
+    cb_func = cb_data_advanced_get(ctx, "ssleay_ctx_set_psk_use_session_callback!!func");
+    if(!SvOK(cb_func))
+        croak ("Net::SSLeay: ssleay_ctx_psk_use_session_callback_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    EXTEND(SP, 2);
+    PUSHs(sv_2mortal(newSViv(PTR2IV(ssl))));
+    PUSHs(sv_2mortal(newSViv(PTR2IV(md))));
+
+    PUTBACK;
+
+    count = call_sv( cb_func, G_LIST );
+
+    SPAGAIN;
+
+    if (count != 3)
+        croak ("Net::SSLeay: ssleay_ctx_psk_use_session_callback_invoke perl function did not return 2 values.\n");
+
+    *sess = NULL;
+    *id = NULL;
+    *idlen = 0;
+    sess_sv = POPs;
+    id_sv = POPs;
+    ret = POPi;
+    if (ret && SvOK(sess_sv)) {
+        /* Returning with success but without NULL SSL_SESSION is
+         * permissible. In this case the handshake continues with
+         * certificate authentication */
+        char *id_sv_ptr;
+        STRLEN id_sv_len;
+        *sess = INT2PTR(SSL_SESSION *, SvIV(sess_sv));
+        id_sv_ptr = SvPVbyte(id_sv, id_sv_len);
+        *id = (const unsigned char *)id_sv_ptr;
+        *idlen = id_sv_len;
+        sv_dump(id_sv);
+        SSL_SESSION_print_fp(stdout, *sess);
+    }
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return ret;
+}
+
 #endif
 #endif
 
@@ -5640,6 +5761,13 @@ SSL_CIPHER_get_bits(c, ...)
 const char *
 SSL_CIPHER_get_version(const SSL_CIPHER *cipher)
 
+#if OPENSSL_VERSION_NUMBER >= 0x10101001L && !defined(LIBRESSL_VERSION_NUMBER)
+
+const EVP_MD *
+SSL_CIPHER_get_handshake_digest(const SSL_CIPHER *c)
+
+#endif /* OpenSSL 1.1.1-pre1 */
+
 #if (OPENSSL_VERSION_NUMBER >= 0x1000200fL && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3040000fL) /* LibreSSL >= 3.4.0 */
 
 const SSL_CIPHER *
@@ -7034,6 +7162,13 @@ SSL_SESSION_set_protocol_version(SSL_SESSION *s, int version)
 
 #endif
 
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3040000fL)
+
+const SSL_CIPHER *
+SSL_SESSION_get0_cipher(const SSL_SESSION *s)
+
+#endif
+
 #if (OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
 
 void
@@ -7285,6 +7420,34 @@ SSL_CTX_set_psk_find_session_callback(ctx,cb=&PL_sv_undef)
             SSL_CTX_set_psk_find_session_callback(ctx, ssleay_ctx_set_psk_find_session_callback_invoke);
         }
 
+void
+SSL_set_psk_use_session_callback(s,cb=&PL_sv_undef)
+        SSL * s
+        SV * cb
+    CODE:
+        if (cb==NULL || !SvOK(cb)) {
+            SSL_set_psk_use_session_callback(s, NULL);
+            cb_data_advanced_put(s, "ssleay_set_psk_use_session_callback!!func", NULL);
+        }
+        else {
+            cb_data_advanced_put(s, "ssleay_set_psk_use_session_callback!!func", newSVsv(cb));
+            SSL_set_psk_use_session_callback(s, ssleay_set_psk_use_session_callback_invoke);
+        }
+
+void
+SSL_CTX_set_psk_use_session_callback(ctx,cb=&PL_sv_undef)
+        SSL_CTX * ctx
+        SV * cb
+    CODE:
+        if (cb==NULL || !SvOK(cb)) {
+            SSL_CTX_set_psk_use_session_callback(ctx, NULL);
+            cb_data_advanced_put(ctx, "ssleay_ctx_set_psk_use_session_callback!!func", NULL);
+        }
+        else {
+            cb_data_advanced_put(ctx, "ssleay_ctx_set_psk_use_session_callback!!func", newSVsv(cb));
+            SSL_CTX_set_psk_use_session_callback(ctx, ssleay_ctx_set_psk_use_session_callback_invoke);
+        }
+
 #endif
 #endif
 
@@ -7344,6 +7507,19 @@ const EVP_MD * EVP_get_digestbyname(const char *name)
 int EVP_MD_type(const EVP_MD *md)
 
 int EVP_MD_size(const EVP_MD *md)
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+
+const char *
+EVP_MD_get0_description(const EVP_MD *md)
+
+const char *
+EVP_MD_get0_name(const EVP_MD *md)
+
+int
+EVP_MD_get_type(const EVP_MD *md)
+
+#endif
 
 #if OPENSSL_VERSION_NUMBER >= 0x1000000fL
 

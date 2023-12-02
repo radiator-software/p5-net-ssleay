@@ -4,6 +4,7 @@ const SSL_METHOD *	T_PTR
 SSL_CTX *	T_PTR
 const SSL_CTX *	T_PTR
 SSL_SESSION *	T_PTR
+const SSL_SESSION *	T_PTR
 SSL *		T_PTR
 RSA *		T_PTR
 DH *		T_PTR

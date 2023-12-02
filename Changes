@@ -65,6 +65,17 @@ Revision history for Perl extension Net::SSLeay.
 	  - SSL_SESSION_set_cipher
 	  - SSL_SESSION_set_protocol_version
 	  - SSL_CIPHER_find
+	- Expose NID_shake128, NID_shake256 and the rest of NID_sha* constants.
+	- Expose functions for setting up TLS 1.3 PSK authentication
+	  on the client side. Only SSL_SESSION_get0_cipher is
+	  available with LibreSSL.
+	  - SSL_set_psk_use_session_callback
+	  - SSL_CTX_set_psk_use_session_callback
+	  - SSL_CIPHER_get_handshake_digest
+	  - SSL_SESSION_get0_cipher
+	  - EVP_MD_get0_description
+	  - EVP_MD_get0_name
+	  - EVP_MD_get_type
 
 1.93_02 2023-02-22
 	- Update ppport.h to version 3.68. This eliminates thousands of
