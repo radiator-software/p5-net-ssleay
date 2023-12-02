@@ -65,6 +65,7 @@ Revision history for Perl extension Net::SSLeay.
 	  - SSL_SESSION_set_cipher
 	  - SSL_SESSION_set_protocol_version
 	  - SSL_CIPHER_find
+	- Expose NID_shake128, NID_shake256 and the rest of NID_sha* constants.
 
 1.93_02 2023-02-22
 	- Update ppport.h to version 3.68. This eliminates thousands of
