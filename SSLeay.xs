@@ -4609,7 +4609,7 @@ P_X509_get_ocsp_uri(cert)
 		    ASN1_STRING_length(ad->location->d.uniformResourceIdentifier)
 		)));
 #endif
-		if (GIMME == G_SCALAR) break; /* get only first */
+		if (GIMME_V == G_SCALAR) break; /* get only first */
 	    }
 	}
 	AUTHORITY_INFO_ACCESS_free(info);
@@ -8420,7 +8420,7 @@ OCSP_response_results(rsp,...)
 	bsr = OCSP_response_get1_basic(rsp);
 	if (!bsr) croak("invalid OCSP response");
 
-	want_array = (GIMME == G_LIST);
+	want_array = (GIMME_V == G_LIST);
 	getall = (items <= 1);
 	sksn = OCSP_resp_count(bsr);
 
