@@ -6093,7 +6093,7 @@ If you want to safely set date and time after 2038 use function L</P_ASN1_TIME_s
 
 =item * P_ASN1_TIME_get_isotime
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7e
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
 
 B<NOTE:> Does not exactly correspond to any low level API function
 
@@ -6108,7 +6108,7 @@ The output format is compatible with module L<DateTime::Format::RFC3339>
 
 =item * P_ASN1_TIME_set_isotime
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7e
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
 
 B<NOTE:> Does not exactly correspond to any low level API function
 
@@ -6325,7 +6325,7 @@ The resulting value might differ across different openssl versions for the same 
 
 =item * X509_pubkey_digest
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
 Computes digest/fingerprint of public key from X509 certificate $data using $type hash function.
 
@@ -6836,7 +6836,7 @@ Copies X509 extensions from X509_REQ object to X509 object - handy when you need
 
 =item * P_X509_get_crl_distribution_points
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
 Get the list of CRL distribution points from X509 certificate.
 
@@ -6847,7 +6847,7 @@ Get the list of CRL distribution points from X509 certificate.
 
 =item * P_X509_get_ext_key_usage
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
 Gets the list of extended key usage of given X509 certificate $cert.
 
@@ -7269,7 +7269,7 @@ You can set more extensions at once:
 
 =item * P_X509_REQ_get_attr
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
 Returns attribute value for X509_REQ's attribute at index $n.
 
@@ -7419,7 +7419,7 @@ Returns 'version' value of given X509_CRL structure $x.
 
 =item * X509_CRL_set_issuer_name
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
 Sets the issuer of X509_CRL object $x to X509_NAME object $name.
 
@@ -7463,7 +7463,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_CRL_set1_ne
 
 =item * X509_CRL_set_version
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
 Sets 'version' value of given X509_CRL structure $x to $version.
 
@@ -7490,7 +7490,7 @@ Sign X509_CRL object $x with private key $pkey (using digest algorithm $md).
 
 =item * X509_CRL_sort
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
 Sorts the data of X509_CRL object so it will be written in serial number order.
 
@@ -7513,7 +7513,7 @@ Verifies X509_CRL object $a using public key $r (pubkey of issuing CA).
 
 =item * P_X509_CRL_add_revoked_serial_hex
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
 Adds given serial number $serial_hex to X509_CRL object $crl.
 
@@ -7541,7 +7541,7 @@ Adds given serial number $serial_hex to X509_CRL object $crl.
 
 =item * P_X509_CRL_get_serial
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
 Returns serial number of X509_CRL object.
 
@@ -7552,7 +7552,7 @@ Returns serial number of X509_CRL object.
 
 =item * P_X509_CRL_set_serial
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
 Sets serial number of X509_CRL object to $crl_number.
 
@@ -7675,7 +7675,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_NAME_ENTRY_
 
 =item * X509_NAME_new
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least OpenSSL 0.9.5
+B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before
 
 Creates a new X509_NAME structure.
 Adds a field whose name is defined by a string $field. The field value to be added is in $bytes.
@@ -7686,7 +7686,7 @@ Adds a field whose name is defined by a string $field. The field value to be add
 
 =item * X509_NAME_hash
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before; requires at least OpenSSL 0.9.5
+B<COMPATIBILITY:> not available in Net-SSLeay-1.55 and before
 
 Sort of a checksum of issuer name $name.
 The result is not a full hash (e.g. sha-1), it is kind-of-a-hash truncated to the size of 'unsigned long' (32 bits).
@@ -7699,7 +7699,7 @@ The resulting value might differ across different openssl versions for the same 
 
 =item * X509_NAME_add_entry_by_txt
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.5
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
 Adds a field whose name is defined by a string $field. The field value to be added is in $bytes.
 
@@ -7723,7 +7723,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_NAME_add_en
 
 =item * X509_NAME_add_entry_by_NID
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.5
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
 Adds a field whose name is defined by a NID $nid. The field value to be added is in $bytes.
 
@@ -7741,7 +7741,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_NAME_add_en
 
 =item * X509_NAME_add_entry_by_OBJ
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before; requires at least OpenSSL 0.9.5
+B<COMPATIBILITY:> not available in Net-SSLeay-1.45 and before
 
 Adds a field whose name is defined by a object (OID) $obj . The field value to be added is in $bytes.
 
@@ -8691,7 +8691,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/EVP_MD_get_type.
 
 =item * EVP_MD_CTX_md
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
 
     Net::SSLeay::EVP_MD_CTX_md($ctx);
     # $ctx - value corresponding to openssl's EVP_MD_CTX structure
@@ -8700,7 +8700,7 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least
 
 =item * EVP_MD_CTX_create
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
 
 Allocates, initializes and returns a digest context.
 
@@ -8727,7 +8727,7 @@ The complete idea behind EVP_MD_CTX looks like this example:
 
 =item * EVP_DigestInit_ex
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
 
 Sets up digest context $ctx to use a digest $type from ENGINE $impl, $ctx must be
 initialized before calling this function, type will typically be supplied by a function
@@ -8742,7 +8742,7 @@ such as L</EVP_get_digestbyname>. If $impl is 0 then the default implementation 
 
 =item * EVP_DigestInit
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
 
 Behaves in the same way as L</EVP_DigestInit_ex> except the passed context $ctx does not have
 to be initialized, and it always uses the default digest implementation.
@@ -8755,7 +8755,7 @@ to be initialized, and it always uses the default digest implementation.
 
 =item * EVP_MD_CTX_destroy
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
 
 Cleans up digest context $ctx and frees up the space allocated to it, it should be
 called only on a context created using L</EVP_MD_CTX_create>.
@@ -8767,7 +8767,7 @@ called only on a context created using L</EVP_MD_CTX_create>.
 
 =item * EVP_DigestUpdate
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
 
     my $rv = Net::SSLeay::EVP_DigestUpdate($ctx, $data);
     # $ctx  - value corresponding to openssl's EVP_MD_CTX structure
@@ -8777,7 +8777,7 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least
 
 =item * EVP_DigestFinal_ex
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
 
 Retrieves the digest value from $ctx. After calling L</EVP_DigestFinal_ex> no
 additional calls to L</EVP_DigestUpdate> can be made, but
@@ -8793,7 +8793,7 @@ L</EVP_DigestInit_ex> can be called to initialize a new digest operation.
 
 =item * EVP_DigestFinal
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
 
 Similar to L</EVP_DigestFinal_ex> except the digest context ctx is automatically cleaned up.
 
@@ -8864,7 +8864,7 @@ Computes SHA512 from given $data (all data needs to be loaded into memory)
 
 =item * EVP_Digest
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least OpenSSL 0.9.7
+B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before
 
 Computes "any" digest from given $data (all data needs to be loaded into memory)
 

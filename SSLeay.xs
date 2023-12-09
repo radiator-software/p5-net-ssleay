@@ -156,11 +156,6 @@ extern "C" {
 }
 #endif
 
-/* OpenSSL-0.9.3a has some strange warning about this in
- *    openssl/des.h
- */
-#undef _
-
 /* Sigh: openssl 1.0 has
  typedef void *BLOCK;
 which conflicts with perls
@@ -185,16 +180,11 @@ which conflicts with perls
 #ifndef OPENSSL_NO_MD5
 #include <openssl/md5.h>     /* openssl-SNAP-20020227 does not automatically include this */
 #endif
-#if OPENSSL_VERSION_NUMBER >= 0x00905000L
 #include <openssl/ripemd.h>
-#endif
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
-#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
-/* requires 0.9.7+ */
 #ifndef OPENSSL_NO_ENGINE
 #include <openssl/engine.h>
-#endif
 #endif
 #ifdef OPENSSL_FIPS
 #include <openssl/fips.h>
@@ -693,7 +683,6 @@ static int ssleay_ctx_passwd_cb_invoke(char *buf, int size, int rwflag, void *us
 
 #if OPENSSL_VERSION_NUMBER >= 0x1010006fL /* In OpenSSL 1.1.0 but actually called for $ssl from 1.1.0f */
 #ifndef LIBRESSL_VERSION_NUMBER
-#ifndef OPENSSL_IS_BORINGSSL
 static int ssleay_ssl_passwd_cb_invoke(char *buf, int size, int rwflag, void *userdata)
 {
     dSP;
@@ -738,7 +727,6 @@ static int ssleay_ssl_passwd_cb_invoke(char *buf, int size, int rwflag, void *us
 
     return strlen(buf);
 }
-#endif /* !BoringSSL */
 #endif /* !LibreSSL */
 #endif /* >= 1.1.0f */
 
@@ -748,20 +736,11 @@ int ssleay_ctx_cert_verify_cb_invoke(X509_STORE_CTX* x509_store_ctx, void* data)
     int count = -1;
     int res;
     SV * cb_func, *cb_data;
-    void *ptr;
-    SSL *ssl;
 
     PR1("STARTED: ssleay_ctx_cert_verify_cb_invoke\n");
-#if OPENSSL_VERSION_NUMBER < 0x0090700fL
-    ssl = X509_STORE_CTX_get_ex_data(x509_store_ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
-    ptr = (void*) SSL_get_SSL_CTX(ssl);
-#else
-    ssl = NULL;
-    ptr = (void*) data;
-#endif
 
-    cb_func = cb_data_advanced_get(ptr, "ssleay_ctx_cert_verify_cb!!func");
-    cb_data = cb_data_advanced_get(ptr, "ssleay_ctx_cert_verify_cb!!data");
+    cb_func = cb_data_advanced_get(data, "ssleay_ctx_cert_verify_cb!!func");
+    cb_data = cb_data_advanced_get(data, "ssleay_ctx_cert_verify_cb!!data");
 
     if(!SvOK(cb_func))
         croak ("Net::SSLeay: ssleay_ctx_cert_verify_cb_invoke called, but not set to point to any perl function.\n");
@@ -2641,13 +2620,6 @@ SSL_free(s)
         SSL_free(s);
         cb_data_advanced_drop(s); /* clean callback related data from global hash */
 
-#if 0 /* this seems to be gone in 0.9.0 */
-void
-SSL_debug(file)
-       char *  file
-
-#endif
-
 int
 SSL_accept(s)
      SSL *   s
@@ -3463,7 +3435,6 @@ SSL_CTX_set_tlsext_servername_callback(ctx,callback=&PL_sv_undef,data=&PL_sv_und
 
 #if OPENSSL_VERSION_NUMBER >= 0x1010006fL /* In OpenSSL 1.1.0 but actually called for $ssl starting from 1.1.0f */
 #ifndef LIBRESSL_VERSION_NUMBER
-#ifndef OPENSSL_IS_BORINGSSL
 void
 SSL_set_default_passwd_cb(ssl,callback=&PL_sv_undef)
         SSL * ssl
@@ -3493,7 +3464,6 @@ SSL_set_default_passwd_cb_userdata(ssl,data=&PL_sv_undef)
             cb_data_advanced_put(ssl, "ssleay_ssl_passwd_cb!!data", newSVsv(data));
         }
 
-#endif /* !BoringSSL */
 #endif /* !LibreSSL */
 #endif /* >= 1.1.0f */
 
@@ -3607,8 +3577,6 @@ SSL_library_init()
 	OUTPUT:
 	RETVAL
 
-#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
-#define REM5 "NOTE: requires 0.9.7+"
 #ifndef OPENSSL_NO_ENGINE
 
 void
@@ -3627,7 +3595,6 @@ ENGINE_set_default(e, flags)
         int flags
 
 #endif /* OPENSSL_NO_ENGINE */
-#endif
 
 void
 ERR_load_SSL_strings()
@@ -3929,9 +3896,6 @@ X509_NAME_get_text_by_NID(name,nid)
                Safefree(buf);
        }
 
-#if OPENSSL_VERSION_NUMBER >= 0x0090500fL
-#define REM17 "requires 0.9.5+"
-
 int
 X509_NAME_add_entry_by_NID(name,nid,type,bytes,loc=-1,set=0)
         X509_NAME *name
@@ -3980,8 +3944,6 @@ X509_NAME_add_entry_by_txt(name,field,type,bytes,loc=-1,set=0)
     OUTPUT:
         RETVAL
 
-#endif
-
 int
 X509_NAME_cmp(const X509_NAME *a, const X509_NAME *b)
 
@@ -4003,9 +3965,6 @@ X509_CRL_free(X509_CRL *x)
 X509_CRL *
 X509_CRL_new()
 
-#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
-#define REM19 "requires 0.9.7+"
-
 int
 X509_CRL_set_version(X509_CRL *x, long version)
 
@@ -4014,8 +3973,6 @@ X509_CRL_set_issuer_name(X509_CRL *x, X509_NAME *name)
 
 int
 X509_CRL_sort(X509_CRL *x)
-
-#endif
 
 long
 X509_CRL_get_version(X509_CRL *x)
@@ -4074,9 +4031,6 @@ X509_CRL_verify(X509_CRL *a, EVP_PKEY *r)
 
 int
 X509_CRL_sign(X509_CRL *x, EVP_PKEY *pkey, const EVP_MD *md)
-
-#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
-#define REM20 "requires 0.9.7+"
 
 int
 P_X509_CRL_set_serial(crl,crl_number)
@@ -4151,8 +4105,6 @@ P_X509_CRL_add_revoked_serial_hex(crl,serial_hex,rev_time,reason_code=0,comp_tim
         if(!X509_CRL_add0_revoked(crl, rev)) XSRETURN_IV(0);
         XSRETURN_IV(1);
 
-#endif
-
 X509_REQ *
 X509_REQ_new()
 
@@ -4206,9 +4158,6 @@ X509_REQ_add1_attr_by_NID(req,nid,type,bytes)
     OUTPUT:
         RETVAL
 
-#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
-#define REM21 "requires 0.9.7+"
-
 void
 P_X509_REQ_get_attr(req,n)
         X509_REQ *req
@@ -4226,8 +4175,6 @@ P_X509_REQ_get_attr(req,n)
 	    s = t->value.asn1_string;
             XPUSHs(sv_2mortal(newSViv(PTR2IV(s))));
 	}
-
-#endif
 
 int
 P_X509_REQ_add_extensions(x,...)
@@ -4528,8 +4475,6 @@ X509_get_subjectAltNames(cert)
 	}
 	XSRETURN(count * 2);
 
-#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
-
 void
 P_X509_get_crl_distribution_points(cert)
         X509 * cert
@@ -4640,8 +4585,6 @@ P_X509_get_ext_key_usage(cert,format=0)
                XPUSHs(sv_2mortal(newSVpv(OBJ_nid2ln(nid),0))); /* format 3: longname */
         }
         EXTENDED_KEY_USAGE_free(extusage);
-
-#endif
 
 void
 P_X509_get_key_usage(cert)
@@ -5049,9 +4992,6 @@ P_ASN1_TIME_put2string(tm)
          }
      }
 
-#if OPENSSL_VERSION_NUMBER >= 0x0090705f
-#define REM15 "NOTE: requires 0.9.7e+"
-
 void
 P_ASN1_TIME_get_isotime(tm)
      ASN1_TIME *tm
@@ -5126,8 +5066,6 @@ P_ASN1_TIME_set_isotime(tm,str)
 
      ST(0) = sv_newmortal();
      sv_setiv(ST(0), rv); /* 1 = success, undef = failure */
-
-#endif
 
 int
 EVP_PKEY_copy_parameters(to,from)
@@ -5281,11 +5219,7 @@ CTX_use_PKCS12_file(ctx, file, password=NULL)
         RETVAL = 0;
         bio = BIO_new_file(file, "rb");
         if (bio) {
-#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
             OPENSSL_add_all_algorithms_noconf();
-#else
-            OpenSSL_add_all_algorithms();
-#endif
             if ((p12 = d2i_PKCS12_bio(bio, NULL))) {
                 if (PKCS12_parse(p12, password, &private_key, &certificate, NULL)) {
                     if (private_key) {
@@ -5321,11 +5255,7 @@ P_PKCS12_load_file(file, load_chain=0, password=NULL)
     PPCODE:
         bio = BIO_new_file(file, "rb");
         if (bio) {
-#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
             OPENSSL_add_all_algorithms_noconf();
-#else
-            OpenSSL_add_all_algorithms();
-#endif
             if ((p12 = d2i_PKCS12_bio(bio, NULL))) {
                 if(load_chain)
                     result= PKCS12_parse(p12, password, &private_key, &certificate, &cachain);
@@ -5409,8 +5339,6 @@ MD5(data)
 
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x00905000L
-
 void
 RIPEMD160(data)
      PREINIT:
@@ -5424,8 +5352,6 @@ RIPEMD160(data)
      } else {
 	  XSRETURN_UNDEF;
      }
-
-#endif
 
 #if !defined(OPENSSL_NO_SHA)
 
@@ -5843,11 +5769,7 @@ SSL_CTX_set_cert_verify_callback(ctx,callback,data=&PL_sv_undef)
         else {
             cb_data_advanced_put(ctx, "ssleay_ctx_cert_verify_cb!!func", newSVsv(callback));
             cb_data_advanced_put(ctx, "ssleay_ctx_cert_verify_cb!!data", newSVsv(data));
-#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
             SSL_CTX_set_cert_verify_callback(ctx, ssleay_ctx_cert_verify_cb_invoke, ctx);
-#else
-            SSL_CTX_set_cert_verify_callback(ctx, ssleay_ctx_cert_verify_cb_invoke, (char*)ctx);
-#endif
         }
 
 X509_NAME_STACK *
@@ -7473,17 +7395,7 @@ SSL_CTX_set_tlsext_ticket_getkey_cb(ctx,callback=&PL_sv_undef,data=&PL_sv_undef)
 
 #endif
 
-
-#if OPENSSL_VERSION_NUMBER < 0x0090700fL
-#define REM11 "NOTE: before 0.9.7"
-
-int EVP_add_digest(EVP_MD *digest)
-
-#else
-
 int EVP_add_digest(const EVP_MD *digest)
-
-#endif
 
 #ifndef OPENSSL_NO_SHA
 
@@ -7535,9 +7447,6 @@ P_EVP_MD_list_all()
         RETVAL
 
 #endif
-
-#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
-#define REM16 "NOTE: requires 0.9.7+"
 
 const EVP_MD *EVP_MD_CTX_md(const EVP_MD_CTX *ctx)
 
@@ -7599,23 +7508,17 @@ EVP_Digest(...)
      else
          XSRETURN_UNDEF;
 
-#endif
-
 const EVP_CIPHER *
 EVP_get_cipherbyname(const char *name)
 
 void
 OpenSSL_add_all_algorithms()
 
-#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
-
 void
 OPENSSL_add_all_algorithms_noconf()
 
 void
 OPENSSL_add_all_algorithms_conf()
-
-#endif
 
 #if OPENSSL_VERSION_NUMBER >= 0x10000003L
 
@@ -7880,20 +7783,9 @@ OBJ_obj2txt(a, no_name=0)
     ST(0) = sv_newmortal();
     sv_setpvn(ST(0), buf, len);
 
-#if OPENSSL_VERSION_NUMBER < 0x0090700fL
-#define REM14 "NOTE: before 0.9.7"
-
-int
-OBJ_txt2nid(s)
-    char *s
-
-#else
-
 int
 OBJ_txt2nid(s)
     const char *s
-
-#endif
 
 int
 OBJ_ln2nid(s)
@@ -7908,8 +7800,6 @@ OBJ_cmp(a, b)
     ASN1_OBJECT *a
     ASN1_OBJECT *b
 
-#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
-
 void
 X509_pubkey_digest(data,type)
         const X509 *data
@@ -7922,8 +7812,6 @@ X509_pubkey_digest(data,type)
             XSRETURN_PVN((char *)md, md_size);
         else
             XSRETURN_UNDEF;
-
-#endif
 
 void
 X509_digest(data,type)

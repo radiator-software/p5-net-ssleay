@@ -84,11 +84,8 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
   is(Net::SSLeay::P_ASN1_INTEGER_get_hex(Net::SSLeay::X509_get_serialNumber($x509)), '01E240', "P_ASN1_INTEGER_get_hex");
   
   Net::SSLeay::X509_set_issuer_name($x509, Net::SSLeay::X509_get_subject_name($ca_cert));
-  SKIP: {
-    skip 'openssl-0.9.7e required', 2 unless Net::SSLeay::SSLeay >= 0x0090705f; 
-    ok(Net::SSLeay::P_ASN1_TIME_set_isotime(Net::SSLeay::X509_get_notBefore($x509), "2010-02-01T00:00:00Z"), "P_ASN1_TIME_set_isotime+X509_get_notBefore");
-    ok(Net::SSLeay::P_ASN1_TIME_set_isotime(Net::SSLeay::X509_get_notAfter($x509), "2099-02-01T00:00:00Z"), "P_ASN1_TIME_set_isotime+X509_get_notAfter");
-  }
+  ok(Net::SSLeay::P_ASN1_TIME_set_isotime(Net::SSLeay::X509_get_notBefore($x509), "2010-02-01T00:00:00Z"), "P_ASN1_TIME_set_isotime+X509_get_notBefore");
+  ok(Net::SSLeay::P_ASN1_TIME_set_isotime(Net::SSLeay::X509_get_notAfter($x509), "2099-02-01T00:00:00Z"), "P_ASN1_TIME_set_isotime+X509_get_notAfter");
   
   ok(Net::SSLeay::P_X509_add_extensions($x509,$ca_cert,
         &Net::SSLeay::NID_key_usage => 'digitalSignature,keyEncipherment',
@@ -223,12 +220,9 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
   is(my $n1 = Net::SSLeay::X509_REQ_get_attr_by_NID($req, $nid_challengePassword,-1), 1, "X509_REQ_get_attr_by_NID");
   is(my $n2 = Net::SSLeay::X509_REQ_get_attr_by_OBJ($req, $obj_challengePassword,-1), 1, "X509_REQ_get_attr_by_OBJ");
   
-  SKIP: {
-    skip('requires openssl-0.9.7', 3) unless Net::SSLeay::SSLeay >= 0x0090700f;
-    ok(my @attr_values = Net::SSLeay::P_X509_REQ_get_attr($req, $n1), "P_X509_REQ_get_attr");
-    is(scalar(@attr_values), 1, "attr_values size");
-    is(Net::SSLeay::P_ASN1_STRING_get($attr_values[0]), "password xyz", "attr_values[0]");
-  }
+  ok(my @attr_values = Net::SSLeay::P_X509_REQ_get_attr($req, $n1), "P_X509_REQ_get_attr");
+  is(scalar(@attr_values), 1, "attr_values size");
+  is(Net::SSLeay::P_ASN1_STRING_get($attr_values[0]), "password xyz", "attr_values[0]");
   
   like(my $req_pem = Net::SSLeay::PEM_get_string_X509_REQ($req), qr/-----BEGIN CERTIFICATE REQUEST-----/, "PEM_get_string_X509_REQ");
   like(my $key_pem = Net::SSLeay::PEM_get_string_PrivateKey($pk), qr/-----BEGIN (RSA )?PRIVATE KEY-----/, "PEM_get_string_PrivateKey");  
@@ -261,11 +255,8 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
   ## PHASE3 - check some certificate parameters
   is(Net::SSLeay::X509_NAME_print_ex(Net::SSLeay::X509_get_subject_name($x509ss)), "O=Company Name,C=UK,CN=Common name text X509_REQ", "X509_NAME_print_ex 1");
   is(Net::SSLeay::X509_NAME_print_ex(Net::SSLeay::X509_get_issuer_name($x509ss)), 'CN=Root CA,OU=Test Suite,O=Net-SSLeay,C=PL', "X509_NAME_print_ex 2");
-  SKIP: {
-    skip 'openssl-0.9.7e required', 2 unless Net::SSLeay::SSLeay >= 0x0090705f; 
-    like(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get_notBefore($x509ss)), qr/^\d\d\d\d-\d\d-\d\d/, "X509_get_notBefore");
-    like(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get_notAfter($x509ss)), qr/^\d\d\d\d-\d\d-\d\d/, "X509_get_notAfter");
-  }
+  like(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get_notBefore($x509ss)), qr/^\d\d\d\d-\d\d-\d\d/, "X509_get_notBefore");
+  like(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get_notAfter($x509ss)), qr/^\d\d\d\d-\d\d-\d\d/, "X509_get_notAfter");
 
   # See that all subjectAltNames added to request were copied to the certificate
   my @altnames = Net::SSLeay::X509_get_subjectAltNames($x509ss);
@@ -315,11 +306,8 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
   ok(Net::SSLeay::X509_set_serialNumber($x509, $sn), "X509_get_serialNumber");
 
   Net::SSLeay::X509_set_issuer_name($x509, Net::SSLeay::X509_get_subject_name($ca_cert));
-  SKIP: {
-    skip 'openssl-0.9.7e required', 2 unless Net::SSLeay::SSLeay >= 0x0090705f;
-    ok(Net::SSLeay::P_ASN1_TIME_set_isotime(Net::SSLeay::X509_get_notBefore($x509), "2010-02-01T00:00:00Z") , "P_ASN1_TIME_set_isotime+X509_get_notBefore");
-    ok(Net::SSLeay::P_ASN1_TIME_set_isotime(Net::SSLeay::X509_get_notAfter($x509), "2038-01-01T00:00:00Z"), "P_ASN1_TIME_set_isotime+X509_get_notAfter");
-  }
+  ok(Net::SSLeay::P_ASN1_TIME_set_isotime(Net::SSLeay::X509_get_notBefore($x509), "2010-02-01T00:00:00Z") , "P_ASN1_TIME_set_isotime+X509_get_notBefore");
+  ok(Net::SSLeay::P_ASN1_TIME_set_isotime(Net::SSLeay::X509_get_notAfter($x509), "2038-01-01T00:00:00Z"), "P_ASN1_TIME_set_isotime+X509_get_notAfter");
   
   ok(my $sha256_digest = Net::SSLeay::EVP_get_digestbyname("sha256"), "EVP_get_digestbyname");
   ok(Net::SSLeay::X509_sign($x509, $ca_pk, $sha256_digest), "X509_sign");

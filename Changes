@@ -82,6 +82,10 @@ Revision history for Perl extension Net::SSLeay.
 	  - X509_VERSION_1, X509_VERSION_2 and X509_VERSION_3
 	  - X509_REQ_VERSION_1, X509_REQ_VERSION_2 and X509_REQ_VERSION_3
 	  - X509_CRL_VERSION_1 and X509_CRL_VERSION_2
+	- Remove conditional compilation checks from SSLeay.xs and
+	  compatilibty notes from SSLeay.pod for OpenSSL versions
+	  earlier than 0.9.8. This includes all 0.9.7 and earlier
+	  releases down to 0.9.3a. Update tests respectively.
 
 1.93_02 2023-02-22
 	- Update ppport.h to version 3.68. This eliminates thousands of
