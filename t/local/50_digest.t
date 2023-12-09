@@ -273,14 +273,11 @@ SKIP: {
   is(Net::SSLeay::EVP_MD_type(Net::SSLeay::EVP_get_digestbyname("MD5")), 4, 'EVP_MD_type md5');
   is(Net::SSLeay::EVP_MD_size(Net::SSLeay::EVP_get_digestbyname("MD5")), 16, 'EVP_MD_size md5');
   
-  SKIP: {
-    skip "pre-0.9.7", 1 unless Net::SSLeay::SSLeay >= 0x0090700f;
-    my $md = Net::SSLeay::EVP_get_digestbyname("md5");
-    my $ctx = Net::SSLeay::EVP_MD_CTX_create();
-    skip "MD5 not available", 1 unless Net::SSLeay::EVP_DigestInit($ctx, $md);
-    my $md2 = Net::SSLeay::EVP_MD_CTX_md($ctx);
-    is(Net::SSLeay::EVP_MD_size($md2), 16, 'EVP_MD_size via EVP_MD_CTX_md md5');
-  }
+  my $md = Net::SSLeay::EVP_get_digestbyname("md5");
+  my $ctx = Net::SSLeay::EVP_MD_CTX_create();
+  skip "MD5 not available", 1 unless Net::SSLeay::EVP_DigestInit($ctx, $md);
+  my $md2 = Net::SSLeay::EVP_MD_CTX_md($ctx);
+  is(Net::SSLeay::EVP_MD_size($md2), 16, 'EVP_MD_size via EVP_MD_CTX_md md5');
 }
 
 SKIP: {
