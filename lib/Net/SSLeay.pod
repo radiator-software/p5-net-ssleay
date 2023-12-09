@@ -48,12 +48,12 @@ Net::SSLeay supports the following libssl implementations:
 
 =item *
 
-Any stable release of L<OpenSSL|https://www.openssl.org> in the 0.9.8 - 3.1
+Any stable release of L<OpenSSL|https://www.openssl.org> in the 0.9.8 - 3.2
 branches, except for OpenSSL 0.9.8 - 0.9.8b.
 
 =item *
 
-Any stable release of L<LibreSSL|https://www.libressl.org> in the 2.0 - 3.7
+Any stable release of L<LibreSSL|https://www.libressl.org> in the 2.0 - 3.8
 series, except for LibreSSL 3.2.2 and 3.2.3.
 
 =back
@@ -1043,9 +1043,14 @@ defined by the underlying OpenSSL or LibreSSL library.
     # 0x101000cf => openssl-1.1.0l
     # 0x1010100f => openssl-1.1.1
     # ...
-    # 0x101010df => openssl-1.1.1m
+    # 0x1010117f => openssl-1.1.1w
     # 0x30000000 => openssl-3.0.0
-    # 0x30000010 => openssl-3.0.1
+    # ...
+    # 0x300000c0 => openssl-3.0.12
+    # 0x30100000 => openssl-3.1.0
+    # ...
+    # 0x30100040 => openssl-3.1.4
+    # 0x30200000 => openssl-3.2.0
 
     # Note that OpenSSL 3.0.0 and later do not set the status nibble in the
     # least significant octet to f.
@@ -1053,7 +1058,7 @@ defined by the underlying OpenSSL or LibreSSL library.
     # LibreSSL returns 0x20000000 always:
     # 0x20000000 => libressl-2.2.1
     # ...
-    # 0x20000000 => libressl-3.4.2
+    # 0x20000000 => libressl-3.8.2
 
 You can use the version number like this when you know that the
 underlying library is OpenSSL:

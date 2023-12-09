@@ -86,6 +86,9 @@ Revision history for Perl extension Net::SSLeay.
 	  compatilibty notes from SSLeay.pod for OpenSSL versions
 	  earlier than 0.9.8. This includes all 0.9.7 and earlier
 	  releases down to 0.9.3a. Update tests respectively.
+	- Add OpenSSL 3.2 and LibreSSL 3.8 minor releases to GitHub CI
+	  testing. Update existing OpenSSL releases to 1.1.1w, 3.0.12
+	  and 3.1.4.
 
 1.93_02 2023-02-22
 	- Update ppport.h to version 3.68. This eliminates thousands of
