@@ -143,18 +143,12 @@
 #pragma clang diagnostic warning "-Wunknown-warning-option"
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
 #include <stdarg.h>
 #define NEED_my_snprintf
 #include "ppport.h"
-#ifdef __cplusplus
-}
-#endif
 
 /* Sigh: openssl 1.0 has
  typedef void *BLOCK;
@@ -227,7 +221,7 @@ which conflicts with perls
 #define PR4(s,t,u,v)
 #endif
 
-static void TRACE(int level,char *msg,...) {
+static void TRACE(int level,const char *msg,...) {
     va_list args;
     SV *trace = get_sv("Net::SSLeay::trace",0);
     if (trace && SvIOK(trace) && SvIV(trace)>=level) {
@@ -425,7 +419,7 @@ static void handler_list_md_fn(const EVP_MD *m, const char *from, const char *to
   if (EVP_MD_flags(m) & EVP_MD_FLAG_PKEY_DIGEST) return;    /* Skip clones */
 #endif
   if (strchr(mname, ' ')) mname= EVP_MD_name(m);
-  av_push(arg, newSVpv(mname,0));
+  av_push((AV *)arg, newSVpv(mname,0));
 }
 #endif
 
@@ -596,7 +590,7 @@ static int ssleay_verify_callback_invoke (int ok, X509_STORE_CTX* x509_store)
     SV *cb_func;
 
     PR1("STARTED: ssleay_verify_callback_invoke\n");
-    ssl = X509_STORE_CTX_get_ex_data(x509_store, SSL_get_ex_data_X509_STORE_CTX_idx());
+    ssl = (SSL *)X509_STORE_CTX_get_ex_data(x509_store, SSL_get_ex_data_X509_STORE_CTX_idx());
     cb_func = cb_data_advanced_get(ssl, "ssleay_verify_callback!!func");
     
     if (!SvOK(cb_func)) {
@@ -921,7 +915,7 @@ int ssleay_session_secret_cb_invoke(SSL* s, void* secret, int *secret_len,
     SAVETMPS;
 
     PUSHMARK(SP);
-    secretsv = sv_2mortal( newSVpv(secret, *secret_len));
+    secretsv = sv_2mortal( newSVpv((const char *)secret, *secret_len));
     XPUSHs(secretsv);
     for (i=0; i<sk_SSL_CIPHER_num(peer_ciphers); i++) {
         const SSL_CIPHER *c = sk_SSL_CIPHER_value(peer_ciphers,i);
@@ -2051,7 +2045,7 @@ int ossl_provider_do_all_cb_invoke(OSSL_PROVIDER *provider, void *cbdata) {
     dSP;
     int ret = 1;
     int count = -1;
-    simple_cb_data_t *cb = cbdata;
+    simple_cb_data_t *cb = (simple_cb_data_t *)cbdata;
 
     PR1("STARTED: ossl_provider_do_all_cb_invoke\n");
     if (cb->func && SvOK(cb->func)) {
@@ -4405,7 +4399,7 @@ X509_get_subjectAltNames(cert)
 	int                    num_gnames;
 	if (  (i = X509_get_ext_by_NID(cert, NID_subject_alt_name, -1)) >= 0
 		&& (subjAltNameExt = X509_get_ext(cert, i))
-		&& (subjAltNameDNs = X509V3_EXT_d2i(subjAltNameExt)))
+		&& (subjAltNameDNs = (STACK_OF(GENERAL_NAME) *)X509V3_EXT_d2i(subjAltNameExt)))
 	{
 		num_gnames = sk_GENERAL_NAME_num(subjAltNameDNs);
 
@@ -4485,7 +4479,7 @@ P_X509_get_crl_distribution_points(cert)
         DIST_POINT *p;
         int i, j;
     PPCODE:
-        points = X509_get_ext_d2i(cert, NID_crl_distribution_points, NULL, NULL);
+        points = (STACK_OF(DIST_POINT) *)X509_get_ext_d2i(cert, NID_crl_distribution_points, NULL, NULL);
         for (i = 0; i < sk_DIST_POINT_num(points); i++) {
             p = sk_DIST_POINT_value(points, i);
             if (!p->distpoint)
@@ -4536,7 +4530,7 @@ P_X509_get_ocsp_uri(cert)
     PPCODE:
 	AUTHORITY_INFO_ACCESS *info;
 	int i;
-	info = X509_get_ext_d2i(cert, NID_info_access, NULL, NULL);
+	info = (AUTHORITY_INFO_ACCESS *)X509_get_ext_d2i(cert, NID_info_access, NULL, NULL);
 	if (!info) XSRETURN_UNDEF;
 
 	for (i = 0; i < sk_ACCESS_DESCRIPTION_num(info); i++) {
@@ -4570,7 +4564,7 @@ P_X509_get_ext_key_usage(cert,format=0)
         char buffer[100]; /* openssl doc: a buffer length of 80 should be more than enough to handle any OID encountered in practice */
         ASN1_OBJECT *o;
     PPCODE:
-        extusage = X509_get_ext_d2i(cert, NID_ext_key_usage, NULL, NULL);
+        extusage = (EXTENDED_KEY_USAGE *)X509_get_ext_d2i(cert, NID_ext_key_usage, NULL, NULL);
         for(i = 0; i < sk_ASN1_OBJECT_num(extusage); i++) {
            o = sk_ASN1_OBJECT_value(extusage,i);
            nid = OBJ_obj2nid(o);
@@ -4592,7 +4586,7 @@ P_X509_get_key_usage(cert)
     INIT:
         ASN1_BIT_STRING * u;
     PPCODE:
-        u = X509_get_ext_d2i(cert, NID_key_usage, NULL, NULL);
+        u = (ASN1_BIT_STRING *)X509_get_ext_d2i(cert, NID_key_usage, NULL, NULL);
         if (u) {
             if (ASN1_BIT_STRING_get_bit(u,0)) XPUSHs(sv_2mortal(newSVpv("digitalSignature",0)));
             if (ASN1_BIT_STRING_get_bit(u,1)) XPUSHs(sv_2mortal(newSVpv("nonRepudiation",0)));
@@ -4612,7 +4606,7 @@ P_X509_get_netscape_cert_type(cert)
     INIT:
         ASN1_BIT_STRING * u;
     PPCODE:
-        u = X509_get_ext_d2i(cert, NID_netscape_cert_type, NULL, NULL);
+        u = (ASN1_BIT_STRING *)X509_get_ext_d2i(cert, NID_netscape_cert_type, NULL, NULL);
         if (u) {
             if (ASN1_BIT_STRING_get_bit(u,0)) XPUSHs(sv_2mortal(newSVpv("client",0)));
             if (ASN1_BIT_STRING_get_bit(u,1)) XPUSHs(sv_2mortal(newSVpv("server",0)));
@@ -6884,30 +6878,30 @@ X509_free(a)
     X509 * a
 
 X509_CRL *
-d2i_X509_CRL_bio(BIO *bp,void *unused=NULL)
+d2i_X509_CRL_bio(BIO *bp,X509_CRL **unused=NULL)
 
 X509_REQ *
-d2i_X509_REQ_bio(BIO *bp,void *unused=NULL)
+d2i_X509_REQ_bio(BIO *bp,X509_REQ **unused=NULL)
 
 X509 *
-d2i_X509_bio(BIO *bp,void *unused=NULL)
+d2i_X509_bio(BIO *bp,X509 **unused=NULL)
 
 DH *
 PEM_read_bio_DHparams(bio,x=NULL,cb=NULL,u=NULL)
 	BIO  * bio
-	void * x
+	DH ** x
 	pem_password_cb * cb
 	void * u
 
 X509_CRL *
 PEM_read_bio_X509_CRL(bio,x=NULL,cb=NULL,u=NULL)
 	BIO  * bio
-	void * x
+	X509_CRL ** x
 	pem_password_cb * cb
 	void * u
 
 X509 *
-PEM_read_bio_X509(BIO *bio,void *x=NULL,void *cb=NULL,void *u=NULL)
+PEM_read_bio_X509(BIO *bio,X509 **x=NULL,pem_password_cb *cb=NULL,void *u=NULL)
 
 STACK_OF(X509_INFO) *
 PEM_X509_INFO_read_bio(bio, stack=NULL, cb=NULL, u=NULL)
@@ -6983,7 +6977,7 @@ P_X509_INFO_get_x509(info)
         RETVAL
 
 X509_REQ *
-PEM_read_bio_X509_REQ(BIO *bio,void *x=NULL,pem_password_cb *cb=NULL,void *u=NULL)
+PEM_read_bio_X509_REQ(BIO *bio,X509_REQ **x=NULL,pem_password_cb *cb=NULL,void *u=NULL)
 
 EVP_PKEY *
 PEM_read_bio_PrivateKey(bio,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)

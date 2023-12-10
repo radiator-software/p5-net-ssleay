@@ -89,6 +89,11 @@ Revision history for Perl extension Net::SSLeay.
 	- Add OpenSSL 3.2 and LibreSSL 3.8 minor releases to GitHub CI
 	  testing. Update existing OpenSSL releases to 1.1.1w, 3.0.12
 	  and 3.1.4.
+	- Support compiling SSLeay.xs with a C++ compiler. Thanks to
+	  James E Keenan and GitHub user twata1 for suggesting this,
+	  testing and providing detailed test reports. Tested with GCC
+	  13 g++, Clang 17 clang++ and Visual Studio Community 2022
+	  C++ compilers. Discussion in GH-425 and GH-438.
 
 1.93_02 2023-02-22
 	- Update ppport.h to version 3.68. This eliminates thousands of
