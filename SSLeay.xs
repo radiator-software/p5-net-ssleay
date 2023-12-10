@@ -143,18 +143,12 @@
 #pragma clang diagnostic warning "-Wunknown-warning-option"
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
 #include <stdarg.h>
 #define NEED_my_snprintf
 #include "ppport.h"
-#ifdef __cplusplus
-}
-#endif
 
 /* Sigh: openssl 1.0 has
  typedef void *BLOCK;
