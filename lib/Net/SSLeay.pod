@@ -1307,6 +1307,124 @@ Similar to L</OpenSSL_add_all_algorithms> - will NEVER load the config file
     #
     # returns: no return value
 
+=item * OPENSSL_cleanup
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before;
+requires at least OpenSSL 1.1.0-pre3 or LibreSSL 3.6.0
+
+Deinitialises OpenSSL libcrypto and libssl.
+
+    Net::SSLeay::OPENSSL_cleanup();
+    #
+    # returns: no return value
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OPENSSL_cleanup>
+
+=item * OPENSSL_init_crypto
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before;
+requires at least OpenSSL 1.1.0-pre3 not enabled for
+LibreSSL. LibreSSL does not define C<OPENSSL_INIT_SETTINGS>.
+
+Initialises OpenSSL C<libcrypto> with non-default settings.
+
+    my $rv = Net::SSLeay::OPENSSL_init_crypto($opts, $settings);
+    # $opts - (uin64_t) flags to be set (bitmask)
+    # $settings - value corresponding to OPENSSL_INIT_SETTINGS structure or undef (optional)
+    #
+    # returns: 1 on success or 0 on error
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OPENSSL_init_crypto>
+
+=item * OPENSSL_init_ssl
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before;
+requires at least OpenSSL 1.1.0-pre3 not enabled for
+LibreSSL. LibreSSL does not define C<OPENSSL_INIT_SETTINGS>.
+
+Initialises OpenSSL C<libssl> with non-default settings.
+
+    my $rv = Net::SSLeay::OPENSSL_init_ssl($opts, $settings);
+    # $opts - (uin64_t) flags to be set (bitmask)
+    # $settings - value corresponding to OPENSSL_INIT_SETTINGS structure or undef (optional)
+    #
+    # returns: 1 on success or 0 on error
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OPENSSL_init_ssl>
+
+=item * OPENSSL_INIT_new
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before;
+requires at least OpenSSL 1.1.0-pre3, not in LibreSSL
+
+Allocates an OpenSSL C<OPENSSL_INIT_SETTINGS> object.
+
+    my $settings = Net::SSLeay::OPENSSL_init_new()
+    #
+    # returns: value corresponding to OPENSSL_INIT_SETTINGS structure
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OPENSSL_INIT_new>
+
+=item * OPENSSL_INIT_free
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before;
+requires at least OpenSSL 1.1.0-pre3, not in LibreSSL
+
+Releases an OpenSSL C<OPENSSL_INIT_SETTINGS> object allocated with
+C<OPENSSL_INIT_new>.
+
+    Net::SSLeay::OPENSSL_init_free($settings)
+    # $settings - value corresponding to OPENSSL_INIT_SETTINGS structure
+    #
+    # returns: no return value
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OPENSSL_INIT_free>
+
+=item * OPENSSL_INIT_set_config_filename
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before;
+requires at least OpenSSL 1.1.0-pre3, not in LibreSSL
+
+Specify a nondefault filename to load as OpenSSL configuration file.
+
+    my $rv = Net::SSLeay::OPENSSL_INIT_set_config_filename($settings, $filename);
+    # $settings - value corresponding to OPENSSL_INIT_SETTINGS structure
+    # $filename - (string) filename
+    #
+    # returns: 1 on success or 0 on error
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OPENSSL_INIT_set_config_filename>
+
+=item * OPENSSL_INIT_set_config_appname
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before;
+requires at least OpenSSL 1.1.0-pre3, not in LibreSSL
+
+Specify a nondefault application name.
+
+    my $rv = Net::SSLeay::OPENSSL_INIT_set_config_appname($settings, $name);
+    # $settings - value corresponding to OPENSSL_INIT_SETTINGS structure
+    # $name - (string) application name
+    #
+    # returns: 1 on success or 0 on error
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OPENSSL_INIT_set_config_appname>
+
+=item * OPENSSL_INIT_set_config_file_flags
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before;
+requires at least OpenSSL 3.0.0-alpha1, not in LibreSSL
+
+Specify nondefault flags for loading OpenSSL configuration file.
+
+    my $rv = Net::SSLeay::OPENSSL_INIT_set_config_file_flags($settings, $flags);
+    # $settings - value corresponding to OPENSSL_INIT_SETTINGS structure
+    # $flags - (unsigned long) flags to be set (bitmask)
+    #
+    # returns: 1 on success or 0 on error
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/OPENSSL_INIT_set_config_file_flags>
+
 =back
 
 =head3 Low level API: ERR_* and SSL_alert_* related functions

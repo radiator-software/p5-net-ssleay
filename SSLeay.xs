@@ -157,6 +157,7 @@ which conflicts with perls
 */
 #define BLOCK OPENSSL_BLOCK
 #include <openssl/err.h>
+#include <openssl/conf.h>
 #include <openssl/lhash.h>
 #include <openssl/rand.h>
 #include <openssl/buffer.h>
@@ -2985,6 +2986,93 @@ SSL_has_pending(s)
      SSL *              s
 
 #endif
+
+#if (OPENSSL_VERSION_NUMBER >= 0x10100003L && !defined(LIBRESSL_VERSION_NUMBER)) /* OpenSSL 1.1.0-pre3 */
+ #
+ # /* LibreSSL 2.7.0 has OPENSSL_init_{ssl,crypto} but it does not
+ #  * have a definition of OPENSSL_INIT_SETTINGS and uses void * as
+ #  * the second argument type.
+ #  */
+
+#ifdef NET_SSLEAY_32BIT_INT_PERL
+int
+OPENSSL_init_ssl(double opts, SV *sv_settings = &PL_sv_undef)
+    CODE:
+	const OPENSSL_INIT_SETTINGS *settings = NULL;
+	if (sv_settings != &PL_sv_undef)
+	    settings = INT2PTR(OPENSSL_INIT_SETTINGS *, SvIV(sv_settings));
+	RETVAL = OPENSSL_init_ssl(opts, settings);
+    OUTPUT:
+        RETVAL
+
+int
+OPENSSL_init_crypto(double opts, SV *sv_settings = &PL_sv_undef)
+    CODE:
+	const OPENSSL_INIT_SETTINGS *settings = NULL;
+	if (sv_settings != &PL_sv_undef)
+	    settings = INT2PTR(OPENSSL_INIT_SETTINGS *, SvIV(sv_settings));
+	RETVAL = OPENSSL_init_crypto(opts, settings);
+    OUTPUT:
+        RETVAL
+
+#else
+int
+OPENSSL_init_ssl(uint64_t opts, SV *sv_settings = &PL_sv_undef)
+    CODE:
+	const OPENSSL_INIT_SETTINGS *settings = NULL;
+	if (sv_settings != &PL_sv_undef)
+	    settings = INT2PTR(OPENSSL_INIT_SETTINGS *, SvIV(sv_settings));
+	RETVAL = OPENSSL_init_ssl(opts, settings);
+    OUTPUT:
+        RETVAL
+
+int
+OPENSSL_init_crypto(uint64_t opts, SV *sv_settings = &PL_sv_undef)
+    CODE:
+	const OPENSSL_INIT_SETTINGS *settings = NULL;
+	if (sv_settings != &PL_sv_undef)
+	    settings = INT2PTR(OPENSSL_INIT_SETTINGS *, SvIV(sv_settings));
+	RETVAL = OPENSSL_init_crypto(opts, settings);
+    OUTPUT:
+        RETVAL
+
+#endif /* NET_SSLEAY_32BIT_INT_PERL */
+
+#endif /* OpenSSL 1.1.0-pre3 */
+
+#if (OPENSSL_VERSION_NUMBER >= 0x10100003L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3060000fL) /* OpenSSL 1.1.0-pre3 or LibreSSL 3.6.0 */
+
+void
+OPENSSL_cleanup()
+
+#endif /* OpenSSL 1.1.0-pre3 or LibreSSL 3.6.0 */
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100003L && !defined(LIBRESSL_VERSION_NUMBER) /* OpenSSL 1.1.0-pre3 */
+
+OPENSSL_INIT_SETTINGS *
+OPENSSL_INIT_new()
+
+#endif /* OpenSSL 1.1.0-pre3 */
+
+#if OPENSSL_VERSION_NUMBER >= 0x1010102fL && !defined(LIBRESSL_VERSION_NUMBER) /* OpenSSL 1.1.1b */
+
+int
+OPENSSL_INIT_set_config_filename(OPENSSL_INIT_SETTINGS *init, const char *filename)
+
+int
+OPENSSL_INIT_set_config_appname(OPENSSL_INIT_SETTINGS *init, const char *name)
+
+void
+OPENSSL_INIT_free(OPENSSL_INIT_SETTINGS *init)
+
+#endif /* OpenSSL 1.1.0-pre3 */
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L && !defined(LIBRESSL_VERSION_NUMBER) /* OpenSSL 3.0.0-alpha1 */
+
+void
+OPENSSL_INIT_set_config_file_flags(OPENSSL_INIT_SETTINGS *init, unsigned long flags)
+
+#endif /* OpenSSL 3.0.0-alpha1 */
 
 int
 SSL_CTX_set_cipher_list(s,str)

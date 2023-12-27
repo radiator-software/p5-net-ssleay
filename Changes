@@ -121,6 +121,17 @@ Revision history for Perl extension Net::SSLeay.
 	  - OPENSSL_INIT_NO_LOAD_CONFIG
 	  - OPENSSL_INIT_NO_LOAD_CRYPTO_STRINGS
 	  - OPENSSL_INIT_NO_LOAD_SSL_STRINGS
+	- Expose functions for OpenSSL libcrypto and libssl
+	  initialisation, configuration and deinitialisation.
+	  These are available in OpenSSL 1.1.0 and later:
+	  - OPENSSL_init_ssl and OPENSSL_init_crypto
+	  - OPENSSL_cleanup, also in LibreSSL 3.6.0
+	  - OPENSSL_INIT_new and OPENSSL_INIT_free
+	  - OPENSSL_INIT_set_config_filename
+	  - OPENSSL_INIT_set_config_appname
+	  - OPENSSL_INIT_set_config_file_flags
+	- Add new test file 23_openssl_init.t for OPENSSL_init_ssl and
+	  related functions.
 
 1.93_02 2023-02-22
 	- Update ppport.h to version 3.68. This eliminates thousands of
