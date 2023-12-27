@@ -26,7 +26,7 @@ require threads;
 # If we need to do OPENSSL_INIT_crypto() call, we must skip the
 # default library initialisation. Otherwise our call to
 # OPENSSL_init_crypto() won't do anything.
-defined &Net::SSLeay::OPENSSL_init_crypto ?
+eval { Net::SSLeay::OPENSSL_INIT_NO_ATEXIT(); return 1; } ?
     Net::SSLeay::OPENSSL_init_crypto(Net::SSLeay::OPENSSL_INIT_NO_ATEXIT(), undef) :
     initialise_libssl();
 
