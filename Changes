@@ -132,6 +132,8 @@ Revision history for Perl extension Net::SSLeay.
 	  - OPENSSL_INIT_set_config_file_flags
 	- Add new test file 23_openssl_init.t for OPENSSL_init_ssl and
 	  related functions.
+	- Support finding OpenSSL libraries using
+	  ExtUtils::PkgConfig. Thanks to Paul Howarth for the patch.
 
 1.93_02 2023-02-22
 	- Update ppport.h to version 3.68. This eliminates thousands of
