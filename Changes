@@ -65,6 +65,73 @@ Revision history for Perl extension Net::SSLeay.
 	  - SSL_SESSION_set_cipher
 	  - SSL_SESSION_set_protocol_version
 	  - SSL_CIPHER_find
+	- Expose NID_shake128, NID_shake256 and the rest of NID_sha* constants.
+	- Expose functions for setting up TLS 1.3 PSK authentication
+	  on the client side. Only SSL_SESSION_get0_cipher is
+	  available with LibreSSL.
+	  - SSL_set_psk_use_session_callback
+	  - SSL_CTX_set_psk_use_session_callback
+	  - SSL_CIPHER_get_handshake_digest
+	  - SSL_SESSION_get0_cipher
+	  - EVP_MD_get0_description
+	  - EVP_MD_get0_name
+	  - EVP_MD_get_type
+	- Major documentation cleanup. Thanks to John Jetmore.
+	- Add constants for specifying version field for certificates,
+	  certificate requests and CRLs. Available in OpenSSL 3.0:
+	  - X509_VERSION_1, X509_VERSION_2 and X509_VERSION_3
+	  - X509_REQ_VERSION_1, X509_REQ_VERSION_2 and X509_REQ_VERSION_3
+	  - X509_CRL_VERSION_1 and X509_CRL_VERSION_2
+	- Remove conditional compilation checks from SSLeay.xs and
+	  compatilibty notes from SSLeay.pod for OpenSSL versions
+	  earlier than 0.9.8. This includes all 0.9.7 and earlier
+	  releases down to 0.9.3a. Update tests respectively.
+	- Add OpenSSL 3.2 and LibreSSL 3.8 minor releases to GitHub CI
+	  testing. Update existing OpenSSL releases to 1.1.1w, 3.0.12
+	  and 3.1.4.
+	- Support compiling SSLeay.xs with a C++ compiler. Thanks to
+	  James E Keenan and GitHub user twata1 for suggesting this,
+	  testing and providing detailed test reports. Tested with GCC
+	  13 g++, Clang 17 clang++ and Visual Studio Community 2022
+	  C++ compilers. Discussion in GH-425 and GH-438.
+	- Add constants for OPENSSL_init_crypto and related functions:
+	  - CONF_MFLAGS_DEFAULT_SECTION
+	  - CONF_MFLAGS_IGNORE_ERRORS
+	  - CONF_MFLAGS_IGNORE_MISSING_FILE
+	  - CONF_MFLAGS_IGNORE_RETURN_CODES
+	  - CONF_MFLAGS_NO_DSO
+	  - CONF_MFLAGS_SILENT
+	  - OPENSSL_INIT_ADD_ALL_CIPHERS
+	  - OPENSSL_INIT_ADD_ALL_DIGESTS
+	  - OPENSSL_INIT_ASYNC
+	  - OPENSSL_INIT_ATFORK
+	  - OPENSSL_INIT_ENGINE_AFALG
+	  - OPENSSL_INIT_ENGINE_CAPI
+	  - OPENSSL_INIT_ENGINE_CRYPTODEV
+	  - OPENSSL_INIT_ENGINE_DYNAMIC
+	  - OPENSSL_INIT_ENGINE_OPENSSL
+	  - OPENSSL_INIT_ENGINE_PADLOCK
+	  - OPENSSL_INIT_ENGINE_RDRAND
+	  - OPENSSL_INIT_LOAD_CONFIG
+	  - OPENSSL_INIT_LOAD_CRYPTO_STRINGS
+	  - OPENSSL_INIT_LOAD_SSL_STRINGS
+	  - OPENSSL_INIT_NO_ADD_ALL_CIPHERS
+	  - OPENSSL_INIT_NO_ADD_ALL_DIGESTS
+	  - OPENSSL_INIT_NO_ATEXIT
+	  - OPENSSL_INIT_NO_LOAD_CONFIG
+	  - OPENSSL_INIT_NO_LOAD_CRYPTO_STRINGS
+	  - OPENSSL_INIT_NO_LOAD_SSL_STRINGS
+	- Expose functions for OpenSSL libcrypto and libssl
+	  initialisation, configuration and deinitialisation.
+	  These are available in OpenSSL 1.1.0 and later:
+	  - OPENSSL_init_ssl and OPENSSL_init_crypto
+	  - OPENSSL_cleanup, also in LibreSSL 3.6.0
+	  - OPENSSL_INIT_new and OPENSSL_INIT_free
+	  - OPENSSL_INIT_set_config_filename
+	  - OPENSSL_INIT_set_config_appname
+	  - OPENSSL_INIT_set_config_file_flags
+	- Add new test file 23_openssl_init.t for OPENSSL_init_ssl and
+	  related functions.
 
 1.93_02 2023-02-22
 	- Update ppport.h to version 3.68. This eliminates thousands of

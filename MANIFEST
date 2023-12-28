@@ -45,6 +45,7 @@ README.VMS
 README.Win32
 SSLeay.xs
 t/data/binary-test.file
+t/data/openssl_init_test.conf
 t/data/extended-cert.cert.der
 t/data/extended-cert.cert.dump
 t/data/extended-cert.cert.pem
@@ -203,6 +204,7 @@ t/local/21_constants.t
 t/local/22_provider.t
 t/local/22_provider_try_load.t
 t/local/22_provider_try_load_zero_retain.t
+t/local/23_openssl_init.t
 t/local/30_error.t
 t/local/31_rsa_generate_key.t
 t/local/32_x509_get_cert_info.t

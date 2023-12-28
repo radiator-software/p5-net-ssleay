@@ -3,7 +3,7 @@ use lib 'inc';
 use Net::SSLeay;
 use Test::Net::SSLeay qw( data_file_path initialise_libssl );
 
-plan tests => 203;
+plan tests => 206;
 
 initialise_libssl();
 Net::SSLeay::OpenSSL_add_all_digests();
@@ -273,14 +273,11 @@ SKIP: {
   is(Net::SSLeay::EVP_MD_type(Net::SSLeay::EVP_get_digestbyname("MD5")), 4, 'EVP_MD_type md5');
   is(Net::SSLeay::EVP_MD_size(Net::SSLeay::EVP_get_digestbyname("MD5")), 16, 'EVP_MD_size md5');
   
-  SKIP: {
-    skip "pre-0.9.7", 1 unless Net::SSLeay::SSLeay >= 0x0090700f;
-    my $md = Net::SSLeay::EVP_get_digestbyname("md5");
-    my $ctx = Net::SSLeay::EVP_MD_CTX_create();
-    skip "MD5 not available", 1 unless Net::SSLeay::EVP_DigestInit($ctx, $md);
-    my $md2 = Net::SSLeay::EVP_MD_CTX_md($ctx);
-    is(Net::SSLeay::EVP_MD_size($md2), 16, 'EVP_MD_size via EVP_MD_CTX_md md5');
-  }
+  my $md = Net::SSLeay::EVP_get_digestbyname("md5");
+  my $ctx = Net::SSLeay::EVP_MD_CTX_create();
+  skip "MD5 not available", 1 unless Net::SSLeay::EVP_DigestInit($ctx, $md);
+  my $md2 = Net::SSLeay::EVP_MD_CTX_md($ctx);
+  is(Net::SSLeay::EVP_MD_size($md2), 16, 'EVP_MD_size via EVP_MD_CTX_md md5');
 }
 
 SKIP: {
@@ -294,6 +291,16 @@ SKIP: {
 SKIP: {
   skip "Net::SSLeay::EVP_sha1 not available", 1 unless exists &Net::SSLeay::EVP_sha1;
   is(Net::SSLeay::EVP_MD_size(Net::SSLeay::EVP_sha1()), 20, 'EVP_MD_size sha1');
+}
+
+# OpenSSL 3.0.0 adds these functions. We assume SHA256 is available
+# because it can't be disabled with 3.0.0 and later. The latest
+# OpenSSL, as of time of writing, is 3.2.0.
+SKIP: {
+    skip "Net::SSLeay::EVP_MD_get0_description, EVP_MD_get0_name and EVP_MD_get_type not available", 3, unless exists &Net::SSLeay::EVP_MD_get0_description;
+    like(Net::SSLeay::EVP_MD_get0_description(Net::SSLeay::EVP_sha512()), qr/SHA512/si, 'EVP_MD_get0_description');
+    like(Net::SSLeay::EVP_MD_get0_name(Net::SSLeay::EVP_sha512()), qr/SHA512/si, 'EVP_MD_get0_name');
+    is(Net::SSLeay::EVP_MD_get_type(Net::SSLeay::EVP_sha512()), Net::SSLeay::NID_sha512(), 'EVP_MD_get_type');
 }
 
 digest_file($file, $file_digests, \%all_digests);

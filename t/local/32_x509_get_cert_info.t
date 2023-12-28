@@ -89,10 +89,7 @@ for my $f (keys (%$dump)) {
   my @subjectaltnames = Net::SSLeay::X509_get_subjectAltNames($x509);
   is(scalar(@subjectaltnames), scalar(@{$dump->{$f}->{subject}->{altnames}}), "subjectaltnames size\t$f");
   for my $i (0..$#subjectaltnames) {
-    SKIP: {
-      skip('altname types are different on pre-0.9.7', 1) unless Net::SSLeay::SSLeay >= 0x0090700f || ($i%2)==1;
       is($subjectaltnames[$i], $dump->{$f}->{subject}->{altnames}->[$i], "subjectaltnames match\t$f:$i");
-    }
   }
   
   #BEWARE: values are not the same across different openssl versions or FIPS mode, therefore testing just >0
@@ -112,22 +109,16 @@ for my $f (keys (%$dump)) {
   }
   
   my $sha1_digest = Net::SSLeay::EVP_get_digestbyname("sha1");
-  SKIP: {
-    skip('requires openssl-0.9.7', 1) unless Net::SSLeay::SSLeay >= 0x0090700f;
-    is(Net::SSLeay::X509_pubkey_digest($x509, $sha1_digest), $dump->{$f}->{digest_sha1}->{pubkey}, "X509_pubkey_digest\t$f");
-  }
+  is(Net::SSLeay::X509_pubkey_digest($x509, $sha1_digest), $dump->{$f}->{digest_sha1}->{pubkey}, "X509_pubkey_digest\t$f");
   is(Net::SSLeay::X509_digest($x509, $sha1_digest), $dump->{$f}->{digest_sha1}->{x509}, "X509_digest\t$f");
 
   
-  SKIP: {
-    skip('P_ASN1_TIME_get_isotime requires 0.9.7e+', 2) unless Net::SSLeay::SSLeay >= 0x0090705f;
-    is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get0_notBefore($x509)), $dump->{$f}->{not_before}, "X509_get0_notBefore\t$f");
-    is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_getm_notBefore($x509)), $dump->{$f}->{not_before}, "X509_getm_notBefore\t$f");
-    is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get_notBefore($x509)),  $dump->{$f}->{not_before}, "X509_get_notBefore\t$f");
-    is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get0_notAfter($x509)),  $dump->{$f}->{not_after},  "X509_get0_notAfter\t$f");
-    is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_getm_notAfter($x509)),  $dump->{$f}->{not_after},  "X509_getm_notAfter\t$f");
-    is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get_notAfter($x509)),   $dump->{$f}->{not_after},  "X509_get_notAfter\t$f");
-  }
+  is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get0_notBefore($x509)), $dump->{$f}->{not_before}, "X509_get0_notBefore\t$f");
+  is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_getm_notBefore($x509)), $dump->{$f}->{not_before}, "X509_getm_notBefore\t$f");
+  is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get_notBefore($x509)),  $dump->{$f}->{not_before}, "X509_get_notBefore\t$f");
+  is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get0_notAfter($x509)),  $dump->{$f}->{not_after},  "X509_get0_notAfter\t$f");
+  is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_getm_notAfter($x509)),  $dump->{$f}->{not_after},  "X509_getm_notAfter\t$f");
+  is(Net::SSLeay::P_ASN1_TIME_get_isotime(Net::SSLeay::X509_get_notAfter($x509)),   $dump->{$f}->{not_after},  "X509_get_notAfter\t$f");
   
   ok(my $ai = Net::SSLeay::X509_get_serialNumber($x509), "X509_get_serialNumber\t$f");
 
@@ -160,10 +151,7 @@ for my $f (keys (%$dump)) {
     ok(my $ext = Net::SSLeay::X509_get_ext($x509,$i), "X509_get_ext\t$f:$i");
     ok(my $asn1_string = Net::SSLeay::X509_EXTENSION_get_data($ext), "X509_EXTENSION_get_data\t$f:$i");
     ok(my $asn1_object = Net::SSLeay::X509_EXTENSION_get_object($ext), "X509_EXTENSION_get_object\t$f:$i");
-    SKIP: {
-      skip('X509_EXTENSION_get_critical works differently on pre-0.9.7', 1) unless Net::SSLeay::SSLeay >= 0x0090700f;
-      is(Net::SSLeay::X509_EXTENSION_get_critical($ext), $dump->{$f}->{extensions}->{entries}->[$i]->{critical}, "X509_EXTENSION_get_critical\t$f:$i");
-    }
+    is(Net::SSLeay::X509_EXTENSION_get_critical($ext), $dump->{$f}->{extensions}->{entries}->[$i]->{critical}, "X509_EXTENSION_get_critical\t$f:$i");
     is(Net::SSLeay::OBJ_obj2txt($asn1_object,1), $dump->{$f}->{extensions}->{entries}->[$i]->{oid}, "OBJ_obj2txt\t$f:$i");
     
     if (defined $dump->{$f}->{extensions}->{entries}->[$i]->{nid}) {
@@ -287,13 +275,10 @@ for my $f (keys (%$dump)) {
     }
   }
     
-  SKIP: {
-    skip('crl_distribution_points requires 0.9.7+', int(@{$dump->{$f}->{cdp}})+1) unless Net::SSLeay::SSLeay >= 0x0090700f;
-    my @cdp = Net::SSLeay::P_X509_get_crl_distribution_points($x509);
-    is(scalar(@cdp), scalar(@{$dump->{$f}->{cdp}}), "cdp size\t$f");
-    for my $i (0..$#cdp) {
+  my @cdp = Net::SSLeay::P_X509_get_crl_distribution_points($x509);
+  is(scalar(@cdp), scalar(@{$dump->{$f}->{cdp}}), "cdp size\t$f");
+  for my $i (0..$#cdp) {
       is($cdp[$i], $dump->{$f}->{cdp}->[$i], "cdp match\t$f:$i");
-    }
   }
 
   my @keyusage = Net::SSLeay::P_X509_get_key_usage($x509);
@@ -307,52 +292,49 @@ for my $f (keys (%$dump)) {
     is($ns_cert_type[$i], $dump->{$f}->{ns_cert_type}->[$i], "ns_cert_type match\t$f:$i");
   }
 
-  SKIP: {
-    # "ipsec Internet Key Exchange" isn't known by its name in OpenSSL
-    # 1.1.0-pre2 and below or in LibreSSL
-    if (    is_openssl() && Net::SSLeay::SSLeay < 0x10100003
-         || is_libressl() ) {
-        @{ $dump->{$f}->{extkeyusage}->{ln} } =
-            grep { $_ ne 'ipsec Internet Key Exchange' }
-            @{ $dump->{$f}->{extkeyusage}->{ln} };
+  # "ipsec Internet Key Exchange" isn't known by its name in OpenSSL
+  # 1.1.0-pre2 and below or in LibreSSL
+  if (    is_openssl() && Net::SSLeay::SSLeay < 0x10100003
+	  || is_libressl() ) {
+      @{ $dump->{$f}->{extkeyusage}->{ln} } =
+	  grep { $_ ne 'ipsec Internet Key Exchange' }
+      @{ $dump->{$f}->{extkeyusage}->{ln} };
 
-        @{ $dump->{$f}->{extkeyusage}->{nid} } =
-            grep { $_ != 1022 }
-            @{ $dump->{$f}->{extkeyusage}->{nid} };
+      @{ $dump->{$f}->{extkeyusage}->{nid} } =
+	  grep { $_ != 1022 }
+      @{ $dump->{$f}->{extkeyusage}->{nid} };
 
-        @{ $dump->{$f}->{extkeyusage}->{sn} } =
-            grep { $_ ne 'ipsecIKE' }
-            @{ $dump->{$f}->{extkeyusage}->{sn} };
-    }
+      @{ $dump->{$f}->{extkeyusage}->{sn} } =
+	  grep { $_ ne 'ipsecIKE' }
+      @{ $dump->{$f}->{extkeyusage}->{sn} };
+  }
 
-    my $test_count = 4 + scalar(@{$dump->{$f}->{extkeyusage}->{oid}}) +
-                         scalar(@{$dump->{$f}->{extkeyusage}->{nid}}) +
-                         scalar(@{$dump->{$f}->{extkeyusage}->{sn}}) +
-                         scalar(@{$dump->{$f}->{extkeyusage}->{ln}});
+  my $test_count = 4 + scalar(@{$dump->{$f}->{extkeyusage}->{oid}}) +
+                       scalar(@{$dump->{$f}->{extkeyusage}->{nid}}) +
+                       scalar(@{$dump->{$f}->{extkeyusage}->{sn}}) +
+                       scalar(@{$dump->{$f}->{extkeyusage}->{ln}});
 
-    skip('extended key usage requires 0.9.7+', $test_count) unless Net::SSLeay::SSLeay >= 0x0090700f;
-    my @extkeyusage_oid = Net::SSLeay::P_X509_get_ext_key_usage($x509,0);
-    my @extkeyusage_nid = Net::SSLeay::P_X509_get_ext_key_usage($x509,1);
-    my @extkeyusage_sn  = Net::SSLeay::P_X509_get_ext_key_usage($x509,2);
-    my @extkeyusage_ln  = Net::SSLeay::P_X509_get_ext_key_usage($x509,3);
-  
-    is(scalar(@extkeyusage_oid), scalar(@{$dump->{$f}->{extkeyusage}->{oid}}), "extku_oid size\t$f");
-    is(scalar(@extkeyusage_nid), scalar(@{$dump->{$f}->{extkeyusage}->{nid}}), "extku_nid size\t$f");
-    is(scalar(@extkeyusage_sn), scalar(@{$dump->{$f}->{extkeyusage}->{sn}}), "extku_sn size\t$f");
-    is(scalar(@extkeyusage_ln), scalar(@{$dump->{$f}->{extkeyusage}->{ln}}), "extku_ln size\t$f");
+  my @extkeyusage_oid = Net::SSLeay::P_X509_get_ext_key_usage($x509,0);
+  my @extkeyusage_nid = Net::SSLeay::P_X509_get_ext_key_usage($x509,1);
+  my @extkeyusage_sn  = Net::SSLeay::P_X509_get_ext_key_usage($x509,2);
+  my @extkeyusage_ln  = Net::SSLeay::P_X509_get_ext_key_usage($x509,3);
 
-    for my $i (0..$#extkeyusage_oid) {
+  is(scalar(@extkeyusage_oid), scalar(@{$dump->{$f}->{extkeyusage}->{oid}}), "extku_oid size\t$f");
+  is(scalar(@extkeyusage_nid), scalar(@{$dump->{$f}->{extkeyusage}->{nid}}), "extku_nid size\t$f");
+  is(scalar(@extkeyusage_sn), scalar(@{$dump->{$f}->{extkeyusage}->{sn}}), "extku_sn size\t$f");
+  is(scalar(@extkeyusage_ln), scalar(@{$dump->{$f}->{extkeyusage}->{ln}}), "extku_ln size\t$f");
+
+  for my $i (0..$#extkeyusage_oid) {
       is($extkeyusage_oid[$i], $dump->{$f}->{extkeyusage}->{oid}->[$i], "extkeyusage_oid match\t$f:$i");
-    }
-    for my $i (0..$#extkeyusage_nid) {
+  }
+  for my $i (0..$#extkeyusage_nid) {
       is($extkeyusage_nid[$i], $dump->{$f}->{extkeyusage}->{nid}->[$i], "extkeyusage_nid match\t$f:$i");
-    }
-    for my $i (0..$#extkeyusage_sn) {
+  }
+  for my $i (0..$#extkeyusage_sn) {
       is($extkeyusage_sn[$i], $dump->{$f}->{extkeyusage}->{sn}->[$i], "extkeyusage_sn match\t$f:$i");
-    }
-    for my $i (0..$#extkeyusage_ln) {
+  }
+  for my $i (0..$#extkeyusage_ln) {
       is($extkeyusage_ln[$i], $dump->{$f}->{extkeyusage}->{ln}->[$i], "extkeyusage_ln match\t$f:$i");
-    }
   }
   
   ok(my $pubkey = Net::SSLeay::X509_get_pubkey($x509), "X509_get_pubkey");
