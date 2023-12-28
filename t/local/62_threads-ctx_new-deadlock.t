@@ -16,7 +16,19 @@ if (not can_thread()) {
 
 require threads;
 
-initialise_libssl();
+# OpenSSL 3.0 and later set atexit() handlers in such a way that this
+# test may crash during the default cleanup on exit.  See
+# https://github.com/openssl/openssl/issues/17469 and
+# https://github.com/radiator-software/p5-net-ssleay/issues/452 for
+# more information, including workarounds when OPENSSL_INIT_crypto()
+# is not available in Net::SSLeay.
+#
+# If we need to do OPENSSL_INIT_crypto() call, we must skip the
+# default library initialisation. Otherwise our call to
+# OPENSSL_init_crypto() won't do anything.
+eval { Net::SSLeay::OPENSSL_INIT_NO_ATEXIT(); return 1; } ?
+    Net::SSLeay::OPENSSL_init_crypto(Net::SSLeay::OPENSSL_INIT_NO_ATEXIT(), undef) :
+    initialise_libssl();
 
 my $start_time = time;
 
@@ -24,7 +36,7 @@ my $start_time = time;
 threads->new( sub { sleep 20; warn "FATAL: TIMEOUT!"; exit } )->detach;
 
 #print STDERR "Gonna start multi-threading part\n";
-threads->new(\&do_check) for (1..20);
+threads->new(\&do_check) for (1..100);
 
 #print STDERR "Waiting for all threads to finish\n";
 do_sleep(50) while (threads->list());
