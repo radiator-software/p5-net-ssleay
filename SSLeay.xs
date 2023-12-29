@@ -2997,8 +2997,9 @@ SSL_has_pending(s)
 #ifdef NET_SSLEAY_32BIT_INT_PERL
 int
 OPENSSL_init_ssl(double opts, SV *sv_settings = &PL_sv_undef)
-    CODE:
+    PREINIT:
 	const OPENSSL_INIT_SETTINGS *settings = NULL;
+    CODE:
 	if (sv_settings != &PL_sv_undef)
 	    settings = INT2PTR(OPENSSL_INIT_SETTINGS *, SvIV(sv_settings));
 	RETVAL = OPENSSL_init_ssl(opts, settings);
@@ -3007,8 +3008,9 @@ OPENSSL_init_ssl(double opts, SV *sv_settings = &PL_sv_undef)
 
 int
 OPENSSL_init_crypto(double opts, SV *sv_settings = &PL_sv_undef)
-    CODE:
+    PREINIT:
 	const OPENSSL_INIT_SETTINGS *settings = NULL;
+    CODE:
 	if (sv_settings != &PL_sv_undef)
 	    settings = INT2PTR(OPENSSL_INIT_SETTINGS *, SvIV(sv_settings));
 	RETVAL = OPENSSL_init_crypto(opts, settings);
@@ -3018,8 +3020,9 @@ OPENSSL_init_crypto(double opts, SV *sv_settings = &PL_sv_undef)
 #else
 int
 OPENSSL_init_ssl(uint64_t opts, SV *sv_settings = &PL_sv_undef)
-    CODE:
+    PREINIT:
 	const OPENSSL_INIT_SETTINGS *settings = NULL;
+    CODE:
 	if (sv_settings != &PL_sv_undef)
 	    settings = INT2PTR(OPENSSL_INIT_SETTINGS *, SvIV(sv_settings));
 	RETVAL = OPENSSL_init_ssl(opts, settings);
@@ -3028,8 +3031,9 @@ OPENSSL_init_ssl(uint64_t opts, SV *sv_settings = &PL_sv_undef)
 
 int
 OPENSSL_init_crypto(uint64_t opts, SV *sv_settings = &PL_sv_undef)
-    CODE:
+    PREINIT:
 	const OPENSSL_INIT_SETTINGS *settings = NULL;
+    CODE:
 	if (sv_settings != &PL_sv_undef)
 	    settings = INT2PTR(OPENSSL_INIT_SETTINGS *, SvIV(sv_settings));
 	RETVAL = OPENSSL_init_crypto(opts, settings);
@@ -8656,8 +8660,9 @@ OSSL_LIB_CTX_get0_global_default()
 
 OSSL_PROVIDER *
 OSSL_PROVIDER_load(SV *libctx, const char *name)
-    CODE:
+    PREINIT:
         OSSL_LIB_CTX *ctx = NULL;
+    CODE:
         if (libctx != &PL_sv_undef)
 	    ctx = INT2PTR(OSSL_LIB_CTX *, SvIV(libctx));
         RETVAL = OSSL_PROVIDER_load(ctx, name);
@@ -8668,8 +8673,9 @@ OSSL_PROVIDER_load(SV *libctx, const char *name)
 
 OSSL_PROVIDER *
 OSSL_PROVIDER_try_load(SV *libctx, const char *name, int retain_fallbacks)
-    CODE:
+    PREINIT:
         OSSL_LIB_CTX *ctx = NULL;
+    CODE:
         if (libctx != &PL_sv_undef)
 	    ctx = INT2PTR(OSSL_LIB_CTX *, SvIV(libctx));
         RETVAL = OSSL_PROVIDER_try_load(ctx, name, retain_fallbacks);
@@ -8683,8 +8689,9 @@ OSSL_PROVIDER_unload(OSSL_PROVIDER *prov)
 
 int
 OSSL_PROVIDER_available(SV *libctx, const char *name)
-    CODE:
+    PREINIT:
         OSSL_LIB_CTX *ctx = NULL;
+    CODE:
         if (libctx != &PL_sv_undef)
 	    ctx = INT2PTR(OSSL_LIB_CTX *, SvIV(libctx));
         RETVAL = OSSL_PROVIDER_available(ctx, name);
@@ -8695,8 +8702,8 @@ int
 OSSL_PROVIDER_do_all(SV *libctx, SV *perl_cb, SV *perl_cbdata = &PL_sv_undef)
     PREINIT:
         simple_cb_data_t* cbdata = NULL;
-    CODE:
         OSSL_LIB_CTX *ctx = NULL;
+    CODE:
         if (libctx != &PL_sv_undef)
 	    ctx = INT2PTR(OSSL_LIB_CTX *, SvIV(libctx));
 

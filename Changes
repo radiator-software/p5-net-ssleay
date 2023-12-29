@@ -134,6 +134,13 @@ Revision history for Perl extension Net::SSLeay.
 	  related functions.
 	- Support finding OpenSSL libraries using
 	  ExtUtils::PkgConfig. Thanks to Paul Howarth for the patch.
+	- Fix a number of cases where variables were declared after
+	  code triggering Gcc and Clang warning
+	  -Wdeclaration-after-statement. This is supported by C
+	  language version C99 and used by Perl 5.35.5 and
+	  later. SSLeay.xs is likely compiled with compilers that do
+	  not support this, therefore such constructs are avoided in
+	  SSLeay.xs. Thanks to GitHub user bulk88 for the patch.
 
 1.93_02 2023-02-22
 	- Update ppport.h to version 3.68. This eliminates thousands of
