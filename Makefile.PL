@@ -264,9 +264,13 @@ EOM
         if ($win_link_statically) {
             # Link to static libs
             push @{ $opts->{lib_paths} }, "$prefix/lib/VC/static" if -d "$prefix/lib/VC/static";
+            push @{ $opts->{lib_paths} }, "$prefix/lib/VC/x86/MT" if -d "$prefix/lib/VC/x86/MT"; # Shining Light 32bit OpenSSL 3.2.0
+            push @{ $opts->{lib_paths} }, "$prefix/lib/VC/x64/MT" if -d "$prefix/lib/VC/x64/MT"; # Shining Light 64bit OpenSSL 3.2.0
         }
         else {
             push @{ $opts->{lib_paths} }, "$prefix/lib/VC" if -d "$prefix/lib/VC";
+            push @{ $opts->{lib_paths} }, "$prefix/lib/VC/x86/MD" if -d "$prefix/lib/VC/x86/MD"; # Shining Light 32bit OpenSSL 3.2.0
+            push @{ $opts->{lib_paths} }, "$prefix/lib/VC/x64/MD" if -d "$prefix/lib/VC/x64/MD"; # Shining Light 64bit OpenSSL 3.2.0
         }
 
         my $found = 0;
@@ -371,6 +375,8 @@ sub find_openssl_prefix {
 	'/usr/sfw/bin/openssl'           => '/usr/sfw', # Open Solaris
 	'C:\OpenSSL\bin\openssl.exe'     => 'C:\OpenSSL',
 	'C:\OpenSSL-Win32\bin\openssl.exe'        => 'C:\OpenSSL-Win32',
+	'C:\Program Files (x86)\OpenSSL-Win32\bin\openssl.exe' => 'C:\Program Files (x86)\OpenSSL-Win32', # Shining Light 32bit OpenSSL 1.1.1w, 3.0.12, 3.1.4 and 3.2.0
+	'C:\Program Files\OpenSSL-Win64\bin\openssl.exe'       => 'C:\Program Files\OpenSSL-Win64',       # Shining Light 64bit OpenSSL 1.1.1w, 3.0.12, 3.1.4 and 3.2.0
 	$Config{prefix} . '\bin\openssl.exe'      => $Config{prefix},           # strawberry perl
 	$Config{prefix} . '\..\c\bin\openssl.exe' => $Config{prefix} . '\..\c', # strawberry perl
 	'/sslexe/openssl.exe'            => '/sslroot',  # VMS, openssl.org

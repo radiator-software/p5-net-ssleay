@@ -40,6 +40,34 @@ perl Makefile.PL
 make
 .....
 
+0. Windows 11 version 23H2
+   Visual Studio Community 2022
+   64bit and 32bit Perl 5.38.2 compiled with Visual Studio Community 2022
+   Shining Light 64bit and 32bit OpenSSL 1.1.1w, 3.0.12, 3.1.4 and 3.2.0
+
+Compile 64bit or 32bit Perl.
+Install 64bit or 32bit Shining LightOpenSSL package.
+Change to Net-SSLeay directory and do the following:
+ perl Makefile.PL
+ nmake
+ nmake test
+ nmake install
+
+Caution: Static linking seem to require updating library names to use
+_static suffix with the aforementioned Shining Light OpenSSL
+versions. Run the following command after nmake to see which
+libraries and symbols are required to be dynamically loaded:
+  dumpbin /imports blib\arch\auto\Net\SSLeay\SSLeay.dll
+
+Library names and locations for static linking seem to vary between
+installation methods (local compilation, Shinging Light, other OpenSSL
+installers). Therefore Makefile.PL may not be able to keep up with all
+the possibilities.
+
+Caution: When both 32bit and 64bit Shining Light (and possibly other)
+OpenSSL package versions are installed, Makefile.PL may pick a wrong
+location. Use OPENSSL_PREFIX environment variable in case of problems.
+
 1. Windows Server 2003
    ActivePerl 5.8.8.820
    VC++ 6.0

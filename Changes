@@ -141,6 +141,15 @@ Revision history for Perl extension Net::SSLeay.
 	  later. SSLeay.xs is likely compiled with compilers that do
 	  not support this, therefore such constructs are avoided in
 	  SSLeay.xs. Thanks to GitHub user bulk88 for the patch.
+	- Fix _CRT_SECURE_NO_DEPRECATE warning on Windows. Fix OpenSSL
+	  library file path detection loop in Makefile.PL. Both thanks
+	  to bulk88.
+	- Update Shining Light OpenSSL detection to work with OpenSSL
+	  1.1.1w, 3.0.12, 3.1.4 and 3.2.0 installers. Caveats: when
+	  both 32bit and 64bit versions are installed, OpenSSL library
+	  path detection may pick the wrong version. Static
+	  compilation needs seems not to work with the these
+	  versions. Thanks to bulk88 for the initial updates.
 
 1.93_02 2023-02-22
 	- Update ppport.h to version 3.68. This eliminates thousands of
