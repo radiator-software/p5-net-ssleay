@@ -10,7 +10,6 @@ for the released versions:
    https://metacpan.org/release/Net-SSLeay
 
 for the latest and possibly unstable version from git:
-
    https://github.com/radiator-software/p5-net-ssleay
 
 
@@ -61,29 +60,35 @@ Installing
 ----------
 
 General:
-If your OpenSSL is installed in an unusual place, you can tell
-	Net-SSLeay where to find it with by setting the OPENSSL_PREFIX environment
-	variable. Example:
+	Makefile.PL tries to find OpenSSL installation location from a
+	number of pre-defined paths. It will print the version and
+	location of OpenSSL or LibreSSL it finds, or warn if it doesn't
+	find anything usable.
 
-  export OPENSSL_PREFIX=/my/non-standard/path/usr
+	If your OpenSSL is installed in an unusual place, you can tell
+	Makefile.PL from where to find it with by setting the
+	OPENSSL_PREFIX environment variable.
 
-The logic in Makefile.PL appends include/openssl to the environment 
-variable OPENSSL_PREFIX.
+	On Linux, macOS and other Unix type systems:
+	OPENSSL_PREFIX=/home/mikem/playpen/openssl-1.0.2c perl Makefile.PL
+
+	On Windows:
+	set OPENSSL_PREFIX=C:\playpen\openssl-1.0.2.c
+	perl Makefile.PL
+
+	The logic in Makefile.PL tries to resolve the required
+	libraries and include directories based on the environment
+	variable OPENSSL_PREFIX.
 
 Unix:
-	# build or install OpenSSL as per instructions in that package
+	Build or install OpenSSL as per instructions in that
+	package. Review section 'General:' above before continuing.
 
 	gunzip <Net-SSLeay.pm-1.35.tar.gz | tar xvf -
 	cd Net-SSLeay.pm-1.35
-	perl Makefile.PL     # builds and tests it
+	perl Makefile.PL     # Build it. Use OPENSSL_PREFIX, if needed.
 	make test            # Run the test suite
 	make install         # You probably have to su to root to do this
-
-	If your OpenSSL is installed in an unusual place, you can tell
-	Net-SSLeay where to find it with the OPENSSL_PREFIX environment
-	variable:
-	OPENSSL_PREFIX=/home/mikem/playpen/openssl-1.0.2c perl Makefile.PL
-	....
 
 HPUX:
 	In principle the Unix build should work (Makefile.PL contains
@@ -94,12 +99,12 @@ HPUX:
 
 	Configuring OpenSSL:
 
-		./Configure no-asm --prefix=/openssl/path hpux-parisc2-cc
+	./Configure no-asm --prefix=/openssl/path hpux-parisc2-cc
 
 	Configuring Net::SSLeay:
-	
-		OPENSSL_PREFIX=/openssl/path perl Makefile.PL CCFLAGS='-D_HPUX_SOURCE \
-		 -Aa -I/usr/local/include +e'
+
+	OPENSSL_PREFIX=/openssl/path perl Makefile.PL CCFLAGS='-D_HPUX_SOURCE \
+	 -Aa -I/usr/local/include +e'
 
 	The magic bit seemed to be the `+e' flag. Since version 1.14
 	Makefile.PL tries to figure this out.
@@ -110,9 +115,9 @@ Windows:
 	Supported on 32 and 64 bit platforms
 	See README.Win32 for details
 
-OS X:
+macOS, also known as OS X:
 	See README.OSX
----------------------------------	
+---------------------------------
 You should also be able to use CPAN.pm to install this module if you like.
 
 Problems (read this before filing a bug)
