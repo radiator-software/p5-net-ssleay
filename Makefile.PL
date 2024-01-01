@@ -256,17 +256,22 @@ sub ssleay_get_build_opts {
     }
 
     print <<EOM;
-*** Be sure to use the same compiler and options to compile your OpenSSL, perl,
-    and Net::SSLeay. Mixing and matching compilers is not supported.
+*** If there are build errors, test failures or run-time malfunctions,
+    try to use the same compiler and options to compile your OpenSSL,
+    Perl, and Net::SSLeay.
 EOM
 
     if ($^O eq 'MSWin32') {
         if ($win_link_statically) {
             # Link to static libs
             push @{ $opts->{lib_paths} }, "$prefix/lib/VC/static" if -d "$prefix/lib/VC/static";
+            push @{ $opts->{lib_paths} }, "$prefix/lib/VC/x86/MT" if -d "$prefix/lib/VC/x86/MT"; # Shining Light 32bit OpenSSL 3.2.0
+            push @{ $opts->{lib_paths} }, "$prefix/lib/VC/x64/MT" if -d "$prefix/lib/VC/x64/MT"; # Shining Light 64bit OpenSSL 3.2.0
         }
         else {
             push @{ $opts->{lib_paths} }, "$prefix/lib/VC" if -d "$prefix/lib/VC";
+            push @{ $opts->{lib_paths} }, "$prefix/lib/VC/x86/MD" if -d "$prefix/lib/VC/x86/MD"; # Shining Light 32bit OpenSSL 3.2.0
+            push @{ $opts->{lib_paths} }, "$prefix/lib/VC/x64/MD" if -d "$prefix/lib/VC/x64/MD"; # Shining Light 64bit OpenSSL 3.2.0
         }
 
         my $found = 0;
@@ -274,14 +279,14 @@ EOM
         # Library names depend on the compiler
         @pairs = (['eay32','ssl32'],['crypto.dll','ssl.dll'],['crypto','ssl']) if $Config{cc} =~ /gcc/;
         @pairs = (['libeay32','ssleay32'],['libeay32MD','ssleay32MD'],['libeay32MT','ssleay32MT'],['libcrypto','libssl'],['crypto','ssl']) if $Config{cc} =~ /cl/;
-        for my $dir (@{$opts->{lib_paths}}) {
+        FOUND: for my $dir (@{$opts->{lib_paths}}) {
           for my $p (@pairs) {
             $found = 1 if ($Config{cc} =~ /gcc/ && -f "$dir/lib$p->[0].a" && -f "$dir/lib$p->[1].a");
             $found = 1 if ($Config{cc} =~ /cl/ && -f "$dir/$p->[0].lib" && -f "$dir/$p->[1].lib");
             if ($found) {
               $opts->{lib_links} = [$p->[0], $p->[1], 'crypt32']; # Some systems need this system lib crypt32 too
               $opts->{lib_paths} = [$dir];
-              last;
+              last FOUND;
             }
           }
         }
@@ -371,6 +376,8 @@ sub find_openssl_prefix {
 	'/usr/sfw/bin/openssl'           => '/usr/sfw', # Open Solaris
 	'C:\OpenSSL\bin\openssl.exe'     => 'C:\OpenSSL',
 	'C:\OpenSSL-Win32\bin\openssl.exe'        => 'C:\OpenSSL-Win32',
+	'C:\Program Files (x86)\OpenSSL-Win32\bin\openssl.exe' => 'C:\Program Files (x86)\OpenSSL-Win32', # Shining Light 32bit OpenSSL 1.1.1w, 3.0.12, 3.1.4 and 3.2.0
+	'C:\Program Files\OpenSSL-Win64\bin\openssl.exe'       => 'C:\Program Files\OpenSSL-Win64',       # Shining Light 64bit OpenSSL 1.1.1w, 3.0.12, 3.1.4 and 3.2.0
 	$Config{prefix} . '\bin\openssl.exe'      => $Config{prefix},           # strawberry perl
 	$Config{prefix} . '\..\c\bin\openssl.exe' => $Config{prefix} . '\..\c', # strawberry perl
 	'/sslexe/openssl.exe'            => '/sslroot',  # VMS, openssl.org

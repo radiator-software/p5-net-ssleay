@@ -1,8 +1,9 @@
-As of 15 Jun 2015, Apply no longer ships OpenSSL with OS X:
+As of 15 Jun 2015, Apple no longer ships OpenSSL with OS X:
 (http://lists.apple.com/archives/macnetworkprog/2015/Jun/msg00025.html)
 
-Some OS X packages and bundles install OpenSSL, typically in /opt/local
-if that is the case it is sufficient for you to unpack and build
+Some OS X packages and bundles install OpenSSL to locations known by
+Makefile.PL, for example, /opt/homebrew, /usr/local or /opt/local.
+If that is the case it is sufficient for you to unpack and build
 Net-SSLeay in the usual way:
 
 #cd to a working directory
@@ -11,6 +12,7 @@ cd /Users/mikem/tmp/
 tar zxvf /Volumes/projects/net-ssleay/trunk/Net-SSLeay-1.72.tar.gz
 cd Net-SSLeay-1.72
 # Build it for 64 bits (default)
+# Use OPENSSL_PREFIX, see README, if needed
 perl Makefile.PL
 make
 make test
@@ -20,6 +22,13 @@ make install
 If a working openssl is not installed already the above will fail, 
 but you can still build your own OpenSSL to link against:
 (https://wiki.openssl.org/index.php/Compilation_and_Installation), and build Net-SSLeay against it:
+
+
+
+Here are some older instructions. The current, year 2024, OpenSSL and
+LibreSSL versions come with installation instructions that you should
+primarily follow. Then install Net::SSLeay as shown above.
+
 Test compilation etc in a private directory eg:
 
 #cd to a working directory
