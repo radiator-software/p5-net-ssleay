@@ -48,10 +48,13 @@ Linux distribution's package manager, e.g.:
 A future version of Net-SSLeay will remove this requirement when
 building against a libssl without support for TLS compression.
 
-The same C compiler and options should be used to compile all of Perl,
-OpenSSL/LibreSSL, and Net-SSLeay. Mixing compilers and options often
-leads to build errors or run-time malfunctions that are difficult to
-debug.
+If there are build errors, test failures or run-time malfunctions, try
+to use the same compiler and options to compile your OpenSSL, Perl,
+and Net::SSLeay. Mixing compilers and options may lead to build
+errors, test failures or run-time malfunctions, that are difficult to
+debug. The situation in 2024 is that, for example, compiling Perl with
+gcc and Net::SSLeay with clang works on Linux and macOS. With Windows
+it may be easier to use the same compiler and compiler options.
 
 
 Installing

@@ -150,6 +150,11 @@ Revision history for Perl extension Net::SSLeay.
 	  path detection may pick the wrong version. Static
 	  compilation needs seems not to work with the these
 	  versions. Thanks to bulk88 for the initial updates.
+	- Tone down Makefile.PL and README warning against mixing
+	  compilers and flags when compiling OpenSSL, Perl and
+	  Net::SSLeay. This may still be a requirement on some
+	  platforms, but, for example, with Linux and macOS mixing
+	  clang and gcc appears to work.
 
 1.93_02 2023-02-22
 	- Update ppport.h to version 3.68. This eliminates thousands of

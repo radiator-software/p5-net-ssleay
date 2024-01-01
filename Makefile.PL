@@ -256,8 +256,9 @@ sub ssleay_get_build_opts {
     }
 
     print <<EOM;
-*** Be sure to use the same compiler and options to compile your OpenSSL, perl,
-    and Net::SSLeay. Mixing and matching compilers is not supported.
+*** If there are build errors, test failures or run-time malfunctions,
+    try to use the same compiler and options to compile your OpenSSL,
+    Perl, and Net::SSLeay.
 EOM
 
     if ($^O eq 'MSWin32') {
