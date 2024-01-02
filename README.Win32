@@ -7,6 +7,7 @@ Building on Win 32 platforms
 ancient versions and untested procedures removed --mikem
 22.4.2010 Updated info for 64 bit versions --mikem
 23.12.2022 Update OPENSSL_Applink for 1.93_02 and later --hvn
+30.12.2023 Add Windows 11 23H2 notes --hvn
 
 Notes: 
 
