@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-????
+1.93_03 2024-01-02
 	- Pass RAND_seed()'s sole argument to the underlying RAND_seed() function in
 	  libcrypto, rather than passing the value of a non-existent second argument.
 	  Fixes GH-427. Thanks to cgf1 for the report.
