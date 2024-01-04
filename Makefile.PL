@@ -120,6 +120,10 @@ $eumm_args{CCFLAGS} = $Config{ccflags};
 # macros are available).
 add_ccflag( $eumm_args{CCFLAGS}, "-DNET_SSLEAY_PERL_VERSION=" . $] * 1e6 );
 
+# Suppress deprecation warnings during compilation.
+# https://www.openssl.org/docs/manmaster/man7/openssl_user_macros.html
+add_ccflag( $eumm_args{CCFLAGS}, '-DOPENSSL_API_COMPAT=908' );
+
 # See if integers are only 32 bits long. If they are, add a flag to
 # CCFLAGS. Since OpenSSL 1.1.0, a growing number of APIs are using 64
 # bit integers. This causes a problem if Perl is compiled without 64
