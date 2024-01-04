@@ -245,11 +245,18 @@ sub client_test_version_funcs
 	} else {
 	    is(Net::SSLeay::client_version($ssl), $version, 'Net::SSLeay::client_version equals to Net::SSLeay::version');
 	}
-	is(Net::SSLeay::is_dtls($ssl), 0, 'Net::SSLeay::is_dtls returns 0');
     } else
     {
       SKIP: {
-	  skip('Do not have Net::SSLeay::client_version nor Net::SSLeay::is_dtls', 2);
+	  skip('Do not have Net::SSLeay::client_version', 1);
+	};
+    }
+
+    if (defined &Net::SSLeay::is_dtls) {
+	is(Net::SSLeay::is_dtls($ssl), 0, 'Net::SSLeay::is_dtls returns 0');
+    } else {
+      SKIP: {
+	  skip('Do not have Net::SSLeay::is_dtls', 1);
 	};
     }
 

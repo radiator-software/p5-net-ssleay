@@ -2080,7 +2080,7 @@ int ossl_provider_do_all_cb_invoke(OSSL_PROVIDER *provider, void *cbdata) {
 }
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x10101001 && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10101001 && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
 void ssl_ctx_keylog_cb_func_invoke(const SSL *ssl, const char *line)
 {
     dSP;
@@ -2538,7 +2538,7 @@ SSL_CTX_set_verify(ctx,mode,callback=&PL_sv_undef)
         SSL_CTX_set_verify(ctx, mode, &ssleay_verify_callback_invoke);
     }
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100001L && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10100001L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3060000fL)
 
 void
 SSL_CTX_set_security_level(SSL_CTX * ctx, int level)
@@ -2548,7 +2548,7 @@ SSL_CTX_get_security_level(SSL_CTX * ctx)
 
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x10101007L && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10101007L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
 
 int
 SSL_CTX_set_num_tickets(SSL_CTX *ctx, size_t num_tickets)
@@ -2558,7 +2558,7 @@ SSL_CTX_get_num_tickets(SSL_CTX *ctx)
 
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x10101003L && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10101003L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3040000fL)
 
 int
 SSL_CTX_set_ciphersuites(SSL_CTX *ctx, const char *str)
@@ -3557,7 +3557,7 @@ SSL_set_default_passwd_cb_userdata(ssl,data=&PL_sv_undef)
 #endif /* !LibreSSL */
 #endif /* >= 1.1.0f */
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100001L && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10100001L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3060000fL)
 
 void
 SSL_set_security_level(SSL * ssl, int level)
@@ -3567,7 +3567,7 @@ SSL_get_security_level(SSL * ssl)
 
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x10101007L && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10101007L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
 
 int
 SSL_set_num_tickets(SSL *ssl, size_t num_tickets)
@@ -3577,7 +3577,7 @@ SSL_get_num_tickets(SSL *ssl)
 
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x10101003L && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10101003L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3040000fL)
 
 int
 SSL_set_ciphersuites(SSL *ssl, const char *str)
@@ -5176,7 +5176,7 @@ EVP_PKEY_assign_RSA(EVP_PKEY *pkey, RSA *key)
 int
 EVP_PKEY_bits(EVP_PKEY *pkey)
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3060000fL)
 
 int
 EVP_PKEY_security_bits(EVP_PKEY *pkey)
@@ -5960,7 +5960,7 @@ SSL_CTX_use_certificate_chain_file(ctx,file)
      const char * file
 
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3030200fL) /* OpenSSL 1.1.0-pre1 or LibreSSL 3.3.2 */
 
 int
 SSL_use_certificate_chain_file(ssl,file)
@@ -6207,7 +6207,7 @@ SSL_CTX_set_msg_callback(ctx,callback,data=&PL_sv_undef)
         }
 
 
-#if OPENSSL_VERSION_NUMBER >= 0x10101001 && !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10101001 && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
 
 void
 SSL_CTX_set_keylog_callback(SSL_CTX *ctx, SV *callback)
@@ -6405,6 +6405,9 @@ SSL_version(ssl)
 int
 SSL_client_version(ssl)
      const SSL * ssl
+
+#endif
+#if (OPENSSL_VERSION_NUMBER >= 0x10100006L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3030200fL)  /* 1.1.0-pre6 or LibreSSL 3.3.2 */
 
 int
 SSL_is_dtls(ssl)

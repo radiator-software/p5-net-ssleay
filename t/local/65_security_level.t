@@ -3,12 +3,10 @@ use lib 'inc';
 use Net::SSLeay;
 use Test::Net::SSLeay qw(initialise_libssl);
 
-if (Net::SSLeay::SSLeay < 0x10100001) {
-    plan skip_all => 'OpenSSL 1.1.0 required';
-} elsif (Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER")) {
-    plan skip_all => 'get/set_security_level not available with LibreSSL';
-} else {
+if (defined &Net::SSLeay::CTX_get_security_level) {
     plan tests => 20;
+} else {
+    plan skip_all => 'OpenSSL 1.1.0 or LibreSSL 3.6.0 required for get/set_security_level';
 }
 
 initialise_libssl();
