@@ -42,8 +42,8 @@ my %eumm_args = (
     'Sampo Kellomaki <sampo@iki.fi>',
     'Florian Ragwitz <rafl@debian.org>',
     'Mike McCauley <mikem@airspayce.com>',
-    'Chris Novakovic <chris@chrisn.me.uk>',
     'Tuure Vartiainen <vartiait@radiatorsoftware.com>',
+    'Chris Novakovic <chris@chrisn.me.uk>',
     'Heikki Vatiainen <hvn@radiatorsoftware.com>'
   ],
   VERSION_FROM => 'lib/Net/SSLeay.pm',

@@ -851,13 +851,11 @@ the version of OpenSSL or LibreSSL you are using.
 
 Originally written by Chris Novakovic.
 
-Maintained by Chris Novakovic, Tuure Vartiainen and Heikki Vatiainen.
+Maintained by Chris Novakovic and Heikki Vatiainen.
 
 =head1 COPYRIGHT AND LICENSE
 
 Copyright 2020- Chris Novakovic <chris@chrisn.me.uk>.
-
-Copyright 2020- Tuure Vartiainen <vartiait@radiatorsoftware.com>.
 
 Copyright 2020- Heikki Vatiainen <hvn@radiatorsoftware.com>.
 
