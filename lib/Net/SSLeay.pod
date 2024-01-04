@@ -1782,7 +1782,7 @@ Returns the size of the key $pkey in bits.
 
 =item * EVP_PKEY_security_bits
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before
+B<COMPATIBILITY:> not available in Net-SSLeay-1.92 and before; requires at least OpenSSL 1.1.0 or at least LibreSSL 3.6.0 and Net-SSLeay-1.94
 
 Returns the size of the key $pkey in bits.
 
@@ -3316,7 +3316,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_ciph
 
 =item * CTX_set_ciphersuites
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1, not in LibreSSL
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1 or at least LibreSSL 3.4.0 and Net-SSLeay-1.94
 
 Configure the available TLSv1.3 ciphersuites.
 
@@ -3663,7 +3663,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_use_cert
 
 =item * CTX_get_security_level
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.0, not in LibreSSL
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.0 or at least LibreSSL 3.6.0 and Net-SSLeay-1.94
 
 Returns the security level associated with $ctx.
 
@@ -3676,7 +3676,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_get_secu
 
 =item * CTX_set_security_level
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.0, not in LibreSSL
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.0 or at least LibreSSL 3.6.0 and Net-SSLeay-1.94
 
 Sets the security level associated with $ctx to $level.
 
@@ -3690,7 +3690,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_secu
 
 =item * CTX_set_num_tickets
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1, not in LibreSSL
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1 or at least LibreSSL 3.5.0 and Net-SSLeay-1.94
 
 Set number of TLSv1.3 session tickets that will be sent to a client.
 
@@ -3706,7 +3706,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_num_
 
 =item * CTX_get_num_tickets
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1, not in LibreSSL
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1 or at least LibreSSL 3.5.0 and Net-SSLeay-1.94
 
 Get number of TLSv1.3 session tickets that will be sent to a client.
 
@@ -3719,7 +3719,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_get_num_
 
 =item * CTX_set_keylog_callback
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.90 and before; requires at least OpenSSL 1.1.1pre1, not in LibreSSL
+B<COMPATIBILITY:> not available in Net-SSLeay-1.90 and before; requires at least OpenSSL 1.1.1pre1 or at least LibreSSL 3.5.0 and Net-SSLeay-1.94
 
 Set the TLS key logging callback.
 
@@ -3739,7 +3739,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_keyl
 
 =item * CTX_get_keylog_callback
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.90 and before; requires at least OpenSSL 1.1.1pre1, not in LibreSSL
+B<COMPATIBILITY:> not available in Net-SSLeay-1.90 and before; requires at least OpenSSL 1.1.1pre1 or at least LibreSSL 3.5.0 and Net-SSLeay-1.94
 
 Retrieve the previously set TLS key logging callback.
 
@@ -4330,7 +4330,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_get_rbio.htm
 
 =item * get_security_level
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.0, not in LibreSSL
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.0 or at least LibreSSL 3.6.0 and Net-SSLeay-1.94
 
 Returns the security level associated with $ssl.
 
@@ -4343,7 +4343,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_get_security
 
 =item * set_security_level
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.0, not in LibreSSL
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.0 or at least LibreSSL 3.6.0 and Net-SSLeay-1.94
 
 Sets the security level associated with $ssl to $level.
 
@@ -4357,7 +4357,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_set_security
 
 =item * set_num_tickets
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1, not in LibreSSL
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1 or at least LibreSSL 3.5.0 and Net-SSLeay-1.94
 
 Set number of TLSv1.3 session tickets that will be sent to a client.
 
@@ -4373,7 +4373,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_set_num_tick
 
 =item * get_num_tickets
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1, not in LibreSSL
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1 or at least LibreSSL 3.5.0 and Net-SSLeay-1.94
 
 Get number of TLSv1.3 session tickets that will be sent to a client.
 
@@ -4902,7 +4902,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_ciph
 
 =item * set_ciphersuites
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1, not in LibreSSL
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.1 or at least LibreSSL 3.4.0 and Net-SSLeay-1.94
 
 Configure the available TLSv1.3 ciphersuites.
 
@@ -5513,7 +5513,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_use_cert
 
 =item * use_certificate_chain_file
 
-B<COMPATIBILITY>: not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.1.0
+B<COMPATIBILITY>: not available in Net-SSLeay-1.82 and before; requires at least OpenSSL 1.1.0 or at least LibreSSL 3.6.0 and Net-SSLeay-1.94
 
 Loads a certificate chain from $file into $ssl. The certificates must be in PEM format and must be sorted
 starting with the subject's certificate (actual client or server certificate), followed by intermediate
@@ -5583,7 +5583,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_client_versi
 
 =item * is_dtls
 
-B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.0, not in LibreSSL
+B<COMPATIBILITY:> not available in Net-SSLeay-1.85 and before; requires at least OpenSSL 1.1.0 or at least LibreSSL 3.3.1 and Net-SSLeay-1.94
 
     my $rv = Net::SSLeay::is_dtls($ssl);
     # $ssl - value corresponding to openssl's SSL structure

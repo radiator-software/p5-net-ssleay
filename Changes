@@ -1,5 +1,17 @@
 Revision history for Perl extension Net::SSLeay.
 
+????
+	- Use -DOPENSSL_API_COMPAT=908 when compiling SSLeay.xs to
+	  suppress OpenSSL deprecation warnings.
+	- Expose a number of functions that were added in recent
+	  LibreSSL releases or were not otherwise exposed before:
+	  - SSL(_CTX)_get/set_security_level in LibreSSL 3.6.0
+	  - SSL(_CTX)_get/set_num_tickets in LibreSSL 3.5.0
+	  - SSL(_CTX)_set_ciphersuites in LibreSSL 3.4.0
+	  - EVP_PKEY_security_bits in LibreSSL 3.6.0
+	  - SSL_CTX_set_keylog_callback in LibreSSL 3.5.0
+	  - SSL_is_dtls in LibreSSL 3.3.2
+
 1.93_03 2024-01-02
 	- Pass RAND_seed()'s sole argument to the underlying RAND_seed() function in
 	  libcrypto, rather than passing the value of a non-existent second argument.
