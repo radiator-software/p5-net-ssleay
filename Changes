@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-????
+1.93_05 2024-01-06
 	- Remove support for automatic detection of libssl/libcrypto via pkg-config
 	  with ExtUtils::PkgConfig if it is installed, due to the compiler and linker
 	  options provided by pkg-config being used unconditionally (which is
