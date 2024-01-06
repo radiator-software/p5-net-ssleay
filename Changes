@@ -1,6 +1,17 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.94_04 2024-01-05
+????
+	- Remove support for automatic detection of libssl/libcrypto via pkg-config
+	  with ExtUtils::PkgConfig if it is installed, due to the compiler and linker
+	  options provided by pkg-config being used unconditionally (which is
+	  incompatible with the OPENSSL_PREFIX detection method). The implementation of
+	  this was merged in time for developer release 1.93_03 and therefore hasn't
+	  been included in a stable release yet, so this doesn't represent a breaking
+	  change to the way in which libssl/libcrypto are detected by Makefile.PL. This
+	  is, however, a very useful feature, and we intend to bring it back in time
+	  for Net-SSLeay 1.96 after ironing out the remaining bugs.
+
+1.93_04 2024-01-05
 	- Use -DOPENSSL_API_COMPAT=908 when compiling SSLeay.xs to
 	  suppress OpenSSL deprecation warnings.
 	- Expose a number of functions that were added in recent
