@@ -1,5 +1,27 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.94 2024-01-06
+	- New stable release incorporating all changes from developer releases 1.93_01
+	  to 1.93_05.
+	- Summary of major changes since version 1.92:
+	  - Net::SSLeay now officially supports all stable releases of OpenSSL 3.1 and
+	    3.2, and LibreSSL 3.5 - 3.8.
+	  - Many noisy compiler warnings have been silenced - if SSLeay.xs fails to
+	    compile, it should now be much easier to identify the cause.
+	  - libcrypto's OPENSSL_init_crypto() function and libssl's OPENSSL_init_ssl()
+	    function are now exposed, enabling fine-grained control over the
+	    initialisation and configuration of both libraries.
+	  - libssl functions implementing TLS 1.3 PSK authentication are now exposed,
+	    in particular SSL_CTX_set_psk_find_session_callback() (on the server side)
+	    and SSL_CTX_set_psk_use_session_callback() (on the client side).
+	  - libssl functions implementing server-side TLS 1.2 PSK authentication are
+	    now exposed, in particular SSL_CTX_set_psk_server_callback().
+	  - libssl's SSL_CTX_set_client_hello_cb() function is now exposed, allowing a
+	    TLS server to set a callback function that is executed when the server
+	    processes a ClientHello message.
+	  - Many more libcrypto/libssl constants and functions are now exposed; see the
+	    release notes for the 1.93 developer releases for a full list.
+
 1.93_05 2024-01-06
 	- Remove support for automatic detection of libssl/libcrypto via pkg-config
 	  with ExtUtils::PkgConfig if it is installed, due to the compiler and linker
