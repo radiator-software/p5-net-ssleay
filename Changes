@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.94 2024-01-06
+1.94 2024-01-08
 	- New stable release incorporating all changes from developer releases 1.93_01
 	  to 1.93_05.
 	- Summary of major changes since version 1.92:
