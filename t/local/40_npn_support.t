@@ -10,6 +10,9 @@ BEGIN {
         plan skip_all => "OpenSSL 1.0.1 or above required";
     } elsif (Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER")) {
         plan skip_all => "LibreSSL removed support for NPN";
+    } elsif (!defined &Net::SSLeay::CTX_set_next_protos_advertised_cb) {
+        # OpenSSL can optionally be compiled without NPN support
+        plan skip_all => "NPN is not enabled";
     } elsif (not can_fork()) {
         plan skip_all => "fork() not supported on this system";
     } elsif ( !eval { new_ctx( undef, 'TLSv1.2' ); 1 } ) {
