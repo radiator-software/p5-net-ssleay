@@ -111,18 +111,16 @@ my %eumm_args = (
   ssleay(),
 );
 
-# CCFLAGS is used internally by Makefile.PL to define various C preprocessor
-# macros (as opposed to DEFINE, which is user-facing).
-$eumm_args{CCFLAGS} = $Config{ccflags};
+$eumm_args{DEFINE} = '';
 
 # Expose the current Perl version to the C preprocessor. This is used in
 # SSLeay.xs before perl.h is included (and therefore before its PERL_VERSION_*
 # macros are available).
-add_ccflag( $eumm_args{CCFLAGS}, "-DNET_SSLEAY_PERL_VERSION=" . $] * 1e6 );
+add_define( $eumm_args{DEFINE}, "-DNET_SSLEAY_PERL_VERSION=" . $] * 1e6 );
 
 # Suppress deprecation warnings during compilation.
 # https://www.openssl.org/docs/manmaster/man7/openssl_user_macros.html
-add_ccflag( $eumm_args{CCFLAGS}, '-DOPENSSL_API_COMPAT=908' );
+add_define( $eumm_args{DEFINE}, '-DOPENSSL_API_COMPAT=908' );
 
 # See if integers are only 32 bits long. If they are, add a flag to
 # CCFLAGS. Since OpenSSL 1.1.0, a growing number of APIs are using 64
@@ -133,7 +131,7 @@ add_ccflag( $eumm_args{CCFLAGS}, '-DOPENSSL_API_COMPAT=908' );
 # use this define, do it so that 64bit case is the default whenever
 # possible. This is safer for future library and Net::SSLeay releases.
 if ( !defined $Config{use64bitint} || $Config{use64bitint} ne 'define' ) {
-    add_ccflag( $eumm_args{CCFLAGS}, '-DNET_SSLEAY_32BIT_INT_PERL' );
+    add_define( $eumm_args{DEFINE}, '-DNET_SSLEAY_32BIT_INT_PERL' );
 }
 
 # This can go when EU::MM older than 6.58 are gone
@@ -153,7 +151,7 @@ MAKE
 
 # Prepends the C compiler flag in the second parameter to the string of compiler
 # flags in the first parameter.
-sub add_ccflag {
+sub add_define {
     substr $_[0], 0, 0, $_[1] . ( length $_[0] ? ' ' : '' );
 }
 
