@@ -111,18 +111,16 @@ my %eumm_args = (
   ssleay(),
 );
 
-# CCFLAGS is used internally by Makefile.PL to define various C preprocessor
-# macros (as opposed to DEFINE, which is user-facing).
-$eumm_args{CCFLAGS} = $Config{ccflags};
+$eumm_args{DEFINE} = '';
 
 # Expose the current Perl version to the C preprocessor. This is used in
 # SSLeay.xs before perl.h is included (and therefore before its PERL_VERSION_*
 # macros are available).
-add_ccflag( $eumm_args{CCFLAGS}, "-DNET_SSLEAY_PERL_VERSION=" . $] * 1e6 );
+add_define( $eumm_args{DEFINE}, "-DNET_SSLEAY_PERL_VERSION=" . $] * 1e6 );
 
 # Suppress deprecation warnings during compilation.
 # https://www.openssl.org/docs/manmaster/man7/openssl_user_macros.html
-add_ccflag( $eumm_args{CCFLAGS}, '-DOPENSSL_API_COMPAT=908' );
+add_define( $eumm_args{DEFINE}, '-DOPENSSL_API_COMPAT=908' );
 
 # See if integers are only 32 bits long. If they are, add a flag to
 # CCFLAGS. Since OpenSSL 1.1.0, a growing number of APIs are using 64
@@ -133,7 +131,7 @@ add_ccflag( $eumm_args{CCFLAGS}, '-DOPENSSL_API_COMPAT=908' );
 # use this define, do it so that 64bit case is the default whenever
 # possible. This is safer for future library and Net::SSLeay releases.
 if ( !defined $Config{use64bitint} || $Config{use64bitint} ne 'define' ) {
-    add_ccflag( $eumm_args{CCFLAGS}, '-DNET_SSLEAY_32BIT_INT_PERL' );
+    add_define( $eumm_args{DEFINE}, '-DNET_SSLEAY_32BIT_INT_PERL' );
 }
 
 # This can go when EU::MM older than 6.58 are gone
@@ -153,7 +151,7 @@ MAKE
 
 # Prepends the C compiler flag in the second parameter to the string of compiler
 # flags in the first parameter.
-sub add_ccflag {
+sub add_define {
     substr $_[0], 0, 0, $_[1] . ( length $_[0] ? ' ' : '' );
 }
 
@@ -304,6 +302,10 @@ EOM
           @{ $opts->{lib_paths} } = 'SSLLIB';
           @{ $opts->{lib_links} } = qw( ssl_libssl32.olb ssl_libcrypto32.olb );
         }
+        elsif (-r 'ssl3$root:[000000]openssl.cnf') {  # VSI SSL3 install
+            @{ $opts->{lib_paths} } = 'SYS$SHARE';
+            @{ $opts->{lib_links} } = qw( SSL3$LIBSSL_SHR32 SSL3$LIBCRYPTO_SHR32 );
+        }
         elsif (-r 'ssl111$root:[000000]openssl.cnf') {  # VSI SSL111 install
             @{ $opts->{lib_paths} } = 'SYS$SHARE';
             @{ $opts->{lib_links} } = qw( SSL111$LIBSSL_SHR32 SSL111$LIBCRYPTO_SHR32 );
@@ -380,6 +382,7 @@ sub find_openssl_prefix {
 	$Config{prefix} . '\bin\openssl.exe'      => $Config{prefix},           # strawberry perl
 	$Config{prefix} . '\..\c\bin\openssl.exe' => $Config{prefix} . '\..\c', # strawberry perl
 	'/sslexe/openssl.exe'            => '/sslroot',  # VMS, openssl.org
+	'/ssl3$exe/openssl.exe'          => '/ssl3$root',# VMS, VSI install
 	'/ssl111$exe/openssl.exe'        => '/ssl111$root',# VMS, VSI install
 	'/ssl1$exe/openssl.exe'          => '/ssl1$root',# VMS, VSI or HPE install
 	'/ssl$exe/openssl.exe'           => '/ssl$root', # VMS, HP install
