@@ -177,20 +177,20 @@ SKIP: {
   isnt(scalar(keys %all_digests), 0, 'non-empty digest list');
 }
 
-my $file = data_file_path('binary-test.file');
+my $file = data_file_path('alphanum.txt');
 
 my $file_digests = {
-        md2       => '67ae6d821be6898101414c56b1fb4f46',
-        md4       => '480438696e7d9a6ab3ecc1e2a3419f78',
-        md5       => 'cc89b43c171818c347639fa5170aee16',
-        mdc2      => 'ee605fe3fc966a7b17185ebdbcd13ada',
-        ripemd160 => 'cb70ba43fc6d263f6d7816170c1a33f28c2000fe',
-        sha       => 'c151c6f408cb94bc5c53b17852efbe8bfbeec2b9',
-        sha1      => '059404d1d0e952d0457a6c99b6e68b3b44c8ef13',
-        sha224    => '161c65efa1b9762f7e0448b5b369a3e2c236876b0b57a35add5106bb',
-        sha256    => 'e416730ddaa34729adb32ec6ddad4e50fca1fe97de313e800196b1f8cd5032bd',
-        sha512    => '8b5e7181fc76d49e1cb7971a6980b5d8db6b23c3b0553cf42f559156fd08e64567d17c4147c864efd4d3a5e22fb6602d613a055f7f14faad22744dbc3df89d59',
-        whirlpool => '31079767aa2dd9b8ab01caadd954a88aaaf6001941c38d17ba43c0ef80a074c3eedf35b73c3941929dea281805c6c5ffc0a619abef4c6a3365d6cb31412d0e0c',
+    md2       => '4c21fe58cb02ffc2465368683f6e5cce',
+    md4       => '9ad76c589b23432396e444bd2e0bdbe5',
+    md5       => '463f540ca3943c2489d679037893271f',
+    mdc2      => '57dbc081101287de66c5e539e07ef13e',
+    ripemd160 => '7f3ac512daf5acab33bd0b91a6b1332f547a91e7',
+    sha       => 'b21ca870ee994b866494018bb3b77317ee939647',
+    sha1      => 'bb26f35bdf77de5a2f840961943028a1a3bdb0b9',
+    sha224    => '777835b542deb23465f56e0d7ec10d18e4340dabc5ca0cb59d83732a',
+    sha256    => 'a215d054bcdf342151a8b190ffd856c3ef1057d2ae5f16c966c9c665c36e61bc',
+    sha512    => 'c9e32721b44b5370e95aaa1e720d0689f1bc0380bc1640bf0eab0527a2c91e7824b8b271c70ecb65300d18c19eb438bbc7b5e7ab9d4283ccafbfa4d0fd11a23c',
+    whirlpool => '7d1b699084ad78e7b578b8c72b5d682aabc64f70b13019536e6c400dcc2e90ce239250f41b2608e3fa0139d1c3eefa44d082888dffe138633b37ae5833724f82',
 };
 
 my %fps = (

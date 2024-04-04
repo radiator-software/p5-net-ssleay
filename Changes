@@ -1,5 +1,10 @@
 Revision history for Perl extension Net::SSLeay.
 
+????
+	- In the test suite, replace t/data/binary-test.file (a binary blob with
+	  unknown provenance) with t/data/alphanum.txt (a "nothing-up-my-sleeve"
+	  text file).
+
 1.96 2026-03-21
 	- New stable release incorporating all changes from developer releases
 	  1.95_01 to 1.95_03.
