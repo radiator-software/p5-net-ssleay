@@ -16,7 +16,6 @@ sub digest_chunked_f1 {
   Net::SSLeay::EVP_DigestInit($ctx, $md);
 
   open my $fh, "<", $file or BAIL_OUT "cannot open file '$file'";
-  binmode $fh;
   while(my $len = sysread($fh, my $chunk, 500)) {
     Net::SSLeay::EVP_DigestUpdate($ctx,$chunk);
   }
@@ -36,7 +35,6 @@ sub digest_chunked_f2 {
   Net::SSLeay::EVP_DigestInit_ex($ctx, $md, 0); #NULL ENGINE just to test whether the function exists
 
   open my $fh, "<", $file or BAIL_OUT "cannot open file '$file'";
-  binmode $fh;
   while(my $len = sysread($fh, my $chunk, 5)) {
     Net::SSLeay::EVP_DigestUpdate($ctx,$chunk);
   }
@@ -60,7 +58,6 @@ sub digest_file {
   }
 
   open my $f, "<", $file or BAIL_OUT "cannot open file '$file'";
-  binmode $f;
   sysread($f, my $data, -s $file) or BAIL_OUT "sysread failed";  
   close $f;
   
@@ -177,20 +174,20 @@ SKIP: {
   isnt(scalar(keys %all_digests), 0, 'non-empty digest list');
 }
 
-my $file = data_file_path('binary-test.file');
+my $file = data_file_path('lorem-ipsum.txt');
 
 my $file_digests = {
-        md2       => '67ae6d821be6898101414c56b1fb4f46',
-        md4       => '480438696e7d9a6ab3ecc1e2a3419f78',
-        md5       => 'cc89b43c171818c347639fa5170aee16',
-        mdc2      => 'ee605fe3fc966a7b17185ebdbcd13ada',
-        ripemd160 => 'cb70ba43fc6d263f6d7816170c1a33f28c2000fe',
-        sha       => 'c151c6f408cb94bc5c53b17852efbe8bfbeec2b9',
-        sha1      => '059404d1d0e952d0457a6c99b6e68b3b44c8ef13',
-        sha224    => '161c65efa1b9762f7e0448b5b369a3e2c236876b0b57a35add5106bb',
-        sha256    => 'e416730ddaa34729adb32ec6ddad4e50fca1fe97de313e800196b1f8cd5032bd',
-        sha512    => '8b5e7181fc76d49e1cb7971a6980b5d8db6b23c3b0553cf42f559156fd08e64567d17c4147c864efd4d3a5e22fb6602d613a055f7f14faad22744dbc3df89d59',
-        whirlpool => '31079767aa2dd9b8ab01caadd954a88aaaf6001941c38d17ba43c0ef80a074c3eedf35b73c3941929dea281805c6c5ffc0a619abef4c6a3365d6cb31412d0e0c',
+    md2       => '70982048c26bc1b0e4a14882143c43db',
+    md4       => '10d7111dd6931a247b88ad05a6389ade',
+    md5       => '92798fe3cda6fd622e1de6f78fe2ba78',
+    mdc2      => 'eba3531b18827ec79aa4b421c63e6931',
+    ripemd160 => '0976116cd4513f81d9696811d72c68e6d59ce73c',
+    sha       => 'aa862084fa60357fd983fb78945c4870e8c455a1',
+    sha1      => '6bddd57399253c98ce7e1e1478426e317a6545ed',
+    sha224    => '3ea7316d84881fbff013e6852ad0767e605352ae1fbdc43105f91701',
+    sha256    => '76043f712d7c45bfad74bc0187b4eb259027193f68718e642fba976ec638b4ac',
+    sha512    => '593ed012548e15bd43e4a3fa95b7c9bdf43c1c6aa1e42ed8a7ad3ef87a40fbfa4503bf95b5e9ecf17fc9398958968e9766c171ac6cf268f9394b0de73e78e3b2',
+    whirlpool => '6216e98b1a920b14010f58c96299c738d4a156b7b533c74c9ae6da60e936958687017b8398d34efb05526e6156386f1af0b07f1b4af6feb41d6b45975d579a14',
 };
 
 my %fps = (
