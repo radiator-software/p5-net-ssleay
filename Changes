@@ -4,6 +4,9 @@ Revision history for Perl extension Net::SSLeay.
 	- Skip NPN tests when NPN is disabled in OpenSSL instead o
 	  assuming NPN is always enabled. Reported by GitHub user
 	  dilyanpalauzov Дилян Палаузов.
+	- In the test suite, replace t/data/binary-test.file (a binary blob with
+	  unknown provenance) with t/data/lorem-ipsum.txt (a text file containing
+	  widely-known ASCII text).
 
 1.94 2024-01-08
 	- New stable release incorporating all changes from developer releases 1.93_01

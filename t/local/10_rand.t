@@ -18,17 +18,36 @@ is_libressl() ?
     test_rand_file_name_openssl();
 
 # RAND_load_file
-my $binary_file      = data_file_path('binary-test.file');
-my $binary_file_size = -s $binary_file;
+my $text_file      = data_file_path('lorem-ipsum.txt');
+my $text_file_size = -s $text_file;
 
-cmp_ok($binary_file_size, '>=', 1000, "Have binary file with good size: $binary_file $binary_file_size");
-is(Net::SSLeay::RAND_load_file($binary_file, $binary_file_size), $binary_file_size, 'RAND_load with specific size');
-if (Net::SSLeay::constant("LIBRESSL_VERSION_NUMBER"))
-{
+cmp_ok(
+    $text_file_size,
+    '>=',
+    1000,
+    "Have file with good size: $text_file $text_file_size"
+);
+
+is(
+    Net::SSLeay::RAND_load_file($text_file, $text_file_size),
+    $text_file_size,
+    'RAND_load with specific size'
+);
+
+if ( Net::SSLeay::constant('LIBRESSL_VERSION_NUMBER') ) {
     # RAND_load_file does nothing on LibreSSL but should return something sane
-    cmp_ok(Net::SSLeay::RAND_load_file($binary_file, -1), '>', 0, 'RAND_load with -1 is positive with LibreSSL');
+    cmp_ok(
+        Net::SSLeay::RAND_load_file($text_file, -1),
+        '>',
+        0,
+        'RAND_load with -1 is positive with LibreSSL'
+    );
 } else {
-    is(Net::SSLeay::RAND_load_file($binary_file, -1), $binary_file_size, 'RAND_load with -1 returns file size');
+    is(
+        Net::SSLeay::RAND_load_file($text_file, -1),
+        $text_file_size,
+        'RAND_load with -1 returns file size'
+    );
 }
 
 test_rand_bytes();
