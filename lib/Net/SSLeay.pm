@@ -18,7 +18,6 @@ use 5.8.1;
 
 use strict;
 use Carp;
-use vars qw($VERSION @ISA @EXPORT @EXPORT_OK $AUTOLOAD $CRLF);
 use Socket;
 use Errno;
 
@@ -69,9 +68,9 @@ our $how_random = 512;
 #   inc/Test/Net/SSLeay.pm
 #   inc/Test/Net/SSLeay/Socket.pm
 #   lib/Net/SSLeay/Handle.pm
-$VERSION = '1.94';
+our $VERSION = '1.94';
 
-@ISA = qw(Exporter);
+our @ISA = qw(Exporter);
 
 # This array is automatically generated - do not manually modify it.
 # To add or remove a constant, edit helper_script/constants.txt, then run
@@ -990,9 +989,11 @@ my @functions = qw(
     OCSP_response_results
 );
 
-@EXPORT_OK = ( @constants, @functions );
+our @EXPORT;
+our @EXPORT_OK = ( @constants, @functions );
 
 sub AUTOLOAD {
+    our $AUTOLOAD;
     # This AUTOLOAD is used to 'autoload' constants from the constant()
     # XS function.  If a constant is not found then control is passed
     # to the AUTOLOAD in AutoLoader.
@@ -1017,7 +1018,7 @@ XSLoader::load('Net::SSLeay', $VERSION);
 
 # Preloaded methods go here.
 
-$CRLF = "\x0d\x0a";  # because \r\n is not fully portable
+our $CRLF = "\x0d\x0a";  # because \r\n is not fully portable
 
 ### Print SSLeay error stack
 
