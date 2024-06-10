@@ -1062,6 +1062,11 @@ eval 'use bytes; sub blength ($) { defined $_[0] ? length $_[0] : 0  }';
 $@ and eval '    sub blength ($) { defined $_[0] ? length $_[0] : 0 }' ;
 }
 
+### some variables used to pass values between subs
+our $proxyhost;
+our $proxyport;
+our $proxyauth = '';
+
 # Autoload methods go after __END__, and are processed by the autosplit program.
 
 
