@@ -18,16 +18,14 @@ use 5.8.1;
 
 use strict;
 use Carp;
-use vars qw($VERSION @ISA @EXPORT @EXPORT_OK $AUTOLOAD $CRLF);
 use Socket;
 use Errno;
 
 require Exporter;
-use AutoLoader;
 
 # 0=no warns, 1=only errors, 2=ciphers, 3=progress, 4=dump data
-$Net::SSLeay::trace = 0;  # Do not change here, use
-                          # $Net::SSLeay::trace = [1-4]  in caller
+our $trace = 0;  # Do not change here, use
+                 # $Net::SSLeay::trace = [1-4]  in caller
 
 # 2 = insist on v2 SSL protocol
 # 3 = insist on v3 SSL
@@ -37,15 +35,15 @@ $Net::SSLeay::trace = 0;  # Do not change here, use
 # 13 = insist on TLSv1.3
 # 0 or undef = guess (v23)
 #
-$Net::SSLeay::ssl_version = 0;  # don't change here, use
-                                # Net::SSLeay::version=[2,3,0] in caller
+our $ssl_version = 0;  # don't change here, use
+                       # Net::SSLeay::version=[2,3,0] in caller
 
 #define to enable the "cat /proc/$$/stat" stuff
-$Net::SSLeay::linux_debug = 0;
+our $linux_debug = 0;
 
 # Number of seconds to sleep after sending message and before half
 # closing connection. Useful with antiquated broken servers.
-$Net::SSLeay::slowly = 0;
+our $slowly = 0;
 
 # RANDOM NUMBER INITIALIZATION
 #
@@ -63,16 +61,16 @@ $Net::SSLeay::slowly = 0;
 #      (e.g. via named pipe) or supply a random number file. Some such
 #      packages are documented in Caveat section of the POD documentation.
 
-$Net::SSLeay::random_device = '/dev/urandom';
-$Net::SSLeay::how_random = 512;
+our $random_device = '/dev/urandom';
+our $how_random = 512;
 
 # When updating this, also update $VERSION in the following files:
 #   inc/Test/Net/SSLeay.pm
 #   inc/Test/Net/SSLeay/Socket.pm
 #   lib/Net/SSLeay/Handle.pm
-$VERSION = '1.94';
+our $VERSION = '1.94';
 
-@ISA = qw(Exporter);
+our @ISA = qw(Exporter);
 
 # This array is automatically generated - do not manually modify it.
 # To add or remove a constant, edit helper_script/constants.txt, then run
@@ -991,9 +989,11 @@ my @functions = qw(
     OCSP_response_results
 );
 
-@EXPORT_OK = ( @constants, @functions );
+our @EXPORT;
+our @EXPORT_OK = ( @constants, @functions );
 
 sub AUTOLOAD {
+    our $AUTOLOAD;
     # This AUTOLOAD is used to 'autoload' constants from the constant()
     # XS function.  If a constant is not found then control is passed
     # to the AUTOLOAD in AutoLoader.
@@ -1003,8 +1003,7 @@ sub AUTOLOAD {
     my $val = constant($constname);
     if ($! != 0) {
 	if ($! =~ /((Invalid)|(not valid))/i || $!{EINVAL}) {
-	    $AutoLoader::AUTOLOAD = $AUTOLOAD;
-	    goto &AutoLoader::AUTOLOAD;
+            croak "Undefined subroutine &$AUTOLOAD called";
 	}
 	else {
 	  croak "Your vendor has not defined SSLeay macro $constname";
@@ -1014,19 +1013,12 @@ sub AUTOLOAD {
     goto &$AUTOLOAD;
 }
 
-eval {
-	require XSLoader;
-	XSLoader::load('Net::SSLeay', $VERSION);
-	1;
-} or do {
-	require DynaLoader;
-	push @ISA, 'DynaLoader';
-	bootstrap Net::SSLeay $VERSION;
-};
+use XSLoader;
+XSLoader::load('Net::SSLeay', $VERSION);
 
 # Preloaded methods go here.
 
-$CRLF = "\x0d\x0a";  # because \r\n is not fully portable
+our $CRLF = "\x0d\x0a";  # because \r\n is not fully portable
 
 ### Print SSLeay error stack
 
@@ -1069,11 +1061,10 @@ eval 'use bytes; sub blength ($) { defined $_[0] ? length $_[0] : 0  }';
 $@ and eval '    sub blength ($) { defined $_[0] ? length $_[0] : 0 }' ;
 }
 
-# Autoload methods go after __END__, and are processed by the autosplit program.
-
-
-1;
-__END__
+### some variables used to pass values between subs
+our $proxyhost;
+our $proxyport;
+our $proxyauth = '';
 
 ### Some methods that are macros in C
 
@@ -1136,7 +1127,7 @@ sub open_proxy_tcp_connection {
     ($ret, $errs) =
 	tcp_write_all("CONNECT $dest_serv:$port HTTP/1.0$proxyauth$CRLF$CRLF");
     return wantarray ? (0,$errs) : 0 if $errs;
-    ($line, $errs) = tcp_read_until($CRLF . $CRLF, 1024);
+    (my $line, $errs) = tcp_read_until($CRLF . $CRLF, 1024);
     warn "Proxy response: $line" if $trace>2;
     return wantarray ? (0,$errs) : 0 if $errs;
     return wantarray ? (1,'') : 1;  # Success
@@ -1562,6 +1553,7 @@ sub randomize (;$$$) {
 }
 
 sub new_x_ctx {
+    my $ctx;
     if ( $ssl_version == 2 ) {
         unless ( exists &Net::SSLeay::CTX_v2_new ) {
             warn "ssl_version has been set to 2, but this version of libssl has been compiled without SSLv2 support";
@@ -1910,7 +1902,7 @@ sub set_server_cert_and_key ($$$) { &set_cert_and_key }
 ### Set up to use web proxy
 
 sub set_proxy ($$;**) {
-    ($proxyhost, $proxyport, $proxyuser, $proxypass) = @_;
+    ($proxyhost, $proxyport, my $proxyuser, my $proxypass) = @_;
     require MIME::Base64 if $proxyuser;
     $proxyauth = $proxyuser
          ? $CRLF . 'Proxy-authorization: Basic '
@@ -1983,7 +1975,7 @@ sub do_httpx3 {
     return ($page, $response, $headers, $server_cert);
 }
 
-sub do_https3 { splice(@_,1,0) = 1; do_httpx3; }  # Legacy undocumented
+sub do_https3 { splice(@_,1,0,1); do_httpx3; }  # Legacy undocumented
 
 ### do_https2() is a legacy version in the sense that it is unable
 ### to return all instances of duplicate headers.
@@ -1992,13 +1984,13 @@ sub do_httpx2 {
     my ($page, $response, $headers, $server_cert) = &do_httpx3;
     X509_free($server_cert) if defined $server_cert;
     return ($page, $response, defined $headers ?
-	    map( { ($h,$v)=/^(\S+)\:\s*(.*)$/; (uc($h),$v); }
+	    map( { my ($h,$v)=/^(\S+)\:\s*(.*)$/; (uc($h),$v); }
 		split(/\s?\n/, $headers)
 		) : ()
 	    );
 }
 
-sub do_https2 { splice(@_,1,0) = 1; do_httpx2; }  # Legacy undocumented
+sub do_https2 { splice(@_,1,0,1); do_httpx2; }  # Legacy undocumented
 
 ### Returns headers as a hash where multiple instances of same header
 ### are handled correctly.
@@ -2013,7 +2005,7 @@ sub do_httpx4 {
     return ($page, $response, \%hr, $server_cert);
 }
 
-sub do_https4 { splice(@_,1,0) = 1; do_httpx4; }  # Legacy undocumented
+sub do_https4 { splice(@_,1,0,1); do_httpx4; }  # Legacy undocumented
 
 # https
 
