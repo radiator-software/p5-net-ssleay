@@ -26,8 +26,8 @@ require Exporter;
 use AutoLoader;
 
 # 0=no warns, 1=only errors, 2=ciphers, 3=progress, 4=dump data
-$Net::SSLeay::trace = 0;  # Do not change here, use
-                          # $Net::SSLeay::trace = [1-4]  in caller
+our $trace = 0;  # Do not change here, use
+                 # $Net::SSLeay::trace = [1-4]  in caller
 
 # 2 = insist on v2 SSL protocol
 # 3 = insist on v3 SSL
@@ -37,15 +37,15 @@ $Net::SSLeay::trace = 0;  # Do not change here, use
 # 13 = insist on TLSv1.3
 # 0 or undef = guess (v23)
 #
-$Net::SSLeay::ssl_version = 0;  # don't change here, use
-                                # Net::SSLeay::version=[2,3,0] in caller
+our $ssl_version = 0;  # don't change here, use
+                       # Net::SSLeay::version=[2,3,0] in caller
 
 #define to enable the "cat /proc/$$/stat" stuff
-$Net::SSLeay::linux_debug = 0;
+our $linux_debug = 0;
 
 # Number of seconds to sleep after sending message and before half
 # closing connection. Useful with antiquated broken servers.
-$Net::SSLeay::slowly = 0;
+our $slowly = 0;
 
 # RANDOM NUMBER INITIALIZATION
 #
@@ -63,8 +63,8 @@ $Net::SSLeay::slowly = 0;
 #      (e.g. via named pipe) or supply a random number file. Some such
 #      packages are documented in Caveat section of the POD documentation.
 
-$Net::SSLeay::random_device = '/dev/urandom';
-$Net::SSLeay::how_random = 512;
+our $random_device = '/dev/urandom';
+our $how_random = 512;
 
 # When updating this, also update $VERSION in the following files:
 #   inc/Test/Net/SSLeay.pm
