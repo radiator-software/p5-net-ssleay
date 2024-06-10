@@ -1014,15 +1014,8 @@ sub AUTOLOAD {
     goto &$AUTOLOAD;
 }
 
-eval {
-	require XSLoader;
-	XSLoader::load('Net::SSLeay', $VERSION);
-	1;
-} or do {
-	require DynaLoader;
-	push @ISA, 'DynaLoader';
-	bootstrap Net::SSLeay $VERSION;
-};
+use XSLoader;
+XSLoader::load('Net::SSLeay', $VERSION);
 
 # Preloaded methods go here.
 
