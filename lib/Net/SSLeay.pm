@@ -1982,7 +1982,7 @@ sub do_httpx3 {
     return ($page, $response, $headers, $server_cert);
 }
 
-sub do_https3 { splice(@_,1,0) = 1; do_httpx3; }  # Legacy undocumented
+sub do_https3 { splice(@_,1,0,1); do_httpx3; }  # Legacy undocumented
 
 ### do_https2() is a legacy version in the sense that it is unable
 ### to return all instances of duplicate headers.
@@ -1997,7 +1997,7 @@ sub do_httpx2 {
 	    );
 }
 
-sub do_https2 { splice(@_,1,0) = 1; do_httpx2; }  # Legacy undocumented
+sub do_https2 { splice(@_,1,0,1); do_httpx2; }  # Legacy undocumented
 
 ### Returns headers as a hash where multiple instances of same header
 ### are handled correctly.
@@ -2012,7 +2012,7 @@ sub do_httpx4 {
     return ($page, $response, \%hr, $server_cert);
 }
 
-sub do_https4 { splice(@_,1,0) = 1; do_httpx4; }  # Legacy undocumented
+sub do_https4 { splice(@_,1,0,1); do_httpx4; }  # Legacy undocumented
 
 # https
 
