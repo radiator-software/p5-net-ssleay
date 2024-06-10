@@ -1134,7 +1134,7 @@ sub open_proxy_tcp_connection {
     ($ret, $errs) =
 	tcp_write_all("CONNECT $dest_serv:$port HTTP/1.0$proxyauth$CRLF$CRLF");
     return wantarray ? (0,$errs) : 0 if $errs;
-    ($line, $errs) = tcp_read_until($CRLF . $CRLF, 1024);
+    (my $line, $errs) = tcp_read_until($CRLF . $CRLF, 1024);
     warn "Proxy response: $line" if $trace>2;
     return wantarray ? (0,$errs) : 0 if $errs;
     return wantarray ? (1,'') : 1;  # Success
@@ -1560,6 +1560,7 @@ sub randomize (;$$$) {
 }
 
 sub new_x_ctx {
+    my $ctx;
     if ( $ssl_version == 2 ) {
         unless ( exists &Net::SSLeay::CTX_v2_new ) {
             warn "ssl_version has been set to 2, but this version of libssl has been compiled without SSLv2 support";
@@ -1908,7 +1909,7 @@ sub set_server_cert_and_key ($$$) { &set_cert_and_key }
 ### Set up to use web proxy
 
 sub set_proxy ($$;**) {
-    ($proxyhost, $proxyport, $proxyuser, $proxypass) = @_;
+    ($proxyhost, $proxyport, my $proxyuser, my $proxypass) = @_;
     require MIME::Base64 if $proxyuser;
     $proxyauth = $proxyuser
          ? $CRLF . 'Proxy-authorization: Basic '
@@ -1990,7 +1991,7 @@ sub do_httpx2 {
     my ($page, $response, $headers, $server_cert) = &do_httpx3;
     X509_free($server_cert) if defined $server_cert;
     return ($page, $response, defined $headers ?
-	    map( { ($h,$v)=/^(\S+)\:\s*(.*)$/; (uc($h),$v); }
+	    map( { my ($h,$v)=/^(\S+)\:\s*(.*)$/; (uc($h),$v); }
 		split(/\s?\n/, $headers)
 		) : ()
 	    );
