@@ -39,8 +39,9 @@ my @functions = qw(
 plan tests => @functions + 1;
 
 for (@functions) {
+    no strict 'refs';
     dies_like(
-        sub { "Net::SSLeay::$_"->(); die "ok\n" },
+        sub { &{"Net::SSLeay::$_"}; die "ok\n" },
         qr/^(?!Can't locate .*\.al in \@INC)/,
         "function is autoloadable: $_"
     );
