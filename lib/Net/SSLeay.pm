@@ -23,7 +23,6 @@ use Socket;
 use Errno;
 
 require Exporter;
-use AutoLoader;
 
 # 0=no warns, 1=only errors, 2=ciphers, 3=progress, 4=dump data
 our $trace = 0;  # Do not change here, use
@@ -1003,8 +1002,7 @@ sub AUTOLOAD {
     my $val = constant($constname);
     if ($! != 0) {
 	if ($! =~ /((Invalid)|(not valid))/i || $!{EINVAL}) {
-	    $AutoLoader::AUTOLOAD = $AUTOLOAD;
-	    goto &AutoLoader::AUTOLOAD;
+            croak "Undefined subroutine &$AUTOLOAD called";
 	}
 	else {
 	  croak "Your vendor has not defined SSLeay macro $constname";
@@ -1066,12 +1064,6 @@ $@ and eval '    sub blength ($) { defined $_[0] ? length $_[0] : 0 }' ;
 our $proxyhost;
 our $proxyport;
 our $proxyauth = '';
-
-# Autoload methods go after __END__, and are processed by the autosplit program.
-
-
-1;
-__END__
 
 ### Some methods that are macros in C
 
