@@ -59,8 +59,7 @@ sub test_rand_file_name_libressl
 sub test_rand_file_name_openssl
 {
     my $file_name;
-    local %ENV = %ENV;
-    delete $ENV{RANDFILE};
+    delete local @ENV{'RANDFILE', 'HOME'};
 
     # NOTE: If there are test failures, are you using some type of
     # setuid environment? If so, this may affect usability of
