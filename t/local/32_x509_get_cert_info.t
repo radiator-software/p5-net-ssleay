@@ -188,6 +188,10 @@ for my $f (keys (%$dump)) {
                   ) {
                       $ext_data =~ s{(othername:) [^, ]+}{$1<unsupported>}g;
                   }
+                  # Starting with 3.4.0 the double colon in emailAddress has been removed.
+                  if (Net::SSLeay::SSLeay >= 0x30400000) {
+                      $ext_data =~ s{emailAddress::}{emailAddress:};
+                  }
               }
               elsif ( $nid == 89 ) {
                   # The output formatting for certificate policies has a
