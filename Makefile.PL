@@ -244,7 +244,7 @@ sub ssleay_get_build_opts {
     # phase fails.
     my @try_lib_paths = (
 	["$prefix/lib64", "$prefix/lib", "$prefix/out32dll", $prefix] => sub {$OSNAME eq 'darwin' },
-	[$prefix, "$prefix/lib64", "$prefix/lib", "$prefix/out32dll"] => sub { 1 },
+	[$prefix, "$prefix/lib64", "$prefix/lib/64", "$prefix/lib", "$prefix/out32dll"] => sub { 1 },
 	);
 
     while (
