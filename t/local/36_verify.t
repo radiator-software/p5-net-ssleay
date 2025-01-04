@@ -130,7 +130,7 @@ sub test_policy_checks
 	isnt($ret, 1, 'connect not ok: policy checks must fail') if !$ok;
 	is($verify_result, Net::SSLeay::X509_V_ERR_NO_EXPLICIT_POLICY(), 'Verify result is X509_V_ERR_NO_EXPLICIT_POLICY');
     }
-
+    Net::SSLeay::free($ssl); # call SSL_free()
     Net::SSLeay::X509_VERIFY_PARAM_free($pm);
 }
 
@@ -186,9 +186,8 @@ sub test_hostname_checks
       } else {
 	  is($peername, undef, 'X509_VERIFY_PARAM_get0_peername returns undefined');
       }
-
+      Net::SSLeay::free($ssl); # call SSL_free()
       Net::SSLeay::X509_VERIFY_PARAM_free($pm);
-      Net::SSLeay::X509_VERIFY_PARAM_free($pm2);
     }
 }
 
@@ -305,6 +304,7 @@ sub client {
 	test_hostname_checks($ctx, $cl, 1) if $task eq 'hostname_checks_ok';
 	test_hostname_checks($ctx, $cl, 0) if $task eq 'hostname_checks_fail';
 	test_wildcard_checks($ctx, $cl) if $task eq 'wildcard_checks';
+	Net::SSLeay::CTX_free($ctx);
 	last if $task eq 'finish'; # Leaves $cl alive
 
 	close($cl) || die("client close: $!");
@@ -321,6 +321,7 @@ sub client {
     ok($end eq Net::SSLeay::ssl_read_all($ssl), 'Successful termination');
     Net::SSLeay::free($ssl);
     close($cl) || die("client final close: $!");
+    Net::SSLeay::CTX_free($ctx);
     return;
 }
 
@@ -366,6 +367,7 @@ sub run_server
 	    Net::SSLeay::free($ssl);
 	    close($cl) || die("server close: $!");
 	    $server->close() || die("server listen socket close: $!");
+            Net::SSLeay::CTX_free($ctx);
 	    exit (0);
 	}
     }
