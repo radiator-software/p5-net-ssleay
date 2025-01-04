@@ -356,7 +356,11 @@ sub run_server
 
 	Net::SSLeay::set_fd($ssl, fileno($cl));
 	my $ret = Net::SSLeay::accept($ssl);
-	next unless $ret == 1;
+	if ($ret != 1)
+	{
+	    Net::SSLeay::free($ssl);
+            next;
+	}
 
 	# Termination request or other message from client
 	my $msg = Net::SSLeay::ssl_read_all($ssl);
@@ -370,5 +374,6 @@ sub run_server
             Net::SSLeay::CTX_free($ctx);
 	    exit (0);
 	}
+	Net::SSLeay::free($ssl);
     }
 }
