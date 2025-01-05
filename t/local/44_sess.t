@@ -229,7 +229,7 @@ sub server
 		set_server_stat($round, 'get0_cipher', $get0_cipher_ok);
 	    }
 
-	    Net::SSLeay::SESSION_free($sess) unless $ret; # Not cached, undo get1
+	    Net::SSLeay::SESSION_free($sess);
 	    Net::SSLeay::free($ssl);
 	    Net::SSLeay::CTX_free($ctx);
 	    close($cl) || die("server close: $!");
@@ -291,7 +291,7 @@ sub client {
 	Net::SSLeay::write($ssl, "continue");
 	my $sess = Net::SSLeay::get1_session($ssl);
 	$ret = Net::SSLeay::CTX_remove_session($ctx, $sess);
-	Net::SSLeay::SESSION_free($sess) unless $ret; # Not cached, undo get1
+	Net::SSLeay::SESSION_free($sess);
 
 	if (defined &Net::SSLeay::SESSION_is_resumable) {
 	    my $is_resumable = Net::SSLeay::SESSION_is_resumable($sess);
