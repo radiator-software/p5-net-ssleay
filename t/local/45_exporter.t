@@ -69,6 +69,7 @@ sub server
 
 	    Net::SSLeay::shutdown($ssl);
 	    Net::SSLeay::free($ssl);
+            Net::SSLeay::CTX_free($ctx);
 	    close($cl) || die("server close: $!");
 	}
 	$server->close() || die("server listen socket close: $!");
@@ -110,6 +111,7 @@ sub client {
 
             Net::SSLeay::shutdown($ssl);
             Net::SSLeay::free($ssl);
+            Net::SSLeay::CTX_free($ctx);
             close($cl) || die("client close: $!");
             $proto_count += 1;
         }
