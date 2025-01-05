@@ -63,8 +63,9 @@ if (0) {
 	    Net::SSLeay::get_session($client->_ssl));
     };
     $reuse = sub {
-	Net::SSLeay::set_session($client->_ssl,
-	    Net::SSLeay::d2i_SSL_SESSION($saved));
+	my $sess = Net::SSLeay::d2i_SSL_SESSION($saved);
+	Net::SSLeay::set_session($client->_ssl, $sess);
+	Net::SSLeay::SESSION_free($sess);
     };
 }
 
