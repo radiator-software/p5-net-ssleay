@@ -278,9 +278,16 @@ sub _handshake {
 	    Net::SSLeay::BIO_new(Net::SSLeay::BIO_s_mem()),
 	);
 	Net::SSLeay::set_bio($ssl,$bio[0],$bio[1]);
+	Net::SSLeay::free($self->{ssl}) if $self->{ssl};  # call SSL_free() on old ssl value;
 	$self->{ssl} = $ssl;
 	$self->{rbio} = $bio[0];
 	$self->{wbio} = $bio[1];
+    }
+
+    sub DESTROY {
+	my $self = shift;
+	Net::SSLeay::free($self->{ssl}) if $self->{ssl};  # call SSL_free() on old ssl value;
+	Net::SSLeay::CTX_free($self->{ctx}) if $self->{ctx};  # free old ctx value;
     }
 
     sub _error {
