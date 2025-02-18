@@ -218,6 +218,9 @@ for my $f (keys (%$dump)) {
                       # OpenSSL 1.0.0 to 1.1.1:
                       $ext_data =~ s{(Full Name:\n  )}{\n$1}g;
                       $ext_data .= "\n";
+                  } elsif ( Net::SSLeay::SSLeay >  0x3040000f ) {
+                      $ext_data =~ s{(\nFull Name:)}{\n$1}g;
+                      $ext_data .= "\n";
                   }
               }
               elsif ( $nid == 126 ) {
