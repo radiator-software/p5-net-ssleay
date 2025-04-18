@@ -1,6 +1,6 @@
 # The CI workflow tests Net-SSLeay against the following setups:
 #
-# - OS: Ubuntu 20.04
+# - OS: Ubuntu 24.04
 # - Perl: the latest patch release of every minor release since 5.8
 # - libssl: the latest patch release of every minor release between:
 #   - OpenSSL: 0.9.8 and 3.2
@@ -28,8 +28,8 @@ env:
 
 jobs:
   ubuntu-openssl:
-    name: 'Ubuntu 20.04 (Perl ${{ matrix.perl }}, OpenSSL ${{ matrix.openssl }})'
-    runs-on: ubuntu-20.04
+    name: 'Ubuntu 24.04 (Perl ${{ matrix.perl }}, OpenSSL ${{ matrix.openssl }})'
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -70,7 +70,7 @@ jobs:
 
       - name: 'Install OpenSSL ${{ matrix.openssl }}'
         run: |
-          os="ubuntu-20.04"
+          os="ubuntu-24.04"
           ver="openssl-${{ matrix.openssl }}"
 
           curl -L "https://github.com/p5-net-ssleay/ci-libssl/releases/download/$ver/$ver-$os.tar.xz" \
@@ -96,8 +96,8 @@ jobs:
             make test
 
   ubuntu-libressl:
-    name: 'Ubuntu 20.04 (Perl ${{ matrix.perl }}, LibreSSL ${{ matrix.libressl }})'
-    runs-on: ubuntu-20.04
+    name: 'Ubuntu 24.04 (Perl ${{ matrix.perl }}, LibreSSL ${{ matrix.libressl }})'
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -146,7 +146,7 @@ jobs:
 
       - name: 'Install LibreSSL ${{ matrix.libressl }}'
         run: |
-          os="ubuntu-20.04"
+          os="ubuntu-24.04"
           ver="libressl-${{ matrix.libressl }}"
 
           curl -L "https://github.com/p5-net-ssleay/ci-libssl/releases/download/$ver/$ver-$os.tar.xz" \
