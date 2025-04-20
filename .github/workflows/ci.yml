@@ -300,7 +300,7 @@ jobs:
         uses: cygwin/cygwin-install-action@master
         with:
             platform: x86_64
-            packages: perl_base perl-ExtUtils-MakeMaker make gcc-g++ libcrypt-devel libssl-devel curl bash
+            packages: perl perl_base perl-ExtUtils-MakeMaker make gcc-g++ libcrypt-devel libssl-devel curl bash
       - uses: actions/checkout@main
         with:
             submodules: recursive
