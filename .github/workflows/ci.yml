@@ -172,7 +172,7 @@ jobs:
             make test
 
   non_x86_alpine:
-    name: "${{ matrix.platform }}/Alpine/${{ matrix.alpine_version }} (${{ matrix.package }})"
+    name: "${{ matrix.platform.name }}/Alpine/${{ matrix.alpine_version }} (${{ matrix.package }})"
 
     runs-on: ubuntu-latest
 
@@ -182,56 +182,73 @@ jobs:
           - openssl
           - libressl
         platform:
-          - i386
-          - s390x
-          - arm32v6
-          - arm32v7
-          - arm64v8
+          - name: i386
+            docker_platform: linux/386
+          - name: s390x
+            docker_platform: linux/s390x
+          - name: arm32v6
+            docker_platform: linux/arm/v6
+          - name: arm32v7
+            docker_platform: linux/arm/v7
+          - name: arm64v8
+            docker_platform: linux/arm64/v8
         alpine_version:
           - '3.18'
           - '3.17'
           - '3.16'
           - '3.15'
+        # Alpine 3.18 on s390x does not have LibreSSL
         exclude:
           - package: libressl
-            platform: s390x
+            platform:
+              name: s390x
             alpine_version: '3.18'
 
     steps:
       - uses: actions/checkout@main
         with:
             submodules: recursive
-      - name: Get the qemu container
-        run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          image: tonistiigi/binfmt:latest
+          platforms: all
 
       # NB: “openssl” is correct, even for LibreSSL:
-      - name: Run tests on ${{ matrix.platform }}
-        run: docker run --rm --interactive --mount type=bind,source=$(pwd),target=/host ${{ matrix.platform }}/alpine:${{ matrix.alpine_version}} sh -c "apk add perl-dev perl-app-cpanminus make gcc musl-dev zlib-dev ${{ matrix.package }}-dev openssl && perl -V && cd /host && cpanm --verbose --notest --installdeps . && perl Makefile.PL && make test"
+      - name: Run tests on ${{ matrix.platform.name }}
+        run: docker run --rm --interactive --platform ${{ matrix.platform.docker_platform }} --mount type=bind,source=$(pwd),target=/host ${{ matrix.platform.name }}/alpine:${{ matrix.alpine_version}} sh -c "apk add perl-dev perl-app-cpanminus make gcc musl-dev zlib-dev ${{ matrix.package }}-dev openssl && perl -V && cd /host && cpanm --verbose --notest --installdeps . && perl Makefile.PL && make test"
 
   non_x86_ubuntu:
-    name: "${{ matrix.platform }}/Ubuntu"
+    name: "${{ matrix.platform.name }}/Ubuntu"
 
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
         platform:
-          - i386
-          - s390x
-          - arm32v7
-          - arm64v8
+          - name: i386
+            docker_platform: linux/386
+          - name: s390x
+            docker_platform: linux/s390x
+          - name: arm32v7
+            docker_platform: linux/arm/v7
+          - name: arm64v8
+            docker_platform: linux/arm64/v8
 
     steps:
       - uses: actions/checkout@main
         with:
             submodules: recursive
-      - name: Get the qemu container
-        run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-      - name: Run tests on ${{ matrix.platform }}
-        run: docker run --rm --interactive --mount type=bind,source=$(pwd),target=/host ${{ matrix.platform }}/ubuntu bash -c "apt update && apt install -y cpanminus make gcc openssl libssl-dev zlib1g-dev && perl -V && cd /host && cpanm --notest --verbose --installdeps . || find /root/.cpanm/work/ -type f | xargs cat; perl Makefile.PL && make test"
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          image: tonistiigi/binfmt:latest
+          platforms: all
+      - name: Run tests on ${{ matrix.platform.name }}
+        run: docker run --rm --interactive --platform ${{ matrix.platform.docker_platform }} --mount type=bind,source=$(pwd),target=/host ${{ matrix.platform.name }}/ubuntu:latest bash -c "apt update && apt install -y cpanminus make gcc openssl libssl-dev zlib1g-dev && perl -V && cd /host && cpanm --notest --verbose --installdeps . || find /root/.cpanm/work/ -type f | xargs cat; perl Makefile.PL && make test"
 
   BSDs:
-    runs-on: macos-12
+    runs-on: ubuntu-latest
 
     name: ${{ matrix.os.pretty_name }} ${{ matrix.os.version }}
 
@@ -266,7 +283,7 @@ jobs:
           - name: netbsd
             pretty_name: NetBSD
             version: '9.3'
-            pkginstall: /usr/sbin/pkg_add http://cdn.netbsd.org/pub/pkgsrc/packages/NetBSD/amd64/9.3/All/p5-App-cpanminus
+            pkginstall: sudo pkgin update && sudo pkgin -y install p5-App-cpanminus
 
     steps:
       - uses: actions/checkout@main
@@ -300,7 +317,7 @@ jobs:
         uses: cygwin/cygwin-install-action@master
         with:
             platform: x86_64
-            packages: perl_base perl-ExtUtils-MakeMaker make gcc-g++ libcrypt-devel libssl-devel curl bash
+            packages: perl perl_base perl-ExtUtils-MakeMaker make gcc-g++ libcrypt-devel libssl-devel curl bash
       - uses: actions/checkout@main
         with:
             submodules: recursive
