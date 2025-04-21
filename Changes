@@ -4,6 +4,9 @@ Revision history for Perl extension Net::SSLeay.
 	- Skip NPN tests when NPN is disabled in OpenSSL instead o
 	  assuming NPN is always enabled. Reported by GitHub user
 	  dilyanpalauzov Дилян Палаузов.
+	- Update GitHub Actions CI workflow. A number of test jobs
+	  were broken because some GitHub runners were discontinued,
+	  changes in QEMU setup, changes in Cygwin, etc.
 
 1.94 2024-01-08
 	- New stable release incorporating all changes from developer releases 1.93_01
