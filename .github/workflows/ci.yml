@@ -231,7 +231,7 @@ jobs:
         run: docker run --rm --interactive --mount type=bind,source=$(pwd),target=/host ${{ matrix.platform }}/ubuntu bash -c "apt update && apt install -y cpanminus make gcc openssl libssl-dev zlib1g-dev && perl -V && cd /host && cpanm --notest --verbose --installdeps . || find /root/.cpanm/work/ -type f | xargs cat; perl Makefile.PL && make test"
 
   BSDs:
-    runs-on: macos-12
+    runs-on: ubuntu-latest
 
     name: ${{ matrix.os.pretty_name }} ${{ matrix.os.version }}
 
