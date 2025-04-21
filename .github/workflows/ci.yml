@@ -266,7 +266,7 @@ jobs:
           - name: netbsd
             pretty_name: NetBSD
             version: '9.3'
-            pkginstall: /usr/sbin/pkg_add http://cdn.netbsd.org/pub/pkgsrc/packages/NetBSD/amd64/9.3/All/p5-App-cpanminus
+            pkginstall: sudo pkgin update && sudo pkgin -y install p5-App-cpanminus
 
     steps:
       - uses: actions/checkout@main
