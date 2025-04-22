@@ -7,6 +7,9 @@ Revision history for Perl extension Net::SSLeay.
 	- Update GitHub Actions CI workflow. A number of test jobs
 	  were broken because some GitHub runners were discontinued,
 	  changes in QEMU setup, changes in Cygwin, etc.
+	- Adjust test 32_x509_get_cert_info.t to match formatting
+	  changes in OpenSSL 3.4.0 and 3.4.1. Thanks to Sebastian
+	  Andrzej Siewior for the patches.
 
 1.94 2024-01-08
 	- New stable release incorporating all changes from developer releases 1.93_01
