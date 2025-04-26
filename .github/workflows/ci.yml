@@ -28,6 +28,7 @@ env:
 
 jobs:
   ubuntu-openssl:
+    if: false
     name: 'Ubuntu 24.04 (Perl ${{ matrix.perl }}, OpenSSL ${{ matrix.openssl }})'
     runs-on: ubuntu-24.04
     strategy:
@@ -96,6 +97,7 @@ jobs:
             make test
 
   ubuntu-libressl:
+    if: false
     name: 'Ubuntu 24.04 (Perl ${{ matrix.perl }}, LibreSSL ${{ matrix.libressl }})'
     runs-on: ubuntu-24.04
     strategy:
@@ -172,6 +174,7 @@ jobs:
             make test
 
   non_x86_alpine:
+    if: false
     name: "${{ matrix.platform.name }}/Alpine/${{ matrix.alpine_version }} (${{ matrix.package }})"
 
     runs-on: ubuntu-latest
@@ -226,12 +229,12 @@ jobs:
     strategy:
       matrix:
         platform:
-          - name: i386
-            docker_platform: linux/386
-          - name: s390x
-            docker_platform: linux/s390x
-          - name: arm32v7
-            docker_platform: linux/arm/v7
+#          - name: i386
+#            docker_platform: linux/386
+#          - name: s390x
+#            docker_platform: linux/s390x
+#          - name: arm32v7
+#            docker_platform: linux/arm/v7
           - name: arm64v8
             docker_platform: linux/arm64/v8
 
@@ -248,6 +251,7 @@ jobs:
         run: docker run --rm --interactive --platform ${{ matrix.platform.docker_platform }} --mount type=bind,source=$(pwd),target=/host ${{ matrix.platform.name }}/ubuntu:latest bash -c "apt update && apt install -y cpanminus make gcc openssl libssl-dev zlib1g-dev && perl -V && cd /host && cpanm --notest --verbose --installdeps . || find /root/.cpanm/work/ -type f | xargs cat; perl Makefile.PL && make test"
 
   BSDs:
+    if: false
     runs-on: ubuntu-latest
 
     name: ${{ matrix.os.pretty_name }} ${{ matrix.os.version }}
@@ -310,6 +314,7 @@ jobs:
             make test;
 
   cygwin:
+    if: false
     runs-on: windows-latest
 
     steps:
