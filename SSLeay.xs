@@ -7493,7 +7493,11 @@ SSL_CTX_set_tlsext_ticket_getkey_cb(ctx,callback=&PL_sv_undef,data=&PL_sv_undef)
 
 #endif
 
+#if !defined(LIBRESSL_VERSION_NUMBER) || (LIBRESSL_VERSION_NUMBER < 0x3090000fL) /* LibreSSL < 3.9.0 */
+
 int EVP_add_digest(const EVP_MD *digest)
+
+#endif
 
 #ifndef OPENSSL_NO_SHA
 

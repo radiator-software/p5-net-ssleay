@@ -9019,6 +9019,8 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least
     #
     # returns: value corresponding to openssl's EVP_MD structure
 
+B<COMPATIBILITY:> no longer available in LibreSSL 3.9.0 and later
+
 =item * EVP_add_digest
 
     my $rv = Net::SSLeay::EVP_add_digest($digest);
