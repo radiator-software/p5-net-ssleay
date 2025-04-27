@@ -189,6 +189,7 @@ for my $f (keys (%$dump)) {
                       $ext_data =~ s{(othername:) [^, ]+}{$1<unsupported>}g;
                   }
                   # Starting with 3.4.0 the double colon in emailAddress has been removed.
+                  # See https://github.com/openssl/openssl/commit/de8861a7e3100
                   if (Net::SSLeay::SSLeay >= 0x30400000) {
                       $ext_data =~ s{emailAddress::}{emailAddress:};
                   }

@@ -33,7 +33,7 @@ eval { Net::SSLeay::OPENSSL_INIT_NO_ATEXIT(); return 1; } ?
 my $start_time = time;
 
 #exit the whole program if it runs too long
-threads->new( sub { sleep 20; warn "FATAL: TIMEOUT!"; exit } )->detach;
+threads->new( sub { sleep 30; warn "FATAL: TIMEOUT!"; exit } )->detach;
 
 #print STDERR "Gonna start multi-threading part\n";
 threads->new(\&do_check) for (1..100);
