@@ -10,6 +10,10 @@ Revision history for Perl extension Net::SSLeay.
 	- Adjust test 32_x509_get_cert_info.t to match formatting
 	  changes in OpenSSL 3.4.0 and 3.4.1. Thanks to Sebastian
 	  Andrzej Siewior for the patches.
+	- OpenSSL 3.9.0 and later remove EVP_add_digest(). Thanks to
+	  Derrik Pates for the report and patch.
+	- Increase timeout in 62_threads-ctx_new-deadlock.t to allow
+	  the test to pass on very slow platforms.
 
 1.94 2024-01-08
 	- New stable release incorporating all changes from developer releases 1.93_01
