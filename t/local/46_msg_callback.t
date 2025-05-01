@@ -36,6 +36,8 @@ my $server = tcp_socket();
 	    for(1,2) {
 		last if Net::SSLeay::shutdown($ssl)>0;
 	    }
+	    Net::SSLeay::free($ssl);  # Call SSL_free();
+	    Net::SSLeay::CTX_free($ctx);
 	    close($cl) || die("server close: $!");
 	}
 	$server->close() || die("server listen socket close: $!");
@@ -88,6 +90,8 @@ sub client {
     for(1,2) {
 	last if Net::SSLeay::shutdown($ssl)>0;
     }
+    Net::SSLeay::free($ssl);  # Call SSL_free();
+    Net::SSLeay::CTX_free($ctx);
     close($cl) || die("client close: $!");
 
     ok(scalar(@states) > 1, "at least 2 messages logged: $where");
