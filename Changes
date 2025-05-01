@@ -14,6 +14,20 @@ Revision history for Perl extension Net::SSLeay.
 	  Derrik Pates for the report and patch.
 	- Increase timeout in 62_threads-ctx_new-deadlock.t to allow
 	  the test to pass on very slow platforms.
+	- Add missing documentation for STACK_OF() free functions
+	  sk_X509_free and sk_X509_INFO_free. Contributed by Marc
+	  Reisner
+	- Add $prefx/lib/64 to lib paths in Makefile.PL for
+	  Illumos. Contributed by Marcel Telka.
+	- Support vendor-supplied OpenSSL 3.x on VMS and update %ENV
+	  modification in test 10_rand.t to work on VMS. Contributed
+	  by Craig Barry.
+	- Compiler -D switches Makefile.PL sets are no longer added to
+	  the MakeMaker CCFLAG attribute because of portability
+	  reasons. The switches are now passed either via
+	  WriteMakefile() or appending them to 'perl Makefile.PL ...'
+	  DEFINE argument. CCFLAG problem diagnosed by Craig
+	  Barry. Fixes by Craig Barry and Heikki Vatiainen.
 
 1.94 2024-01-08
 	- New stable release incorporating all changes from developer releases 1.93_01
