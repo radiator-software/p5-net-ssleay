@@ -140,6 +140,15 @@ $eumm_args{AUTHOR} = join(', ', @{$eumm_args{AUTHOR}}) unless eval { ExtUtils::M
 # This can go when EU::MM older than 6.64 are gone
 delete $eumm_args{TEST_REQUIRES} unless eval { ExtUtils::MakeMaker->VERSION(6.64); };
 
+# DEFINE cannot be passed via command line ARGV and WriteMakefile(). If there's
+# a DEFINE on the command line, append ours to the last one. MakeMaker appears
+# to use only the last command line DEFINE when there are multiple.
+foreach my $arg (reverse @ARGV)
+{
+    next unless $arg =~ m/^DEFINE=/s;
+    $arg .= ' ' . delete $eumm_args{DEFINE};
+    last;
+}
 WriteMakefile(%eumm_args);
 
 sub MY::postamble {
