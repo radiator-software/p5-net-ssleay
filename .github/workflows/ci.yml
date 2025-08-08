@@ -34,6 +34,9 @@ jobs:
       fail-fast: false
       matrix:
         perl:
+          - '5.42'
+          - '5.40'
+          - '5.38'
           - '5.36'
           - '5.34'
           - '5.32'
@@ -61,7 +64,7 @@ jobs:
           - '0.9.8zh'
     steps:
       - name: Check out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install Perl ${{ matrix.perl }}
         uses: shogo82148/actions-setup-perl@v1
@@ -102,6 +105,9 @@ jobs:
       fail-fast: false
       matrix:
         perl:
+          - '5.42'
+          - '5.40'
+          - '5.38'
           - '5.36'
           - '5.34'
           - '5.32'
@@ -137,7 +143,7 @@ jobs:
           - '2.2.9'
     steps:
       - name: Check out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install Perl ${{ matrix.perl }}
         uses: shogo82148/actions-setup-perl@v1
@@ -205,7 +211,7 @@ jobs:
             alpine_version: '3.18'
 
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
         with:
             submodules: recursive
       - name: Set up QEMU
@@ -236,7 +242,7 @@ jobs:
             docker_platform: linux/arm64/v8
 
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
         with:
             submodules: recursive
       - name: Set up QEMU
@@ -286,7 +292,7 @@ jobs:
             pkginstall: sudo pkgin update && sudo pkgin -y install p5-App-cpanminus
 
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -318,7 +324,7 @@ jobs:
         with:
             platform: x86_64
             packages: perl perl_base perl-ExtUtils-MakeMaker make gcc-g++ libcrypt-devel libssl-devel curl bash
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
         with:
             submodules: recursive
       - run: perl -V
