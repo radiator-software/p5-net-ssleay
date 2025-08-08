@@ -98,8 +98,8 @@ jobs:
           LD_LIBRARY_PATH="$HOME/libssl/lib" \
             make test
 
-  ubuntu-libressl:
-    name: 'Ubuntu 24.04 (Perl ${{ matrix.perl }}, LibreSSL ${{ matrix.libressl }})'
+  ubuntu-libressl-2x:
+    name: 'Ubuntu 24.04 (Perl ${{ matrix.perl }}, LibreSSL 2.[2-9] ${{ matrix.libressl }})'
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -124,15 +124,6 @@ jobs:
           - '5.10'
           - '5.8'
         libressl:
-          - '3.8.2'
-          - '3.7.3'
-          - '3.6.3'
-          - '3.5.4'
-          - '3.4.3'
-          - '3.3.6'
-          - '3.2.7'
-          - '3.1.5'
-          - '3.0.2'
           - '2.9.2'
           - '2.8.3'
           - '2.7.5'
@@ -141,6 +132,78 @@ jobs:
           - '2.4.5'
           - '2.3.10'
           - '2.2.9'
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Install Perl ${{ matrix.perl }}
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl }}
+
+      - name: 'Install LibreSSL ${{ matrix.libressl }}'
+        run: |
+          os="ubuntu-24.04"
+          ver="libressl-${{ matrix.libressl }}"
+
+          curl -L "https://github.com/p5-net-ssleay/ci-libssl/releases/download/$ver/$ver-$os.tar.xz" \
+            | tar -C $HOME -Jx
+
+      - name: Install dependencies
+        run: cpanm --quiet --installdeps --notest .
+
+      - name: Create makefile
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+          OPENSSL_PREFIX="$HOME/libssl" \
+            perl Makefile.PL
+
+      - name: Build
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+            make
+
+      - name: Run test suite
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+            make test
+
+  ubuntu-libressl-3x:
+    name: 'Ubuntu 24.04 (Perl ${{ matrix.perl }}, LibreSSL 3.[0-9] ${{ matrix.libressl }})'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        perl:
+          - '5.42'
+          - '5.40'
+          - '5.38'
+          - '5.36'
+          - '5.34'
+          - '5.32'
+          - '5.30'
+          - '5.28'
+          - '5.26'
+          - '5.24'
+          - '5.22'
+          - '5.20'
+          - '5.18'
+          - '5.16'
+          - '5.14'
+          - '5.12'
+          - '5.10'
+          - '5.8'
+        libressl:
+          - '3.9.2'
+          - '3.8.4'
+          - '3.7.3'
+          - '3.6.3'
+          - '3.5.4'
+          - '3.4.3'
+          - '3.3.6'
+          - '3.2.7'
+          - '3.1.5'
+          - '3.0.2'
     steps:
       - name: Check out
         uses: actions/checkout@v4
