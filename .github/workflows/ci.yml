@@ -415,15 +415,19 @@ jobs:
             pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus libressl libressl-devel
           - name: openbsd
             pretty_name: OpenBSD
-            version: '7.3'
+            version: '7.6'
             pkginstall: pkg_add curl
           - name: openbsd
             pretty_name: OpenBSD
-            version: '7.2'
+            version: '7.7'
             pkginstall: pkg_add curl
           - name: netbsd
             pretty_name: NetBSD
-            version: '9.3'
+            version: '9.4'
+            pkginstall: sudo pkgin update && sudo pkgin -y install p5-App-cpanminus
+          - name: netbsd
+            pretty_name: NetBSD
+            version: '10.1'
             pkginstall: sudo pkgin update && sudo pkgin -y install p5-App-cpanminus
 
     steps:
