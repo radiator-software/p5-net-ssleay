@@ -240,6 +240,70 @@ jobs:
           LD_LIBRARY_PATH="$HOME/libssl/lib" \
             make test
 
+  ubuntu-libressl-4x:
+    name: 'Ubuntu 24.04 (Perl ${{ matrix.perl }}, LibreSSL 4.[0-9] ${{ matrix.libressl }})'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        perl:
+          - '5.42'
+          - '5.40'
+          - '5.38'
+          - '5.36'
+          - '5.34'
+          - '5.32'
+          - '5.30'
+          - '5.28'
+          - '5.26'
+          - '5.24'
+          - '5.22'
+          - '5.20'
+          - '5.18'
+          - '5.16'
+          - '5.14'
+          - '5.12'
+          - '5.10'
+          - '5.8'
+        libressl:
+          - '4.1.0'
+          - '4.0.0'
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Install Perl ${{ matrix.perl }}
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl }}
+
+      - name: 'Install LibreSSL ${{ matrix.libressl }}'
+        run: |
+          os="ubuntu-24.04"
+          ver="libressl-${{ matrix.libressl }}"
+
+          curl -L "https://github.com/p5-net-ssleay/ci-libssl/releases/download/$ver/$ver-$os.tar.xz" \
+            | tar -C $HOME -Jx
+
+      - name: Install dependencies
+        run: cpanm --quiet --installdeps --notest .
+
+      - name: Create makefile
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+          OPENSSL_PREFIX="$HOME/libssl" \
+            perl Makefile.PL
+
+      - name: Build
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+            make
+
+      - name: Run test suite
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+            make test
+
   non_x86_alpine:
     name: "${{ matrix.platform.name }}/Alpine/${{ matrix.alpine_version }} (${{ matrix.package }})"
 
