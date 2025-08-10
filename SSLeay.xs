@@ -2565,6 +2565,16 @@ SSL_CTX_set_ciphersuites(SSL_CTX *ctx, const char *str)
 
 #endif
 
+#if (OPENSSL_VERSION_NUMBER >= 0x10100001L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3060000fL)
+
+long
+SSL_CTX_set1_sigalgs_list(SSL_CTX *ctx, const char *str)
+
+long
+SSL_CTX_set1_client_sigalgs_list(SSL_CTX *ctx, const char *str)
+
+#endif
+
 #if OPENSSL_VERSION_NUMBER >= 0x1010100fL && !defined(LIBRESSL_VERSION_NUMBER) /* OpenSSL 1.1.1 */
 
 void
