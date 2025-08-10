@@ -34,6 +34,9 @@ jobs:
       fail-fast: false
       matrix:
         perl:
+          - '5.42'
+          - '5.40'
+          - '5.38'
           - '5.36'
           - '5.34'
           - '5.32'
@@ -50,9 +53,11 @@ jobs:
           - '5.10'
           - '5.8'
         openssl:
-          - '3.2.0'
-          - '3.1.4'
-          - '3.0.12'
+          - '3.5.0'
+          - '3.4.1'
+          - '3.3.3'
+          - '3.1.8'
+          - '3.0.16'
           - '1.1.1w'
           - '1.1.0l'
           - '1.0.2u'
@@ -61,7 +66,7 @@ jobs:
           - '0.9.8zh'
     steps:
       - name: Check out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install Perl ${{ matrix.perl }}
         uses: shogo82148/actions-setup-perl@v1
@@ -95,13 +100,16 @@ jobs:
           LD_LIBRARY_PATH="$HOME/libssl/lib" \
             make test
 
-  ubuntu-libressl:
-    name: 'Ubuntu 24.04 (Perl ${{ matrix.perl }}, LibreSSL ${{ matrix.libressl }})'
+  ubuntu-libressl-2x:
+    name: 'Ubuntu 24.04 (Perl ${{ matrix.perl }}, LibreSSL 2.[2-9] ${{ matrix.libressl }})'
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         perl:
+          - '5.42'
+          - '5.40'
+          - '5.38'
           - '5.36'
           - '5.34'
           - '5.32'
@@ -118,15 +126,6 @@ jobs:
           - '5.10'
           - '5.8'
         libressl:
-          - '3.8.2'
-          - '3.7.3'
-          - '3.6.3'
-          - '3.5.4'
-          - '3.4.3'
-          - '3.3.6'
-          - '3.2.7'
-          - '3.1.5'
-          - '3.0.2'
           - '2.9.2'
           - '2.8.3'
           - '2.7.5'
@@ -137,7 +136,143 @@ jobs:
           - '2.2.9'
     steps:
       - name: Check out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Install Perl ${{ matrix.perl }}
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl }}
+
+      - name: 'Install LibreSSL ${{ matrix.libressl }}'
+        run: |
+          os="ubuntu-24.04"
+          ver="libressl-${{ matrix.libressl }}"
+
+          curl -L "https://github.com/p5-net-ssleay/ci-libssl/releases/download/$ver/$ver-$os.tar.xz" \
+            | tar -C $HOME -Jx
+
+      - name: Install dependencies
+        run: cpanm --quiet --installdeps --notest .
+
+      - name: Create makefile
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+          OPENSSL_PREFIX="$HOME/libssl" \
+            perl Makefile.PL
+
+      - name: Build
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+            make
+
+      - name: Run test suite
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+            make test
+
+  ubuntu-libressl-3x:
+    name: 'Ubuntu 24.04 (Perl ${{ matrix.perl }}, LibreSSL 3.[0-9] ${{ matrix.libressl }})'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        perl:
+          - '5.42'
+          - '5.40'
+          - '5.38'
+          - '5.36'
+          - '5.34'
+          - '5.32'
+          - '5.30'
+          - '5.28'
+          - '5.26'
+          - '5.24'
+          - '5.22'
+          - '5.20'
+          - '5.18'
+          - '5.16'
+          - '5.14'
+          - '5.12'
+          - '5.10'
+          - '5.8'
+        libressl:
+          - '3.9.2'
+          - '3.8.4'
+          - '3.7.3'
+          - '3.6.3'
+          - '3.5.4'
+          - '3.4.3'
+          - '3.3.6'
+          - '3.2.7'
+          - '3.1.5'
+          - '3.0.2'
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Install Perl ${{ matrix.perl }}
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl }}
+
+      - name: 'Install LibreSSL ${{ matrix.libressl }}'
+        run: |
+          os="ubuntu-24.04"
+          ver="libressl-${{ matrix.libressl }}"
+
+          curl -L "https://github.com/p5-net-ssleay/ci-libssl/releases/download/$ver/$ver-$os.tar.xz" \
+            | tar -C $HOME -Jx
+
+      - name: Install dependencies
+        run: cpanm --quiet --installdeps --notest .
+
+      - name: Create makefile
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+          OPENSSL_PREFIX="$HOME/libssl" \
+            perl Makefile.PL
+
+      - name: Build
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+            make
+
+      - name: Run test suite
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+            make test
+
+  ubuntu-libressl-4x:
+    name: 'Ubuntu 24.04 (Perl ${{ matrix.perl }}, LibreSSL 4.[0-9] ${{ matrix.libressl }})'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        perl:
+          - '5.42'
+          - '5.40'
+          - '5.38'
+          - '5.36'
+          - '5.34'
+          - '5.32'
+          - '5.30'
+          - '5.28'
+          - '5.26'
+          - '5.24'
+          - '5.22'
+          - '5.20'
+          - '5.18'
+          - '5.16'
+          - '5.14'
+          - '5.12'
+          - '5.10'
+          - '5.8'
+        libressl:
+          - '4.1.0'
+          - '4.0.0'
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
 
       - name: Install Perl ${{ matrix.perl }}
         uses: shogo82148/actions-setup-perl@v1
@@ -193,19 +328,19 @@ jobs:
           - name: arm64v8
             docker_platform: linux/arm64/v8
         alpine_version:
+          - '3.22'
+          - '3.21'
+          - '3.20'
+          - '3.19'
           - '3.18'
-          - '3.17'
-          - '3.16'
-          - '3.15'
-        # Alpine 3.18 on s390x does not have LibreSSL
+        # Alpine 3.18 and later on s390x do not have LibreSSL
         exclude:
           - package: libressl
             platform:
               name: s390x
-            alpine_version: '3.18'
 
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
         with:
             submodules: recursive
       - name: Set up QEMU
@@ -236,7 +371,7 @@ jobs:
             docker_platform: linux/arm64/v8
 
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
         with:
             submodules: recursive
       - name: Set up QEMU
@@ -257,36 +392,48 @@ jobs:
       matrix:
         os:
           - name: freebsd
-            pretty_name: FreeBSD (OpenSSL default)
-            version: '13.2'
+            pretty_name: FreeBSD 13.5 (OpenSSL default)
+            version: '13.5'
             pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus
           - name: freebsd
-            pretty_name: FreeBSD (OpenSSL 3.1)
-            version: '13.2'
-            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus openssl31
+            pretty_name: FreeBSD 13.5 (OpenSSL 3.5)
+            version: '13.5'
+            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus openssl35
           - name: freebsd
-            pretty_name: FreeBSD (OpenSSL 3.2)
-            version: '13.2'
-            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus openssl32
+            pretty_name: FreeBSD 13.5 (LibreSSL)
+            version: '13.5'
+            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus libressl libressl-devel
           - name: freebsd
-            pretty_name: FreeBSD (LibreSSL)
-            version: '13.2'
+            pretty_name: FreeBSD 14.3 (OpenSSL default)
+            version: '14.3'
+            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus
+          - name: freebsd
+            pretty_name: FreeBSD 14.3 (OpenSSL 3.5)
+            version: '14.3'
+            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus openssl35
+          - name: freebsd
+            pretty_name: FreeBSD 14.3 (LibreSSL)
+            version: '14.3'
             pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus libressl libressl-devel
           - name: openbsd
             pretty_name: OpenBSD
-            version: '7.3'
+            version: '7.6'
             pkginstall: pkg_add curl
           - name: openbsd
             pretty_name: OpenBSD
-            version: '7.2'
+            version: '7.7'
             pkginstall: pkg_add curl
           - name: netbsd
             pretty_name: NetBSD
-            version: '9.3'
+            version: '9.4'
+            pkginstall: sudo pkgin update && sudo pkgin -y install p5-App-cpanminus
+          - name: netbsd
+            pretty_name: NetBSD
+            version: '10.1'
             pkginstall: sudo pkgin update && sudo pkgin -y install p5-App-cpanminus
 
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -318,7 +465,7 @@ jobs:
         with:
             platform: x86_64
             packages: perl perl_base perl-ExtUtils-MakeMaker make gcc-g++ libcrypt-devel libssl-devel curl bash
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
         with:
             submodules: recursive
       - run: perl -V
