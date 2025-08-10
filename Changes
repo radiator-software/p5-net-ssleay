@@ -28,6 +28,17 @@ Revision history for Perl extension Net::SSLeay.
 	  WriteMakefile() or appending them to 'perl Makefile.PL ...'
 	  DEFINE argument. CCFLAG problem diagnosed by Craig
 	  Barry. Fixes by Craig Barry and Heikki Vatiainen.
+	- Update GitHub Actions CI testing:
+	  - Perl on Ubuntu 24.04: Add Perl 5.38, 5.40 and 5.42, add
+	    OpenSSL 3.3, 3.4 and 3.5 minor releases, add LibreSSL 3.9,
+	    4.0 and 4.1 release branches.
+	  - Alpine Linux: Remove 3.15, 3.16 and 3.17. Add 3.19, 3.20,
+	    3.21 and 3.22.
+	  - Freebsd: Add 14.3 and replace 13.2 with 13.5.
+	  - OpenBSD: Add 7.6 and 7.7. Remove 7.2 and 7.3.
+	  - NetBSD: Add 10.1 and replace 9.3 with 9.4.
+	- Update test 62_threads-ctx_new-deadlock.t to work with
+	  LibreSSL 4.1.0.
 
 1.94 2024-01-08
 	- New stable release incorporating all changes from developer releases 1.93_01
