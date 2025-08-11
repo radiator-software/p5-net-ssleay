@@ -39,6 +39,11 @@ Revision history for Perl extension Net::SSLeay.
 	  - NetBSD: Add 10.1 and replace 9.3 with 9.4.
 	- Update test 62_threads-ctx_new-deadlock.t to work with
 	  LibreSSL 4.1.0.
+	- Support SSL_CTX_set1_sigalgs_list and
+	  SSL_CTX_set1_client_sigalgs_list. Contributed by Wes Malone.
+	- Support SSL_set1_sigalgs_list and
+	  SSL_set1_client_sigalgs_list. Add test file 67_sigalgs.t for
+	  the recently added sigalgs functions.
 
 1.94 2024-01-08
 	- New stable release incorporating all changes from developer releases 1.93_01

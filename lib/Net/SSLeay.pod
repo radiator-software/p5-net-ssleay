@@ -3276,7 +3276,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_get0_par
 
 =item * CTX_set1_sigalgs_list
 
-B<COMPATIBILITY:> requires at least OpenSSL 1.1.0
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before; requires at least OpenSSL 1.0.2, not in LibreSSL
 
 Set the supported signature algorithms for $ctx. $str is a string consisting of
 a colon separated list of elements, where each element is either a combination
@@ -3284,15 +3284,15 @@ of a public key algorithm and a digest separated by +, or a TLS 1.3-style named
 SignatureScheme such as rsa_pss_pss_sha256.
 
     my $rv = Net::SSLeay::CTX_set1_sigalgs_list($str)
-    # $str - (string) signature algo list, e.g. "ECDSA+SHA256:RSA+SHA256" 
+    # $str - (string) signature algo list, e.g. "ECDSA+SHA256:RSA+SHA256"
     #
     # returns: 1 on success, 0 on failure
 
-Check openssl doc L<https://docs.openssl.org/master/man/SSL_CTX_set1_sigalgs/>
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_CTX_set1_sigalgs_list/>
 
 =item * CTX_set1_client_sigalgs_list
 
-B<COMPATIBILITY:> requires at least OpenSSL 1.1.0
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before; requires at least OpenSSL 1.0.2, not in LibreSSL
 
 Set the supported client authentication signature algorithms for $ctx. $str is
 a string consisting of a colon separated list of elements, where each element
@@ -3300,11 +3300,11 @@ is either a combination of a public key algorithm and a digest separated by +,
 or a TLS 1.3-style named SignatureScheme such as rsa_pss_pss_sha256.
 
     my $rv = Net::SSLeay::CTX_set1_client_sigalgs_list($str)
-    # $str - (string) signature algo list, e.g. "ECDSA+SHA256:RSA+SHA256" 
+    # $str - (string) signature algo list, e.g. "ECDSA+SHA256:RSA+SHA256"
     #
     # returns: 1 on success, 0 on failure
 
-Check openssl doc L<https://docs.openssl.org/master/man/SSL_CTX_set1_sigalgs/>
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_CTX_set1_client_sigalgs_list/>
 
 =item * CTX_set_cert_store
 
@@ -4946,6 +4946,38 @@ Configure the available TLSv1.3 ciphersuites.
     # returns: (integer) 1 if the requested ciphersuite list was configured, and 0 otherwise
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_set_ciphersuites.html>
+
+=item * set1_sigalgs_list
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before; requires at least OpenSSL 1.0.2, not in LibreSSL
+
+Set the supported signature algorithms for $ssl. $str is a string consisting of
+a colon separated list of elements, where each element is either a combination
+of a public key algorithm and a digest separated by +, or a TLS 1.3-style named
+SignatureScheme such as rsa_pss_pss_sha256.
+
+    my $rv = Net::SSLeay::set1_sigalgs_list($str)
+    # $str - (string) signature algo list, e.g. "ECDSA+SHA256:RSA+SHA256"
+    #
+    # returns: 1 on success, 0 on failure
+
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_set1_sigalgs_list/>
+
+=item * set1_client_sigalgs_list
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before; requires at least OpenSSL 1.0.2, not in LibreSSL
+
+Set the supported client authentication signature algorithms for $ssl. $str is
+a string consisting of a colon separated list of elements, where each element
+is either a combination of a public key algorithm and a digest separated by +,
+or a TLS 1.3-style named SignatureScheme such as rsa_pss_pss_sha256.
+
+    my $rv = Net::SSLeay::set1_client_sigalgs_list($str)
+    # $str - (string) signature algo list, e.g. "ECDSA+SHA256:RSA+SHA256"
+    #
+    # returns: 1 on success, 0 on failure
+
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_set1_client_sigalgs_list/>
 
 =item * set_client_CA_list
 
