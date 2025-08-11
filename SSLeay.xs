@@ -2565,7 +2565,7 @@ SSL_CTX_set_ciphersuites(SSL_CTX *ctx, const char *str)
 
 #endif
 
-#if (OPENSSL_VERSION_NUMBER >= 0x10100001L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x3060000fL)
+#if OPENSSL_VERSION_NUMBER >= 0x1000200fL && !defined(LIBRESSL_VERSION_NUMBER) /* OpenSSL 1.0.2 */
 
 long
 SSL_CTX_set1_sigalgs_list(SSL_CTX *ctx, const char *str)
@@ -3591,6 +3591,16 @@ SSL_get_num_tickets(SSL *ssl)
 
 int
 SSL_set_ciphersuites(SSL *ssl, const char *str)
+
+#endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x1000200fL && !defined(LIBRESSL_VERSION_NUMBER) /* OpenSSL 1.0.2 */
+
+long
+SSL_set1_sigalgs_list(SSL *ssl, const char *str)
+
+long
+SSL_set1_client_sigalgs_list(SSL *ssl, const char *str)
 
 #endif
 
