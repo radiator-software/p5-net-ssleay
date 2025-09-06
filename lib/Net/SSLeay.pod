@@ -4979,6 +4979,44 @@ or a TLS 1.3-style named SignatureScheme such as rsa_pss_pss_sha256.
 
 Check openssl doc L<https://docs.openssl.org/master/man3/SSL_set1_client_sigalgs_list/>
 
+=item * get_sigalgs
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before; requires at least OpenSSL 1.0.2, not in LibreSSL
+
+Return information about all signature algorithms supported by the TLS peer.
+
+    my @sigalg = Net::SSLeay::get_sigalgs($ssl, $idx)
+    # $ssl - value corresponding to openssl's SSL structure
+    # $idx - (integer) index in the list of algorithms sent by the peer
+    #
+    # returns: A list of six items described below.
+
+The first item in the list is the number of the signature algorithms
+or 0 if the $idx parameter is out of the range. The next three items
+are OpenSSL NIDs: the signature algorithm NID, the hash NID and the
+sign and hash NID. Items five and six are one octet signature and hash
+raw values from the wire.
+
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_get_sigalgs/>
+
+=item * get_shared_sigalgs
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before; requires at least OpenSSL 1.0.2, not in LibreSSL
+
+Return information about the shared signature algorithms supported by
+the TLS peer. This function takes similar arguments and returns
+similar values as C<Net::SSLeay::get_sigalgs>. See
+C<Net::SSLeay::get_sigalgs> for the details of function arguments and
+return values.
+
+    my @sigalg = Net::SSLeay::get_shared_sigalgs($ssl, $idx)
+    # $ssl - value corresponding to openssl's SSL structure
+    # $idx - (integer) index in the list of shared algorithms
+    #
+    # returns: A list of six items described below.
+
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_get_shared_sigalgs/>
+
 =item * set_client_CA_list
 
 Sets the list of CAs sent to the client when requesting a client certificate

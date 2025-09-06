@@ -3602,6 +3602,44 @@ SSL_set1_sigalgs_list(SSL *ssl, const char *str)
 long
 SSL_set1_client_sigalgs_list(SSL *ssl, const char *str)
 
+void
+SSL_get_sigalgs(SSL *ssl, int idx)
+    PREINIT:
+        int n_sigalgs;
+        int psign = NID_undef, phash = NID_undef, psignhash = NID_undef;
+        unsigned char rsig = 0, rhash = 0;
+    PPCODE:
+        n_sigalgs = SSL_get_sigalgs(ssl, idx,
+                                    &psign, &phash, &psignhash,
+                                    &rsig, &rhash);
+
+        EXTEND(SP, 6);
+        PUSHs(sv_2mortal(newSViv(n_sigalgs)));
+        PUSHs(sv_2mortal(newSViv(psign)));
+        PUSHs(sv_2mortal(newSViv(phash)));
+        PUSHs(sv_2mortal(newSViv(psignhash)));
+        PUSHs(sv_2mortal(newSVuv(rsig)));
+        PUSHs(sv_2mortal(newSVuv(rhash)));
+
+void
+SSL_get_shared_sigalgs(SSL *ssl, int idx)
+    PREINIT:
+        int n_sigalgs;
+        int psign = NID_undef, phash = NID_undef, psignhash = NID_undef;
+        unsigned char rsig = 0, rhash = 0;
+    PPCODE:
+        n_sigalgs = SSL_get_shared_sigalgs(ssl, idx,
+                                    &psign, &phash, &psignhash,
+                                    &rsig, &rhash);
+
+        EXTEND(SP, 6);
+        PUSHs(sv_2mortal(newSViv(n_sigalgs)));
+        PUSHs(sv_2mortal(newSViv(psign)));
+        PUSHs(sv_2mortal(newSViv(phash)));
+        PUSHs(sv_2mortal(newSViv(psignhash)));
+        PUSHs(sv_2mortal(newSVuv(rsig)));
+        PUSHs(sv_2mortal(newSVuv(rhash)));
+
 #endif
 
 const BIO_METHOD *
