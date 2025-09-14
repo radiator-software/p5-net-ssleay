@@ -46,6 +46,7 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
      $r = Crypt::OpenSSL::Bignum->bless_pointer($bn);
      is($r->to_decimal(), Net::SSLeay::RSA_F4(), 'Crypt::OpenSSL::Bignum exponent twice');
   }
+  map {Net::SSLeay::BN_free($_)} @params; # Properly free BIGNUMs returned by RSA_get_key_parameters
  
   ok(my $x509  = Net::SSLeay::X509_new(), "X509_new");
   ok(Net::SSLeay::X509_set_pubkey($x509,$pk), "X509_set_pubkey");
