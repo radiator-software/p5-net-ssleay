@@ -39,15 +39,12 @@ my @functions = qw(
 plan tests => @functions + 1;
 
 for (@functions) {
-    dies_like(
-        sub { "Net::SSLeay::$_"->(); die "ok\n" },
-        qr/^(?!Can't locate .*\.al in \@INC)/,
-        "function is autoloadable: $_"
-    );
+    no strict 'refs';
+    ok defined &{"Net::SSLeay::$_"}, "function is available: $_";
 }
 
 dies_like(
     sub { Net::SSLeay::doesnt_exist() },
-    qr/^Can't locate .*\.al in \@INC/,
-    'nonexistent function is not autoloadable'
+    qr/^Undefined subroutine &Net::SSLeay::doesnt_exist/,
+    'nonexistent function is not available'
 );
