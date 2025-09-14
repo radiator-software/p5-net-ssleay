@@ -23,7 +23,7 @@ handled as standard file handles.
 
   tie(*SSL, "Net::SSLeay::Handle", $host, $port);
 
-  print SSL "GET / HTTP/1.0\r\n";
+  print SSL "GET / HTTP/1.0\r\n\r\n";
   shutdown(\*SSL, 1);
   print while (<SSL>);
   close SSL;                                                       
@@ -33,7 +33,7 @@ handled as standard file handles.
 Net::SSLeay::Handle allows you to request and receive HTTPS web pages
 using "old-fashion" file handles as in:
 
-    print SSL "GET / HTTP/1.0\r\n";
+    print SSL "GET / HTTP/1.0\r\n\r\n";
 
 and
 
@@ -322,7 +322,7 @@ non-SSL sockets and do the right thing.
 
   tie(*SSL, "Net::SSLeay::Handle", $host, $port);
 
-  print SSL "GET / HTTP/1.0\r\n";
+  print SSL "GET / HTTP/1.0\r\n\r\n";
   shutdown(\*SSL, 1);
   print while (<SSL>);
   close SSL; 
