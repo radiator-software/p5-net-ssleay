@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.95_01 yyyy-mm-dd
+1.95_01 2026-02-05
 	- Skip NPN tests when NPN is disabled in OpenSSL instead o
 	  assuming NPN is always enabled. Reported by GitHub user
 	  dilyanpalauzov Дилян Палаузов.
