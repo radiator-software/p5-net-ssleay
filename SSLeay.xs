@@ -2154,6 +2154,42 @@ int ssl_client_hello_cb_fn_invoke(SSL *ssl, int *al, void *arg)
 }
 #endif
 
+int ssl_ctx_set_cert_cb_invoke(SSL *ssl, void *arg)
+{
+    dSP;
+    int count, res;
+    SV *cb_func, *cb_arg;
+    SSL_CTX *ctx = SSL_get_SSL_CTX(ssl);
+
+    PR1("STARTED: ssl_ctx_set_cert_cb_invoke\n");
+    cb_func = cb_data_advanced_get(ctx, "ssleay_ssl_ctx_set_cert_cb!!func");
+    cb_arg  = cb_data_advanced_get(ctx, "ssleay_ssl_ctx_set_cert_cb!!arg");
+    if(!SvOK(cb_func))
+	croak ("Net::SSLeay: ssl_ctx_set_cert_cb_invoke called, but not set to point to any perl function.\n");
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    EXTEND(SP, 2);
+    PUSHs(sv_2mortal(newSViv(PTR2IV(ssl))));
+    PUSHs(sv_2mortal(newSVsv(cb_arg)));
+
+    PUTBACK;
+    count = call_sv(cb_func, G_SCALAR);
+    SPAGAIN;
+
+    if (count != 1)
+      croak ("Net::SSLeay: ssl_ctx_set_cert_cb_invoke perl function returned %d values, 1 expected\n", count);
+    res = POPi;
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return res;
+}
+
 /* ============= end of callback stuff, begin helper functions ============== */
 
 time_t ASN1_TIME_timet(ASN1_TIME *asn1t, time_t *gmtoff) {
@@ -6287,6 +6323,23 @@ SSL_CTX_get_keylog_callback(const SSL_CTX *ctx)
 	RETVAL = func;
     OUTPUT:
 	RETVAL
+
+#endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x1000200fL && !defined(LIBRESSL_VERSION_NUMBER)
+
+void
+SSL_CTX_set_cert_cb(SSL_CTX *ctx, SV *callback, SV *arg=&PL_sv_undef)
+    CODE:
+	if (callback==NULL || !SvOK(callback)) {
+	    SSL_CTX_set_cert_cb(ctx, NULL, NULL);
+	    cb_data_advanced_put(ctx, "ssleay_ssl_ctx_set_cert_cb!!func", NULL);
+	    cb_data_advanced_put(ctx, "ssleay_ssl_ctx_set_cert_cb!!arg", NULL);
+	} else {
+	    cb_data_advanced_put(ctx, "ssleay_ssl_ctx_set_cert_cb!!func", newSVsv(callback));
+	    cb_data_advanced_put(ctx, "ssleay_ssl_ctx_set_cert_cb!!arg", newSVsv(arg));
+	    SSL_CTX_set_cert_cb(ctx, ssl_ctx_set_cert_cb_invoke, NULL);
+	}
 
 #endif
 

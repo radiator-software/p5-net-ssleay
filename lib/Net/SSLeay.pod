@@ -3811,6 +3811,30 @@ The callback function will be called like this:
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_client_hello_cb.html>
 
+=item * CTX_set_cert_cb
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before
+
+Set the callback that is called before a certificate will be used by a client or server.
+
+    Net::SSLeay::CTX_set_cert_cb($ctx, $cb, [$arg]);
+    # $ctx  - value corresponding to openssl's SSL_CTX structure
+    # $cb - reference to a perl callback function
+    # $arg - optional data passed to the callback function when invoked
+    #
+    # returns: no return value
+
+    cert_cb_func($ssl, $arg);
+    # $ssl - value corresponding to OpenSSL's SSL object associated with the connection
+    # $arg - data to callback
+    #
+    # The callback must return an integer:
+    # 1: If the callback is successful, even if no certificates have been set.
+    # 0: On error which will abort the handshake with a fatal internal error alert.
+    # negative: To indicate suspended handshake returning Net::SSLeay::ERROR_WANT_X509_LOOKUP().
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_cert_cb.html>
+
 =back
 
 =head3 Low level API: SSL_* related functions
