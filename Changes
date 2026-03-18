@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.95_02 ????-??-??
+1.95_02 2026-03-18
 	- Support SSL_CTX_set1_sigalgs_list and
 	  SSL_CTX_set1_client_sigalgs_list. Contributed by Wes Malone.
 	- Support SSL_set1_sigalgs_list and
