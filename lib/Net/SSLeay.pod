@@ -3274,6 +3274,38 @@ Applies X509 verification parameters $vpm on $ctx
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_get0_param.html>
 
+=item * CTX_set1_sigalgs_list
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before; requires at least OpenSSL 1.0.2, not in LibreSSL
+
+Set the supported signature algorithms for $ctx. $str is a string consisting of
+a colon separated list of elements, where each element is either a combination
+of a public key algorithm and a digest separated by +, or a TLS 1.3-style named
+SignatureScheme such as rsa_pss_pss_sha256.
+
+    my $rv = Net::SSLeay::CTX_set1_sigalgs_list($str)
+    # $str - (string) signature algo list, e.g. "ECDSA+SHA256:RSA+SHA256"
+    #
+    # returns: 1 on success, 0 on failure
+
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_CTX_set1_sigalgs_list/>
+
+=item * CTX_set1_client_sigalgs_list
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before; requires at least OpenSSL 1.0.2, not in LibreSSL
+
+Set the supported client authentication signature algorithms for $ctx. $str is
+a string consisting of a colon separated list of elements, where each element
+is either a combination of a public key algorithm and a digest separated by +,
+or a TLS 1.3-style named SignatureScheme such as rsa_pss_pss_sha256.
+
+    my $rv = Net::SSLeay::CTX_set1_client_sigalgs_list($str)
+    # $str - (string) signature algo list, e.g. "ECDSA+SHA256:RSA+SHA256"
+    #
+    # returns: 1 on success, 0 on failure
+
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_CTX_set1_client_sigalgs_list/>
+
 =item * CTX_set_cert_store
 
 Sets/replaces the certificate verification storage of $ctx to/with $store.
@@ -3778,6 +3810,30 @@ The callback function will be called like this:
     # error: return (Net::SSLeay::CLIENT_HELLO_FAILURE(), Net::SSLeay::AD_NO_APPLICATION_PROTOCOL());
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_client_hello_cb.html>
+
+=item * CTX_set_cert_cb
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before
+
+Set the callback that is called before a certificate will be used by a client or server.
+
+    Net::SSLeay::CTX_set_cert_cb($ctx, $cb, [$arg]);
+    # $ctx  - value corresponding to openssl's SSL_CTX structure
+    # $cb - reference to a perl callback function
+    # $arg - optional data passed to the callback function when invoked
+    #
+    # returns: no return value
+
+    cert_cb_func($ssl, $arg);
+    # $ssl - value corresponding to OpenSSL's SSL object associated with the connection
+    # $arg - data to callback
+    #
+    # The callback must return an integer:
+    # 1: If the callback is successful, even if no certificates have been set.
+    # 0: On error which will abort the handshake with a fatal internal error alert.
+    # negative: To indicate suspended handshake returning Net::SSLeay::ERROR_WANT_X509_LOOKUP().
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_cert_cb.html>
 
 =back
 
@@ -4914,6 +4970,76 @@ Configure the available TLSv1.3 ciphersuites.
     # returns: (integer) 1 if the requested ciphersuite list was configured, and 0 otherwise
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_set_ciphersuites.html>
+
+=item * set1_sigalgs_list
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before; requires at least OpenSSL 1.0.2, not in LibreSSL
+
+Set the supported signature algorithms for $ssl. $str is a string consisting of
+a colon separated list of elements, where each element is either a combination
+of a public key algorithm and a digest separated by +, or a TLS 1.3-style named
+SignatureScheme such as rsa_pss_pss_sha256.
+
+    my $rv = Net::SSLeay::set1_sigalgs_list($str)
+    # $str - (string) signature algo list, e.g. "ECDSA+SHA256:RSA+SHA256"
+    #
+    # returns: 1 on success, 0 on failure
+
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_set1_sigalgs_list/>
+
+=item * set1_client_sigalgs_list
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before; requires at least OpenSSL 1.0.2, not in LibreSSL
+
+Set the supported client authentication signature algorithms for $ssl. $str is
+a string consisting of a colon separated list of elements, where each element
+is either a combination of a public key algorithm and a digest separated by +,
+or a TLS 1.3-style named SignatureScheme such as rsa_pss_pss_sha256.
+
+    my $rv = Net::SSLeay::set1_client_sigalgs_list($str)
+    # $str - (string) signature algo list, e.g. "ECDSA+SHA256:RSA+SHA256"
+    #
+    # returns: 1 on success, 0 on failure
+
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_set1_client_sigalgs_list/>
+
+=item * get_sigalgs
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before; requires at least OpenSSL 1.0.2, not in LibreSSL
+
+Return information about all signature algorithms supported by the TLS peer.
+
+    my @sigalg = Net::SSLeay::get_sigalgs($ssl, $idx)
+    # $ssl - value corresponding to openssl's SSL structure
+    # $idx - (integer) index in the list of algorithms sent by the peer
+    #
+    # returns: A list of six items described below.
+
+The first item in the list is the number of the signature algorithms
+or 0 if the $idx parameter is out of the range. The next three items
+are OpenSSL NIDs: the signature algorithm NID, the hash NID and the
+sign and hash NID. Items five and six are one octet signature and hash
+raw values from the wire.
+
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_get_sigalgs/>
+
+=item * get_shared_sigalgs
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before; requires at least OpenSSL 1.0.2, not in LibreSSL
+
+Return information about the shared signature algorithms supported by
+the TLS peer. This function takes similar arguments and returns
+similar values as C<Net::SSLeay::get_sigalgs>. See
+C<Net::SSLeay::get_sigalgs> for the details of function arguments and
+return values.
+
+    my @sigalg = Net::SSLeay::get_shared_sigalgs($ssl, $idx)
+    # $ssl - value corresponding to openssl's SSL structure
+    # $idx - (integer) index in the list of shared algorithms
+    #
+    # returns: A list of six items described below.
+
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_get_shared_sigalgs/>
 
 =item * set_client_CA_list
 
