@@ -1,5 +1,9 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.95_03 ????-??-??
+	- In 67_sigalgs.t, load the certificates and keys before forking
+	  to avoid a failure on MSWin32.
+
 1.95_02 2026-03-18
 	- Support SSL_CTX_set1_sigalgs_list and
 	  SSL_CTX_set1_client_sigalgs_list. Contributed by Wes Malone.
