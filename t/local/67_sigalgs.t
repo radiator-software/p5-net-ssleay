@@ -48,6 +48,12 @@ my $pid;
 alarm(30);
 END { kill 9,$pid if $pid }
 
+# Load file contents before fork to avoid failure on Windows.
+# For more information, see
+# https://github.com/radiator-software/p5-net-ssleay/issues/544
+my $ca_file_pem = data_file_path('intermediate-ca.certchain.pem');
+my $cert_pem = data_file_path('simple-cert.cert.pem');
+my $key_pem  = data_file_path('simple-cert.key.pem');
 
 # See client's cert_cb callback below for more background information
 # about sigalgs function use in this callback.
@@ -75,9 +81,6 @@ my $server = tcp_socket();
     if ($pid == 0) {
 	my $cl = $server->accept();
 	my $ctx = new_ctx();
-	my $ca_file_pem = data_file_path('intermediate-ca.certchain.pem');
-	my $cert_pem = data_file_path('simple-cert.cert.pem');
-	my $key_pem  = data_file_path('simple-cert.key.pem');
 	Net::SSLeay::CTX_load_verify_locations($ctx, $ca_file_pem, '');
 	Net::SSLeay::set_cert_and_key($ctx, $cert_pem, $key_pem);
 	Net::SSLeay::CTX_set_verify($ctx, (Net::SSLeay::VERIFY_PEER() | Net::SSLeay::VERIFY_FAIL_IF_NO_PEER_CERT()));
@@ -144,8 +147,6 @@ sub cert_cb_client {
 
 sub client {
     # SSL client - connect and shutdown
-    my $cert_pem = data_file_path('simple-cert.cert.pem');
-    my $key_pem  = data_file_path('simple-cert.key.pem');
 
     my $cl = $server->connect();
     my $ctx = new_ctx();
