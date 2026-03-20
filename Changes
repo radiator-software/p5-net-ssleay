@@ -1,15 +1,16 @@
 Revision history for Perl extension Net::SSLeay.
 
-1.95_03 ????-??-??
+1.95_03 2026-03-20
 	- In 67_sigalgs.t, load the certificates and keys before forking
 	  to avoid a failure on MSWin32.
 
 1.95_02 2026-03-18
 	- Support SSL_CTX_set1_sigalgs_list and
 	  SSL_CTX_set1_client_sigalgs_list. Contributed by Wes Malone.
-	- Support SSL_set1_sigalgs_list and
-	  SSL_set1_client_sigalgs_list. Add test file 67_sigalgs.t for
-	  the recently added sigalgs functions.
+	- Support SSL_set1_sigalgs_list, SSL_set1_client_sigalgs_list,
+	  SSL_get_sigalgs and SSL_get_shared_sigalgs, and add the
+	  function SSL_CTX_set_cert_cb.
+	- Add test file 67_sigalgs.t for the sigalgs functions.
 
 1.95_01 2026-02-05
 	- Skip NPN tests when NPN is disabled in OpenSSL instead o
