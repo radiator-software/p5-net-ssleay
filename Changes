@@ -1,5 +1,15 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.96 2026-03-21
+	- New stable release incorporating all changes from developer releases
+	  1.95_01 to 1.95_03.
+	- Summary of major changes since version 1.94:
+	  - Net::SSLeay now officially supports all stable releases of OpenSSL
+	    3.3 - 3.6 and LibreSSL 3.9 - 4.2, including the vendor-supplied
+	    version of OpenSSL 3 on VMS.
+	  - Several libssl functions allowing for the control of supported
+	    signature algorithms are now exposed.
+
 1.95_03 2026-03-20
 	- In 67_sigalgs.t, load the certificates and keys before forking
 	  to avoid a failure on MSWin32.
