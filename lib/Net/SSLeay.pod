@@ -10100,6 +10100,85 @@ These functions are only available since OpenSSL 1.1.1.
     Net::SSLeay::CTX_set1_groups_list($ctx,"P-521:P-384:P-256");
     Net::SSLeay::set1_groups_list($ssl,"P-521:P-384:P-256");
 
+=item * get1_groups
+
+This function returns the list of supported groups for the SSL connection.
+It calls SSL_get1_groups and returns an array reference containing the group IDs,
+or undef if no groups are set or the function is not supported.
+
+    my $groups = Net::SSLeay::get1_groups($ssl);
+    # returns: array reference of group IDs (e.g., [29, 23, 24]) or undef
+
+Available since OpenSSL 1.1.1.
+
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_CTX_set1_groups/>
+
+=item * get_shared_group
+
+This function returns the NID of the shared group at the specified index.
+It is typically called on the server side after the ClientHello has been
+received.
+
+The index parameter specifies which shared group to retrieve:
+
+=over
+
+=item * C<n = 0> - returns the most preferred shared group (recommended for most applications)
+
+=item * C<n = 1, 2, ...> - returns the second, third, etc. shared group
+
+=item * C<n = -1> - returns the total number of shared groups (may be zero)
+
+=back
+
+Return values:
+
+=over
+
+=item * NID of the shared group for valid indices
+
+=item * 0 if the index n is out of range
+
+=item * If the NID is unknown, returns the bitwise OR of TLSEXT_nid_unknown (0x1000000) and the group id
+
+=back
+
+Examples:
+
+    # Get the most preferred shared group
+    my $group_nid = Net::SSLeay::get_shared_group($ssl, 0);
+
+    # Get total number of shared groups
+    my $count = Net::SSLeay::get_shared_group($ssl, -1);
+
+Available since OpenSSL 1.1.1.
+
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_get_shared_group/>
+
+=item * get_negotiated_group
+
+This function returns the NID of the group used for the key exchange.
+It should be called after the handshake is complete. Returns NID_undef if
+no group was negotiated or before the handshake.
+
+    my $group_nid = Net::SSLeay::get_negotiated_group($ssl);
+    # returns: NID of the negotiated group or NID_undef
+
+Available since OpenSSL 3.0.0.
+
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_get_negotiated_group/>
+
+=item * group_to_name
+
+This function converts a group ID (NID) to its name string.
+
+    my $group_name = Net::SSLeay::group_to_name($ssl, $group_id);
+    # returns: group name (e.g., "secp256r1", "secp384r1", "secp521r1") or undef
+
+Available since OpenSSL 3.0.0.
+
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_group_to_name/>
+
 =back
 
 =head3 Low level API: OSSL_LIB_CTX and OSSL_PROVIDER related functions

@@ -6820,6 +6820,66 @@ SSL_set1_groups_list(ssl,list)
 
 #endif
 
+#if SSL_CTRL_GET_GROUPS
+
+void
+SSL_get1_groups(SSL *s)
+    PREINIT:
+	int ret, *out = NULL, i;
+	AV *av;
+    PPCODE:
+	/* First call to get the count */
+	ret = SSL_get1_groups(s, NULL);
+	if (ret <= 0) XSRETURN_UNDEF;
+
+	/* Allocate memory for groups */
+	Newx(out, ret, int);
+
+	/* Second call to get the actual groups */
+	SSL_get1_groups(s, out);
+
+	av = newAV();
+	mXPUSHs(newRV_noinc((SV*)av));
+	for (i=0; i < ret; i++) {
+	    av_push(av, newSViv(out[i]));
+	}
+	Safefree(out);
+
+#endif
+
+#if SSL_CTRL_GET_SHARED_GROUP
+
+int
+SSL_get_shared_group(ssl,n)
+     SSL * ssl
+     int   n
+
+#endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+
+int
+SSL_get_negotiated_group(ssl)
+     SSL * ssl
+     CODE:
+     /* Workaround for OpenSSL 3.0.x-3.4.x bug where SSL_get_negotiated_group
+      * crashes if called before handshake when session is NULL.
+      * Fixed in OpenSSL 3.5.x, but we need to support older versions. */
+     if (SSL_get_session(ssl) == NULL) {
+         RETVAL = NID_undef;
+     } else {
+         RETVAL = SSL_get_negotiated_group(ssl);
+     }
+     OUTPUT:
+     RETVAL
+
+const char *
+SSL_group_to_name(ssl, id)
+     SSL * ssl
+     int   id
+
+#endif
+
 
 
 #endif
