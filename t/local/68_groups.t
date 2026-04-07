@@ -5,7 +5,7 @@ use Test::Net::SSLeay qw( data_file_path initialise_libssl );
 
 initialise_libssl();
 
-if (!defined &Net::SSLeay::get_negotiated_group) {
+if (!defined &Net::SSLeay::get1_groups) {
     plan skip_all => "no support for group functions";
 } else {
     plan tests => 8;
@@ -14,18 +14,25 @@ if (!defined &Net::SSLeay::get_negotiated_group) {
 # for debugging only
 my $DEBUG = 0;
 
+my $version_num = Net::SSLeay::OPENSSL_VERSION_NUMBER();
+
 my $client = _minSSL->new();
 my $server = _minSSL->new( cert => [
     data_file_path('simple-cert.cert.pem'),
     data_file_path('simple-cert.key.pem'),
 ]);
 
-# Basic handshake with groups and get negotiated group
-ok(_handshake_and_check($client, $server, 'P-521:P-384', 'P-521', 'P-521'), 'handshake with P-521 and check negotiated group');
-ok(_handshake_and_check($client, $server, 'P-521:P-384', 'P-384', 'P-384'), 'handshake with P-384 and check negotiated group');
+SKIP: {
+    skip "No support for get_negotiated_group() and group_to_name() in " . Net::SSLeay::SSLeay_version(), 3
+        if $version_num < 0x30000000;
 
-# Test with single matching group
-ok(_handshake_and_check($client, $server, 'P-256', 'P-256', 'P-256'), 'handshake with single matching group');
+    # Basic handshake with groups and get negotiated group
+    ok(_handshake_and_check($client, $server, 'P-521:P-384', 'P-521', 'P-521'), 'handshake with P-521 and check negotiated group');
+    ok(_handshake_and_check($client, $server, 'P-521:P-384', 'P-384', 'P-384'), 'handshake with P-384 and check negotiated group');
+
+    # Test with single matching group
+    ok(_handshake_and_check($client, $server, 'P-256', 'P-256', 'P-256'), 'handshake with single matching group');
+}
 
 # Test SSL_get_shared_group
 my ($total_count, $shared0, $shared1) = _handshake_and_get_shared($client, $server, 'P-521:P-384', 'P-384:P-521');
@@ -33,10 +40,15 @@ is($total_count, 2, 'get_shared_group(-1) returns count of shared groups');
 ok(defined($shared0) && $shared0 > 0, 'get_shared_group(0) returns valid group');
 ok(defined($shared1) && $shared1 > 0, 'get_shared_group(1) returns valid group');
 
-# Test negotiated group before handshake
-$client->state_connect('P-521');
-my $neg_before = Net::SSLeay::get_negotiated_group($client->_ssl());
-ok($neg_before == 0, 'negotiated group is 0 before handshake');
+SKIP: {
+    skip "No support for get_negotiated_group() in " . Net::SSLeay::SSLeay_version(), 1
+        if $version_num < 0x30000000;
+
+    # Test negotiated group before handshake
+    $client->state_connect('P-521');
+    my $neg_before = Net::SSLeay::get_negotiated_group($client->_ssl());
+    ok($neg_before == 0, 'negotiated group is 0 before handshake');
+}
 
 # Test get1_groups - returns client groups on server side after ClientHello
 $client->state_connect('P-521:P-384');
