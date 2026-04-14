@@ -2454,7 +2454,7 @@ SSL_CTX_v2_new()
 
 #endif
 #endif
-#ifndef OPENSSL_NO_SSL3
+#if !defined(OPENSSL_NO_SSL3) && OPENSSL_VERSION_NUMBER < 0x40000000L
 
 SSL_CTX *
 SSL_CTX_v3_new()
@@ -5600,7 +5600,7 @@ SSLv2_method()
 #endif
 #endif
 
-#ifndef OPENSSL_NO_SSL3
+#if !defined(OPENSSL_NO_SSL3) && OPENSSL_VERSION_NUMBER < 0x40000000L
 
 const SSL_METHOD *
 SSLv3_method()
