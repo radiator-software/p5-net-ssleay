@@ -2472,7 +2472,7 @@ SSL_CTX_v23_new()
      OUTPUT:
      RETVAL
 
-#if !defined(OPENSSL_NO_TLS1_METHOD)
+#if !defined(OPENSSL_NO_TLS1_METHOD) && OPENSSL_VERSION_NUMBER < 0x40000000L
 
 SSL_CTX *
 SSL_CTX_tlsv1_new()
@@ -2481,9 +2481,22 @@ SSL_CTX_tlsv1_new()
      OUTPUT:
      RETVAL
 
+#elif OPENSSL_VERSION_NUMBER >= 0x40000000L
+
+SSL_CTX *
+SSL_CTX_tlsv1_new()
+     CODE:
+     RETVAL = SSL_CTX_new(TLS_method());
+     if (RETVAL) {
+          SSL_CTX_set_min_proto_version(RETVAL, TLS1_VERSION);
+          SSL_CTX_set_max_proto_version(RETVAL, TLS1_VERSION);
+     }
+     OUTPUT:
+     RETVAL
+
 #endif
 
-#if (OPENSSL_VERSION_NUMBER >= 0x10001001L && !defined(OPENSSL_NO_TLS1_1_METHOD)) /* OpenSSL 1.0.1-beta1 */
+#if (OPENSSL_VERSION_NUMBER >= 0x10001001L && OPENSSL_VERSION_NUMBER < 0x40000000L && !defined(OPENSSL_NO_TLS1_1_METHOD)) /* OpenSSL 1.0.1-beta1 */
 
 SSL_CTX *
 SSL_CTX_tlsv1_1_new()
@@ -2492,14 +2505,40 @@ SSL_CTX_tlsv1_1_new()
      OUTPUT:
      RETVAL
 
+#elif OPENSSL_VERSION_NUMBER >= 0x40000000L
+
+SSL_CTX *
+SSL_CTX_tlsv1_1_new()
+     CODE:
+     RETVAL = SSL_CTX_new(TLS_method());
+     if (RETVAL) {
+          SSL_CTX_set_min_proto_version(RETVAL, TLS1_1_VERSION);
+          SSL_CTX_set_max_proto_version(RETVAL, TLS1_1_VERSION);
+     }
+     OUTPUT:
+     RETVAL
+
 #endif
 
-#if (OPENSSL_VERSION_NUMBER >= 0x10001001L && !defined(OPENSSL_NO_TLS1_2_METHOD)) /* OpenSSL 1.0.1-beta1 */
+#if (OPENSSL_VERSION_NUMBER >= 0x10001001L && OPENSSL_VERSION_NUMBER < 0x40000000L && !defined(OPENSSL_NO_TLS1_2_METHOD)) /* OpenSSL 1.0.1-beta1 */
 
 SSL_CTX *
 SSL_CTX_tlsv1_2_new()
      CODE:
      RETVAL = SSL_CTX_new (TLSv1_2_method());
+     OUTPUT:
+     RETVAL
+
+#elif OPENSSL_VERSION_NUMBER >= 0x40000000L
+
+SSL_CTX *
+SSL_CTX_tlsv1_2_new()
+     CODE:
+     RETVAL = SSL_CTX_new(TLS_method());
+     if (RETVAL) {
+          SSL_CTX_set_min_proto_version(RETVAL, TLS1_2_VERSION);
+          SSL_CTX_set_max_proto_version(RETVAL, TLS1_2_VERSION);
+     }
      OUTPUT:
      RETVAL
 
@@ -5616,7 +5655,7 @@ SSLv23_server_method()
 const SSL_METHOD *
 SSLv23_client_method()
 
-#if !defined(OPENSSL_NO_TLS1_METHOD)
+#if !defined(OPENSSL_NO_TLS1_METHOD) && OPENSSL_VERSION_NUMBER < 0x40000000L
 
 const SSL_METHOD *
 TLSv1_method()
@@ -5629,7 +5668,7 @@ TLSv1_client_method()
 
 #endif
 
-#if (OPENSSL_VERSION_NUMBER >= 0x10001001L && !defined(OPENSSL_NO_TLS1_1_METHOD)) /* OpenSSL 1.0.1-beta1 */
+#if (OPENSSL_VERSION_NUMBER >= 0x10001001L && OPENSSL_VERSION_NUMBER < 0x40000000L && !defined(OPENSSL_NO_TLS1_1_METHOD)) /* OpenSSL 1.0.1-beta1 */
 
 const SSL_METHOD *
 TLSv1_1_method()
@@ -5642,7 +5681,7 @@ TLSv1_1_client_method()
 
 #endif
 
-#if (OPENSSL_VERSION_NUMBER >= 0x10001001L && !defined(OPENSSL_NO_TLS1_2_METHOD)) /* OpenSSL 1.0.1-beta1 */
+#if (OPENSSL_VERSION_NUMBER >= 0x10001001L && OPENSSL_VERSION_NUMBER < 0x40000000L && !defined(OPENSSL_NO_TLS1_2_METHOD)) /* OpenSSL 1.0.1-beta1 */
 
 const SSL_METHOD *
 TLSv1_2_method()
