@@ -5,13 +5,15 @@ use Test::Net::SSLeay qw(
     can_fork data_file_path initialise_libssl new_ctx tcp_socket
 );
 
+my $has_sslv2_hello;
 BEGIN {
     if (not defined &Net::SSLeay::CTX_set_client_hello_cb) {
         plan skip_all => "No SSL_CTX_set_client_hello_cb()";
     } elsif (not can_fork()) {
         plan skip_all => "fork() not supported on this system";
     } else {
-        plan tests => 41;
+        $has_sslv2_hello = Net::SSLeay::SSLeay() < 0x40000000;
+        plan tests => $has_sslv2_hello ? 41 : 30;
     }
 }
 
@@ -172,7 +174,7 @@ my @cb_tests = (
     # argument passed to the callback
     # true if the callback function triggers croak()
     # true if the client needs to test that ALPN alert (120) is received
-    [ \&client_hello_cb_v2hello_detection, undef, 0 ],
+    ($has_sslv2_hello ? [ \&client_hello_cb_v2hello_detection, undef, 0 ] : ()),
     [ \&client_hello_cb_getters, undef, 0 ],
     [ \&client_hello_cb_value_passing, \$cb_test_arg, 0 ],
     [ \&client_hello_cb_alert_alpn, undef, 0, 'alerts'],
@@ -248,8 +250,8 @@ my @results;
     };
 
     # Start with SSLv2 ClientHello detection test. Send a canned SSLv2
-    # ClientHello.
-    {
+    # ClientHello. Removed in OpenSSL 4.0.0.
+    if ($has_sslv2_hello) {
 	my $s_clientv2 = $server->connect();
 	my $clientv2_hello = get_sslv2_hello();
 	syswrite($s_clientv2, $clientv2_hello, length $clientv2_hello);
@@ -306,7 +308,7 @@ my @results;
 waitpid $pid, 0;
 push @results, [$? == 0, 'Client: server exited with 0'];
 END {
-  Test::More->builder->current_test(37);
+  Test::More->builder->current_test($has_sslv2_hello ? 37 : 27);
   ok( $_->[0], $_->[1] ) for (@results);
 }
 
