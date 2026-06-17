@@ -2487,7 +2487,8 @@ SSL_CTX_tlsv1_new()
      OUTPUT:
      RETVAL
 
-#elif OPENSSL_VERSION_NUMBER >= 0x40000000L
+#else
+#if (OPENSSL_VERSION_NUMBER >= 0x40000000L)
 
 SSL_CTX *
 SSL_CTX_tlsv1_new()
@@ -2501,6 +2502,7 @@ SSL_CTX_tlsv1_new()
      RETVAL
 
 #endif
+#endif
 
 #if (OPENSSL_VERSION_NUMBER >= 0x10001001L && OPENSSL_VERSION_NUMBER < 0x40000000L && !defined(OPENSSL_NO_TLS1_1_METHOD)) /* OpenSSL 1.0.1-beta1 */
 
@@ -2511,7 +2513,8 @@ SSL_CTX_tlsv1_1_new()
      OUTPUT:
      RETVAL
 
-#elif OPENSSL_VERSION_NUMBER >= 0x40000000L
+#else
+#if (OPENSSL_VERSION_NUMBER >= 0x40000000L)
 
 SSL_CTX *
 SSL_CTX_tlsv1_1_new()
@@ -2525,6 +2528,7 @@ SSL_CTX_tlsv1_1_new()
      RETVAL
 
 #endif
+#endif
 
 #if (OPENSSL_VERSION_NUMBER >= 0x10001001L && OPENSSL_VERSION_NUMBER < 0x40000000L && !defined(OPENSSL_NO_TLS1_2_METHOD)) /* OpenSSL 1.0.1-beta1 */
 
@@ -2535,7 +2539,8 @@ SSL_CTX_tlsv1_2_new()
      OUTPUT:
      RETVAL
 
-#elif OPENSSL_VERSION_NUMBER >= 0x40000000L
+#else
+#if (OPENSSL_VERSION_NUMBER >= 0x40000000L)
 
 SSL_CTX *
 SSL_CTX_tlsv1_2_new()
@@ -2548,6 +2553,7 @@ SSL_CTX_tlsv1_2_new()
      OUTPUT:
      RETVAL
 
+#endif
 #endif
 
 SSL_CTX *
