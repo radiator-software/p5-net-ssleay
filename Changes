@@ -1,5 +1,25 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.97_01 ????-??-??
+	- Support for OpenSSL 4.0.0. Contributed by Michal Josef Špaček.
+	  - Net::SSLeay specific functions CTX_tlsv1_new(),
+	    CTX_tlsv1_1_new() and CTX_tlsv1_2_new() with OpenSSL 4.0.0
+	    and later are emulated using TLS_method() with
+	    SSL_CTX_set_min_proto_version() and
+	    SSL_CTX_set_max_proto_version() for backward
+	    compatibility. It is recommended to use
+	    Net::SSLeay::CTX_new() with
+	    Net::SSLeay::CTX_set_min_proto_version() and
+	    Net::SSLeay::CTX_set_max_proto_version() instead.
+	  - TLSv1_method, TLSv1_server_method and TLSv1_client_method,
+	    TLSv1_1_method, TLSv1_1_server_method and
+	    TLSv1_1_client_method, TLSv1_2_method,
+	    TLSv1_2_server_method and TLSv1_2_client_method are
+	    removed in OpenSSL 4.0.0. Use TLS_method() with
+	    CTX_set_min_proto_version() and
+	    CTX_set_max_proto_version() instead.
+	  - CTX_v3_new() is removed with OpenSSL 4.0.0 and later.
+
 1.96 2026-03-21
 	- New stable release incorporating all changes from developer releases
 	  1.95_01 to 1.95_03.

@@ -38,6 +38,8 @@ my $data_path = catfile( dirname(__FILE__), '..', '..', '..', 't', 'data' );
 
 my $initialised = 0;
 
+# All version-specific methods were removed in OpenSSL 4.0. This list
+# may be updated once the library is loaded and its version is known.
 my %protos = (
     'TLSv1.3' => {
         constant      => \&Net::SSLeay::TLS1_3_VERSION,
@@ -103,6 +105,15 @@ sub _libssl_fatal {
 
 sub _load_net_ssleay {
     eval { require Net::SSLeay; 1; } or croak $EVAL_ERROR;
+
+    if (Net::SSLeay::OPENSSL_VERSION_NUMBER() >= 0x40000000) {
+	$protos{'TLSv1.2'}->{constant} = \&Net::SSLeay::TLS1_2_VERSION;
+	$protos{'TLSv1.2'}->{constant_type} = 'version';
+	$protos{'TLSv1.1'}->{constant} = \&Net::SSLeay::TLS1_1_VERSION;
+	$protos{'TLSv1.1'}->{constant_type} = 'version';
+	$protos{'TLSv1'}->{constant} = \&Net::SSLeay::TLS1_VERSION;
+	$protos{'TLSv1'}->{constant_type} = 'version';
+    }
 
     return 1;
 }
@@ -368,6 +379,14 @@ sub is_protocol_usable {
         $ctx = Net::SSLeay::CTX_new_with_method($constant)
             or _libssl_fatal('Failed to create SSL_CTX object');
     }
+
+    # Security level functions were added in OpenSSL 1.1.0. Since then
+    # the default value of security level and the security level
+    # definitions have updated between the OpenSSL versions. Use level
+    # zero so that the library doesn't hide any of the protocols from
+    # us.
+    Net::SSLeay::CTX_set_security_level($ctx, 0)
+	if defined &Net::SSLeay::CTX_set_security_level;
 
     my $ssl = Net::SSLeay::new($ctx)
         or _libssl_fatal('Failed to create SSL structure');
