@@ -384,7 +384,7 @@ jobs:
           image: tonistiigi/binfmt:latest
           platforms: all
       - name: Run tests on ${{ matrix.platform.name }}
-        run: docker run --rm --interactive --platform ${{ matrix.platform.docker_platform }} --mount type=bind,source=$(pwd),target=/host ${{ matrix.platform.name }}/ubuntu:latest bash -c "apt update && apt install -y cpanminus make gcc openssl libssl-dev zlib1g-dev && perl -V && cd /host && cpanm --notest --verbose --installdeps . || find /root/.cpanm/work/ -type f | xargs cat; perl Makefile.PL && make test"
+        run: docker run --rm --interactive --platform ${{ matrix.platform.docker_platform }} --mount type=bind,source=$(pwd),target=/host ${{ matrix.platform.name }}/ubuntu:latest bash -c 'apt update && apt install -y cpanminus make gcc openssl libssl-dev zlib1g-dev && . /etc/os-release && if [ "$(echo $VERSION_ID | cut -d. -f1)" -ge 24 ]; then apt install -y libcrypt-dev; fi && perl -V && cd /host && cpanm --notest --verbose --installdeps . || find /root/.cpanm/work/ -type f | xargs cat; perl Makefile.PL && make test'
 
   BSDs:
     runs-on: ubuntu-latest
