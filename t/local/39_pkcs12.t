@@ -25,6 +25,10 @@ my $filename3 = data_file_path('simple-cert.p12');
   is(scalar(@cachain), 0, 'size of @cachain [1]');
   my $subj_name = Net::SSLeay::X509_get_subject_name($cert);
   is(Net::SSLeay::X509_NAME_oneline($subj_name), '/C=PL/O=Net-SSLeay/OU=Test Suite/CN=simple-cert.net-ssleay.example', "X509_NAME_oneline [1]");
+
+  Net::SSLeay::EVP_PKEY_free($privkey);
+  Net::SSLeay::X509_free($cert);
+  map {Net::SSLeay::X509_free($_)} @cachain;
 }
 
 {
@@ -55,6 +59,9 @@ my $filename3 = data_file_path('simple-cert.p12');
       is(Net::SSLeay::X509_NAME_oneline($ca1_subj_name), '/C=PL/O=Net-SSLeay/OU=Test Suite/CN=Root CA', "X509_NAME_oneline [2/3]");
       is(Net::SSLeay::X509_NAME_oneline($ca2_subj_name), '/C=PL/O=Net-SSLeay/OU=Test Suite/CN=Intermediate CA', "X509_NAME_oneline [2/4]");
   }
+  Net::SSLeay::EVP_PKEY_free($privkey);
+  Net::SSLeay::X509_free($cert);
+  map {Net::SSLeay::X509_free($_)} @cachain;
 }
 
 {
@@ -64,6 +71,10 @@ my $filename3 = data_file_path('simple-cert.p12');
   is(scalar(@cachain), 0, 'size of @cachain [3]');
   my $subj_name = Net::SSLeay::X509_get_subject_name($cert);
   is(Net::SSLeay::X509_NAME_oneline($subj_name), '/C=PL/O=Net-SSLeay/OU=Test Suite/CN=simple-cert.net-ssleay.example', "X509_NAME_oneline [3]");
+
+  Net::SSLeay::EVP_PKEY_free($privkey);
+  Net::SSLeay::X509_free($cert);
+  map {Net::SSLeay::X509_free($_)} @cachain;
 }
 
 {
@@ -71,4 +82,7 @@ my $filename3 = data_file_path('simple-cert.p12');
   ok($privkey, '$privkey [4]');
   ok($cert, '$cert [4]');
   is(scalar(@should_be_empty), 0, 'size of @should_be_empty');
+
+  Net::SSLeay::EVP_PKEY_free($privkey);
+  Net::SSLeay::X509_free($cert);
 }
