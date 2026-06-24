@@ -229,8 +229,9 @@ sub server
 		set_server_stat($round, 'get0_cipher', $get0_cipher_ok);
 	    }
 
-	    Net::SSLeay::SESSION_free($sess) unless $ret; # Not cached, undo get1
+	    Net::SSLeay::SESSION_free($sess);
 	    Net::SSLeay::free($ssl);
+	    Net::SSLeay::CTX_free($ctx);
 	    close($cl) || die("server close: $!");
 	}
 
@@ -290,7 +291,7 @@ sub client {
 	Net::SSLeay::write($ssl, "continue");
 	my $sess = Net::SSLeay::get1_session($ssl);
 	$ret = Net::SSLeay::CTX_remove_session($ctx, $sess);
-	Net::SSLeay::SESSION_free($sess) unless $ret; # Not cached, undo get1
+	Net::SSLeay::SESSION_free($sess);
 
 	if (defined &Net::SSLeay::SESSION_is_resumable) {
 	    my $is_resumable = Net::SSLeay::SESSION_is_resumable($sess);
@@ -308,6 +309,7 @@ sub client {
 
 	Net::SSLeay::shutdown($ssl);
 	Net::SSLeay::free($ssl);
+	Net::SSLeay::CTX_free($ctx);
 	close($cl) || die("client close: $!");
 	$proto_count += 1;
     }
@@ -352,12 +354,12 @@ sub test_stats {
 
         is( $s->{new_cb_called},    $cbs, "Server $round new_cb call count" );
         is( $s->{new_params_ok},    1,    "Server $round new_cb params were correct" );
-        is( $s->{remove_cb_called}, 1,    "Server $round remove_cb call count" );
+        is( $s->{remove_cb_called}, $cbs, "Server $round remove_cb call count" );
         is( $s->{remove_params_ok}, 1,    "Server $round remove_cb params were correct" );
 
         is( $c->{new_cb_called},    $cbs, "Client $round new_cb call count" );
         is( $c->{new_params_ok},    1,    "Client $round new_cb params were correct" );
-        is( $c->{remove_cb_called}, 1,    "Client $round remove_cb call count" );
+        is( $c->{remove_cb_called}, $cbs, "Client $round remove_cb call count" );
         is( $c->{remove_params_ok}, 1,    "Client $round remove_cb params were correct" );
 
         if (
