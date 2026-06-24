@@ -15,7 +15,7 @@ BEGIN {
         plan skip_all => "NPN is not enabled";
     } elsif (not can_fork()) {
         plan skip_all => "fork() not supported on this system";
-    } elsif ( !eval { new_ctx( undef, 'TLSv1.2' ); 1 } ) {
+    } elsif ( !eval { my $ctx = new_ctx( undef, 'TLSv1.2' ); Net::SSLeay::CTX_free($ctx); 1 } ) {
         # NPN isn't well-defined for TLSv1.3, so these tests can't be run if
         # that's the only available protocol version
         plan skip_all => 'TLSv1.2 or below not available in this libssl';
