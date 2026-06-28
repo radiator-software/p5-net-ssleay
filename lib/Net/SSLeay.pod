@@ -7083,7 +7083,8 @@ Copies X509 extensions from X509_REQ object to X509 object - handy when you need
     Net::SSLeay::P_X509_copy_extensions($x509_req, $x509, $override);
     # $x509_req - value corresponding to openssl's X509_REQ structure
     # $x509 - value corresponding to openssl's X509 structure
-    # $override - (integer) flag indication whether to override already existing items in $x509 (default 1)
+    # $override - (integer) if 1 (default), existing extensions in $x509 are kept;
+    #             if 0, existing extensions are deleted and replaced by those from $x509_req
     #
     # returns: 1 on success, 0 on failure
 

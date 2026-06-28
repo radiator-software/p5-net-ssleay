@@ -4534,8 +4534,7 @@ P_X509_copy_extensions(x509_req,x509,override=1)
                 if (override) continue; /* don't override existing extension */
                 /* Delete all extensions of same type */
                 do {
-                    tmpext = X509_get_ext(x509, idx);
-                    X509_delete_ext(x509, idx);
+                    tmpext = X509_delete_ext(x509, idx);
                     X509_EXTENSION_free(tmpext);
                     idx = X509_get_ext_by_OBJ(x509, obj, -1);
                 } while (idx != -1);
