@@ -207,7 +207,7 @@ sub debug {
 
   my $sock = Net::SSLeay::Handle->make_socket($host, $port);
 
-Creates a socket that is connected to $post using $port. It uses
+Creates a socket that is connected to $host using $port. It uses
 $Net::SSLeay::proxyhost and proxyport if set and authentificates itself against
 this proxy depending on $Net::SSLeay::proxyauth. It also turns autoflush on for
 the created socket.
