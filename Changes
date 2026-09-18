@@ -33,6 +33,9 @@ Revision history for Perl extension Net::SSLeay.
 	- Fix memory leaks in 33_x509_create_cert.t, caused by memory allocated to
 	  eight BIGNUMs not being freed before they are garbage-collected. Thanks to
 	  NATARAJ (Nikolay Shaplov) for the patch.
+	- When building Net-SSLeay on Linux and similar platforms, only search
+	  $prefix/lib64 and $prefix/lib/64 for libssl and libcrypto when using a 64-bit
+	  Perl. Thanks to Graham Ollis for the patch.
 
 1.96 2026-03-21
 	- New stable release incorporating all changes from developer releases
