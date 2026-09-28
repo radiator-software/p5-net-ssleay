@@ -97,6 +97,13 @@ sub TIEHANDLE {
     return $self;
 }
 
+sub DESTROY {
+    my $self = shift;
+    # Clean up if the handle has not explicitly been closed.
+    Net::SSLeay::free ($self->{ssl}) if defined $self->{ssl};
+    Net::SSLeay::CTX_free ($self->{ctx}) if defined $self->{ctx};
+}
+
 sub PRINT {
     my $self = shift;
 
@@ -155,7 +162,9 @@ sub CLOSE {
     my $fileno = $self->{fileno};
     $Debug > 10 and print "close($fileno)\n";
     Net::SSLeay::free ($self->{ssl});
+    undef $self->{ssl};
     Net::SSLeay::CTX_free ($self->{ctx});
+    undef $self->{ctx};
     close $self->{socket};
 }
 

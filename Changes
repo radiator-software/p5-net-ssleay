@@ -19,6 +19,8 @@ Revision history for Perl extension Net::SSLeay.
 	    CTX_set_min_proto_version() and
 	    CTX_set_max_proto_version() instead.
 	  - CTX_v3_new() is removed with OpenSSL 4.0.0 and later.
+	- Fix a memory leak in Net::SSLeay::Handle when the handle is not explicitly
+	  closed. Thanks to NATARAJ (Nikolay Shaplov) for the patch.
 
 1.96 2026-03-21
 	- New stable release incorporating all changes from developer releases
