@@ -30,6 +30,9 @@ Revision history for Perl extension Net::SSLeay.
 	- Fix memory leaks in 32_x509_get_cert_info.t, caused by memory allocated to
 	  two EVP_PKEYs, an X509 and a BIO not being freed before they are
 	  garbage-collected. Thanks to NATARAJ (Nikolay Shaplov) for the patch.
+	- Fix memory leaks in 33_x509_create_cert.t, caused by memory allocated to
+	  eight BIGNUMs not being freed before they are garbage-collected. Thanks to
+	  NATARAJ (Nikolay Shaplov) for the patch.
 
 1.96 2026-03-21
 	- New stable release incorporating all changes from developer releases
