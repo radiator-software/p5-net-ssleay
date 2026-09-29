@@ -363,6 +363,7 @@ for my $f (keys (%$dump)) {
     skip('EVP_PKEY_id requires OpenSSL 1.0.0+', 1) unless Net::SSLeay::SSLeay >= 0x1000000f;
     is(Net::SSLeay::EVP_PKEY_id($pubkey), $dump->{$f}->{pubkey_id}, "EVP_PKEY_id");
   }
+
   Net::SSLeay::EVP_PKEY_free($pubkey);
   Net::SSLeay::X509_free($x509);
   Net::SSLeay::BIO_free($bio);
