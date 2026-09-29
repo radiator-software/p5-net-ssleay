@@ -24,6 +24,9 @@ Revision history for Perl extension Net::SSLeay.
 	- Correct the example code in the Net::SSLeay::Handle documentation so that
 	  the remote HTTP server actually responds to the request. Thanks to NATARAJ
 	  (Nikolay Shaplov) for the patch.
+	- Fix a memory leak in 11_read.t, caused by an SSL_CTX's allocated memory not
+	  being freed before its final reference is garbage-collected. Thanks to
+	  NATARAJ (Nikolay Shaplov) for the patch.
 
 1.96 2026-03-21
 	- New stable release incorporating all changes from developer releases
