@@ -429,11 +429,11 @@ jobs:
             pkginstall: pkg_add curl
           - name: netbsd
             pretty_name: NetBSD
-            version: '9.4'
+            version: '10.1'
             pkginstall: sudo pkgin update && sudo pkgin -y install p5-App-cpanminus
           - name: netbsd
             pretty_name: NetBSD
-            version: '10.1'
+            version: '11.0'
             pkginstall: sudo pkgin update && sudo pkgin -y install p5-App-cpanminus
 
     steps:
