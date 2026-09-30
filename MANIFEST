@@ -233,5 +233,6 @@ t/local/65_security_level.t
 t/local/65_ticket_sharing_2.t
 t/local/66_curves.t
 t/local/67_sigalgs.t
+t/local/68_groups.t
 t/local/kwalitee.t
 typemap
