@@ -1,5 +1,8 @@
 Revision history for Perl extension Net::SSLeay.
 
+1.97_02 ????
+	- Document Net-SSLeay's support for OpenSSL 4.0 and LibreSSL 4.3.
+
 1.97_01 2026-09-30
 	- Support for OpenSSL 4.0.0. Contributed by Michal Josef Špaček.
 	  - Net::SSLeay specific functions CTX_tlsv1_new(),
