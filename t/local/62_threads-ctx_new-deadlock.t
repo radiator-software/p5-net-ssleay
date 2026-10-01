@@ -1,7 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw( can_thread initialise_libssl );
+use Test::Net::SSLeay qw( can_thread is_openssl initialise_libssl );
 
 use FindBin;
 
@@ -26,14 +26,24 @@ require threads;
 # If we need to do OPENSSL_INIT_crypto() call, we must skip the
 # default library initialisation. Otherwise our call to
 # OPENSSL_init_crypto() won't do anything.
-eval { Net::SSLeay::OPENSSL_INIT_NO_ATEXIT(); return 1; } ?
-    Net::SSLeay::OPENSSL_init_crypto(Net::SSLeay::OPENSSL_INIT_NO_ATEXIT(), undef) :
+if (is_openssl()) {
+    eval { Net::SSLeay::OPENSSL_INIT_NO_ATEXIT(); return 1; } ?
+	Net::SSLeay::OPENSSL_init_crypto(Net::SSLeay::OPENSSL_INIT_NO_ATEXIT(), undef) :
+	initialise_libssl();
+} else {
+    # At the time of writing OPENSSL_init_crypto is not exposed with
+    # LibreSSL. Even if it were exposed we can skip atexit() special
+    # handling because LibreSSL 4.1.0 release notes state the
+    # following:
+    #   Added an OPENSSL_INIT_NO_ATEXIT flag for OPENSSL_init_crypto().
+    #   It has no effect since LibreSSL doesn't call atexit().
     initialise_libssl();
+}
 
 my $start_time = time;
 
 #exit the whole program if it runs too long
-threads->new( sub { sleep 20; warn "FATAL: TIMEOUT!"; exit } )->detach;
+threads->new( sub { sleep 30; warn "FATAL: TIMEOUT!"; exit } )->detach;
 
 #print STDERR "Gonna start multi-threading part\n";
 threads->new(\&do_check) for (1..100);

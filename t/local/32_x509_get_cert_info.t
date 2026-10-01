@@ -42,7 +42,10 @@ for my $f (keys (%$dump)) {
   my $filename = data_file_path($f);
   ok(my $bio = Net::SSLeay::BIO_new_file($filename, 'rb'), "BIO_new_file\t$f");
   ok(my $x509 = Net::SSLeay::PEM_read_bio_X509($bio), "PEM_read_bio_X509\t$f");
-  ok(Net::SSLeay::X509_get_pubkey($x509), "X509_get_pubkey\t$f"); #only test whether the function works  
+  {
+    ok(my $pubkey = Net::SSLeay::X509_get_pubkey($x509), "X509_get_pubkey\t$f"); #only test whether the function works
+    Net::SSLeay::EVP_PKEY_free($pubkey);
+  }
 
   ok(my $subj_name = Net::SSLeay::X509_get_subject_name($x509), "X509_get_subject_name\t$f");
   is(my $subj_count = Net::SSLeay::X509_NAME_entry_count($subj_name), $dump->{$f}->{subject}->{count}, "X509_NAME_entry_count\t$f");
@@ -188,6 +191,11 @@ for my $f (keys (%$dump)) {
                   ) {
                       $ext_data =~ s{(othername:) [^, ]+}{$1<unsupported>}g;
                   }
+                  # Starting with 3.4.0 the double colon in emailAddress has been removed.
+                  # See https://github.com/openssl/openssl/commit/de8861a7e3100
+                  if (Net::SSLeay::SSLeay >= 0x30400000) {
+                      $ext_data =~ s{emailAddress::}{emailAddress:};
+                  }
               }
               elsif ( $nid == 89 ) {
                   # The output formatting for certificate policies has a
@@ -213,6 +221,9 @@ for my $f (keys (%$dump)) {
                   } elsif ( Net::SSLeay::SSLeay < 0x30000000 ) {
                       # OpenSSL 1.0.0 to 1.1.1:
                       $ext_data =~ s{(Full Name:\n  )}{\n$1}g;
+                      $ext_data .= "\n";
+                  } elsif ( Net::SSLeay::SSLeay >  0x3040000f ) {
+                      $ext_data =~ s{(\nFull Name:)}{\n$1}g;
                       $ext_data .= "\n";
                   }
               }
@@ -353,6 +364,9 @@ for my $f (keys (%$dump)) {
     is(Net::SSLeay::EVP_PKEY_id($pubkey), $dump->{$f}->{pubkey_id}, "EVP_PKEY_id");
   }
 
+  Net::SSLeay::EVP_PKEY_free($pubkey);
+  Net::SSLeay::X509_free($x509);
+  Net::SSLeay::BIO_free($bio);
 }
 
 my $ctx = Net::SSLeay::X509_STORE_CTX_new();

@@ -1,3 +1,4 @@
+
 =encoding utf-8
 
 =head1 NAME
@@ -48,12 +49,12 @@ Net::SSLeay supports the following libssl implementations:
 
 =item *
 
-Any stable release of L<OpenSSL|https://www.openssl.org> in the 0.9.8 - 3.2
+Any stable release of L<OpenSSL|https://www.openssl.org> in the 0.9.8 - 4.0
 branches, except for OpenSSL 0.9.8 - 0.9.8b.
 
 =item *
 
-Any stable release of L<LibreSSL|https://www.libressl.org> in the 2.0 - 3.8
+Any stable release of L<LibreSSL|https://www.libressl.org> in the 2.0 - 4.3
 series, except for LibreSSL 3.2.2 and 3.2.3.
 
 =back
@@ -1574,7 +1575,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_new.html
 
 =item * TLSv1_method, TLSv1_server_method and TLSv1_client_method
 
-B<COMPATIBILITY:> Requires OpenSSL or LibreSSL built with support for TLSv1. Server and client methods not available in Net-SSLeay-1.82 and before.
+B<COMPATIBILITY:> Requires OpenSSL or LibreSSL built with support for TLSv1. Server and client methods not available in Net-SSLeay-1.82 and before. Not available in OpenSSL 4.0.0 and later. Use L</TLS_method> with L</CTX_set_min_proto_version> and L</CTX_set_max_proto_version> instead.
 
 Returns SSL_METHOD structure corresponding to TLSv1 method, the return value can be later used as a param of L</CTX_new_with_method>.
 
@@ -1586,7 +1587,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_new.html
 
 =item * TLSv1_1_method, TLSv1_1_server_method and TLSv1_1_client_method
 
-B<COMPATIBILITY:> Requires OpenSSL >= 1.0.1 or LibreSSL built with support for TLSv1.1. Server and client methods not available in Net-SSLeay-1.82 and before.
+B<COMPATIBILITY:> Requires OpenSSL >= 1.0.1 or LibreSSL built with support for TLSv1.1. Server and client methods not available in Net-SSLeay-1.82 and before. Not available in OpenSSL 4.0.0 and later. Use L</TLS_method> with L</CTX_set_min_proto_version> and L</CTX_set_max_proto_version> instead.
 
 Returns SSL_METHOD structure corresponding to TLSv1_1 method, the return value can be later used as a param of L</CTX_new_with_method>.
 
@@ -1598,7 +1599,7 @@ Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_new.html
 
 =item * TLSv1_2_method, TLSv1_2_server_method and TLSv1_2_client_method
 
-B<COMPATIBILITY:> Requires OpenSSL >= 1.0.1 or LibreSSL built with support for TLSv1.2. Server and client methods not available in Net-SSLeay-1.82 and before.
+B<COMPATIBILITY:> Requires OpenSSL >= 1.0.1 or LibreSSL built with support for TLSv1.2. Server and client methods not available in Net-SSLeay-1.82 and before. Not available in OpenSSL 4.0.0 and later. Use L</TLS_method> with L</CTX_set_min_proto_version> and L</CTX_set_max_proto_version> instead.
 
 Returns SSL_METHOD structure corresponding to TLSv1_2 method, the return value can be later used as a param of L</CTX_new_with_method>.
 
@@ -2997,7 +2998,7 @@ Creates a new SSL_CTX object - based on SSLv3_method() - as framework to establi
 
 =item * CTX_tlsv1_new
 
-B<COMPATIBILITY:> Requires OpenSSL or LibreSSL built with support for TLSv1.
+B<COMPATIBILITY:> Requires OpenSSL or LibreSSL built with support for TLSv1. In OpenSSL 4.0.0 and later, this function is emulated using L</TLS_method> with L</CTX_set_min_proto_version> and L</CTX_set_max_proto_version> for backward compatibility. It is recommended to use L</CTX_new> with L</CTX_set_min_proto_version> and L</CTX_set_max_proto_version> instead.
 
 Creates a new SSL_CTX object - based on C<TLSv1_method()> - as a framework for establishing connections using TLSv1.
 
@@ -3007,7 +3008,7 @@ Creates a new SSL_CTX object - based on C<TLSv1_method()> - as a framework for e
 
 =item * CTX_tlsv1_1_new
 
-B<COMPATIBILITY:> Requires OpenSSL >= 1.0.1 or LibreSSL built with support for TLSv1.1.
+B<COMPATIBILITY:> Requires OpenSSL >= 1.0.1 or LibreSSL built with support for TLSv1.1. In OpenSSL 4.0.0 and later, this function is emulated using L</TLS_method> with L</CTX_set_min_proto_version> and L</CTX_set_max_proto_version> for backward compatibility. It is recommended to use L</CTX_new> with L</CTX_set_min_proto_version> and L</CTX_set_max_proto_version> instead.
 
 Creates a new SSL_CTX object - based on C<TLSv1_1_method()> - as a framework for establishing connections using TLSv1.1.
 
@@ -3017,7 +3018,7 @@ Creates a new SSL_CTX object - based on C<TLSv1_1_method()> - as a framework for
 
 =item * CTX_tlsv1_2_new
 
-B<COMPATIBILITY:> Requires OpenSSL >= 1.0.1 or LibreSSL built with support for TLSv1.2.
+B<COMPATIBILITY:> Requires OpenSSL >= 1.0.1 or LibreSSL built with support for TLSv1.2. In OpenSSL 4.0.0 and later, this function is emulated using L</TLS_method> with L</CTX_set_min_proto_version> and L</CTX_set_max_proto_version> for backward compatibility. It is recommended to use L</CTX_new> with L</CTX_set_min_proto_version> and L</CTX_set_max_proto_version> instead.
 
 Creates a new SSL_CTX object - based on C<TLSv1_2_method()> - as a framework for establishing connections using TLSv1.2.
 
@@ -3034,7 +3035,10 @@ Creates a new SSL_CTX object based on $meth method
     #
     # returns: value corresponding to openssl's SSL_CTX structure (0 on failure)
 
-    # example
+    # example (recommended, available since OpenSSL 1.1.0)
+    my $ctx = Net::SSLeay::CTX_new_with_method(&Net::SSLeay::TLS_method);
+
+    # example (TLSv1_method not available in OpenSSL 4.0.0+)
     my $ctx = Net::SSLeay::CTX_new_with_method(&Net::SSLeay::TLSv1_method);
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_new.html>
@@ -3272,6 +3276,38 @@ Applies X509 verification parameters $vpm on $ctx
     # returns: 1 on success, 0 on failure
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_get0_param.html>
+
+=item * CTX_set1_sigalgs_list
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before; requires at least OpenSSL 1.0.2, not in LibreSSL
+
+Set the supported signature algorithms for $ctx. $str is a string consisting of
+a colon separated list of elements, where each element is either a combination
+of a public key algorithm and a digest separated by +, or a TLS 1.3-style named
+SignatureScheme such as rsa_pss_pss_sha256.
+
+    my $rv = Net::SSLeay::CTX_set1_sigalgs_list($str)
+    # $str - (string) signature algo list, e.g. "ECDSA+SHA256:RSA+SHA256"
+    #
+    # returns: 1 on success, 0 on failure
+
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_CTX_set1_sigalgs_list/>
+
+=item * CTX_set1_client_sigalgs_list
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before; requires at least OpenSSL 1.0.2, not in LibreSSL
+
+Set the supported client authentication signature algorithms for $ctx. $str is
+a string consisting of a colon separated list of elements, where each element
+is either a combination of a public key algorithm and a digest separated by +,
+or a TLS 1.3-style named SignatureScheme such as rsa_pss_pss_sha256.
+
+    my $rv = Net::SSLeay::CTX_set1_client_sigalgs_list($str)
+    # $str - (string) signature algo list, e.g. "ECDSA+SHA256:RSA+SHA256"
+    #
+    # returns: 1 on success, 0 on failure
+
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_CTX_set1_client_sigalgs_list/>
 
 =item * CTX_set_cert_store
 
@@ -3777,6 +3813,30 @@ The callback function will be called like this:
     # error: return (Net::SSLeay::CLIENT_HELLO_FAILURE(), Net::SSLeay::AD_NO_APPLICATION_PROTOCOL());
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_client_hello_cb.html>
+
+=item * CTX_set_cert_cb
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before
+
+Set the callback that is called before a certificate will be used by a client or server.
+
+    Net::SSLeay::CTX_set_cert_cb($ctx, $cb, [$arg]);
+    # $ctx  - value corresponding to openssl's SSL_CTX structure
+    # $cb - reference to a perl callback function
+    # $arg - optional data passed to the callback function when invoked
+    #
+    # returns: no return value
+
+    cert_cb_func($ssl, $arg);
+    # $ssl - value corresponding to OpenSSL's SSL object associated with the connection
+    # $arg - data to callback
+    #
+    # The callback must return an integer:
+    # 1: If the callback is successful, even if no certificates have been set.
+    # 0: On error which will abort the handshake with a fatal internal error alert.
+    # negative: To indicate suspended handshake returning Net::SSLeay::ERROR_WANT_X509_LOOKUP().
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_cert_cb.html>
 
 =back
 
@@ -4913,6 +4973,76 @@ Configure the available TLSv1.3 ciphersuites.
     # returns: (integer) 1 if the requested ciphersuite list was configured, and 0 otherwise
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_set_ciphersuites.html>
+
+=item * set1_sigalgs_list
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before; requires at least OpenSSL 1.0.2, not in LibreSSL
+
+Set the supported signature algorithms for $ssl. $str is a string consisting of
+a colon separated list of elements, where each element is either a combination
+of a public key algorithm and a digest separated by +, or a TLS 1.3-style named
+SignatureScheme such as rsa_pss_pss_sha256.
+
+    my $rv = Net::SSLeay::set1_sigalgs_list($str)
+    # $str - (string) signature algo list, e.g. "ECDSA+SHA256:RSA+SHA256"
+    #
+    # returns: 1 on success, 0 on failure
+
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_set1_sigalgs_list/>
+
+=item * set1_client_sigalgs_list
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before; requires at least OpenSSL 1.0.2, not in LibreSSL
+
+Set the supported client authentication signature algorithms for $ssl. $str is
+a string consisting of a colon separated list of elements, where each element
+is either a combination of a public key algorithm and a digest separated by +,
+or a TLS 1.3-style named SignatureScheme such as rsa_pss_pss_sha256.
+
+    my $rv = Net::SSLeay::set1_client_sigalgs_list($str)
+    # $str - (string) signature algo list, e.g. "ECDSA+SHA256:RSA+SHA256"
+    #
+    # returns: 1 on success, 0 on failure
+
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_set1_client_sigalgs_list/>
+
+=item * get_sigalgs
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before; requires at least OpenSSL 1.0.2, not in LibreSSL
+
+Return information about all signature algorithms supported by the TLS peer.
+
+    my @sigalg = Net::SSLeay::get_sigalgs($ssl, $idx)
+    # $ssl - value corresponding to openssl's SSL structure
+    # $idx - (integer) index in the list of algorithms sent by the peer
+    #
+    # returns: A list of six items described below.
+
+The first item in the list is the number of the signature algorithms
+or 0 if the $idx parameter is out of the range. The next three items
+are OpenSSL NIDs: the signature algorithm NID, the hash NID and the
+sign and hash NID. Items five and six are one octet signature and hash
+raw values from the wire.
+
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_get_sigalgs/>
+
+=item * get_shared_sigalgs
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.94 and before; requires at least OpenSSL 1.0.2, not in LibreSSL
+
+Return information about the shared signature algorithms supported by
+the TLS peer. This function takes similar arguments and returns
+similar values as C<Net::SSLeay::get_sigalgs>. See
+C<Net::SSLeay::get_sigalgs> for the details of function arguments and
+return values.
+
+    my @sigalg = Net::SSLeay::get_shared_sigalgs($ssl, $idx)
+    # $ssl - value corresponding to openssl's SSL structure
+    # $idx - (integer) index in the list of shared algorithms
+    #
+    # returns: A list of six items described below.
+
+Check openssl doc L<https://docs.openssl.org/master/man3/SSL_get_shared_sigalgs/>
 
 =item * set_client_CA_list
 
@@ -6953,7 +7083,8 @@ Copies X509 extensions from X509_REQ object to X509 object - handy when you need
     Net::SSLeay::P_X509_copy_extensions($x509_req, $x509, $override);
     # $x509_req - value corresponding to openssl's X509_REQ structure
     # $x509 - value corresponding to openssl's X509 structure
-    # $override - (integer) flag indication whether to override already existing items in $x509 (default 1)
+    # $override - (integer) if 1 (default), existing extensions in $x509 are kept;
+    #             if 0, existing extensions are deleted and replaced by those from $x509_req
     #
     # returns: 1 on success, 0 on failure
 
@@ -7072,6 +7203,15 @@ Returns a new, empty, STACK_OF(X509) structure.
     my $rv = Net::SSLeay::sk_X509_new_null();
     #
     # returns: value corresponding to openssl's STACK_OF(X509) structure
+
+=item * sk_X509_free
+
+Free an allocated STACK_OF(X509) structure.
+
+    Net::SSLeay::sk_X509_free($sk);
+    # $sk - value corresponding to openssl's STACK_OF(X509) structure
+    #
+    # returns: no return value
 
 =item * sk_X509_push
 
@@ -8336,6 +8476,15 @@ For more details about $trust identifier check L</CTX_set_trust>.
 
 =over
 
+=item * sk_X509_INFO_free
+
+Free an allocated STACK_OF(X509_INFO) structure.
+
+    Net::SSLeay::sk_X509_INFO_free($sk);
+    # $sk - value corresponding to openssl's STACK_OF(X509_INFO) structure
+    #
+    # returns: no return value
+
 =item * sk_X509_INFO_num
 
 Returns the number of values in a STACK_OF(X509_INFO) structure.
@@ -9018,6 +9167,8 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least
     my $md = Net::SSLeay::EVP_sha512();
     #
     # returns: value corresponding to openssl's EVP_MD structure
+
+B<COMPATIBILITY:> no longer available in LibreSSL 3.9.0 and later
 
 =item * EVP_add_digest
 
