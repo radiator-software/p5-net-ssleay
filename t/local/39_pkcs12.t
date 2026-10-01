@@ -28,7 +28,6 @@ my $filename3 = data_file_path('simple-cert.p12');
 
   Net::SSLeay::EVP_PKEY_free($privkey);
   Net::SSLeay::X509_free($cert);
-  map {Net::SSLeay::X509_free($_)} @cachain;
 }
 
 {
@@ -59,9 +58,12 @@ my $filename3 = data_file_path('simple-cert.p12');
       is(Net::SSLeay::X509_NAME_oneline($ca1_subj_name), '/C=PL/O=Net-SSLeay/OU=Test Suite/CN=Root CA', "X509_NAME_oneline [2/3]");
       is(Net::SSLeay::X509_NAME_oneline($ca2_subj_name), '/C=PL/O=Net-SSLeay/OU=Test Suite/CN=Intermediate CA', "X509_NAME_oneline [2/4]");
   }
+
   Net::SSLeay::EVP_PKEY_free($privkey);
   Net::SSLeay::X509_free($cert);
-  map {Net::SSLeay::X509_free($_)} @cachain;
+  for (@cachain) {
+    Net::SSLeay::X509_free($_);
+  }
 }
 
 {
@@ -74,7 +76,6 @@ my $filename3 = data_file_path('simple-cert.p12');
 
   Net::SSLeay::EVP_PKEY_free($privkey);
   Net::SSLeay::X509_free($cert);
-  map {Net::SSLeay::X509_free($_)} @cachain;
 }
 
 {
