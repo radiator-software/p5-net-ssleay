@@ -7134,7 +7134,7 @@ RSA_generate_key(bits,ee,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
        }
        simple_cb_data_free(cb_data);
 
-       if (rc == -1 || ret == NULL) {
+       if (rc != 1 || ret == NULL) {
            if (ret) RSA_free(ret);
            croak("Net::SSLeay: Couldn't generate RSA key");
        }
