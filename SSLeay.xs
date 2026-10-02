@@ -471,6 +471,7 @@ static void handler_list_md_fn(const EVP_MD *m, const char *from, const char *to
 struct _ssleay_cb_t {
     SV* func;
     SV* data;
+    SV* err;    /* Exception or error message thrown by callback */
 };
 typedef struct _ssleay_cb_t simple_cb_data_t;
 
@@ -483,6 +484,7 @@ simple_cb_data_t* simple_cb_data_new(SV* func, SV* data)
         SvREFCNT_inc(data);
         cb->func = func;
         cb->data = (data == &PL_sv_undef) ? NULL : data;
+        cb->err = NULL;
     }
     return cb;
 }
@@ -497,6 +499,10 @@ void simple_cb_data_free(simple_cb_data_t* cb)
         if (cb->data) {
             SvREFCNT_dec(cb->data);
             cb->data = NULL;
+        }
+        if (cb->err) {
+            SvREFCNT_dec(cb->err);
+            cb->err = NULL;
         }
     }
     Safefree(cb);
@@ -1711,13 +1717,53 @@ int pem_password_cb_invoke(char *buf, int bufsize, int rwflag, void *data) {
     return str_len;
 }
 
-void ssleay_RSA_generate_key_cb_invoke(int i, int n, void* data)
+static int ssleay_RSA_generate_key_cb_invoke(int i, int n, BN_GENCB *gencb)
+{
+    dSP;
+    int res = 1;
+#if (OPENSSL_VERSION_NUMBER >= 0x10100001L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
+    simple_cb_data_t* cb = (simple_cb_data_t *)BN_GENCB_get_arg(gencb);
+#else
+    simple_cb_data_t* cb = (simple_cb_data_t *)gencb->arg;
+#endif
+
+    if (cb->err) return 0; /* Foolproof: If we got exception in previous calls, we should ignore the rest */
+
+    /* PR1("STARTED: ssleay_RSA_generate_key_cb_invoke\n"); / * too noisy */
+    if (cb->func && SvOK(cb->func)) {
+        ENTER;
+        SAVETMPS;
+
+        PUSHMARK(sp);
+
+        XPUSHs(sv_2mortal( newSViv(i) ));
+        XPUSHs(sv_2mortal( newSViv(n) ));
+        if (cb->data) XPUSHs( cb->data );
+
+        PUTBACK;
+
+        call_sv( cb->func, G_VOID|G_DISCARD|G_EVAL );
+
+        SPAGAIN;
+        if (SvTRUE(ERRSV)) {          /* In case of exception */
+            cb->err = newSVsv(ERRSV); /* Save copy of an exception */
+            res = 0;                  /* Stop further key generation */
+        }
+
+        FREETMPS;
+        LEAVE;
+    }
+    return res;
+}
+
+#if OPENSSL_VERSION_NUMBER < 0x0090800fL
+void ssleay_RSA_generate_key_legacy_cb_invoke(int i, int n, void* data)
 {
     dSP;
     int count = -1;
     simple_cb_data_t* cb = (simple_cb_data_t*)data;
 
-    /* PR1("STARTED: ssleay_RSA_generate_key_cb_invoke\n"); / * too noisy */
+    /* PR1("STARTED: ssleay_RSA_generate_key_legacy_cb_invoke\n"); / * too noisy */
     if (cb->func && SvOK(cb->func)) {
         ENTER;
         SAVETMPS;
@@ -1733,7 +1779,7 @@ void ssleay_RSA_generate_key_cb_invoke(int i, int n, void* data)
         count = call_sv( cb->func, G_VOID|G_DISCARD );
 
         if (count != 0)
-            croak ("Net::SSLeay: ssleay_RSA_generate_key_cb_invoke "
+            croak ("Net::SSLeay: ssleay_RSA_generate_key_legacy_cb_invoke "
                    "perl function did return something in void context.\n");
 
         SPAGAIN;
@@ -1741,6 +1787,7 @@ void ssleay_RSA_generate_key_cb_invoke(int i, int n, void* data)
         LEAVE;
     }
 }
+#endif /*OPENSSL_VERSION_NUMBER < 0x0090800fL*/
 
 void ssleay_info_cb_invoke(const SSL *ssl, int where, int ret)
 {
@@ -7067,15 +7114,26 @@ RSA_generate_key(bits,ee,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
 	   RSA_free(ret);
 	   croak("Net::SSLeay: RSA_generate_key perl function could not create BN_GENCB structure.\n");
        }
-       BN_GENCB_set_old(new_cb, ssleay_RSA_generate_key_cb_invoke, cb_data);
+       BN_GENCB_set(new_cb, ssleay_RSA_generate_key_cb_invoke, cb_data);
        rc = RSA_generate_key_ex(ret, bits, e, new_cb);
        BN_GENCB_free(new_cb);
 #else
-       BN_GENCB_set_old(&new_cb, ssleay_RSA_generate_key_cb_invoke, cb_data);
+       BN_GENCB_set(&new_cb, ssleay_RSA_generate_key_cb_invoke, cb_data);
        rc = RSA_generate_key_ex(ret, bits, e, &new_cb);
 #endif
-       simple_cb_data_free(cb_data);
        BN_free(e);
+
+       if (cb_data->err) {
+           SV *err = cb_data->err; /* restash exception as DESTROY of scalars in cb_data may spoil $@ when freed */
+           cb_data->err = NULL;
+           RSA_free(ret);
+           simple_cb_data_free(cb_data);
+           sv_setsv(ERRSV, err); /* Put stashed exception back to $@ */
+           SvREFCNT_dec(err);
+           croak(NULL);
+       }
+       simple_cb_data_free(cb_data);
+
        if (rc == -1 || ret == NULL) {
            if (ret) RSA_free(ret);
            croak("Net::SSLeay: Couldn't generate RSA key");
@@ -7097,7 +7155,7 @@ RSA_generate_key(bits,e,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
         simple_cb_data_t* cb = NULL;
     CODE:
         cb = simple_cb_data_new(perl_cb, perl_data);
-        RETVAL = RSA_generate_key(bits, e, ssleay_RSA_generate_key_cb_invoke, cb);
+        RETVAL = RSA_generate_key(bits, e, ssleay_RSA_generate_key_legacy_cb_invoke, cb);
         simple_cb_data_free(cb);
     OUTPUT:
         RETVAL
