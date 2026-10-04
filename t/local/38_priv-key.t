@@ -1,15 +1,23 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw( data_file_path initialise_libssl );
+use Test::Net::SSLeay qw( dies_like data_file_path initialise_libssl );
 
-plan tests => 10;
+plan tests => 11;
 
 initialise_libssl();
 
 my $key_pem           = data_file_path('simple-cert.key.pem');
 my $key_pem_encrypted = data_file_path('simple-cert.key.enc.pem');
 my $key_password      = 'test';
+
+{
+  my $bio_pem_encrypted = Net::SSLeay::BIO_new_file($key_pem_encrypted, 'r');
+  dies_like(sub {
+    # Check for memory leaks in callback die case
+    Net::SSLeay::PEM_read_bio_PrivateKey($bio_pem_encrypted, sub { die "Callback test failure" });
+  }, qr/Callback test failure/, 'PEM_read_bio_PrivateKey callback dies');
+}
 
 {
   ok(my $bio_pem                 = Net::SSLeay::BIO_new_file($key_pem, 'r'), "BIO_new_file 3");

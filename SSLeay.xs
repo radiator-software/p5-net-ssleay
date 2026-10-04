@@ -1690,10 +1690,14 @@ int pem_password_cb_invoke(char *buf, int bufsize, int rwflag, void *data) {
 
         PUTBACK;
 
-        count = call_sv( cb->func, G_SCALAR );
+        count = call_sv( cb->func, G_SCALAR | G_EVAL );
 
         SPAGAIN;
 
+        if (SvTRUE(ERRSV)) {          /* In case of exception */
+            cb->err = newSVsv(ERRSV); /* Save copy of an exception */
+            return -1;
+        }
         buf[0] = 0; /* start with an empty password */
         if (count != 1) {
             croak("Net::SSLeay: pem_password_cb_invoke perl function did not return a scalar.\n");
@@ -7325,6 +7329,17 @@ PEM_read_bio_PrivateKey(bio,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
             /* setup our callback */
             cb = simple_cb_data_new(perl_cb, perl_data);
             RETVAL = PEM_read_bio_PrivateKey(bio, NULL, pem_password_cb_invoke, (void*)cb);
+            if (cb->err) {
+                SV *err = cb->err; /* restash exception as DESTROY of scalars from cb structure may spoil $@ when freed */
+                cb->err = NULL;
+                if (RETVAL) { /* Should never happen, just in case */
+                    EVP_PKEY_free(RETVAL);
+                }
+                simple_cb_data_free(cb);
+                sv_setsv(ERRSV, err); /* Put stashed exception back to $@ */
+                SvREFCNT_dec(err);
+                croak(NULL); /* Rethrow exception */
+            }
             simple_cb_data_free(cb);
         }
         else if (!SvOK(perl_cb) && SvOK(perl_data) && SvPOK(perl_data)) {
