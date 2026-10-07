@@ -2113,14 +2113,16 @@ int ossl_provider_do_all_cb_invoke(OSSL_PROVIDER *provider, void *cbdata) {
 
         PUTBACK;
 
-        count = call_sv(cb->func, G_SCALAR);
+        count = call_sv(cb->func, G_SCALAR|G_EVAL);
 
         SPAGAIN;
 
-        if (count != 1)
-          croak("Net::SSLeay: ossl_provider_do_all_cb_invoke perl function did not return a scalar\n");
-
-        ret = POPi;
+        if (SvTRUE(ERRSV)) {          /* In case of exception */
+            cb->err = newSVsv(ERRSV); /* Save copy of an exception */
+            ret = 0;                  /* Stop further processing */
+        } else {
+            ret = POPi;
+        }
 
         PUTBACK;
         FREETMPS;
@@ -8967,6 +8969,14 @@ OSSL_PROVIDER_do_all(SV *libctx, SV *perl_cb, SV *perl_cbdata = &PL_sv_undef)
         /* setup our callback */
         cbdata = simple_cb_data_new(perl_cb, perl_cbdata);
         RETVAL = OSSL_PROVIDER_do_all(ctx, ossl_provider_do_all_cb_invoke, cbdata);
+        if (cbdata->err) {
+            SV *err = cbdata->err; /* restash exception as DESTROY of scalars in cbdata may spoil $@ when freed */
+            cbdata->err = NULL;
+            simple_cb_data_free(cbdata);
+            sv_setsv(ERRSV, err); /* Put stashed exception back to $@ */
+            SvREFCNT_dec(err);
+            croak(NULL);
+        }
         simple_cb_data_free(cbdata);
     OUTPUT:
         RETVAL
