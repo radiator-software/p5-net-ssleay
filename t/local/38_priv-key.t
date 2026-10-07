@@ -14,7 +14,7 @@ my $key_password      = 'test';
 {
   my $bio_pem_encrypted = Net::SSLeay::BIO_new_file($key_pem_encrypted, 'r');
   dies_like(sub {
-    # Check for memory leaks in callback die case
+    # Check for memory leaks in 'callback dies' case
     Net::SSLeay::PEM_read_bio_PrivateKey($bio_pem_encrypted, sub { die "Callback test failure" });
   }, qr/Callback test failure/, 'PEM_read_bio_PrivateKey callback dies');
 }
