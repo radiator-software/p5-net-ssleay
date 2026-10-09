@@ -229,6 +229,7 @@ sub server
 		set_server_stat($round, 'get0_cipher', $get0_cipher_ok);
 	    }
 
+	    # Decrement the reference count incremented by Net::SSLeay::get1_session:
 	    Net::SSLeay::SESSION_free($sess);
 	    Net::SSLeay::free($ssl);
 	    Net::SSLeay::CTX_free($ctx);
@@ -291,6 +292,7 @@ sub client {
 	Net::SSLeay::write($ssl, "continue");
 	my $sess = Net::SSLeay::get1_session($ssl);
 	$ret = Net::SSLeay::CTX_remove_session($ctx, $sess);
+	# Decrement the reference count incremented by Net::SSLeay::get1_session:
 	Net::SSLeay::SESSION_free($sess);
 
 	if (defined &Net::SSLeay::SESSION_is_resumable) {
