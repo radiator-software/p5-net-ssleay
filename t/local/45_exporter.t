@@ -69,7 +69,7 @@ sub server
 
 	    Net::SSLeay::shutdown($ssl);
 	    Net::SSLeay::free($ssl);
-            Net::SSLeay::CTX_free($ctx);
+	    Net::SSLeay::CTX_free($ctx);
 	    close($cl) || die("server close: $!");
 	}
 	$server->close() || die("server listen socket close: $!");
