@@ -8,6 +8,9 @@ Revision history for Perl extension Net::SSLeay.
 	- Fix a memory leak in 40_npn_support.t, caused by memory allocated to an
 	  SSL_CTX not being freed before it is garbage-collected. Thanks to NATARAJ
 	  (Nikolay Shaplov) for the patch.
+	- Fix two memory leaks in 42_info_callback.t, caused by memory allocaled to an
+	  SSL and an SSL_CTX not being freed before it is garbage-collected. Thanks to
+	  NATARAJ (Nikolay Shaplov) for the patch.
 
 1.97_01 2026-09-30
 	- Support for OpenSSL 4.0.0. Contributed by Michal Josef Špaček.
