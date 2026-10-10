@@ -464,6 +464,72 @@ static void handler_list_md_fn(const EVP_MD *m, const char *from, const char *to
  * - decide whether your case fits case 1/ or 2/ (and implement likewise existing functions)
  * - try to avoid adding a new style of callback implementation (or ask Net::SSLeay maintainers before)
  *
+ * ====================== callbacks - exception handling ======================
+ *
+ * Perl callback may throw an exception or die. This is not part of normal
+ * callback behavior, but still can happen. In case of an exception inside the
+ * callback, perl will normally do a longjmp to the nearest exception handler,
+ * bypassing all the C code in between: callback C wrapper, OpenSSL function
+ * that called it, and XS-wrapper of  OpenSSL function.
+ *
+ * Such a jump will probably skip some cleanup code, memory that was
+ * previously allocated might never be freed, and AddressSanitizer will reports
+ * it as a leak.
+ *
+ * To avoid this C-wrapper of a perl-callback should executed it with G_EVAL
+ * flag on. This will perform perl-callback execution in "eval style": if
+ * perl-callback dies, exception will be stored in "$@". In this case, your
+ * callback C-wrapper should stash an exception, properly free own memory and
+ * terminate with "error happened" code. Stashed exception should be passed to
+ * XS-wrapper of enclosing OpenSSL call via callback data.
+ *
+ * XS-wrapper of OpenSSL function that uses the callback should get the exception
+ * from callback data, free all memory allocated in the wrapper, and rethrow
+ * the exception using croak() perl call.
+ *
+ * This way the user will get an exception, and all memory will be properly freed.
+ *
+ * ------------------ Exception handling, simple callbacks --------------------
+ *
+ * For simple callback exception should be stashed into `err` field of
+ * `simple_cb_data_t` callback data structure, and fetched and rethrown by
+ * XS-wrapper of an OpenSSL function that uses this callback.
+ *
+ * ----------------- Exception handling, advanced callbacks -------------------
+ *
+ * One advanced callback, set for SSL or CTX, can be used by several OpenSSL
+ * functions, some of them might not have proper exception handling. So each
+ * XS-wrapper of OpenSSL function that uses advanced callbacks should enable
+ * "eval mode" of callback exception handling by setting [callback name]!!eval_mode
+ * callback data field to 1. Callback C-wrapper should check this option, and
+ * catch and passback exception only if "eval mode" is enabled. This way
+ * OpenSSL functions with no proper exception handling in their XS-wrappers
+ * will work the way they worked before. Do not forget to reset "eval mode" to
+ * its original value before leaving XS-wrapper or rethrowing an exception.
+ *
+ * Exception SV should be passed back to XS-wrapper of an OpenSSL callback
+ * caller via [callback name]!!error callback data field.
+ * Please do not forget to clean this error field before rethrowing the exception,
+ * as exception does not mean program termination. Second use of same
+ * callback will throw old exception, if it was not cleaned. Use
+ * `cb_data_advanced_pop_error` helper to make sure that exception SV is
+ * removed from callback data.
+ *
+ * --------------- Exception handling, implementation caveats -----------------
+ *
+ * call_sv(... G_EVAL) will clean old value from global $@ variable. Wiping $@
+ * is not expected behavior for your OpenSSL call, so you should
+ * create local copy of $@ by running `save_scalar(PL_errgv);` in `SAVETMPS`
+ * section. Do it only if you are going to catch and stash exception later.
+ *
+ * Do not enable "eval mode" for advanced callbacks, unless you are sure that
+ * perl callback are set. Check [callback name]!!func field of callback data to
+ * make sure that you have callback defined.
+ *
+ * "No error" sign for eval is empty string in $@. Best check for that is
+ * SvROK(ERRSV) || SvTRUE(ERRSV) (is blessed/ref or is true). Order is
+ * important. Ask AI why.
+ *
  */
 
 /* ============= callback stuff - generic functions============== */
@@ -471,6 +537,7 @@ static void handler_list_md_fn(const EVP_MD *m, const char *from, const char *to
 struct _ssleay_cb_t {
     SV* func;
     SV* data;
+    SV* err;    /* Exception or error message thrown by callback */
 };
 typedef struct _ssleay_cb_t simple_cb_data_t;
 
@@ -483,6 +550,7 @@ simple_cb_data_t* simple_cb_data_new(SV* func, SV* data)
         SvREFCNT_inc(data);
         cb->func = func;
         cb->data = (data == &PL_sv_undef) ? NULL : data;
+        cb->err = NULL;
     }
     return cb;
 }
@@ -498,11 +566,15 @@ void simple_cb_data_free(simple_cb_data_t* cb)
             SvREFCNT_dec(cb->data);
             cb->data = NULL;
         }
+        if (cb->err) {
+            SvREFCNT_dec(cb->err);
+            cb->err = NULL;
+        }
     }
     Safefree(cb);
 }
 
-int cb_data_advanced_put(const void *ptr, const char* data_name, SV* data)
+static HV *cb_data_advanced__l2hv(const void *ptr, int create)
 {
     HV * L2HV;
     SV ** svtmp;
@@ -511,57 +583,60 @@ int cb_data_advanced_put(const void *ptr, const char* data_name, SV* data)
     dMY_CXT;
 
     len = my_snprintf(key_name, sizeof(key_name), "ptr_%p", ptr);
-    if (len == sizeof(key_name)) return 0; /* error  - key_name too short*/
+    if (len == sizeof(key_name)) return NULL; /* error  - key_name too short */
 
     /* get or create level-2 hash */
     svtmp = hv_fetch(MY_CXT.global_cb_data, key_name, strlen(key_name), 0);
     if (svtmp == NULL) {
+        if (!create) return NULL;
         L2HV = newHV();
         hv_store(MY_CXT.global_cb_data, key_name, strlen(key_name), newRV_noinc((SV*)L2HV), 0);
+        return L2HV;
     }
-    else {
-        if (!SvOK(*svtmp) || !SvROK(*svtmp)) return 0;
+    if (!SvOK(*svtmp) || !SvROK(*svtmp)) return NULL;
 #if defined(MUTABLE_PTR)
-        L2HV = (HV*)MUTABLE_PTR(SvRV(*svtmp));
+    return (HV*)MUTABLE_PTR(SvRV(*svtmp));
 #else
-        L2HV = (HV*)(SvRV(*svtmp));
+    return (HV*)(SvRV(*svtmp));
 #endif
-    }
+}
+
+int cb_data_advanced_put(const void *ptr, const char* data_name, SV* data)
+{
+    HV * L2HV = cb_data_advanced__l2hv(ptr, 1);
+
+    if (L2HV == NULL) return 0; /* Pass through error result */
 
     /* first delete already stored value */
     hv_delete(L2HV, data_name, strlen(data_name), G_DISCARD);
-    if (data!=NULL) {
+
+    if (data != NULL) {
         if (SvOK(data))
             hv_store(L2HV, data_name, strlen(data_name), data, 0);
         else
             /* we're not storing data so discard it */
             SvREFCNT_dec(data);
     }
-
     return 1;
+}
+
+/* cb_data_advanced_put_strict - wrapper around normal cb_data_advanced_put */
+/* Croaks on error */
+
+static void cb_data_advanced_put_strict(const void *ptr, const char* data_name, SV* data, const char* caller_name)
+{
+    int res = cb_data_advanced_put(ptr, data_name, data);
+    if (! res) {
+        croak("Net::SSLeay: Error putting data in '%s' callback data from %s", data_name, caller_name);
+    }
 }
 
 SV* cb_data_advanced_get(const void *ptr, const char* data_name)
 {
-    HV * L2HV;
     SV ** svtmp;
-    int len;
-    char key_name[500];
-    dMY_CXT;
+    HV * L2HV = cb_data_advanced__l2hv(ptr, 0);
 
-    len = my_snprintf(key_name, sizeof(key_name), "ptr_%p", ptr);
-    if (len == sizeof(key_name)) return &PL_sv_undef; /* return undef on error - key_name too short*/
-
-    /* get level-2 hash */
-    svtmp = hv_fetch(MY_CXT.global_cb_data, key_name, strlen(key_name), 0);
-    if (svtmp == NULL)  return &PL_sv_undef;
-    if (!SvOK(*svtmp))  return &PL_sv_undef;
-    if (!SvROK(*svtmp)) return &PL_sv_undef;
-#if defined(MUTABLE_PTR)
-    L2HV = (HV*)MUTABLE_PTR(SvRV(*svtmp));
-#else
-    L2HV = (HV*)(SvRV(*svtmp));
-#endif
+    if (L2HV == NULL) return &PL_sv_undef; /* Pass through error result */
 
     /* get stored data */
     svtmp = hv_fetch(L2HV, data_name, strlen(data_name), 0);
@@ -582,6 +657,66 @@ int cb_data_advanced_drop(const void *ptr)
 
     hv_delete(MY_CXT.global_cb_data, key_name, strlen(key_name), G_DISCARD);
     return 1;
+}
+
+/* ------ Helpers for exception processing for advanced callback data ------
+ *
+ * We need separate functions for stashing errors and exceptions:
+ * cb_data_advanced_stash_error_text() and cb_data_advanced_stash_error_sv()
+ * We can not properly process errors on stashing error. We can only `croak`.
+ *
+ * We also need cb_data_advanced_pop_error() function that will clear error
+ * data while getting it, to make sure that same exception will never be thrown
+ * twice, as callback data structure may survive the exception, and it's value
+ * can be used again by mistake.
+ *
+ * */
+
+/* When error message is char* string */
+static void cb_data_advanced_stash_error_text(const void *ptr, const char* data_name, const char* error_message)
+{
+    SV *err_sv;
+    int res;
+
+    if(! error_message) {
+        /* If error message was not provided, this is serious error. Die immediately */
+        croak("Net::SSLeay: Error saving NULL error message in %s", data_name);
+    }
+    err_sv = newSVpv(error_message, 0);
+    res = cb_data_advanced_put(ptr, data_name, err_sv);
+    if (res == 0) {
+        /* If we have error in saving error, we just die */
+        SvREFCNT_dec(err_sv);
+        croak("Net::SSLeay: Error saving '%s' error message in %s", error_message, data_name);
+    }
+}
+
+/* When error is SV, probably caught by `call_sv` with `G_EVAL` */
+static void cb_data_advanced_stash_error_sv(const void *ptr, const char* data_name, SV *err_sv)
+{
+    int res;
+    res = cb_data_advanced_put(ptr, data_name, err_sv);
+    if (res == 0) {
+        /* If we have error in saving error, we just die */
+        SvREFCNT_dec(err_sv);
+        croak("Net::SSLeay: Error saving error SV in %s", data_name);
+    }
+}
+
+/* Get error from global callback data and forget about it */
+static SV* cb_data_advanced_pop_error(const void *ptr, const char* data_name)
+{
+    SV * sv;
+    HV * L2HV = cb_data_advanced__l2hv(ptr, 0);
+
+    if (L2HV == NULL) return &PL_sv_undef; /* Pass through error result */
+
+    /* get stored data */
+    sv = hv_delete(L2HV, data_name, strlen(data_name), 0);
+    if (sv == NULL) return &PL_sv_undef;
+    if (!SvOK(sv)) return &PL_sv_undef;
+
+    return sv;
 }
 
 /* ============= callback stuff - invoke functions ============== */
@@ -684,46 +819,59 @@ static int ssleay_ctx_passwd_cb_invoke(char *buf, int size, int rwflag, void *us
 static int ssleay_ssl_passwd_cb_invoke(char *buf, int size, int rwflag, void *userdata)
 {
     dSP;
-    int count = -1;
-    char *res;
+    char *string;
+    int res, eval_mode;
     SV *cb_func, *cb_data;
 
     PR1("STARTED: ssleay_ssl_passwd_cb_invoke\n");
     cb_func = cb_data_advanced_get(userdata, "ssleay_ssl_passwd_cb!!func");
     cb_data = cb_data_advanced_get(userdata, "ssleay_ssl_passwd_cb!!data");
+    eval_mode = SvOK(cb_data_advanced_get(userdata, "ssleay_ssl_passwd_cb!!eval_mode"));
 
-    if(!SvOK(cb_func))
-        croak ("Net::SSLeay: ssleay_ssl_passwd_cb_invoke called, but not set to point to any perl function.\n");
+    if(!SvOK(cb_func)) {
+        static const char * message = "Net::SSLeay: ssleay_ssl_passwd_cb_invoke called, but not set to point to any perl function.";
+        if (eval_mode) {
+            cb_data_advanced_stash_error_text(userdata, "ssleay_ssl_passwd_cb!!error", message);
+            return -1;
+        } else {
+            croak("%s", message);
+        }
+    }
 
     ENTER;
     SAVETMPS;
+    if (eval_mode)
+        save_scalar(PL_errgv); /* like "local $@": create local copy of $@ since */
+                               /* G_EVAL will destroy previous value */
 
     PUSHMARK(sp);
     XPUSHs(sv_2mortal(newSViv(rwflag)));
     XPUSHs(sv_2mortal(newSVsv(cb_data)));
     PUTBACK;
 
-    count = call_sv( cb_func, G_SCALAR );
+    if (eval_mode)
+        (void)call_sv( cb_func, G_SCALAR | G_EVAL );
+    else
+        (void)call_sv( cb_func, G_SCALAR );
 
     SPAGAIN;
 
-    if (count != 1)
-        croak("Net::SSLeay: ssleay_ssl_passwd_cb_invoke perl function did not return a scalar.\n");
-
-    res = POPp;
-
-    if (res == NULL) {
-        *buf = '\0';
+    if ( eval_mode && (SvROK(ERRSV) || SvTRUE(ERRSV)) ) {
+        (void)POPs; /* Pop undef from stack */
+        cb_data_advanced_stash_error_sv(userdata, "ssleay_ssl_passwd_cb!!error", newSVsv(ERRSV));
+        res = -1;
     } else {
-        strncpy(buf, res, size);
+        string = POPp; /* always not NULL */
+        strncpy(buf, string, size);
         buf[size - 1] = '\0';
+        res = strlen(buf);
     }
 
     PUTBACK;
     FREETMPS;
     LEAVE;
 
-    return strlen(buf);
+    return res;
 }
 #endif /* !LibreSSL */
 #endif /* >= 1.1.0f */
@@ -1684,10 +1832,14 @@ int pem_password_cb_invoke(char *buf, int bufsize, int rwflag, void *data) {
 
         PUTBACK;
 
-        count = call_sv( cb->func, G_SCALAR );
+        count = call_sv( cb->func, G_SCALAR | G_EVAL );
 
         SPAGAIN;
 
+        if (SvTRUE(ERRSV)) {          /* In case of exception */
+            cb->err = newSVsv(ERRSV); /* Save copy of an exception */
+            return -1;
+        }
         buf[0] = 0; /* start with an empty password */
         if (count != 1) {
             croak("Net::SSLeay: pem_password_cb_invoke perl function did not return a scalar.\n");
@@ -1711,13 +1863,53 @@ int pem_password_cb_invoke(char *buf, int bufsize, int rwflag, void *data) {
     return str_len;
 }
 
-void ssleay_RSA_generate_key_cb_invoke(int i, int n, void* data)
+static int ssleay_RSA_generate_key_cb_invoke(int i, int n, BN_GENCB *gencb)
+{
+    dSP;
+    int res = 1;
+#if (OPENSSL_VERSION_NUMBER >= 0x10100001L && !defined(LIBRESSL_VERSION_NUMBER)) || (LIBRESSL_VERSION_NUMBER >= 0x2070000fL)
+    simple_cb_data_t* cb = (simple_cb_data_t *)BN_GENCB_get_arg(gencb);
+#else
+    simple_cb_data_t* cb = (simple_cb_data_t *)gencb->arg;
+#endif
+
+    if (cb->err) return 0; /* Foolproof: If we got exception in previous calls, we should ignore the rest */
+
+    /* PR1("STARTED: ssleay_RSA_generate_key_cb_invoke\n"); / * too noisy */
+    if (cb->func && SvOK(cb->func)) {
+        ENTER;
+        SAVETMPS;
+
+        PUSHMARK(sp);
+
+        XPUSHs(sv_2mortal( newSViv(i) ));
+        XPUSHs(sv_2mortal( newSViv(n) ));
+        if (cb->data) XPUSHs( cb->data );
+
+        PUTBACK;
+
+        call_sv( cb->func, G_VOID|G_DISCARD|G_EVAL );
+
+        SPAGAIN;
+        if (SvTRUE(ERRSV)) {          /* In case of exception */
+            cb->err = newSVsv(ERRSV); /* Save copy of an exception */
+            res = 0;                  /* Stop further key generation */
+        }
+
+        FREETMPS;
+        LEAVE;
+    }
+    return res;
+}
+
+#if OPENSSL_VERSION_NUMBER < 0x0090800fL
+void ssleay_RSA_generate_key_legacy_cb_invoke(int i, int n, void* data)
 {
     dSP;
     int count = -1;
     simple_cb_data_t* cb = (simple_cb_data_t*)data;
 
-    /* PR1("STARTED: ssleay_RSA_generate_key_cb_invoke\n"); / * too noisy */
+    /* PR1("STARTED: ssleay_RSA_generate_key_legacy_cb_invoke\n"); / * too noisy */
     if (cb->func && SvOK(cb->func)) {
         ENTER;
         SAVETMPS;
@@ -1733,7 +1925,7 @@ void ssleay_RSA_generate_key_cb_invoke(int i, int n, void* data)
         count = call_sv( cb->func, G_VOID|G_DISCARD );
 
         if (count != 0)
-            croak ("Net::SSLeay: ssleay_RSA_generate_key_cb_invoke "
+            croak ("Net::SSLeay: ssleay_RSA_generate_key_legacy_cb_invoke "
                    "perl function did return something in void context.\n");
 
         SPAGAIN;
@@ -1741,6 +1933,7 @@ void ssleay_RSA_generate_key_cb_invoke(int i, int n, void* data)
         LEAVE;
     }
 }
+#endif /*OPENSSL_VERSION_NUMBER < 0x0090800fL*/
 
 void ssleay_info_cb_invoke(const SSL *ssl, int where, int ret)
 {
@@ -2062,14 +2255,16 @@ int ossl_provider_do_all_cb_invoke(OSSL_PROVIDER *provider, void *cbdata) {
 
         PUTBACK;
 
-        count = call_sv(cb->func, G_SCALAR);
+        count = call_sv(cb->func, G_SCALAR|G_EVAL);
 
         SPAGAIN;
 
-        if (count != 1)
-          croak("Net::SSLeay: ossl_provider_do_all_cb_invoke perl function did not return a scalar\n");
-
-        ret = POPi;
+        if (SvTRUE(ERRSV)) {          /* In case of exception */
+            cb->err = newSVsv(ERRSV); /* Save copy of an exception */
+            ret = 0;                  /* Stop further processing */
+        } else {
+            ret = POPi;
+        }
 
         PUTBACK;
         FREETMPS;
@@ -2993,9 +3188,35 @@ SSL_use_PrivateKey_ASN1(pk,s,d,len)
 
 int
 SSL_use_PrivateKey_file(s,file,type)
-     SSL *              s
-     char *             file
-     int                type
+        SSL *	s
+        char *  file
+        int     type
+    PREINIT:
+        SV *    err;
+        int     prev_eval_mode = 0;
+        int     cb_exists;
+    CODE:
+        cb_exists = SvOK(cb_data_advanced_get(s, "ssleay_ssl_passwd_cb!!func"));
+        if (cb_exists) {
+            prev_eval_mode = SvOK(cb_data_advanced_get(s, "ssleay_ssl_passwd_cb!!eval_mode"));
+            cb_data_advanced_put_strict(s, "ssleay_ssl_passwd_cb!!eval_mode", newSViv(1), "SSL_use_PrivateKey_file");
+        }
+
+        RETVAL = SSL_use_PrivateKey_file(s, file, type);
+
+        if (cb_exists) {
+            if (!prev_eval_mode)
+                cb_data_advanced_put_strict(s, "ssleay_ssl_passwd_cb!!eval_mode", NULL, "SSL_use_PrivateKey_file");
+
+            err = cb_data_advanced_pop_error(s, "ssleay_ssl_passwd_cb!!error");
+            if (SvOK(err)) {
+                /* Rethrow stashed error */
+                sv_setsv(ERRSV, err);
+                croak(NULL);
+            }
+        }
+    OUTPUT:
+        RETVAL
 
 int
 SSL_CTX_use_PrivateKey_file(ctx,file,type)
@@ -7067,16 +7288,27 @@ RSA_generate_key(bits,ee,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
 	   RSA_free(ret);
 	   croak("Net::SSLeay: RSA_generate_key perl function could not create BN_GENCB structure.\n");
        }
-       BN_GENCB_set_old(new_cb, ssleay_RSA_generate_key_cb_invoke, cb_data);
+       BN_GENCB_set(new_cb, ssleay_RSA_generate_key_cb_invoke, cb_data);
        rc = RSA_generate_key_ex(ret, bits, e, new_cb);
        BN_GENCB_free(new_cb);
 #else
-       BN_GENCB_set_old(&new_cb, ssleay_RSA_generate_key_cb_invoke, cb_data);
+       BN_GENCB_set(&new_cb, ssleay_RSA_generate_key_cb_invoke, cb_data);
        rc = RSA_generate_key_ex(ret, bits, e, &new_cb);
 #endif
-       simple_cb_data_free(cb_data);
        BN_free(e);
-       if (rc == -1 || ret == NULL) {
+
+       if (cb_data->err) {
+           SV *err = cb_data->err; /* restash exception as DESTROY of scalars in cb_data may spoil $@ when freed */
+           cb_data->err = NULL;
+           RSA_free(ret);
+           simple_cb_data_free(cb_data);
+           sv_setsv(ERRSV, err); /* Put stashed exception back to $@ */
+           SvREFCNT_dec(err);
+           croak(NULL);
+       }
+       simple_cb_data_free(cb_data);
+
+       if (rc != 1 || ret == NULL) {
            if (ret) RSA_free(ret);
            croak("Net::SSLeay: Couldn't generate RSA key");
        }
@@ -7097,7 +7329,7 @@ RSA_generate_key(bits,e,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
         simple_cb_data_t* cb = NULL;
     CODE:
         cb = simple_cb_data_new(perl_cb, perl_data);
-        RETVAL = RSA_generate_key(bits, e, ssleay_RSA_generate_key_cb_invoke, cb);
+        RETVAL = RSA_generate_key(bits, e, ssleay_RSA_generate_key_legacy_cb_invoke, cb);
         simple_cb_data_free(cb);
     OUTPUT:
         RETVAL
@@ -7267,6 +7499,17 @@ PEM_read_bio_PrivateKey(bio,perl_cb=&PL_sv_undef,perl_data=&PL_sv_undef)
             /* setup our callback */
             cb = simple_cb_data_new(perl_cb, perl_data);
             RETVAL = PEM_read_bio_PrivateKey(bio, NULL, pem_password_cb_invoke, (void*)cb);
+            if (cb->err) {
+                SV *err = cb->err; /* restash exception as DESTROY of scalars from cb structure may spoil $@ when freed */
+                cb->err = NULL;
+                if (RETVAL) { /* Should never happen, just in case */
+                    EVP_PKEY_free(RETVAL);
+                }
+                simple_cb_data_free(cb);
+                sv_setsv(ERRSV, err); /* Put stashed exception back to $@ */
+                SvREFCNT_dec(err);
+                croak(NULL); /* Rethrow exception */
+            }
             simple_cb_data_free(cb);
         }
         else if (!SvOK(perl_cb) && SvOK(perl_data) && SvPOK(perl_data)) {
@@ -8894,6 +9137,14 @@ OSSL_PROVIDER_do_all(SV *libctx, SV *perl_cb, SV *perl_cbdata = &PL_sv_undef)
         /* setup our callback */
         cbdata = simple_cb_data_new(perl_cb, perl_cbdata);
         RETVAL = OSSL_PROVIDER_do_all(ctx, ossl_provider_do_all_cb_invoke, cbdata);
+        if (cbdata->err) {
+            SV *err = cbdata->err; /* restash exception as DESTROY of scalars in cbdata may spoil $@ when freed */
+            cbdata->err = NULL;
+            simple_cb_data_free(cbdata);
+            sv_setsv(ERRSV, err); /* Put stashed exception back to $@ */
+            SvREFCNT_dec(err);
+            croak(NULL);
+        }
         simple_cb_data_free(cbdata);
     OUTPUT:
         RETVAL

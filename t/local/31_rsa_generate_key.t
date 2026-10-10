@@ -8,7 +8,8 @@ plan tests => 14;
 initialise_libssl();
 
 lives_ok(sub {
-        Net::SSLeay::RSA_generate_key(2048, 0x10001);
+        my $rsa = Net::SSLeay::RSA_generate_key(2048, 0x10001);
+        Net::SSLeay::RSA_free($rsa);
 }, 'RSA_generate_key with valid callback');
 
 dies_like(sub {
@@ -19,7 +20,8 @@ dies_like(sub {
     my $called = 0;
 
     lives_ok(sub {
-            Net::SSLeay::RSA_generate_key(2048, 0x10001, \&cb);
+            my $rsa = Net::SSLeay::RSA_generate_key(2048, 0x10001, \&cb);
+            Net::SSLeay::RSA_free($rsa);
     }, 'RSA_generate_key with valid callback');
 
     cmp_ok( $called, '>', 0, 'callback has been called' );
@@ -44,7 +46,8 @@ dies_like(sub {
     my $userdata = 'foo';
 
     lives_ok(sub {
-            Net::SSLeay::RSA_generate_key(2048, 0x10001, \&cb_data, $userdata);
+            my $rsa = Net::SSLeay::RSA_generate_key(2048, 0x10001, \&cb_data, $userdata);
+            Net::SSLeay::RSA_free($rsa);
     }, 'RSA_generate_key with valid callback and userdata');
 
     cmp_ok( $called, '>', 0, 'callback has been called' );
