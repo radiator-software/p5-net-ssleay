@@ -1681,6 +1681,8 @@ int pem_password_cb_invoke(char *buf, int bufsize, int rwflag, void *data) {
     if (cb->func && SvOK(cb->func)) {
         ENTER;
         SAVETMPS;
+        save_scalar(PL_errgv); /* like "local $@": create local copy of $@ since */
+                               /* G_EVAL will destroy previous value */
 
         PUSHMARK(sp);
 
@@ -1737,6 +1739,8 @@ static int ssleay_RSA_generate_key_cb_invoke(int i, int n, BN_GENCB *gencb)
     if (cb->func && SvOK(cb->func)) {
         ENTER;
         SAVETMPS;
+        save_scalar(PL_errgv); /* like "local $@": create local copy of $@ since */
+                               /* G_EVAL will destroy previous value */
 
         PUSHMARK(sp);
 
@@ -2106,6 +2110,9 @@ int ossl_provider_do_all_cb_invoke(OSSL_PROVIDER *provider, void *cbdata) {
     if (cb->func && SvOK(cb->func)) {
         ENTER;
         SAVETMPS;
+
+        save_scalar(PL_errgv); /* like "local $@": create local copy of $@ since */
+                               /* G_EVAL will destroy previous value */
 
         PUSHMARK(SP);
         XPUSHs(sv_2mortal(newSViv(PTR2IV(provider))));
