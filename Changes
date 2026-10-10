@@ -17,6 +17,7 @@ Revision history for Perl extension Net::SSLeay.
 	- Fix 8 memory leaks in 45_exporter.t, caused by memory allocated to SSL_CTXs
 	  not being freed before they are garbage-collected. Thanks to NATARAJ (Nikolay
 	  Shaplov) for the patch.
+	- Ensure Net-SSLeay and its test suite behave correctly under Perl 5.44.
 
 1.97_01 2026-09-30
 	- Support for OpenSSL 4.0.0. Contributed by Michal Josef Špaček.
