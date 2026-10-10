@@ -1672,7 +1672,7 @@ int pem_password_cb_invoke(char *buf, int bufsize, int rwflag, void *data) {
     dSP;
     char *str;
     int count = -1;
-    size_t str_len = 0;
+    size_t res = 0;
     simple_cb_data_t* cb = (simple_cb_data_t*)data;
     /* this n_a is required for building with old perls: */
     STRLEN n_a;
@@ -1680,9 +1680,9 @@ int pem_password_cb_invoke(char *buf, int bufsize, int rwflag, void *data) {
     PR1("STARTED: pem_password_cb_invoke\n");
     if (cb->func && SvOK(cb->func)) {
         ENTER;
-        SAVETMPS;
         save_scalar(PL_errgv); /* like "local $@": create local copy of $@ since */
                                /* G_EVAL will destroy previous value */
+        SAVETMPS;
 
         PUSHMARK(sp);
 
@@ -1698,20 +1698,15 @@ int pem_password_cb_invoke(char *buf, int bufsize, int rwflag, void *data) {
 
         if (SvTRUE(ERRSV)) {          /* In case of exception */
             cb->err = newSVsv(ERRSV); /* Save copy of an exception */
-            return -1;
-        }
-        buf[0] = 0; /* start with an empty password */
-        if (count != 1) {
-            croak("Net::SSLeay: pem_password_cb_invoke perl function did not return a scalar.\n");
-        }
-        else {
+            res = -1;
+        } else {
+            buf[0] = 0; /* start with an empty password */
             str = POPpx;
-            str_len = strlen(str);
-            if (str_len+1 < bufsize) {
+            res = strlen(str);
+            if (res + 1 < bufsize) {
                 strcpy(buf, str);
-            }
-            else {
-                str_len = 0;
+            } else {
+                res = 0;   /* FIXME: should not we return -1 and stash error SV for croaking here? */
                 warn("Net::SSLeay: pem_password_cb_invoke password too long\n");
             }
         }
@@ -1720,7 +1715,7 @@ int pem_password_cb_invoke(char *buf, int bufsize, int rwflag, void *data) {
         FREETMPS;
         LEAVE;
     }
-    return str_len;
+    return res;
 }
 
 static int ssleay_RSA_generate_key_cb_invoke(int i, int n, BN_GENCB *gencb)
@@ -1738,9 +1733,9 @@ static int ssleay_RSA_generate_key_cb_invoke(int i, int n, BN_GENCB *gencb)
     /* PR1("STARTED: ssleay_RSA_generate_key_cb_invoke\n"); / * too noisy */
     if (cb->func && SvOK(cb->func)) {
         ENTER;
-        SAVETMPS;
         save_scalar(PL_errgv); /* like "local $@": create local copy of $@ since */
                                /* G_EVAL will destroy previous value */
+        SAVETMPS;
 
         PUSHMARK(sp);
 
@@ -2109,10 +2104,9 @@ int ossl_provider_do_all_cb_invoke(OSSL_PROVIDER *provider, void *cbdata) {
     PR1("STARTED: ossl_provider_do_all_cb_invoke\n");
     if (cb->func && SvOK(cb->func)) {
         ENTER;
-        SAVETMPS;
-
         save_scalar(PL_errgv); /* like "local $@": create local copy of $@ since */
                                /* G_EVAL will destroy previous value */
+        SAVETMPS;
 
         PUSHMARK(SP);
         XPUSHs(sv_2mortal(newSViv(PTR2IV(provider))));
