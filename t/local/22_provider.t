@@ -1,7 +1,7 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay (initialise_libssl);
+use Test::Net::SSLeay qw(dies_like initialise_libssl);
 
 # We don't do intialise_libssl() now because we want to want to
 # trigger automatic loading of the default provider.
@@ -17,7 +17,7 @@ use Test::Net::SSLeay (initialise_libssl);
 #initialise_libssl(); # Don't do this
 
 if (defined &Net::SSLeay::OSSL_PROVIDER_load) {
-    plan(tests => 16);
+    plan(tests => 17);
 } else {
     plan(skip_all => "no support for providers");
 }
@@ -91,6 +91,11 @@ local $ENV{OPENSSL_CONF} = '';
     my $null_provider = Net::SSLeay::OSSL_PROVIDER_load(undef, 'null');
     my $default_provider = Net::SSLeay::OSSL_PROVIDER_load(undef, 'default');
     my $cbdata = 'data for cb';
+
+    dies_like(sub {
+        #  Check for memory leaks in 'callback dies' case
+        Net::SSLeay::OSSL_PROVIDER_do_all(undef, sub { die "Callback test failure" }, $cbdata);
+    }, qr/Callback test failure/, 'OSSL_PROVIDER_do_all callback dies');
 
     Net::SSLeay::OSSL_PROVIDER_do_all(undef, \&all_cb, $cbdata);
     foreach my $provider ($null_provider, $default_provider)

@@ -3,9 +3,9 @@
 use lib 'inc';
 
 use Net::SSLeay;
-use Test::Net::SSLeay qw( data_file_path initialise_libssl );
+use Test::Net::SSLeay qw( dies_like data_file_path initialise_libssl );
 
-plan tests => 36;
+plan tests => 38;
 
 initialise_libssl();
 
@@ -53,6 +53,10 @@ sub callback_bad {
 
     is( $userdata, $key_password, 'received userdata properly' );
     return $key_password . 'incorrect'; # Return incorrect password
+}
+
+sub callback_with_exception {
+    die "This is an exception";
 }
 
 my $ctx_1 = Net::SSLeay::CTX_new();
@@ -111,7 +115,7 @@ if (exists &Net::SSLeay::set_default_passwd_cb)
 else
 {
   SKIP: {
-      skip('Do not have Net::SSLeay::set_default_passwd_cb', 19);
+      skip('Do not have Net::SSLeay::set_default_passwd_cb', 21);
     };
 }
 
@@ -135,6 +139,10 @@ sub test_ssl_funcs
     my $ssl_4 = Net::SSLeay::new($ctx_4);
     ok($ssl_4, 'SSL_new 4');
 
+    my $ctx_5 = Net::SSLeay::CTX_new();
+    my $ssl_5 = Net::SSLeay::new($ctx_5);
+    ok($ssl_5, 'SSL_new 5');
+
     $cb_1_calls = $cb_2_calls = $cb_3_calls = $cb_4_calls = $cb_bad_calls = 0;
     $key_password = 'test';
 
@@ -145,6 +153,13 @@ sub test_ssl_funcs
     Net::SSLeay::set_default_passwd_cb_userdata($ssl_2, \$key_password);
 
     Net::SSLeay::set_default_passwd_cb($ssl_3, \&callback3);
+
+    Net::SSLeay::set_default_passwd_cb($ssl_5, \&callback_with_exception);
+
+    dies_like(sub {
+        # Check for memory leaks in 'callback dies' case
+        Net::SSLeay::use_PrivateKey_file($ssl_5, $key_pem, &Net::SSLeay::FILETYPE_PEM);
+    }, qr/This is an exception/, 'use_PrivateKey_file dies when password callback dies');
 
     ok( Net::SSLeay::use_PrivateKey_file($ssl_1, $key_pem, &Net::SSLeay::FILETYPE_PEM),
         'use_PrivateKey_file works with right passphrase and userdata' );
