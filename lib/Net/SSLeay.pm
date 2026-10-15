@@ -922,6 +922,7 @@ my @functions = qw(
     get_time
     get_timeout
     get_wbio
+    group_to_name
     i2d_SSL_SESSION
     load_error_strings
     make_form
