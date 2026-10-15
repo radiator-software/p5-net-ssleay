@@ -7976,6 +7976,14 @@ X509_VERIFY_PARAM_get0_peername(param)
 
 #endif /* OpenSSL 1.0.2-beta2, LibreSSL 2.7.0 */
 
+#if OPENSSL_VERSION_NUMBER >= 0x1010000fL && !defined(LIBRESSL_VERSION_NUMBER) /* OpenSSL 1.1.0 */
+
+unsigned int
+X509_VERIFY_PARAM_get_hostflags(param)
+    X509_VERIFY_PARAM *param
+
+#endif
+
 #if !defined(LIBRESSL_VERSION_NUMBER) || (LIBRESSL_VERSION_NUMBER < 0x3080000fL) /* LibreSSL < 3.8.0 */
 void
 X509_policy_tree_free(tree)

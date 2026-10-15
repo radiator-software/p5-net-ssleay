@@ -892,6 +892,8 @@ my @functions = qw(
     X509_load_cert_crl_file
     X509_load_cert_file
     X509_load_crl_file
+    X509_VERIFY_PARAM_get_flags
+    X509_VERIFY_PARAM_get_hostflags
     accept
     clear
     connect

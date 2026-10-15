@@ -8781,6 +8781,21 @@ The flags for controlling wildcard checks and other features are defined in Open
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_VERIFY_PARAM_set_flags.html>
 
+=item * X509_VERIFY_PARAM_get_hostflags
+
+B<COMPATIBILITY:> requires atleast OpenSSL 1.1.0; not supported by LibreSSL
+
+Returns the current host flags set in $param.
+
+    my $flags = Net::SSLeay::X509_VERIFY_PARAM_get_hostflags($param);
+    # $param - value corresponding to openssl's X509_VERIFY_PARAM structure
+    #
+    # returns: (unsigned int) current host flags (bitmask)
+
+For more details about returned flags bitmask see L</X509_VERIFY_PARAM_set_flags>.
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/X509_VERIFY_PARAM_set_flags.html>
+
 =item * X509_VERIFY_PARAM_set_purpose
 
 Sets the verification purpose in $param to $purpose. This determines the acceptable purpose
