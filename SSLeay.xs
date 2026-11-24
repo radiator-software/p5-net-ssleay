@@ -3247,6 +3247,27 @@ SSL_get_peer_cert_chain(s)
 	    XPUSHs(sv_2mortal(newSViv(PTR2IV(x))));
 	}
 
+#if (!defined(LIBRESSL_VERSION_NUMBER) && (OPENSSL_VERSION_NUMBER >= 0x1010000fL)) || (defined(LIBRESSL_VERSION_NUMBER) && (LIBRESSL_VERSION_NUMBER >= 0x3050000fL))
+
+void
+SSL_get_verified_chain(s)
+     SSL *              s
+    PREINIT:
+        STACK_OF(X509) *chain = NULL;
+        X509 *x;
+	int i;
+    PPCODE:
+	chain = SSL_get0_verified_chain(s);
+	if( chain == NULL ) {
+	    XSRETURN_EMPTY;
+	}
+	for (i=0; i<sk_X509_num(chain); i++) {
+	    x = sk_X509_value(chain, i);
+	    XPUSHs(sv_2mortal(newSViv(PTR2IV(x))));
+	}
+
+#endif
+
 void
 SSL_set_verify(s,mode,callback)
         SSL * s

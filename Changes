@@ -18,6 +18,8 @@ Revision history for Perl extension Net::SSLeay.
 	  not being freed before they are garbage-collected. Thanks to NATARAJ (Nikolay
 	  Shaplov) for the patch.
 	- Ensure Net-SSLeay and its test suite behave correctly under Perl 5.44.
+	- Expose SSL_get0_verified_chain as get_verified_chain. Requires at least
+	  OpenSSL 1.1.0 or LibreSSL 3.5.0.
 
 1.97_01 2026-09-30
 	- Support for OpenSSL 4.0.0. Contributed by Michal Josef Špaček.
