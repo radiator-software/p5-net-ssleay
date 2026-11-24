@@ -480,9 +480,13 @@ simple_cb_data_t* simple_cb_data_new(SV* func, SV* data)
     New(0, cb, 1, simple_cb_data_t);
     if (cb) {
         SvREFCNT_inc(func);
-        SvREFCNT_inc(data);
         cb->func = func;
-        cb->data = (data == &PL_sv_undef) ? NULL : data;
+        if (data != &PL_sv_undef) {
+            SvREFCNT_inc(data);
+            cb->data = data;
+        } else {
+            cb->data = NULL;
+        }
     }
     return cb;
 }
@@ -1626,6 +1630,7 @@ int alpn_select_cb_invoke(SSL *ssl, const unsigned char **out, unsigned char *ou
           alpn_len = strlen((const char*)alpn_data);
           if (alpn_len <= 255) {
             tmpsv = newSVpv((const char*)alpn_data, alpn_len);
+            cb_data_advanced_put(ssl, "alpn_select_cb!!last_selected", tmpsv);
             *out = (unsigned char *)SvPVX(tmpsv);
             *outlen = alpn_len;
           }
@@ -2284,6 +2289,7 @@ X509 * find_issuer(X509 *cert,X509_STORE *store, STACK_OF(X509) *chain) {
 	    if ( X509_check_issued(sk_X509_value(chain,i),cert) == X509_V_OK ) {
 		TRACE(2,"found issuer in chain");
 		issuer = X509_dup(sk_X509_value(chain,i));
+		break;
 	    }
 	}
     }
@@ -4681,6 +4687,7 @@ X509_get_subjectAltNames(cert)
                          count++;
                          PUSHs(sv_2mortal(newSViv(subjAltNameDN->type)));
                          PUSHs(sv_2mortal(newSVpv((buf), strlen((buf)))));
+                         OPENSSL_free(buf);
                          }
                          break;
 
@@ -8752,7 +8759,7 @@ SSL_CTX_set_alpn_protos(ctx,data=&PL_sv_undef)
         SV * data
     PREINIT:
         unsigned char *alpn_data;
-        unsigned char alpn_len;
+        int alpn_len;
 
     CODE:
         RETVAL = -1;
@@ -8776,7 +8783,7 @@ SSL_set_alpn_protos(ssl,data=&PL_sv_undef)
         SV * data
     PREINIT:
         unsigned char *alpn_data;
-        unsigned char alpn_len;
+        int alpn_len;
 
     CODE:
         RETVAL = -1;

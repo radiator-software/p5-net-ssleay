@@ -1724,6 +1724,7 @@ cleanup2:
     CTX_free ($ctx);
     $errs .= print_errs('CTX_free');
     close SSLCAT_S;
+    X509_free($server_cert) if $server_cert && !wantarray;
     return wantarray ? ($got, $errs, $server_cert) : $got;
 }
 
@@ -1849,6 +1850,7 @@ cleanup2:
     CTX_free ($ctx);
     $errs .= print_errs('CTX_free');
     close SSLCAT_S;
+    X509_free($server_cert) if $server_cert && !wantarray;
     return wantarray ? ($got, $errs, $server_cert) : $got;
 }
 
