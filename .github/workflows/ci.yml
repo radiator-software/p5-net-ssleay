@@ -34,6 +34,7 @@ jobs:
       fail-fast: false
       matrix:
         perl:
+          - '5.44'
           - '5.42'
           - '5.40'
           - '5.38'
@@ -53,10 +54,11 @@ jobs:
           - '5.10'
           - '5.8'
         openssl:
-          - '3.6.1'
-          - '3.5.5'
-          - '3.4.4'
-          - '3.3.6'
+          - '4.0.2'
+          - '3.6.4'
+          - '3.5.8'
+          - '3.4.7'
+          - '3.3.7'
           - '3.2.6'
           - '3.1.8'
           - '3.0.19'
@@ -109,6 +111,7 @@ jobs:
       fail-fast: false
       matrix:
         perl:
+          - '5.44'
           - '5.42'
           - '5.40'
           - '5.38'
@@ -179,6 +182,7 @@ jobs:
       fail-fast: false
       matrix:
         perl:
+          - '5.44'
           - '5.42'
           - '5.40'
           - '5.38'
@@ -251,6 +255,7 @@ jobs:
       fail-fast: false
       matrix:
         perl:
+          - '5.44'
           - '5.42'
           - '5.40'
           - '5.38'
@@ -270,6 +275,7 @@ jobs:
           - '5.10'
           - '5.8'
         libressl:
+          - '4.3.2'
           - '4.2.1'
           - '4.1.2'
           - '4.0.0'
@@ -383,7 +389,7 @@ jobs:
           image: tonistiigi/binfmt:latest
           platforms: all
       - name: Run tests on ${{ matrix.platform.name }}
-        run: docker run --rm --interactive --platform ${{ matrix.platform.docker_platform }} --mount type=bind,source=$(pwd),target=/host ${{ matrix.platform.name }}/ubuntu:latest bash -c "apt update && apt install -y cpanminus make gcc openssl libssl-dev zlib1g-dev && perl -V && cd /host && cpanm --notest --verbose --installdeps . || find /root/.cpanm/work/ -type f | xargs cat; perl Makefile.PL && make test"
+        run: docker run --rm --interactive --platform ${{ matrix.platform.docker_platform }} --mount type=bind,source=$(pwd),target=/host ${{ matrix.platform.name }}/ubuntu:latest bash -c 'apt update && apt install -y cpanminus make gcc openssl libssl-dev zlib1g-dev && . /etc/os-release && if [ "$(echo $VERSION_ID | cut -d. -f1)" -ge 24 ]; then apt install -y libcrypt-dev; fi && perl -V && cd /host && cpanm --notest --verbose --installdeps . || find /root/.cpanm/work/ -type f | xargs cat; perl Makefile.PL && make test'
 
   BSDs:
     runs-on: ubuntu-latest
@@ -428,11 +434,11 @@ jobs:
             pkginstall: pkg_add curl
           - name: netbsd
             pretty_name: NetBSD
-            version: '9.4'
+            version: '10.1'
             pkginstall: sudo pkgin update && sudo pkgin -y install p5-App-cpanminus
           - name: netbsd
             pretty_name: NetBSD
-            version: '10.1'
+            version: '11.0'
             pkginstall: sudo pkgin update && sudo pkgin -y install p5-App-cpanminus
 
     steps:

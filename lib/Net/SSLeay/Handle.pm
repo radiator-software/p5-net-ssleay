@@ -23,7 +23,7 @@ handled as standard file handles.
 
   tie(*SSL, "Net::SSLeay::Handle", $host, $port);
 
-  print SSL "GET / HTTP/1.0\r\n";
+  print SSL "GET / HTTP/1.0\r\n\r\n";
   shutdown(\*SSL, 1);
   print while (<SSL>);
   close SSL;                                                       
@@ -33,7 +33,7 @@ handled as standard file handles.
 Net::SSLeay::Handle allows you to request and receive HTTPS web pages
 using "old-fashion" file handles as in:
 
-    print SSL "GET / HTTP/1.0\r\n";
+    print SSL "GET / HTTP/1.0\r\n\r\n";
 
 and
 
@@ -57,7 +57,7 @@ you need to add to your program is the tie function as in:
 use vars qw(@ISA @EXPORT_OK $VERSION);
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(shutdown);
-$VERSION = '1.96';
+$VERSION = '1.97_01';
 
 my $Initialized;       #-- only _initialize() once
 my $Debug = 0;         #-- pretty hokey
@@ -95,6 +95,13 @@ sub TIEHANDLE {
     }, $class;
 
     return $self;
+}
+
+sub DESTROY {
+    my $self = shift;
+    # Clean up if the handle has not explicitly been closed.
+    Net::SSLeay::free ($self->{ssl}) if defined $self->{ssl};
+    Net::SSLeay::CTX_free ($self->{ctx}) if defined $self->{ctx};
 }
 
 sub PRINT {
@@ -155,7 +162,9 @@ sub CLOSE {
     my $fileno = $self->{fileno};
     $Debug > 10 and print "close($fileno)\n";
     Net::SSLeay::free ($self->{ssl});
+    undef $self->{ssl};
     Net::SSLeay::CTX_free ($self->{ctx});
+    undef $self->{ctx};
     close $self->{socket};
 }
 
@@ -207,7 +216,7 @@ sub debug {
 
   my $sock = Net::SSLeay::Handle->make_socket($host, $port);
 
-Creates a socket that is connected to $post using $port. It uses
+Creates a socket that is connected to $host using $port. It uses
 $Net::SSLeay::proxyhost and proxyport if set and authentificates itself against
 this proxy depending on $Net::SSLeay::proxyauth. It also turns autoflush on for
 the created socket.
@@ -322,7 +331,7 @@ non-SSL sockets and do the right thing.
 
   tie(*SSL, "Net::SSLeay::Handle", $host, $port);
 
-  print SSL "GET / HTTP/1.0\r\n";
+  print SSL "GET / HTTP/1.0\r\n\r\n";
   shutdown(\*SSL, 1);
   print while (<SSL>);
   close SSL; 

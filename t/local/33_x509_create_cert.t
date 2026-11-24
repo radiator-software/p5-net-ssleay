@@ -5,7 +5,7 @@ use Test::Net::SSLeay qw( data_file_path initialise_libssl is_openssl );
 
 use utf8;
 
-plan tests => 141;
+plan tests => 142;
 
 initialise_libssl();
 
@@ -45,6 +45,11 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
      $bn = Net::SSLeay::BN_dup($params[1]);
      $r = Crypt::OpenSSL::Bignum->bless_pointer($bn);
      is($r->to_decimal(), Net::SSLeay::RSA_F4(), 'Crypt::OpenSSL::Bignum exponent twice');
+  }
+
+  # Free the memory allocated to the BIGNUMs returned by RSA_get_key_parameters.
+  for (@params) {
+    Net::SSLeay::BN_free($_);
   }
  
   ok(my $x509  = Net::SSLeay::X509_new(), "X509_new");
@@ -242,6 +247,7 @@ is(Net::SSLeay::X509_NAME_cmp($ca_issuer, $ca_subject), 0, "X509_NAME_cmp");
   ok(Net::SSLeay::X509_set_subject_name($x509ss, Net::SSLeay::X509_REQ_get_subject_name($req)), "X509_set_subject_name + X509_REQ_get_subject_name");
   
   ok(Net::SSLeay::P_X509_copy_extensions($req, $x509ss), "P_X509_copy_extensions");
+  ok(Net::SSLeay::P_X509_copy_extensions($req, $x509ss, 0), "P_X509_copy_extensions with override=0 (delete+replace)");
     
   ok(my $tmppkey = Net::SSLeay::X509_REQ_get_pubkey($req), "X509_REQ_get_pubkey");
   ok(Net::SSLeay::X509_set_pubkey($x509ss,$tmppkey), "X509_set_pubkey");
