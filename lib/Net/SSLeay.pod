@@ -4346,10 +4346,31 @@ Example:
 
     my @chain = Net::SSLeay::get_peer_cert_chain($ssl);
     foreach my $x509 (@chain) {
-        print Net::SSLeay::X509_NAME_oneline(Net::SSLeay::X509_get_subject_name($cert)) . "\n";
+        print Net::SSLeay::X509_NAME_oneline(Net::SSLeay::X509_get_subject_name($x509)) . "\n";
     }
 
 Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_get_peer_cert_chain.html>
+
+=item * get_verified_chain
+
+B<COMPATIBILITY:> not available in Net-SSLeay-1.97_01 and before; requires at least OpenSSL 1.1.0 or at least LibreSSL 3.5.0
+
+Get the verified certificate chain of the peer, i.e. the chain built during
+certificate verification, including the peer certificate and the trust anchor.
+
+    my @chain = Net::SSLeay::get_verified_chain($ssl);
+    # $ssl - value corresponding to openssl's SSL structure
+    #
+    # returns: list of X509 structures, empty if no chain was verified
+
+Example:
+
+    my @chain = Net::SSLeay::get_verified_chain($ssl);
+    foreach my $x509 (@chain) {
+        print Net::SSLeay::X509_NAME_oneline(Net::SSLeay::X509_get_subject_name($x509)) . "\n";
+    }
+
+Check openssl doc L<https://www.openssl.org/docs/manmaster/man3/SSL_get0_verified_chain.html>
 
 =item * get_quiet_shutdown
 
